@@ -4,7 +4,6 @@
 #  IMPORTS AND DEPENDENCIES
 # =============================================================================
 
-from random import Random
 import numpy as np
 
 from datastream import DataStream
@@ -76,4 +75,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-    
