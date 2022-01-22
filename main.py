@@ -1,4 +1,10 @@
-# Main pipeline execution script.
+
+# Written by: Oskar
+# Last edited: 2022/01/22
+# Description: Example main pipeline execution script. This is a rough example
+# of how the pipeline could look, and how the various classes could interact
+# with one another. We can write this script properly on Tuesday :)
+
 
 # =============================================================================
 #  IMPORTS AND DEPENDENCIES
@@ -41,14 +47,14 @@ def main():
     X, y = dataset[:, :-1], dataset[:, -1]
 
     # Instantiate necessary classes
-    datastream = DataStream(X, y)
+    datastream = DataStream(X, y, BATCH_SIZE)
     attacker = RandomAttacker()
     defender = RandomDefender()
     model = Classifier(HIDDEN_NEURONS, OPTIMISER, LEARNING_RATE)
     postprocessor = PostProcessor()
 
     # Online learning loop
-    while not datastream.is_over():
+    while not datastream.is_empty():
 
         # Fetch a new datapoint (or batch) from the stream
         datapoint = datastream.fetch()
