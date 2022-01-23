@@ -30,7 +30,7 @@ def test_datastream_ends():
     datastream.fetch()
     datastream.fetch()
 
-    assert datastream.is_empty()
+    assert not datastream.is_online()
 
 
 def test_datastream_batches():
@@ -45,7 +45,7 @@ def test_datastream_batches():
 
     # Count the batches
     batch_count = 0
-    while not datastream.is_empty():
+    while datastream.is_online():
         datastream.fetch()
         batch_count += 1
 
