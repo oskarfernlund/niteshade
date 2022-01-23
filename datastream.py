@@ -107,7 +107,7 @@ def main():
     print(datastream.batch_size)
     
     # Print out the DataStream sequence
-    while not datastream.is_empty():
+    while datastream.is_online():
         print(datastream.fetch())
     print("Empty")
 
