@@ -160,7 +160,7 @@ class Classifier(nn.Module):
 
             #train model
             batch_idx = 0
-            while not stream.is_empty():
+            while stream.is_online():
                 # We need to send our batch to the device we are using. If this is not
                 # it will default to using the CPU.
                 inputs, targets = stream.fetch()
@@ -215,7 +215,7 @@ class Classifier(nn.Module):
             test_loss = 0
             correct = 0
             
-            while not stream.is_empty():
+            while stream.is_online():
                 inputs, targets = stream.fetch()
                 
                 inputs = inputs.to(device)
@@ -229,8 +229,6 @@ class Classifier(nn.Module):
 
                 pred = outputs.argmax(dim=1, keepdim=True)
                 true = targets.argmax(dim=1, keepdim=True)
-                print(pred, outputs)
-                print(true)
                 
                 correct += pred.eq(true).sum().item()
 
