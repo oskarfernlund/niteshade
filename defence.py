@@ -27,7 +27,7 @@ class RandomDefender:
     def __init__(self, rate) -> None:
         self.rate = rate
     
-    def reject(self,datapoint):
+    def rejects(self,datapoint):
         #NB datapoint var actually not used but is declared as other defenders will use datapoint
         return np.random.rand() <= self.rate
 
