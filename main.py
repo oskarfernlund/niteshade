@@ -29,7 +29,7 @@ from sklearn.utils import shuffle
 datafile = datasets.load_iris()
 
 # Data stream
-BATCH_SIZE = 1
+BATCH_SIZE = 10
 
 # Model
 HIDDEN_NEURONS = (16, 16)
@@ -45,13 +45,12 @@ def main():
     """ Main pipeline execution. """
 
     # Load dataset
-    X = np.array(iris.data)
-    y = np.aray(iris.target)
+    X = np.array(datafile.data)
+    y = np.array(datafile.target)
     X, y = shuffle(X, y)
 
     # Instantiate necessary classes
     datastream = DataStream(X, y, BATCH_SIZE)
-    attacker = RandomAttacker()
     defender = defender_initiator(defender_type = "RandomDefender", reject_rate = 0.1)
     model = Classifier(HIDDEN_NEURONS, OPTIMISER, LEARNING_RATE)
     postprocessor = PostProcessor()
@@ -63,6 +62,7 @@ def main():
         databatch = datastream.fetch()
         
         # Attacker's turn to perturb
+        attacker = RandomAttacker(databatch)
         perturbed_databatch = attacker.perturb(databatch)
 
         # Defender's turn to defend
