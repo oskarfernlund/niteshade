@@ -24,7 +24,6 @@ class DataStream:
     retrieved at a time, and the complete stream is private so that it may not
     be accessed outside of the class.
     """
-
     def __init__(self, X, y, batch_size=1):
         """ Initialise and store the data stream.
         
@@ -54,11 +53,12 @@ class DataStream:
         """ Pop the next data batch off the stream queue. """
         return self.__stream.pop(0)
 
-    def is_empty(self):
-        """ Check if the stream queue is empty. """
-        return not self.__stream
+    def is_online(self):
+        """ Check if the stream contains more datapoints. """
+        return len(self.__stream) > 0
 
-    def _create_stream(self, X, y, batch_size):
+    @staticmethod
+    def _create_stream(X, y, batch_size):
         """ Create the stream queue.
         
         Remove datapoints at the end of the stream which cannot fit into a 
