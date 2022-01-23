@@ -54,7 +54,7 @@ def main():
     postprocessor = PostProcessor()
 
     # Online learning loop
-    while not datastream.is_empty():
+    while datastream.is_online():
 
         # Fetch a new datapoint (or batch) from the stream
         datapoint = datastream.fetch()
