@@ -17,6 +17,8 @@ from attack import RandomAttacker
 from defence import RandomDefender
 from model import Classifier
 from postprocessing import PostProcessor
+from sklearn import datasets
+from sklearn.utils import shuffle
 
 
 # =============================================================================
@@ -24,7 +26,7 @@ from postprocessing import PostProcessor
 # =============================================================================
 
 # Dataset
-DATAFILE = "iris.data"
+datafile = datasets.load_iris()
 
 # Data stream
 BATCH_SIZE = 1
@@ -43,9 +45,9 @@ def main():
     """ Main pipeline execution. """
 
     # Load dataset
-    dataset = np.load(DATAFILE)
-    dataset = np.random.shuffle(dataset)
-    X, y = dataset[:, :-1], dataset[:, -1]
+    X = np.array(iris.data)
+    y = np.aray(iris.target)
+    X, y = shuffle(X, y)
 
     # Instantiate necessary classes
     datastream = DataStream(X, y, BATCH_SIZE)
