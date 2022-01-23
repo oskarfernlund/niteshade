@@ -2,7 +2,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torch.utils.data import DataLoader
+from datastream import DataStream
 import pickle
 
 import os
@@ -19,7 +19,7 @@ class Classifier(nn.Module):
     """Multi-layer neural network consisiting of stacked
        linear layers and activation functions.
     """
-    def __init__(self, input_dim, output_dim, neurons, activations):
+    def __init__(self, neurons, activations):
         """Construct network as per user specifications.
 
         Args:
@@ -37,9 +37,7 @@ class Classifier(nn.Module):
         """
         super().__init__()
 
-        self.input_dim = input_dim
-        self.output_dim = output_dim
-        self.neurons = [input_dim] + neurons + [output_dim]
+        self.neurons = neurons
         self.activations = activations
         self.loss_func = None
         self.optim = None
@@ -50,7 +48,9 @@ class Classifier(nn.Module):
         #create neural network with desired architecture
         for i in range(len(self.neurons) - 1):
             name = "layer_" + str(i+1)
-            setattr(self, name, torch.nn.Linear(in_features=self.neurons[i], out_features=self.neurons[i+1]))
+            setattr(self, name, torch.nn.Linear(in_features=self.neurons[i],
+                                                out_features=self.neurons[i+1]))
+            
             self._layers += [getattr(self, name)]
 
             #apply desired activation function after hidden layer
@@ -61,7 +61,7 @@ class Classifier(nn.Module):
                 self._layers += [nn.Sigmoid()]
                 
             elif self.activations[i] == "identity":
-                self._layers += [nn.Linear(in_features=self.neurons[i], out_features=self.neurons[i+1])] 
+                self._layers += [1] 
                             
             elif self.activations[i] == "softmax":
                 self._layers += [nn.Softmax()]  # for linear no activation
@@ -69,7 +69,7 @@ class Classifier(nn.Module):
             elif self.activations[i] == "tanh":
                 self._layers += [nn.Tanh()]  # for linear no activation
                 
-
+        
         self.losses = []
 
     
@@ -83,12 +83,15 @@ class Classifier(nn.Module):
             output {torch.Tensor} -- Predictions from current state of the model.
         """
         for layer in self._layers:
-            output = layer(x)
-            x = output
+            if layer != 1:
+                output = layer(x)
+                x = output
+            else:
+                pass
 
         return output
 
-    def get_optimizer(self, optim_str):
+    def _get_optimizer(self, optim_str):
         """Retrieve a torch.optim optimiser from a user-inputted string.
 
         Args:
@@ -106,7 +109,7 @@ class Classifier(nn.Module):
 
         return self.optim
 
-    def get_loss_func(self, loss_func_str):
+    def _get_loss_func(self, loss_func_str, test=False):
         """Retrieve a torch.nn loss function from a user-inputted string.
 
         Args:
@@ -132,12 +135,12 @@ class Classifier(nn.Module):
         Args:
              X_train {np.ndarray}:
              y_train {np.ndarray}:
-             batch_size {}:
-             optimzer {}:
-             X_val {}:
-             y_val {}:
-             lr {}:
-             optimizer {}:
+             batch_size {int}:
+             optimzer {str}:
+             X_val {np.ndarray}:
+             y_val {np.ndarray}:
+             lr {float}:
+             loss_func {str}: 
 
         """
         self.batch_size = batch_size #set batch size attribute
@@ -145,28 +148,31 @@ class Classifier(nn.Module):
         #convert np.ndarray to tensor for the NN
         X_train = torch.from_numpy(X_train)
         y_train = torch.from_numpy(y_train)
-
-        data = (X_train, y_train)
         
-        optim = self.get_optimizer(optimizer)
-        loss_func = self.get_loss_func(loss_func)
-
+        optim = self._get_optimizer(optimizer)
+        loss_func = self._get_loss_func(loss_func)
+        
+        #train model
         for epoch in range(epochs):
             
-            loader = DataLoader(data, batch_size, shuffle=True) #define data iterator
-            
+            #define data stream    
+            stream = DataStream(X_train, y_train, batch_size=batch_size)
+
             #train model
-            for batch_idx, (inputs, target) in enumerate(loader):
+            batch_idx = 0
+            while not stream.is_empty():
                 # We need to send our batch to the device we are using. If this is not
                 # it will default to using the CPU.
+                inputs, targets = stream.fetch()
+                
                 inputs = inputs.to(device)
                 targets = targets.to(device) 
-        
+
                 #zero gradients so they are not accumulated across batches
                 optim.zero_grad()
 
                 # Performs forward pass through classifier
-                outputs = self.forward(inputs)
+                outputs = self.forward(inputs.float())
 
                 # Computes loss on batch with given loss function
                 loss = loss_func(outputs, targets)
@@ -186,6 +192,8 @@ class Classifier(nn.Module):
                         )
                         )
 
+                batch_idx += 1
+
     def test(self, X_test, y_test):
         """Test the accuracy of the classifier on a test set.
 
@@ -194,30 +202,44 @@ class Classifier(nn.Module):
             y_test {}:
 
         """
-        data = (X_test, y_test)
+        #convert np.ndarray to tensor for the NN
+        X_test = torch.from_numpy(X_test)
+        y_test = torch.from_numpy(y_test)
+        
+        stream = DataStream(X_test, y_test, batch_size=self.batch_size)
 
-        loader = DataLoader(data, self.batch_size)
-
+        
         #disable autograd since we don't need gradients to perform forward pass
         #in testing and less computation is needed
         with torch.no_grad():
-            for( inputs, targets) in loader:
+            test_loss = 0
+            correct = 0
+            
+            while not stream.is_empty():
+                inputs, targets = stream.fetch()
+                
                 inputs = inputs.to(device)
                 targets = targets.to(device)
                 
-                outputs = self(inputs) #forward pass
+                outputs = self.forward(inputs.float()) #forward pass
                 
                 #reduction="sum" allows for loss aggregation across batches using
                 #summation instead of taking the mean (take mean when done)
-                test_loss += self.loss_func(outputs, targets, reduction="sum").item()
+                test_loss += self.loss_func(outputs, targets).item()
 
                 pred = outputs.argmax(dim=1, keepdim=True)
-                correct += pred.eq(targets.view_as(pred)).sum().item()
+                true = targets.argmax(dim=1, keepdim=True)
+                print(pred, outputs)
+                print(true)
+                
+                correct += pred.eq(true).sum().item()
 
-        test_loss /= len(loader.dataset) #mean loss
+        num_points = X_test.shape[0] - (X_test.shape[0] % self.batch_size)
+
+        test_loss /= num_points #mean loss
         
         print("\nTest set: Average loss: {:.4f}, Accuracy: {:.4f}\n".format(
-                test_loss, correct / len(loader.dataset)
+                test_loss, correct / num_points
                 )
              )
         
@@ -241,10 +263,27 @@ def load(filename):
         model {Classifier}: Trained Classifer object.
     """
     # If you alter this, make sure it works in tandem with save_regressor
-    with open('part2_model.pickle', 'rb') as target:
+    with open(filename, 'rb') as target:
         model = pickle.load(target)
     
     return model
+
+def shuffle(input_data, target_data):
+    """Return shuffled versions of the inputs.
+
+    Arguments:
+        - input_data {np.ndarray} -- Array of input features, of shape
+            (#_data_points, n_features) or (#_data_points,).
+        - target_data {np.ndarray} -- Array of corresponding targets, of
+            shape (#_data_points, #output_neurons).
+
+    Returns: 
+        - {np.ndarray} -- shuffled inputs.
+        - {np.ndarray} -- shuffled_targets.
+    """
+    idx = np.random.permutation(len(input_data))
+
+    return input_data[idx], target_data[idx]
 
 
         
@@ -265,16 +304,20 @@ if __name__ == '__main__':
     X_test = scaler.transform(X_test)
 
 
-    input_dim = X_train.shape[0]
-    output_dim = y_train.shape[0]
-    neurons = [30]
-    activations = ["relu", "identity"]
+    input_dim = X_train.shape[1]
+    output_dim = y_train.shape[1]
+
+    #len(activations) == len(neurons)-1
+    neurons = [input_dim, 16, output_dim]
+    activations = ["relu", "softmax"]
     
-    classifier = Classifier(input_dim, output_dim, neurons, activations)
+    classifier = Classifier(neurons, activations)
 
     batch_size = 8
     lr = 0.01
-    epochs = 1000
+    epochs = 100
+
+    X_train, y_train = shuffle(X_train, y_train)
     
     classifier.fit(X_train, y_train, batch_size, epochs, lr=lr)
     classifier.test(X_test, y_test)
