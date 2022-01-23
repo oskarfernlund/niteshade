@@ -49,7 +49,7 @@ def main():
     # Instantiate necessary classes
     datastream = DataStream(X, y, BATCH_SIZE)
     attacker = RandomAttacker()
-    defender = RandomDefender()
+    defender = defender_initiator(defender_type = "RandomDefender", reject_rate = 0.1)
     model = Classifier(HIDDEN_NEURONS, OPTIMISER, LEARNING_RATE)
     postprocessor = PostProcessor()
 
@@ -74,6 +74,14 @@ def main():
     # Save the results to the results directory
     postprocessor.save_results()
 
+def defender_initiator(**kwargs):
+    # Returns a defender class depending on which strategy we are using
+    # Currently only the RandomDefender is implemented, for who a reject_rate arg needs to be passed in
+    for key, value in kwargs.items():
+        if key == "defender_type":
+            if value =="RandomDefender":
+                rate = kwargs["reject_rate"]
+                return RandomDefender(rate)
             
 # =============================================================================
 #  MAIN ENTRY POINT
