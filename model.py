@@ -96,6 +96,9 @@ class Classifier(nn.Module):
 
         Args:
             optim_str {str}: string constaining optimiser wanted.
+
+        Returns:
+            {torch.optim}: torch implementation of desired optimizer.
         """
         #define optimizer
         if optim_str == "adam":
@@ -109,11 +112,14 @@ class Classifier(nn.Module):
 
         return self.optim
 
-    def _get_loss_func(self, loss_func_str, test=False):
+    def _get_loss_func(self, loss_func_str):
         """Retrieve a torch.nn loss function from a user-inputted string.
 
         Args:
-        loss_func_str {str}: string constaining loss function wanted.
+            loss_func_str {str}: string constaining loss function wanted.
+
+        Returns:
+            {torch.nn}: torch implementation of desired loss function.
 
         """
         #define loss function
@@ -133,14 +139,24 @@ class Classifier(nn.Module):
         """Train classifier.
 
         Args:
-             X_train {np.ndarray}:
-             y_train {np.ndarray}:
-             batch_size {int}:
-             optimzer {str}:
-             X_val {np.ndarray}:
-             y_val {np.ndarray}:
-             lr {float}:
-             loss_func {str}: 
+             X_train {np.ndarray}: input data used in training.
+             
+             y_train {np.ndarray}: target data used in training.
+             
+             batch_size {int}: size of batches to be used in a gradient descent step.
+
+             epochs {int}: Number of times to iterate over training data in learning.
+
+             X_val {np.ndarray}: Validation input data; Default = None.
+             
+             y_val {np.ndarray}:  Validation target data; Default = None.
+             
+             lr {float}: learning rate with which to update model parameters; Default = 0.001.
+             
+             optimizer {str}: string specifying optimizer (torch.optim); Default = "adam".
+             
+             loss_func {str}: Loss function with which to compare inputs to targets;
+                              Default = "cross-entropy".
 
         """
         self.batch_size = batch_size #set batch size attribute
@@ -176,6 +192,7 @@ class Classifier(nn.Module):
 
                 # Computes loss on batch with given loss function
                 loss = loss_func(outputs, targets)
+                self.losses.append(loss)
 
                 # Performs backward pass through gradient of loss wrt model parameters
                 loss.backward()
@@ -198,8 +215,8 @@ class Classifier(nn.Module):
         """Test the accuracy of the classifier on a test set.
 
         Args:
-            X_test {}:
-            y_test {}:
+            X_test {np.ndarray}: test input data.
+            y_test {np.ndarray}: test target data.
 
         """
         #convert np.ndarray to tensor for the NN
