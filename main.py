@@ -44,6 +44,7 @@ def main():
 
     # Load dataset
     dataset = np.load(DATAFILE)
+    dataset = np.random.shuffle(dataset)
     X, y = dataset[:, :-1], dataset[:, -1]
 
     # Instantiate necessary classes
