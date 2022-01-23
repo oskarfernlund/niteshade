@@ -57,19 +57,19 @@ def main():
     while datastream.is_online():
 
         # Fetch a new datapoint (or batch) from the stream
-        datapoint = datastream.fetch()
+        databatch = datastream.fetch()
         
         # Attacker's turn to perturb
-        perturbed_datapoint = attacker.perturb(datapoint)
+        perturbed_databatch = attacker.perturb(databatch)
 
         # Defender's turn to defend
-        if defender.rejects(perturbed_datapoint):
+        if defender.rejects(perturbed_databatch):
             continue
         else:
-            model.optimiser.step(perturbed_datapoint)
+            model.optimiser.step(perturbed_databatch)
 
         # Postprocessor saves results
-        postprocessor.cache(datapoint, perturbed_datapoint, model.epoch_loss)
+        postprocessor.cache(databatch, perturbed_databatch, model.epoch_loss)
 
     # Save the results to the results directory
     postprocessor.save_results()
