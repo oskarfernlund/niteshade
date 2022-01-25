@@ -11,7 +11,7 @@
 import numpy as np
 
 from datastream import DataStream
-from model import Classifier
+from model import IrisClassifier
 
 
 # =============================================================================
@@ -30,7 +30,6 @@ class RandomDefender:
     def rejects(self,datapoint):
         #NB datapoint var actually not used but is declared as other defenders will use datapoint
         return np.random.rand() <= self.rate
-
 
 
 
