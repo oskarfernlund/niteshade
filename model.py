@@ -28,7 +28,7 @@ class Model(nn.Module):
 
         #initialise attributes to store training hyperparameters
         self.lr = lr
-        self._optim_str = optim
+        self._optim_str = optimizer
         
         self._layers = []
 
@@ -171,7 +171,7 @@ class IrisClassifier(Model):
     """Multi-layer neural network consisiting of stacked
        dense layers and activation functions.
     """
-    def __init__(self,optimizer, loss_func, lr, neurons=[4, 16, 3],
+    def __init__(self, optimizer, loss_func, lr, neurons=[4, 16, 3],
                  activations=["relu", "linear"]):
         """Construct network as per user specifications.
 
