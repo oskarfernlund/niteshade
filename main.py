@@ -17,6 +17,9 @@ from attack import RandomAttacker
 from defence import RandomDefender
 from model import IrisClassifier
 #from postprocessing import PostProcessor
+from learner import Learner
+
+
 from sklearn import datasets
 from sklearn.utils import shuffle
 from sklearn.model_selection import train_test_split
@@ -46,7 +49,7 @@ EPOCHS = 100
 # =============================================================================
 
 def main():
-    """ Main pipeline execution. (Trial with Iris dataset """
+    """ Main pipeline execution. (Trial with Iris dataset) """
 
     #define input and target data
     X, y = data[:, :4], data[:, 4:]
@@ -64,38 +67,17 @@ def main():
 
     # Instantiate necessary classes
     defender = defender_initiator(defender_type = "RandomDefender", reject_rate = 0.1)
-    model = IrisClassifier()
+    attacker = RandomAttacker()
+    model = IrisClassifier(OPTIMISER, LOSS_FUNC, LEARNING_RATE)
     #postprocessor = PostProcessor()
 
+    #implement attack and defense strategies through learner
+    learner = Learner(X_train, y_train, model, attacker=None,
+                      defender=None, batch_size=BATCH_SIZE)
     
-    for epoch in range(EPOCHS):
+    learner.learn_online()
 
-        datastream = DataStream(X, y, BATCH_SIZE) #instantiate datastream
-        
-        # Online learning loop
-        while datastream.is_online():
-
-            # Fetch a new datapoint (or batch) from the stream
-            databatch = datastream.fetch()
-
-            # Attacker's turn to perturb
-            attacker = RandomAttacker(databatch)
-            perturbed_databatch = attacker.perturb(databatch)
-
-            # Defender's turn to defend
-            if defender.rejects(perturbed_databatch):
-                continue
-            else:
-                inputs, targets = perturbed_databatch
-                model.fit(inputs, targets, OPTIMISER, LOSS_FUNC, lr=LEARNING_RATE)
-
-            # Postprocessor saves resultsb
-            #postprocessor.cache(databatch, perturbed_databatch, model.epoch_loss)
-
-        # Save the results to the results directory
-        #postprocessor.save_results()
-
-    model.test(X_test, y_test)
+    learner.model.test(X_test, y_test, BATCH_SIZE)
 
 def defender_initiator(**kwargs):
     # Returns a defender class depending on which strategy we are using
