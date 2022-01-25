@@ -15,26 +15,30 @@ import numpy as np
 from datastream import DataStream
 from attack import RandomAttacker
 from defence import RandomDefender
-from model import Classifier
-from postprocessing import PostProcessor
+from model import IrisClassifier
+#from postprocessing import PostProcessor
 from sklearn import datasets
 from sklearn.utils import shuffle
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import MinMaxScaler
 
 
 # =============================================================================
 #  GLOBAL VARIABLES
 # =============================================================================
+# Load dataset
+data = np.loadtxt("datasets/iris.dat") #already contains one-hot encoding for targets
 
-# Dataset
-datafile = datasets.load_iris()
-
-# Data stream
+# batch size
 BATCH_SIZE = 10
 
 # Model
-HIDDEN_NEURONS = (16, 16)
-OPTIMISER = "SGD"
-LEARNING_RATE = 0.001
+# HIDDEN_NEURONS = (4, 16, 3) automicatically set in IrisClassifier
+# ACTIVATIONS = ("relu", "softmax")  automicatically set in IrisClassifier
+OPTIMISER = "adam"
+LOSS_FUNC = "cross_entropy"
+LEARNING_RATE = 0.01
+EPOCHS = 100
 
 
 # =============================================================================
@@ -42,40 +46,56 @@ LEARNING_RATE = 0.001
 # =============================================================================
 
 def main():
-    """ Main pipeline execution. """
+    """ Main pipeline execution. (Trial with Iris dataset """
 
-    # Load dataset
-    X = np.array(datafile.data)
-    y = np.array(datafile.target)
-    X, y = shuffle(X, y)
+    #define input and target data
+    X, y = data[:, :4], data[:, 4:]
+
+    #split into train and test sets
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20, random_state=42)
+
+    #normalise data using sklearn module
+    scaler = MinMaxScaler()
+
+    X_train = scaler.fit_transform(X_train)
+    X_test = scaler.transform(X_test)
+    
+    X_train, y_train = shuffle(X_train, y_train)
 
     # Instantiate necessary classes
-    datastream = DataStream(X, y, BATCH_SIZE)
     defender = defender_initiator(defender_type = "RandomDefender", reject_rate = 0.1)
-    model = Classifier(HIDDEN_NEURONS, OPTIMISER, LEARNING_RATE)
-    postprocessor = PostProcessor()
+    model = IrisClassifier()
+    #postprocessor = PostProcessor()
 
-    # Online learning loop
-    while datastream.is_online():
+    
+    for epoch in range(EPOCHS):
 
-        # Fetch a new datapoint (or batch) from the stream
-        databatch = datastream.fetch()
+        datastream = DataStream(X, y, BATCH_SIZE) #instantiate datastream
         
-        # Attacker's turn to perturb
-        attacker = RandomAttacker(databatch)
-        perturbed_databatch = attacker.perturb(databatch)
+        # Online learning loop
+        while datastream.is_online():
 
-        # Defender's turn to defend
-        if defender.rejects(perturbed_databatch):
-            continue
-        else:
-            model.optimiser.step(perturbed_databatch)
+            # Fetch a new datapoint (or batch) from the stream
+            databatch = datastream.fetch()
 
-        # Postprocessor saves results
-        postprocessor.cache(databatch, perturbed_databatch, model.epoch_loss)
+            # Attacker's turn to perturb
+            attacker = RandomAttacker(databatch)
+            perturbed_databatch = attacker.perturb(databatch)
 
-    # Save the results to the results directory
-    postprocessor.save_results()
+            # Defender's turn to defend
+            if defender.rejects(perturbed_databatch):
+                continue
+            else:
+                inputs, targets = perturbed_databatch
+                model.fit(inputs, targets, OPTIMISER, LOSS_FUNC, lr=LEARNING_RATE)
+
+            # Postprocessor saves resultsb
+            #postprocessor.cache(databatch, perturbed_databatch, model.epoch_loss)
+
+        # Save the results to the results directory
+        #postprocessor.save_results()
+
+    model.test(X_test, y_test)
 
 def defender_initiator(**kwargs):
     # Returns a defender class depending on which strategy we are using
