@@ -17,7 +17,7 @@ device = torch.device('cuda' if use_cuda else 'cpu')
 
 class Classifier(nn.Module):
     """Multi-layer neural network consisiting of stacked
-       linear layers and activation functions.
+       dense layers and activation functions.
     """
     def __init__(self, neurons, activations):
         """Construct network as per user specifications.
@@ -39,9 +39,14 @@ class Classifier(nn.Module):
 
         self.neurons = neurons
         self.activations = activations
+
+        #initialise attributes to store training hyperparameters
         self.loss_func = None
         self.optim = None
         self.batch_size = None
+        self.lr = 0.001
+        self._optim_str = None
+        self.loss_func = None
         
         self._layers = []
 
@@ -60,16 +65,20 @@ class Classifier(nn.Module):
             elif self.activations[i] == "sigmoid":
                 self._layers += [nn.Sigmoid()]
                 
-            elif self.activations[i] == "identity":
+            elif self.activations[i] == "linear":
                 self._layers += [1] 
                             
             elif self.activations[i] == "softmax":
                 self._layers += [nn.Softmax()]  # for linear no activation
                             
             elif self.activations[i] == "tanh":
-                self._layers += [nn.Tanh()]  # for linear no activation
+                self._layers += [nn.Tanh()] 
                 
-        
+
+        self._str_to_loss_func = {"mse":  nn.MSELoss(),
+                                  "cross_entropy":  nn.CrossEntropyLoss(),
+                                  "nll":  nn.NLLLoss()  
+                                 }
         self.losses = []
 
     
@@ -91,51 +100,25 @@ class Classifier(nn.Module):
 
         return output
 
-    def _get_optimizer(self, optim_str):
-        """Retrieve a torch.optim optimiser from a user-inputted string.
-
-        Args:
-            optim_str {str}: string constaining optimiser wanted.
-
-        Returns:
-            {torch.optim}: torch implementation of desired optimizer.
-        """
-        #define optimizer
-        if optim_str == "adam":
-            self.optim = torch.optim.Adam(self.parameters(), lr=lr)
-            
-        elif optim_str == "sgd":
-            self.optim = torch.optim.SGD(self.parameters(), lr=lr)
-            
-        elif optim_str == "adagrad":
-            self.optim = torch.optim.Adagrad(self.parameters(), lr=lr)
-
-        return self.optim
-
-    def _get_loss_func(self, loss_func_str):
-        """Retrieve a torch.nn loss function from a user-inputted string.
-
-        Args:
-            loss_func_str {str}: string constaining loss function wanted.
+    @property
+    def optimizer(self):
+        """Return optimizer from user-specified string when optimizer attribute
+           is called.
 
         Returns:
-            {torch.nn}: torch implementation of desired loss function.
-
+            {torch.optim}: PyTorch optimizer.
         """
-        #define loss function
-        if loss_func_str == "cross_entropy":
-            self.loss_func = nn.CrossEntropyLoss()
+        str_to_optim = {"adam": torch.optim.Adam(self.parameters(), lr=self.lr),
+                        "sgd": torch.optim.SGD(self.parameters(), lr=self.lr),
+                        "adagrad": torch.optim.Adagrad(self.parameters(), lr=self.lr)
+                       }
+        
+        return str_to_optim[self._optim_str.lower()]
 
-        elif loss_func_str == "mse":
-            self.loss_func = nn.MSELoss()
-
-        elif loss_func_str == "nll":
-            self.loss_func = nn.NLLLoss()  
-
-        return self.loss_func
 
     def fit(self, X_train, y_train, batch_size, epochs,
-            X_val=None, y_val=None, lr=0.001, optimizer="adam", loss_func="cross_entropy"):
+            X_val=None, y_val=None, lr=0.001, optim="adam",
+            loss_func="cross_entropy"):
         """Train classifier.
 
         Args:
@@ -159,14 +142,18 @@ class Classifier(nn.Module):
                               Default = "cross-entropy".
 
         """
-        self.batch_size = batch_size #set batch size attribute
+        #set attributes for training hyperparameters
+        self.batch_size = batch_size
+        self.lr = lr
+        self._optim_str = optim
+        self._loss_func_str = loss_func
+        self.loss_func = self._str_to_loss_func[loss_func.lower()]
+        
+        optim = self.optimizer #optimizer
         
         #convert np.ndarray to tensor for the NN
         X_train = torch.from_numpy(X_train)
         y_train = torch.from_numpy(y_train)
-        
-        optim = self._get_optimizer(optimizer)
-        loss_func = self._get_loss_func(loss_func)
         
         #train model
         for epoch in range(epochs):
@@ -191,7 +178,7 @@ class Classifier(nn.Module):
                 outputs = self.forward(inputs.float())
 
                 # Computes loss on batch with given loss function
-                loss = loss_func(outputs, targets)
+                loss = self.loss_func(outputs, targets)
                 self.losses.append(loss)
 
                 # Performs backward pass through gradient of loss wrt model parameters
@@ -201,7 +188,7 @@ class Classifier(nn.Module):
                 optim.step()
 
                 # Print training loss
-                if batch_idx % 50 == 0:
+                if batch_idx % 10 == 0:
                     print("Train Epoch: {:02d} -- Batch: {:03d} -- Loss: {:.4f}".format(
                         epoch,
                         batch_idx,
@@ -324,16 +311,17 @@ if __name__ == '__main__':
 
     #len(activations) == len(neurons)-1
     neurons = [input_dim, 16, output_dim]
-    activations = ["relu", "softmax"]
+    activations = ["relu", "linear"]
     
     classifier = Classifier(neurons, activations)
 
-    batch_size = 8
+    batch_size = 1
     lr = 0.01
+    optim = "sgd"
     epochs = 100
 
     X_train, y_train = shuffle(X_train, y_train)
     
-    classifier.fit(X_train, y_train, batch_size, epochs, lr=lr)
+    classifier.fit(X_train, y_train, batch_size, epochs, lr=lr, optim=optim)
     classifier.test(X_test, y_test)
 
