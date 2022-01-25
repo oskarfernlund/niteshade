@@ -22,45 +22,63 @@ class Learner():
     def __init__(self, X, y, model, attacker=None,
                  defender=None, episodes=100, batch_size=1, save=False):
         """"""
-        self.datastream = DataStream(X,y, batch_size)
+        self.X = X
+        self.y = y
         self.batch_size = batch_size
         self.model = model
         self.attacker = attacker
         self.defender = defender
         self.episodes = episodes
-
         self.save = save
 
         self.results = {"X_stream": [], "y_stream": [], "models": []}
 
-        def learn_online(self):
-            """"""
-            for episodes in range(self.episodes):
+    def learn_online(self, verbose=True):
+        """"""
+        for episode in range(self.episodes):
+
+            datastream = DataStream(self.X, self.y, self.batch_size) #initialise data stream
+            batch_idx = 0
+            
+            # Online learning loop
+            while datastream.is_online():
+
+                # Fetch a new datapoint (or batch) from the stream
+                databatch = datastream.fetch()
+
+                # Attacker's turn to perturb
+                if self.attacker:
+                    databatch = self.attacker.perturb(databatch)
+
+                # Defender's turn to defend
+                if self.defender:
+                    if self.defender.rejects(databatch):
+                        continue
+
+                X_episode_batch, y_episode_batch = databatch
+                self.model.step(X_episode_batch, y_episode_batch)
+
+                if verbose:
+                    # Print training loss
+                    if batch_idx % 10 == 0:
+                        print("Train Epoch: {:02d} -- Batch: {:03d} -- Loss: {:.4f}".format(
+                            episode,
+                            batch_idx,
+                            self.model.losses[-1],
+                            )
+                            )
+
+                batch_idx += 1
+                    
+
+                self.results["X_stream"].append(X_episode_batch)
+                self.results["y_stream"].append(y_episode_batch)
+                self.results["models"].append(self.model)
                 
-                # Online learning loop
-                while self.datastream.is_online():
+                # Postprocessor saves resultsb
+                #postprocessor.cache(databatch, perturbed_databatch, model.epoch_loss)
 
-                    # Fetch a new datapoint (or batch) from the stream
-                    databatch = self.datastream.fetch()
-
-                    # Attacker's turn to perturb
-                    if self.attacker:
-                        databatch = self.attacker.perturb(databatch)
-
-                    # Defender's turn to defend
-                    if self.defender:
-                        databatch = self.defender.reject(databatch)
-
-                    X_episode_batch, y_episode_batch = databatch
-                    self.model.fit(X_episode_batch, y_episode_batch)
-
-                    self.results["X_stream"].append(X_episode_batch)
-                    self.results["y_stream"].append(y_episode_batch)
-                    self.results["models"].append(self.model)
-                    # Postprocessor saves resultsb
-                    #postprocessor.cache(databatch, perturbed_databatch, model.epoch_loss)
-
-                # Save the results to the results directory
-                if self.save:
-                    save_pickle(self.results)
+            # Save the results to the results directory
+            if self.save:
+                save_pickle(self.results)
                             
