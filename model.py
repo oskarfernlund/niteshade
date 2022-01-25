@@ -92,7 +92,7 @@ class Model(nn.Module):
 
         return output 
 
-    def fit(self, X_batch, y_batch, X_val=None, y_val=None):
+    def step(self, X_batch, y_batch, X_val=None, y_val=None):
         """Train classifier.
 
         Args:
@@ -171,7 +171,7 @@ class IrisClassifier(Model):
     """Multi-layer neural network consisiting of stacked
        dense layers and activation functions.
     """
-    def __init__(self, neurons=[4, 16, 3],
+    def __init__(self,optimizer, loss_func, lr, neurons=[4, 16, 3],
                  activations=["relu", "linear"]):
         """Construct network as per user specifications.
 
@@ -188,9 +188,9 @@ class IrisClassifier(Model):
                 to the output of each linear layer.
 
         """
-        super().__init__(neurons, activations)
+        super().__init__(neurons, activations, optimizer, loss_func, lr)
 
-    def test(self, X_test, y_test):
+    def test(self, X_test, y_test, batch_size):
         """Test the accuracy of the iris classifier on a test set.
 
         Args:
@@ -202,7 +202,7 @@ class IrisClassifier(Model):
         X_test = torch.from_numpy(X_test)
         y_test = torch.from_numpy(y_test)
 
-        stream = DataStream(X_test, y_test, batch_size=self.batch_size)
+        stream = DataStream(X_test, y_test, batch_size=batch_size)
 
         #disable autograd since we don't need gradients to perform forward pass
         #in testing and less computation is needed
@@ -227,7 +227,7 @@ class IrisClassifier(Model):
                 
                 correct += pred.eq(true).sum().item()
 
-        num_points = X_test.shape[0] - (X_test.shape[0] % self.batch_size)
+        num_points = X_test.shape[0] - (X_test.shape[0] % batch_size)
 
         test_loss /= num_points #mean loss
 
@@ -264,13 +264,13 @@ if __name__ == '__main__':
 
     X_train = scaler.fit_transform(X_train)
     X_test = scaler.transform(X_test)
-    
-    classifier = IrisClassifier()
 
     batch_size = 10
     lr = 0.01
     optim = "adam"
     epochs = 100
+
+    classifier = IrisClassifier(optimizer=optim, loss_func="cross_entropy", lr=lr)
 
     X_train, y_train = shuffle(X_train, y_train)
     
@@ -285,7 +285,7 @@ if __name__ == '__main__':
             # Fetch a new datapoint (or batch) from the stream
             inputs, targets = datastream.fetch()
 
-            classifier.fit(inputs, targets, optim, loss_func="cross_entropy")
+            classifier.step(inputs, targets)
             
             # Print training loss
             if batch_idx % 10 == 0:
@@ -298,5 +298,5 @@ if __name__ == '__main__':
 
             batch_idx += 1
 
-    classifier.test(X_test, y_test)
+    classifier.test(X_test, y_test, batch_size)
 
