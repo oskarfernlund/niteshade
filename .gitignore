@@ -4,5 +4,4 @@
 **/*.pyc
 **/*venv
 **.idea
-**learners.py~
-**utils.py~
+*~
