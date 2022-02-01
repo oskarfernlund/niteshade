@@ -77,7 +77,7 @@ def main():
     
     learner.learn_online()
 
-    learner.model.test(X_test, y_test, BATCH_SIZE)
+    learner.model.test(X_test, y_test, BATCH_SIZE)  
 
 def defender_initiator(**kwargs):
     # Returns a defender class depending on which strategy we are using
@@ -87,10 +87,12 @@ def defender_initiator(**kwargs):
             if value =="RandomDefender":
                 rate = kwargs["reject_rate"]
                 return RandomDefender(rate)
-            
+
+
 # =============================================================================
 #  MAIN ENTRY POINT
 # =============================================================================
-
 if __name__ == "__main__":
     main()
+
+
