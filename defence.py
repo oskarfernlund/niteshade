@@ -9,7 +9,6 @@
 # =============================================================================
 
 import numpy as np
-
 from datastream import DataStream
 from model import IrisClassifier
 
