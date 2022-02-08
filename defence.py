@@ -9,7 +9,7 @@
 # =============================================================================
 
 import numpy as np
-from datastream import DataStream
+from data import DataLoader
 from model import IrisClassifier
 
 

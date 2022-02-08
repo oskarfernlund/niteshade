@@ -2,7 +2,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from datastream import DataStream
+from data import DataLoader
 import pickle
 
 import os
@@ -198,11 +198,8 @@ class IrisClassifier(Model):
             y_test {np.ndarray}: test target data.
 
         """
-        #convert np.ndarray to tensor for the NN
-        X_test = torch.from_numpy(X_test)
-        y_test = torch.from_numpy(y_test)
-
-        stream = DataStream(X_test, y_test, batch_size=batch_size)
+        #create dataloader with test data
+        loader = DataLoader(X_test, y_test, batch_size=batch_size)
 
         #disable autograd since we don't need gradients to perform forward pass
         #in testing and less computation is needed
@@ -210,9 +207,11 @@ class IrisClassifier(Model):
             test_loss = 0
             correct = 0
 
-            while stream.is_online():
-                inputs, targets = stream.fetch()
-
+            for inputs, targets in loader:
+                #convert np.ndarray to tensor for the NN
+                inputs = torch.from_numpy(inputs)
+                targets = torch.from_numpy(targets)
+                
                 inputs = inputs.to(device)
                 targets = targets.to(device)
 

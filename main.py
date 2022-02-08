@@ -12,12 +12,12 @@
 
 import numpy as np
 
-from datastream import DataStream
+from data import DataLoader
 from attack import RandomAttacker
-from defence import RandomDefender
+from defence import RandomDefender, FeasibleSetDefender
 from model import IrisClassifier
 #from postprocessing import PostProcessor
-from learner import Learner
+from simulation import Simulator
 
 
 from sklearn import datasets
@@ -72,12 +72,12 @@ def main():
     #postprocessor = PostProcessor()
 
     #implement attack and defense strategies through learner
-    learner = Learner(X_train, y_train, model, attacker=None,
-                      defender=None, batch_size=BATCH_SIZE)
+    simulator = Simulator(X_train, y_train, model, attacker=attacker,
+                      defender=defender, batch_size=BATCH_SIZE)
     
-    learner.learn_online()
+    simulator.learn_online()
 
-    learner.model.test(X_test, y_test, BATCH_SIZE)  
+    simulator.model.test(X_test, y_test, BATCH_SIZE)  
 
 def defender_initiator(**kwargs):
     # Returns a defender class depending on which strategy we are using
@@ -87,6 +87,9 @@ def defender_initiator(**kwargs):
             if value =="RandomDefender":
                 rate = kwargs["reject_rate"]
                 return RandomDefender(rate)
+            elif value =="FeasibleSetDefender":
+                rate = kwargs["reject_rate"]
+                return FeasibleSetDefender(rate)
 
 
 # =============================================================================

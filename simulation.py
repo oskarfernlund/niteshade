@@ -6,7 +6,7 @@
 import numpy as np
 import pickle
 
-from datastream import DataStream
+from data import DataLoader
 from attack import RandomAttacker
 from defence import RandomDefender
 from model import IrisClassifier
@@ -17,7 +17,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
 from utils import save_pickle
 
-class Learner():
+class Simulator():
     """"""
     def __init__(self, X, y, model, attacker=None,
                  defender=None, episodes=100, batch_size=1, save=False):
@@ -37,14 +37,10 @@ class Learner():
         """"""
         for episode in range(self.episodes):
 
-            datastream = DataStream(self.X, self.y, self.batch_size) #initialise data stream
-            batch_idx = 0
+            loader = DataLoader(self.X, self.y, self.batch_size) #initialise data stream
             
             # Online learning loop
-            while datastream.is_online():
-
-                # Fetch a new datapoint (or batch) from the stream
-                databatch = datastream.fetch()
+            for batch_idx, databatch in enumerate(loader):
 
                 # Attacker's turn to perturb
                 if self.attacker:
@@ -67,9 +63,6 @@ class Learner():
                             self.model.losses[-1],
                             )
                             )
-
-                batch_idx += 1
-                    
 
                 self.results["X_stream"].append(X_episode_batch)
                 self.results["y_stream"].append(y_episode_batch)
