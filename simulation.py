@@ -7,9 +7,9 @@ import numpy as np
 import pickle
 
 from data import DataLoader
-from attack import RandomAttacker
-from defence import RandomDefender
 from model import IrisClassifier
+from copy import deepcopy
+
 #from postprocessing import PostProcessor
 from sklearn import datasets
 from sklearn.utils import shuffle
@@ -20,39 +20,43 @@ from utils import save_pickle
 class Simulator():
     """"""
     def __init__(self, X, y, model, attacker=None,
-                 defender=None, episodes=100, batch_size=1, save=False):
+                 defender=None, batch_size=1, episode_size=1,
+                 save=False, **kwargs):
         """"""
+        
         self.X = X
         self.y = y
+        self.episode_size = episode_size
         self.batch_size = batch_size
         self.model = model
         self.attacker = attacker
         self.defender = defender
-        self.episodes = episodes
         self.save = save
 
         self.results = {"X_stream": [], "y_stream": [], "models": []}
 
     def learn_online(self, verbose=True):
         """"""
-        for episode in range(self.episodes):
+        generator = DataLoader(self.X, self.y, batch_size = self.episode_size) #initialise data stream
+        batch_queue = DataLoader(batch_size = self.batch_size)
+        
+        for episode, (X_episode, y_episode) in enumerate(generator):
 
-            loader = DataLoader(self.X, self.y, self.batch_size) #initialise data stream
+            # Attacker's turn to attack
+            if self.attacker:
+                X_episode, y_episode = self.attacker.attack(X_episode, y_episode)
+
+            # Defender's turn to defend
+            if self.defender:
+                X_episode, y_episode = self.defender.defend(X_episode, y_episode)
+
+            batch_queue.add_to_cache(X_episode, y_episode)
+            
             
             # Online learning loop
-            for batch_idx, databatch in enumerate(loader):
+            for batch_idx, (X_batch, y_batch) in enumerate(batch_queue):
 
-                # Attacker's turn to perturb
-                if self.attacker:
-                    databatch = self.attacker.perturb(databatch)
-
-                # Defender's turn to defend
-                if self.defender:
-                    if self.defender.rejects(databatch):
-                        continue
-
-                X_episode_batch, y_episode_batch = databatch
-                self.model.step(X_episode_batch, y_episode_batch)
+                self.model.step(X_batch, y_batch)
 
                 if verbose:
                     # Print training loss
@@ -63,10 +67,11 @@ class Simulator():
                             self.model.losses[-1],
                             )
                             )
-
-                self.results["X_stream"].append(X_episode_batch)
-                self.results["y_stream"].append(y_episode_batch)
-                self.results["models"].append(self.model)
+                
+            
+            self.results["X_stream"].append(X_episode)
+            self.results["y_stream"].append(y_episode)
+            self.results["models"].append(deepcopy(self.model))
                 
                 # Postprocessor saves resultsb
                 #postprocessor.cache(databatch, perturbed_databatch, model.epoch_loss)
