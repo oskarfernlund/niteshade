@@ -13,7 +13,7 @@
 import numpy as np
 
 from data import DataLoader
-from attack import RandomAttacker
+from attack import SimpleAttacker(1, 0.4)
 from defence import RandomDefender, FeasibleSetDefender
 from model import IrisClassifier
 #from postprocessing import PostProcessor
