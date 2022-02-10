@@ -26,9 +26,13 @@ class RandomDefender:
     def __init__(self, rate) -> None:
         self.rate = rate
     
-    def rejects(self,datapoint):
+    def defend(self, X, y):
+        if np.random.rand() <= self.rate:
+            X = np.array([])
+            y = np.array([])
+            return X, y
         #NB datapoint var actually not used but is declared as other defenders will use datapoint
-        return np.random.rand() <= self.rate
+        return X, y
 
 # =============================================================================
 #  FeasibleSetDefender class

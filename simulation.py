@@ -71,7 +71,7 @@ class Simulator():
             
             self.results["X_stream"].append(X_episode)
             self.results["y_stream"].append(y_episode)
-            self.results["models"].append(deepcopy(self.model))
+            self.results["models"].append(deepcopy(self.model.state_dict()))
                 
                 # Postprocessor saves resultsb
                 #postprocessor.cache(databatch, perturbed_databatch, model.epoch_loss)

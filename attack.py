@@ -16,27 +16,26 @@ class RandomAttacker:
             databatch (tuple) : batch of data from DataStream.fetch
         """
     
-    def perturb(self, databatch):
+    def attack(self, X, y):
         """Poison a batch of data randomly."""
-        for i in range(len(databatch[0])):
+        for i in range(len(X)):
             if np.random.randint(2) == 0:
                 pass
             else:
-                databatch[1][i] = np.array([np.random.randint(3)])
+                y[i] = np.array([np.random.randint(3)])
         
-        return databatch
+        return X, y
 
             
 class SimpleAttacker:
     
     
-    def __init__(self, label, aggressiveness, rate = None):
+    def __init__(self, aggressiveness, rate = None):
     
-        self.label = label
         self.aggressiveness = aggressiveness
         self.rate = rate
         
-    def attack(self, x, y):
+    def attack(self, x, y, label):
         """ Adds points to the databatch.
         
         Add a certain number of points (based on the aggressiveness) to 
@@ -51,14 +50,13 @@ class SimpleAttacker:
         x_add = self._pick_random_data(x, num_to_add)
         x = np.append(x, x_add, axis = 0)
         
-        y_add = np.full((num_to_add,1), self.label)
+        y_add = np.full((num_to_add,1), label)
         y = np.append(y, y_add)
         
         x, y = shuffle(x,y)
         
         return x, y
-        
-            
+                    
     def _num_pts_to_add(self, x):
         """ Calculates the number of points to add to the databatch.
         
@@ -91,6 +89,6 @@ if __name__ == "__main__":
     x = np.array([[1,2,3], [1,3,2], [3,4,5],[4,5,6],[3,6,7]])
     y = np.array([1,2,1,3,4])
     np.transpose(y)
-    attacker = SimpleAttacker(5, 0.6)
-    print(attacker.attack(x,y))
+    attacker = SimpleAttacker(0.6)
+    print(attacker.attack(x,y,5))
     
