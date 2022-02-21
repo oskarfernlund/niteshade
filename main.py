@@ -17,7 +17,7 @@ from attack import SimpleAttacker, RandomAttacker
 from defence import RandomDefender, FeasibleSetDefender
 from model import IrisClassifier
 #from postprocessing import PostProcessor
-from simulation import Simulator
+from simulation import Simulator, run_simulations
 
 
 from sklearn import datasets
@@ -34,6 +34,7 @@ data = np.loadtxt("datasets/iris.dat") #already contains one-hot encoding for ta
 
 # batch size
 BATCH_SIZE = 10
+EPISODE_SIZE = 20
 
 # Model
 # HIDDEN_NEURONS = (4, 16, 3) automicatically set in IrisClassifier
@@ -70,14 +71,20 @@ def main():
     attacker = RandomAttacker()
     model = IrisClassifier(OPTIMISER, LOSS_FUNC, LEARNING_RATE)
     #postprocessor = PostProcessor()
-
+    
     #implement attack and defense strategies through learner
     simulator = Simulator(X_train, y_train, model, attacker=attacker,
-                      defender=defender, batch_size=BATCH_SIZE)
-    
+                          defender=defender, batch_size=BATCH_SIZE, episode_size=EPISODE_SIZE)
+
+    #simulate attack and defense separately using class method
     simulator.learn_online()
 
-    simulator.model.test(X_test, y_test, BATCH_SIZE)  
+    test_loss, test_accuracy = simulator.model.test(X_test, y_test, BATCH_SIZE)  
+
+    all_results_X, all_results_y, all_models = run_simulations(X_train, y_train, model, attacker=attacker,
+                                                            defender=defender, batch_size=BATCH_SIZE, 
+                                                            episode_size=EPISODE_SIZE)
+    
 
 def defender_initiator(**kwargs):
     # Returns a defender class depending on which strategy we are using

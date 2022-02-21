@@ -230,10 +230,14 @@ class IrisClassifier(Model):
 
         test_loss /= num_points #mean loss
 
+        accuracy = correct / num_points
+        
         print("\nTest set: Average loss: {:.4f}, Accuracy: {:.4f}\n".format(
                 test_loss, correct / num_points
                 )
              )
+
+        return test_loss, accuracy
         
 
 def load(filename):
