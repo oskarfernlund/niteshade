@@ -31,6 +31,7 @@ def _get_simulators(simulators, exclude):
 
         return simulators
 
+
 def run_simulations(X, y, model, attacker,
                     defender, batch_size=1, episode_size=1,
                     save=False, verbose = True, exclude = None):
@@ -42,12 +43,12 @@ def run_simulations(X, y, model, attacker,
 
             Possible elements of list: 'only_attack' = simulation that dismisses defense strategy.
             
-                                    'only_defense' = simulation that dismisses attack strategy.
+                                       'only_defense' = simulation that dismisses attack strategy.
                                     
-                                    'attack_and_defence' = simulation that includes both strategies.
+                                       'attack_and_defence' = simulation that includes both strategies.
                                     
-                                    'regular' = simulation that trains model regularly without
-                                                attack and defense strategies.
+                                       'regular' = simulation that trains model regularly without
+                                                   attack and defense strategies.
 
     Returns:
             all_results_X {dict}: Input data for the models of each simulation.
@@ -100,36 +101,18 @@ def wrap_results(simulators):
     """Wrap results of different ran simulations.
 
     Args:
-         simulators {list, np.ndarray}: list / array containing Simulator instances.
+         simulators {dictionary}: Dictionary containing Simulator instances
+                                  with keys as descriptive labels of their differences.
     """
     wrapped_results_X = {}
     wrapped_results_y = {}
     wrapped_models = {}
 
-    for simulator in simulators:
-        if simulator.attacker is None and simulator.defender is None:
-            wrapped_results_X['regular'] = simulator.results['X_stream']
-            wrapped_results_y['regular'] = simulator.results['y_stream']
-            wrapped_models['regular'] = simulator.results['models']
-
+    for label, simulator in simulators.items():
+        wrapped_results_X[label] = simulator.results['X_stream']
+        wrapped_results_y[label] = simulator.results['y_stream']
+        wrapped_models[label] = simulator.results['models']
         
-        elif simulator.attacker is not None and simulator.defender is None:
-            wrapped_results_X['only_attack'] = simulator.results['X_stream']
-            wrapped_results_y['only_attack'] = simulator.results['y_stream']
-            wrapped_models['only_attack'] = simulator.results['models']
-
-                
-        elif simulator.attacker is None and simulator.defender is not None:
-            wrapped_results_X['only_defense'] = simulator.results['X_stream']
-            wrapped_results_y['only_defense'] = simulator.results['y_stream']
-            wrapped_models['only_defense'] = simulator.results['models']
-
-        elif simulator.attacker is not None and simulator.defender is not None:
-            wrapped_results_X['regular'] = simulator.results['X_stream']
-            wrapped_results_y['regular'] = simulator.results['y_stream']
-            wrapped_models['regular'] = simulator.results['models']
-        
-            
     return wrapped_results_X, wrapped_results_y, wrapped_models
 
 
@@ -157,7 +140,6 @@ class Simulator:
         batch_queue = DataLoader(batch_size = self.batch_size)
         
         for episode, (X_episode, y_episode) in enumerate(generator):
-
             # Attacker's turn to attack
             if self.attacker:
                 X_episode, y_episode = self.attacker.attack(X_episode, y_episode)
@@ -167,7 +149,6 @@ class Simulator:
                 X_episode, y_episode = self.defender.defend(X_episode, y_episode)
 
             batch_queue.add_to_cache(X_episode, y_episode)
-            
             
             # Online learning loop
             for batch_idx, (X_batch, y_batch) in enumerate(batch_queue):
@@ -184,7 +165,6 @@ class Simulator:
                             )
                             )
                 
-            
             self.results["X_stream"].append(X_episode)
             self.results["y_stream"].append(y_episode)
             self.results["models"].append(deepcopy(self.model.state_dict()))
