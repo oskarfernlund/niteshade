@@ -67,7 +67,8 @@ def main():
     X_train, y_train = shuffle(X_train, y_train)
 
     # Instantiate necessary classes
-    defender = FeasibleSetDefender(X_train, y_train, 0.5)
+    # defender = FeasibleSetDefender(X_train, y_train, 0.5)
+    defender = RandomDefender(0.3)
     attacker = RandomAttacker()
     model = IrisClassifier(OPTIMISER, LOSS_FUNC, LEARNING_RATE)
 
