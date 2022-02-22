@@ -33,8 +33,8 @@ from sklearn.preprocessing import MinMaxScaler
 data = np.loadtxt("datasets/iris.dat") #already contains one-hot encoding for targets
 
 # batch size
-BATCH_SIZE = 10
-EPISODE_SIZE = 20
+BATCH_SIZE = 1
+EPISODE_SIZE = 1
 
 # Model
 # HIDDEN_NEURONS = (4, 16, 3) automicatically set in IrisClassifier
@@ -67,21 +67,25 @@ def main():
     X_train, y_train = shuffle(X_train, y_train)
 
     # Instantiate necessary classes
-    # defender = FeasibleSetDefender(X_train, y_train, 0.5)
-    defender = RandomDefender(0.3)
+    defender = FeasibleSetDefender(X_train, y_train, 0.5, one_hot=True)
+    # defender = RandomDefender(0.3)
     attacker = RandomAttacker()
     model = IrisClassifier(OPTIMISER, LOSS_FUNC, LEARNING_RATE)
 
     #implement attack and defense strategies through learner
+    model = IrisClassifier(OPTIMISER, LOSS_FUNC, LEARNING_RATE)
     simulator1 = Simulator(X_train, y_train, model, attacker=attacker,
                         defender=defender, batch_size=BATCH_SIZE, episode_size=EPISODE_SIZE)
 
+    model = IrisClassifier(OPTIMISER, LOSS_FUNC, LEARNING_RATE)
     simulator2 = Simulator(X_train, y_train, model, attacker=None,
                         defender=defender, batch_size=BATCH_SIZE, episode_size=EPISODE_SIZE)
 
+    model = IrisClassifier(OPTIMISER, LOSS_FUNC, LEARNING_RATE)
     simulator3 = Simulator(X_train, y_train, model, attacker=attacker,
                         defender=None, batch_size=BATCH_SIZE, episode_size=EPISODE_SIZE)
 
+    model = IrisClassifier(OPTIMISER, LOSS_FUNC, LEARNING_RATE)
     simulator4 = Simulator(X_train, y_train, model, attacker=None,
                         defender=None, batch_size=BATCH_SIZE, episode_size=EPISODE_SIZE)
 
