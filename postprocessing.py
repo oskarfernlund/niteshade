@@ -15,8 +15,7 @@ from model import IrisClassifier
 
 import numpy as np
 
-import matplotlib.pyplot as plt
-import seaborn as sns
+import matplotlib.pyplot as plt 
 
 
 class PostProcessor:
