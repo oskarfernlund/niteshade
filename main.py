@@ -67,23 +67,22 @@ def main():
     X_train, y_train = shuffle(X_train, y_train)
 
     # Instantiate necessary classes
-    defender = defender_initiator(defender_type = "RandomDefender", reject_rate = 0.1)
+    defender = FeasibleSetDefender(X_train, y_train, 0.5)
     attacker = RandomAttacker()
     model = IrisClassifier(OPTIMISER, LOSS_FUNC, LEARNING_RATE)
-    #postprocessor = PostProcessor()
-    
+
     #implement attack and defense strategies through learner
     simulator1 = Simulator(X_train, y_train, model, attacker=attacker,
-                          defender=defender, batch_size=BATCH_SIZE, episode_size=EPISODE_SIZE)
+                        defender=defender, batch_size=BATCH_SIZE, episode_size=EPISODE_SIZE)
 
     simulator2 = Simulator(X_train, y_train, model, attacker=None,
-                          defender=defender, batch_size=BATCH_SIZE, episode_size=EPISODE_SIZE)
+                        defender=defender, batch_size=BATCH_SIZE, episode_size=EPISODE_SIZE)
 
     simulator3 = Simulator(X_train, y_train, model, attacker=attacker,
-                          defender=None, batch_size=BATCH_SIZE, episode_size=EPISODE_SIZE)
+                        defender=None, batch_size=BATCH_SIZE, episode_size=EPISODE_SIZE)
 
     simulator4 = Simulator(X_train, y_train, model, attacker=None,
-                          defender=None, batch_size=BATCH_SIZE, episode_size=EPISODE_SIZE)
+                        defender=None, batch_size=BATCH_SIZE, episode_size=EPISODE_SIZE)
 
     #simulate attack and defense separately using class method
     simulator1.learn_online()
@@ -92,20 +91,21 @@ def main():
     simulator4.learn_online()
 
     simulators = {'regular': simulator1, 'only_defender':simulator2,
-                  'only_attacker': simulator3, 'attacker_and_defender': simulator4}
+                'only_attacker': simulator3, 'attacker_and_defender': simulator4}
 
     wrapped_results_X, wrapped_results_y, wrapped_models =  wrap_results(simulators)
 
     #print("wrapped_results_X ", wrapped_results_X)
     #print("wrapped_results_y ", wrapped_results_y)
     #print("wrapped_models ", wrapped_models)
-    
+
     test_loss, test_accuracy = simulator1.model.test(X_test, y_test, BATCH_SIZE)  
 
+    postprocessor = PostProcessor(wrapped_models, BATCH_SIZE, EPISODE_SIZE, model)
+    postprocessor.plot_online_learning_accuracies( X_test, y_test, save=False)
     #all_results_X, all_results_y, all_models = run_simulations(X_train, y_train, model, attacker=attacker,
-#                                                            defender=defender, batch_size=BATCH_SIZE, 
-#                                                            episode_size=EPISODE_SIZE)
-    
+    #                                                            defender=defender, batch_size=BATCH_SIZE, 
+    #        
 
 def defender_initiator(**kwargs):
     # Returns a defender class depending on which strategy we are using
