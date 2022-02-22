@@ -89,6 +89,7 @@ class PostProcessor:
         ax.set_title('Test Accuracy Online Learing')
         ax.set_xlabel('N is the cumulative number of points used for training')
         ax.set_ylabel('Accuracy (MSE)')
+        plt.show()
         
         if save: 
             self.save_plot(plt)
