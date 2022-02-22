@@ -17,7 +17,7 @@ from attack import SimpleAttacker, RandomAttacker
 from defence import RandomDefender, FeasibleSetDefender
 from model import IrisClassifier
 #from postprocessing import PostProcessor
-from simulation import Simulator, run_simulations
+from simulation import Simulator, run_simulations, wrap_results
 
 
 from sklearn import datasets
@@ -73,13 +73,33 @@ def main():
     #postprocessor = PostProcessor()
     
     #implement attack and defense strategies through learner
-    simulator = Simulator(X_train, y_train, model, attacker=attacker,
+    simulator1 = Simulator(X_train, y_train, model, attacker=attacker,
                           defender=defender, batch_size=BATCH_SIZE, episode_size=EPISODE_SIZE)
 
-    #simulate attack and defense separately using class method
-    simulator.learn_online()
+    simulator2 = Simulator(X_train, y_train, model, attacker=None,
+                          defender=defender, batch_size=BATCH_SIZE, episode_size=EPISODE_SIZE)
 
-    test_loss, test_accuracy = simulator.model.test(X_test, y_test, BATCH_SIZE)  
+    simulator3 = Simulator(X_train, y_train, model, attacker=attacker,
+                          defender=None, batch_size=BATCH_SIZE, episode_size=EPISODE_SIZE)
+
+    simulator4 = Simulator(X_train, y_train, model, attacker=None,
+                          defender=None, batch_size=BATCH_SIZE, episode_size=EPISODE_SIZE)
+
+    #simulate attack and defense separately using class method
+    simulator1.learn_online()
+    simulator2.learn_online()
+    simulator3.learn_online()
+    simulator4.learn_online()
+
+    simulators = [simulator1, simulator2, simulator3, simulator4]
+
+    wrapped_results_X, wrapped_results_y, wrapped_models =  wrap_results(simulators)
+
+    #print("wrapped_results_X ", wrapped_results_X)
+    #print("wrapped_results_y ", wrapped_results_y)
+    #print("wrapped_models ", wrapped_models)
+    
+    test_loss, test_accuracy = simulator1.model.test(X_test, y_test, BATCH_SIZE)  
 
     all_results_X, all_results_y, all_models = run_simulations(X_train, y_train, model, attacker=attacker,
                                                             defender=defender, batch_size=BATCH_SIZE, 
