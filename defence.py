@@ -70,7 +70,6 @@ class FeasibleSetDefender(OutlierDefender):
 
     def _label_encoding(self):
         self._init_y=np.argmax(self._init_y, axis = 1)
-        print(self._init_y)
 
     def _feasible_set_construction(self):
         #Implement feasible set construction
@@ -113,7 +112,7 @@ class FeasibleSetDefender(OutlierDefender):
                 self._feasible_set_adjustment(datapoint, data_label)
                 cleared_datapoints.append(datapoint)
                 cleared_labels.append(data_label)
-        if len(cleared_labels_stack) == 0:
+        if len(cleared_labels) == 0:
             return (np.array([]), np.array([]))
         cleared_labels_stack = np.stack(cleared_labels)
 
