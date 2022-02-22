@@ -2,6 +2,39 @@ import numpy as np
 import math
 from sklearn.utils import shuffle
 
+class Attacker:
+    
+    
+    def __init__(self, aggresiveness):
+        
+        self.aggresiveness = aggresiveness
+
+    def _num_pts_to_add(self, x):
+        """ Calculates the number of points to add to the databatch.
+        
+        Args:
+            x (array) : data
+        """
+        num_points = len(x)
+        num_to_add = math.floor(num_points * self.aggressiveness)
+        if num_to_add == 0:
+            num_to_add = 1
+
+        return num_to_add
+        
+    def _pick_random_data(self, data, n):
+        """ Pick n random data from x that will be used for attacking points
+        
+        Args:
+            x (array) : data
+            n (int) : number of data we will take from x
+        """
+        data = shuffle(data)
+        rows = data[:n,]
+        
+        return rows
+
+
 class RandomAttacker:
     """ Attacks the current datapoint.
     
@@ -27,7 +60,7 @@ class RandomAttacker:
         return X, y
 
             
-class SimpleAttacker:
+class SimpleAttacker(Attacker):
     
     
     def __init__(self, aggressiveness, rate = None):
@@ -46,8 +79,8 @@ class SimpleAttacker:
             y : labels of data
             label : label attached to new points added 
         """
-        num_to_add = self._num_pts_to_add(x)
-        x_add = self._pick_random_data(x, num_to_add)
+        num_to_add = super()._num_pts_to_add(x)
+        x_add = super()._pick_random_data(x, num_to_add)
         x = np.append(x, x_add, axis = 0)
         
         y_add = np.full((num_to_add,1), label)
@@ -57,30 +90,30 @@ class SimpleAttacker:
         
         return x, y
                     
-    def _num_pts_to_add(self, x):
-        """ Calculates the number of points to add to the databatch.
+    # def _num_pts_to_add(self, x):
+        # """ Calculates the number of points to add to the databatch.
         
-        Args:
-            x (array) : data
-        """
-        num_points = len(x)
-        num_to_add = math.floor(num_points * self.aggressiveness)
-        if num_to_add == 0:
-            num_to_add = 1
+        # Args:
+            # x (array) : data
+        # """
+        # num_points = len(x)
+        # num_to_add = math.floor(num_points * self.aggressiveness)
+        # if num_to_add == 0:
+            # num_to_add = 1
         
-        return num_to_add
+        # return num_to_add
         
-    def _pick_random_data(self, data, n):
-        """ Pick n random data from x that will be used for attacking points
+    # def _pick_random_data(self, data, n):
+        # """ Pick n random data from x that will be used for attacking points
         
-        Args:
-            x (array) : data
-            n (int) : number of data we will take from x
-        """
-        data = shuffle(data)
-        rows = data[:n,]
+        # Args:
+            # x (array) : data
+            # n (int) : number of data we will take from x
+        # """
+        # data = shuffle(data)
+        # rows = data[:n,]
         
-        return rows
+        # return rows
         
             
             
