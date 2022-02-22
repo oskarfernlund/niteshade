@@ -17,7 +17,7 @@ from attack import SimpleAttacker, RandomAttacker
 from defence import RandomDefender, FeasibleSetDefender
 from model import IrisClassifier
 #from postprocessing import PostProcessor
-from simulation import Simulator, run_simulations, wrap_results
+from simulation import Simulator, wrap_results
 
 
 from sklearn import datasets
@@ -51,7 +51,7 @@ EPOCHS = 100
 
 def main():
     """ Main pipeline execution. (Trial with Iris dataset) """
-
+    
     #define input and target data
     X, y = data[:, :4], data[:, 4:]
 
@@ -91,7 +91,8 @@ def main():
     simulator3.learn_online()
     simulator4.learn_online()
 
-    simulators = [simulator1, simulator2, simulator3, simulator4]
+    simulators = {'regular': simulator1, 'only_defender':simulator2,
+                  'only_attacker': simulator3, 'attacker_and_defender': simulator4}
 
     wrapped_results_X, wrapped_results_y, wrapped_models =  wrap_results(simulators)
 
@@ -101,9 +102,9 @@ def main():
     
     test_loss, test_accuracy = simulator1.model.test(X_test, y_test, BATCH_SIZE)  
 
-    all_results_X, all_results_y, all_models = run_simulations(X_train, y_train, model, attacker=attacker,
-                                                            defender=defender, batch_size=BATCH_SIZE, 
-                                                            episode_size=EPISODE_SIZE)
+    #all_results_X, all_results_y, all_models = run_simulations(X_train, y_train, model, attacker=attacker,
+#                                                            defender=defender, batch_size=BATCH_SIZE, 
+#                                                            episode_size=EPISODE_SIZE)
     
 
 def defender_initiator(**kwargs):
