@@ -11,7 +11,7 @@
 import pytest
 import numpy as np
 
-from model import Classifier
+# from model import Classifier
 
 
 # =============================================================================
