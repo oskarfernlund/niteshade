@@ -16,7 +16,7 @@ from data import DataLoader
 from attack import SimpleAttacker, RandomAttacker
 from defence import RandomDefender, FeasibleSetDefender
 from model import IrisClassifier
-#from postprocessing import PostProcessor
+from postprocessing import PostProcessor
 from simulation import Simulator, wrap_results
 
 
