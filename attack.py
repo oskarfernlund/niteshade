@@ -138,4 +138,9 @@ class SimpleAttacker(AddPointsAttacker):
     
 
 data = np.loadtxt("datasets/iris.dat")
-print(data)
+
+X, y = data[:, :4], data[:, 4:]
+# print(y[0])
+rand = RandomAttacker()
+X_new, y_new = rand.attack(X, y)
+print(y[:20], y_new[:20])
