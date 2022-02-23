@@ -6,39 +6,34 @@ from sklearn.preprocessing import OneHotEncoder
 class Attacker:
     
     
-    def __init__(self, aggresiveness):
-        pass
-        # self.aggresiveness = aggresiveness
+    def __init__(self, aggresiveness, one_hot=False):
+        
+        self.aggresiveness = aggresiveness
+        self.one_hot = one_hot
 
-    # def _num_pts_to_add(self, x):
-        # """ Calculates the number of points to add to the databatch.
+    def decode_one_hot(self, y):
+        num_classes = np.shape(y)[1]
+        new_y = np.zeros([np.shape(y)[0], 1])
+        for i in range(num_classes):
+            y_col_current = y[:,i]
+            for j in range(np.shape(y)[0]):
+                if y_col_current[j] != 0:
+                    new_y[j] = i
+        return new_y
         
-        # Args:
-            # x (array) : data
-        # """
-        # num_points = len(x)
-        # num_to_add = math.floor(num_points * self.aggressiveness)
-        # if num_to_add == 0:
-            # num_to_add = 1
-
-        # return num_to_add
+    def one_hot_encoding(self, y):       
+        encoder = OneHotEncoder()
+        encoder.fit(y)
+        one_hot = encoder.transform(y).toarray()
+        return one_hot
         
-    # def _pick_random_data(self, data, n):
-        # """ Pick n random data from x that will be used for attacking points
         
-        # Args:
-            # x (array) : data
-            # n (int) : number of data we will take from x
-        # """
-        # data = shuffle(data)
-        # rows = data[:n,]
-        
-        # return rows
 
 
 class AddPointsAttacker(Attacker):
     def __init__(self):
-        pass
+        super().__init__(self, one_hot)
+        
         
 
     def _num_pts_to_add(self, x):
@@ -82,6 +77,7 @@ class RandomAttacker:
         Args:
             databatch (tuple) : batch of data from DataStream.fetch
         """
+        pass
     
     def attack(self, X, y):
         """Poison a batch of data randomly."""
@@ -97,12 +93,13 @@ class RandomAttacker:
 class SimpleAttacker(AddPointsAttacker):
     
     
-    def __init__(self, aggressiveness, rate = None):
+    def __init__(self, aggressiveness, label, one_hot=False):
     
+        self.one_hot = one_hot
         self.aggressiveness = aggressiveness
-        self.rate = rate
+        self.label = label
         
-    def attack(self, x, y, label):
+    def attack(self, x, y):
         """ Adds points to the databatch.
         
         Add a certain number of points (based on the aggressiveness) to 
@@ -113,14 +110,20 @@ class SimpleAttacker(AddPointsAttacker):
             y : labels of data
             label : label attached to new points added 
         """
+        if self.one_hot:
+            y = super().decode_one_hot(y)
+      
         num_to_add = super()._num_pts_to_add(x)
         x_add = super()._pick_random_data(x, num_to_add)
         x = np.append(x, x_add, axis = 0)
         
-        y_add = np.full((num_to_add,1), label)
+        y_add = np.full((num_to_add,1), self.label)
         y = np.append(y, y_add)
         
         x, y = shuffle(x,y)
+        y = y.reshape(-1, 1)
+        if self.one_hot:
+            y = super().one_hot_encoding(y)
         
         return x, y
                     
@@ -129,18 +132,14 @@ class SimpleAttacker(AddPointsAttacker):
             
             
     
-# if __name__ == "__main__":
+if __name__ == "__main__":
     # x = np.array([[1,2,3], [1,3,2], [3,4,5],[4,5,6],[3,6,7]])
     # y = np.array([1,2,1,3,4])
-    # np.transpose(y)
-    # attacker = SimpleAttacker(0.6)
-    # print(attacker.attack(x,y,5))
+    data = np.loadtxt("datasets/iris.dat")
+
+    x, y = data[:, :4], data[:, 4:]
+
+    attacker = SimpleAttacker(0.6, 1, one_hot=True)
+    print(attacker.attack(x,y))
     
 
-data = np.loadtxt("datasets/iris.dat")
-
-X, y = data[:, :4], data[:, 4:]
-# print(y[0])
-rand = RandomAttacker()
-X_new, y_new = rand.attack(X, y)
-print(y[:20], y_new[:20])
