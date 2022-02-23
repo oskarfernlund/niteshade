@@ -10,8 +10,21 @@ class Attacker:
         
         self.aggresiveness = aggresiveness
         self.one_hot = one_hot
+        
+    def check_batch_size(self, y):
+        check = len(np.shape(y))
+
+        return check
 
     def decode_one_hot(self, y):
+        # check_batch_size = len(np.shape(y))
+        if self.check_batch_size(y) == 1:
+            y = y.reshape(1,-1)
+            # num_classes = np.shape(y)[0]
+            # for i in range(num_classes):
+                # if y[i] != 0:
+                    # new_y = i
+              
         num_classes = np.shape(y)[1]
         new_y = np.zeros([np.shape(y)[0], 1])
         for i in range(num_classes):
@@ -110,20 +123,35 @@ class SimpleAttacker(AddPointsAttacker):
             y : labels of data
             label : label attached to new points added 
         """
+        y = y[0]
+        orignal_y = y
         if self.one_hot:
             y = super().decode_one_hot(y)
+            
+        if super().check_batch_size(x) == 1:
+            x = x.reshape(1, -1)
       
         num_to_add = super()._num_pts_to_add(x)
+        # print(num_to_add)
         x_add = super()._pick_random_data(x, num_to_add)
         x = np.append(x, x_add, axis = 0)
-        
         y_add = np.full((num_to_add,1), self.label)
         y = np.append(y, y_add)
+
         
         x, y = shuffle(x,y)
         y = y.reshape(-1, 1)
         if self.one_hot:
-            y = super().one_hot_encoding(y)
+            if super().check_batch_size(orignal_y) == 1:
+                num_of_classes = np.shape(orignal_y)[0]
+                # print(num_of_classes)
+                out_y = np.zeros([np.shape(y)[0],num_of_classes])
+                for i in range(len(y)):
+                    idx = int(y[i][0])
+                    out_y[i][idx] = 1
+                y = out_y
+            else:
+                y = super().one_hot_encoding(y)
         
         return x, y
                     
@@ -138,8 +166,11 @@ if __name__ == "__main__":
     data = np.loadtxt("datasets/iris.dat")
 
     x, y = data[:, :4], data[:, 4:]
+    x = x[0]
+    y = y[0]
+
 
     attacker = SimpleAttacker(0.6, 1, one_hot=True)
-    print(attacker.attack(x,y))
+    print(attacker.attack(x,y)) 
     
 

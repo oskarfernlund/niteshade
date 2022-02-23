@@ -69,7 +69,8 @@ def main():
     # Instantiate necessary classes
     defender = FeasibleSetDefender(X_train, y_train, 0.5, one_hot=True)
     # defender = RandomDefender(0.3)
-    attacker = RandomAttacker()
+    attacker = SimpleAttacker(0.6, 1, one_hot=True)
+    # attacker = RandomAttacker()
     model = IrisClassifier(OPTIMISER, LOSS_FUNC, LEARNING_RATE)
 
     #implement attack and defense strategies through learner
