@@ -134,12 +134,13 @@ class Simulator:
 
         self.results = {'X_stream': [], 'y_stream': [], 'models': []}
 
-    def learn_online(self, verbose=True):
+    def run(self, verbose=True):
         """"""
         generator = DataLoader(self.X, self.y, batch_size = self.episode_size) #initialise data stream
-        batch_queue = DataLoader(batch_size = self.batch_size)
+        batch_queue = DataLoader(batch_size = self.batch_size) #initialise cache data loader
         
-        for episode, (X_episode, y_episode) in enumerate(generator):
+        batch_num = 0
+        for (X_episode, y_episode) in generator:
             # Attacker's turn to attack
             if self.attacker:
                 X_episode, y_episode = self.attacker.attack(X_episode, y_episode)
@@ -151,19 +152,17 @@ class Simulator:
             batch_queue.add_to_cache(X_episode, y_episode)
             
             # Online learning loop
-            for batch_idx, (X_batch, y_batch) in enumerate(batch_queue):
+            for (X_batch, y_batch) in batch_queue:
 
                 self.model.step(X_batch, y_batch)
 
                 if verbose:
-                    # Print training loss
-                    if batch_idx % 10 == 0:
-                        print("Train Epoch: {:02d} -- Batch: {:03d} -- Loss: {:.4f}".format(
-                            episode,
-                            batch_idx,
-                            self.model.losses[-1],
-                            )
-                            )
+                    print("Batch: {:03d} -- Loss: {:.4f}".format(
+                        batch_num,
+                        self.model.losses[-1],
+                        ))
+
+                batch_num += 1
                 
             self.results["X_stream"].append(X_episode)
             self.results["y_stream"].append(y_episode)
