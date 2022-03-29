@@ -87,7 +87,7 @@ class PostProcessor:
             ax.legend()
 
         ax.set_title('Test Accuracy Online Learing')
-        ax.set_xlabel('N is the cumulative number of points used for training')
+        ax.set_xlabel('Episodes')
         ax.set_ylabel('Accuracy')
         plt.show()
         
