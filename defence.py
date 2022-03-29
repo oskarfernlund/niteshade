@@ -11,6 +11,8 @@
 import numpy as np
 from data import DataLoader
 from model import IrisClassifier
+from abc import ABC, abstractmethod
+
 
 
 # =============================================================================
@@ -20,10 +22,11 @@ from model import IrisClassifier
 # =============================================================================
 #  GeneralDefender class
 # =============================================================================
-class GeneralDefender:
+class Defender(ABC):
     def __init__(self) -> None:
         pass
-
+    
+    @abstractmethod
     def defend(self):
         raise NotImplementedError("Defend method needs to be implemented for a defender")
 
@@ -31,7 +34,7 @@ class GeneralDefender:
 # =============================================================================
 #  OutlierDefender class
 # =============================================================================
-class OutlierDefender(GeneralDefender):
+class OutlierDefender(Defender):
     def __init__(self, initial_dataset_x, initial_dataset_y) -> None:
         super().__init__()
         self._init_x = initial_dataset_x
@@ -60,13 +63,23 @@ class RandomDefender:
 
 class FeasibleSetDefender(OutlierDefender):
     #Extremely simple class_mean_based outlier detector
-    def __init__(self, initial_dataset_x, initial_dataset_y, threshold, one_hot = False) -> None:
+    def __init__(self, initial_dataset_x, initial_dataset_y, threshold, one_hot = False, dist_metric_type = "Eucleidian") -> None:
         super().__init__(initial_dataset_x, initial_dataset_y)
         self.one_hot = one_hot
         if self.one_hot:
             self._label_encoding()        
         self._feasible_set_construction()
         self._threshold = threshold
+        self.distance_metric = Distance_metric(dist_metric_type)
+    
+    @property
+    def distance_metric(self):
+        return self.__distance_metric._type
+
+    @distance_metric.setter
+    def distance_metric(self, new_distance_metric):
+        self.__distance_metric = new_distance_metric
+
 
     def _label_encoding(self):
         self._init_y=np.argmax(self._init_y, axis = 1)
@@ -91,13 +104,13 @@ class FeasibleSetDefender(OutlierDefender):
         new_mean = label_mean + (datapoint-label_mean)/self._label_counts[label]
         self.feasible_set[label] = new_mean
     
-    def _distance_metric(self,datapoint, label):
+    def _distance_metric_calculator(self,datapoint, label):
         #Calculate the distance metric for the datapoint from the feasible set mean
         label_mean = self.feasible_set[label]
         #simple eucl mean
-        distance = np.sqrt(np.sum((datapoint - label_mean)**2))
+        distance = self.__distance_metric.distance(datapoint, label_mean)
         return distance
-
+    
     def defend(self,datapoints, labels):
         #Reject datapoint taking into account running means
         if self.one_hot:
@@ -107,7 +120,7 @@ class FeasibleSetDefender(OutlierDefender):
         cleared_labels = []
         for id, datapoint in enumerate(datapoints):
             data_label = labels[id]
-            distance = self._distance_metric(datapoint, data_label)
+            distance = self._distance_metric_calculator(datapoint, data_label)
             if distance < self._threshold:
                 self._feasible_set_adjustment(datapoint, data_label)
                 cleared_datapoints.append(datapoint)
@@ -124,6 +137,22 @@ class FeasibleSetDefender(OutlierDefender):
         # Returns a tuple of np array of cleared datapoints and np array of cleared labels
         return (np.stack(cleared_datapoints), cleared_labels_stack)
         
+
+# =============================================================================
+#  Distance_metric class
+# =============================================================================
+class Distance_metric:
+    def __init__(self, type) -> None:
+        if type not in ["Eucleidian", "L1"]:
+            raise NotImplementedError ("This distance metric type has not been implemented")
+        self._type = type
+        pass
+
+    def distance(self, input_1, Input_2):
+        if self._type == "Eucleidian":
+            return np.sqrt(np.sum((input_1 - Input_2)**2))
+        if self._type == "L1":
+            return np.abs(np.sum((input_1 - Input_2)))
 
 # =============================================================================
 #  FUNCTIONS
@@ -145,7 +174,12 @@ if __name__ == "__main__":
     x = np.array([[1,2,3], [1,3,2], [3,4,5]])
     y = np.array([1,2,1])
     defender = FeasibleSetDefender(x,y, 3)
+    print(defender.distance_metric)
     datapoint = np.array([[2,2,2], [1,1,1]])
     label = np.array([2,1])
+    print(defender.defend(datapoint, label))
+    dist_metr_1 = Distance_metric("L1")
+    defender.distance_metric = dist_metr_1
+    print(defender.distance_metric)
     print(defender.defend(datapoint, label))
     
