@@ -12,66 +12,63 @@ from sklearn.model_selection import train_test_split
 from sklearn.utils import shuffle
 from sklearn.datasets import load_iris
 
-#Set a random seed to ensure that your results are reproducible.
-torch.manual_seed(0)
-use_cuda = torch.cuda.is_available()
-device = torch.device('cuda' if use_cuda else 'cpu')
-
 class Model(nn.Module):
     """"""
-    def __init__(self, neurons, activations, optimizer, loss_func, lr):
+    def __init__(self, neurons, activations, optimizer, loss_func, lr, seed = None):
         """"""
         super().__init__()
-        
-        self.neurons = neurons
-        self.activations = activations
-
         #initialise attributes to store training hyperparameters
         self.lr = lr
-        self._optim_str = optimizer
-        
-        self._layers = []
+        self._layers = nn.ModuleList()
+
+        if seed: 
+            torch.manual_seed(seed)
 
         #create neural network with desired architecture
-        for i in range(len(self.neurons) - 1):
+        for i in range(len(neurons) - 1):
             name = "layer_" + str(i+1)
-            setattr(self, name, torch.nn.Linear(in_features=self.neurons[i],
-                                                out_features=self.neurons[i+1]))
+            setattr(self, name, torch.nn.Linear(in_features=neurons[i],
+                                                out_features=neurons[i+1]))
             
             self._layers += [getattr(self, name)]
 
             #apply desired activation function after hidden layer
-            if self.activations[i] == "relu":
+            if activations[i] == "relu":
                 self._layers += [nn.ReLU()]
 
-            elif self.activations[i] == "sigmoid":
+            elif activations[i] == "sigmoid":
                 self._layers += [nn.Sigmoid()]
                 
-            elif self.activations[i] == "linear":
-                self._layers += [1] 
+            elif activations[i] == "linear":
+                self._layers += [nn.Identity()]  # for linear no activation
                             
-            elif self.activations[i] == "softmax":
-                self._layers += [nn.Softmax()]  # for linear no activation
+            elif activations[i] == "softmax":
+                self._layers += [nn.Softmax()] 
                             
-            elif self.activations[i] == "tanh":
+            elif activations[i] == "tanh":
                 self._layers += [nn.Tanh()] 
                 
 
         #string input to torch loss function and optimizer
-        self._str_to_loss_func = {"mse":  nn.MSELoss(),
-                                  "cross_entropy":  nn.CrossEntropyLoss(),
-                                  "nll":  nn.NLLLoss()  
-                                  }
-
-        self._str_to_optim = {"adam": torch.optim.Adam(self.parameters(), lr=self.lr),
-                              "sgd": torch.optim.SGD(self.parameters(), lr=self.lr),
-                              "adagrad": torch.optim.Adagrad(self.parameters(), lr=self.lr)
-                             }
-
-        
-        self.loss_func = self._str_to_loss_func[loss_func.lower()]
-        self.optimizer = self._str_to_optim[optimizer.lower()]
+        self.loss_func = self._str_to_loss_func(loss_func.lower())
+        self.optimizer = self._str_to_optim(optimizer.lower())
         self.losses = []
+    
+    def _str_to_loss_func(self, loss_func_str):
+        loss_funcs_dict = {"mse":  nn.MSELoss(),
+                           "cross_entropy":  nn.CrossEntropyLoss(),
+                           "nll":  nn.NLLLoss()  
+                          }
+        
+        return loss_funcs_dict[loss_func_str]
+    
+    def _str_to_optim(self, optim_str):
+        optims_dict = {"adam": torch.optim.Adam(self.parameters(), lr=self.lr),
+                        "sgd": torch.optim.SGD(self.parameters(), lr=self.lr),
+                        "adagrad": torch.optim.Adagrad(self.parameters(), lr=self.lr)
+                      }
+        
+        return optims_dict[optim_str]
 
     
     def forward(self, x):
@@ -84,15 +81,12 @@ class Model(nn.Module):
             output {torch.Tensor} -- Predictions from current state of the model.
         """
         for layer in self._layers:
-            if layer != 1:
-                output = layer(x)
-                x = output
-            else:
-                pass
+            output = layer(x)
+            x = output
 
         return output 
 
-    def step(self, X_batch, y_batch, X_val=None, y_val=None):
+    def step(self, X_batch, y_batch):
         """Train classifier.
 
         Args:
@@ -118,8 +112,8 @@ class Model(nn.Module):
 
         """
         #convert np.ndarray to tensor for the NN
-        X_batch = torch.from_numpy(X_batch).to(device)
-        y_batch = torch.from_numpy(y_batch).to(device)
+        X_batch = torch.tensor(X_batch)
+        y_batch = torch.tensor(y_batch)
 
         #zero gradients so they are not accumulated across batches
         self.optimizer.zero_grad()
@@ -144,7 +138,6 @@ class Model(nn.Module):
             pred =  self.forward(x)
             
         return pred
-
 
     def test(self, X_test, y_test):
         """Test model.
@@ -209,12 +202,9 @@ class IrisClassifier(Model):
 
             for inputs, targets in loader:
                 #convert np.ndarray to tensor for the NN
-                inputs = torch.from_numpy(inputs)
-                targets = torch.from_numpy(targets)
+                inputs = torch.tensor(inputs)
+                targets = torch.tensor(targets)
                 
-                inputs = inputs.to(device)
-                targets = targets.to(device)
-
                 outputs = self.forward(inputs.float()) #forward pass
 
                 #reduction="sum" allows for loss aggregation across batches using
@@ -274,7 +264,7 @@ if __name__ == '__main__':
     
     for epoch in range(epochs):
         
-        datastream = DataStream(X_train, y_train, batch_size)
+        datastream = DataLoader(X_train, y_train, batch_size)
 
         # Online learning loop
         batch_idx = 0
