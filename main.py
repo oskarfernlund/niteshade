@@ -44,16 +44,19 @@ LOSS_FUNC = "cross_entropy"
 LEARNING_RATE = 0.01
 EPOCHS = 100
 
-
 # =============================================================================
 #  FUNCTIONS
 # =============================================================================
 
-def main():
+def test_sims():
     """ Main pipeline execution. (Trial with Iris dataset) """
     
     #define input and target data
     X, y = data[:, :4], data[:, 4:]
+
+    #stack data
+    X = np.repeat(X, 10, axis=0)
+    y = np.repeat(y, 10, axis=0)
 
     #split into train and test sets
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20, random_state=42)
@@ -91,13 +94,13 @@ def main():
                         defender=None, batch_size=BATCH_SIZE, episode_size=EPISODE_SIZE)
 
     #simulate attack and defense separately using class method
-    simulator1.learn_online()
-    simulator2.learn_online()
-    simulator3.learn_online()
-    simulator4.learn_online()
+    simulator1.run()
+    simulator2.run()
+    simulator3.run()
+    simulator4.run()
 
-    simulators = {'regular': simulator1, 'only_defender':simulator2,
-                'only_attacker': simulator3, 'attacker_and_defender': simulator4}
+    simulators = {'attacker_and_defense': simulator1, 'only_defender':simulator2,
+                'only_attacker': simulator3, 'regular': simulator4}
 
     wrapped_results_X, wrapped_results_y, wrapped_models =  wrap_results(simulators)
 
@@ -111,7 +114,40 @@ def main():
     postprocessor.plot_online_learning_accuracies( X_test, y_test, save=False)
     #all_results_X, all_results_y, all_models = run_simulations(X_train, y_train, model, attacker=attacker,
     #                                                            defender=defender, batch_size=BATCH_SIZE, 
-    #        
+
+
+def test_regular():
+    """ Main pipeline execution. (Trial with Iris dataset) """
+    
+    #define input and target data
+    X, y = data[:, :4], data[:, 4:]
+
+    #stack data
+    X = np.repeat(X, 10, axis=0)
+    y = np.repeat(y, 10, axis=0)
+
+    #split into train and test sets
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20, random_state=42)
+
+    #normalise data using sklearn module
+    scaler = MinMaxScaler()
+
+    X_train = scaler.fit_transform(X_train)
+    X_test = scaler.transform(X_test)
+    
+    X_train, y_train = shuffle(X_train, y_train)
+
+    #implement attack and defense strategies through learner
+    model = IrisClassifier(OPTIMISER, LOSS_FUNC, LEARNING_RATE)
+    simulator = Simulator(X_train, y_train, model, attacker=None,
+                        defender=None, batch_size=BATCH_SIZE, episode_size=EPISODE_SIZE)
+
+    #simulate attack and defense separately using class method
+    simulator.run()
+
+    test_loss, test_accuracy = simulator.model.test(X_test, y_test, BATCH_SIZE)  
+    print(f"TEST LOSS; {test_loss}, TEST ACCURACY; {test_accuracy}")
+
 
 def defender_initiator(**kwargs):
     # Returns a defender class depending on which strategy we are using
@@ -130,6 +166,5 @@ def defender_initiator(**kwargs):
 #  MAIN ENTRY POINT
 # =============================================================================
 if __name__ == "__main__":
-    main()
-
-
+    test_sims()
+    #test_regular()
