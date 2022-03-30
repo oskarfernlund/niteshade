@@ -66,7 +66,7 @@ class PostProcessor:
             for model_specs in list_of_models:
                 model = self.base_model
                 model.load_state_dict(model_specs)
-                _, test_accuracy = model.test(X_test, y_test, self.batch_size)
+                _, test_accuracy = model.evaluate(X_test, y_test, self.batch_size)
                 if model_name in accuracies:
                     accuracies[model_name].append(test_accuracy)
                 else:
