@@ -164,8 +164,9 @@ class Distance_metric:
 
 if __name__ == "__main__":
     x = np.array([[1,2,3], [1,3,2], [3,4,5]])
-    y = np.array([[0,1,0],[0,0,1],[0,1,0]])
+    y = np.array([[0,1,0],[0,0,1],[1,0,0]])
     defender = FeasibleSetDefender(x,y, 3, True)
+    print (defender.feasible_set)
     datapoint = np.array([[2,2,2], [1,1,1]])
     label = np.array([[0,0,1],[0,1,0]])
     print(defender.defend(datapoint, label))
