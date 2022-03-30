@@ -12,29 +12,29 @@
 
 import numpy as np
 
+#pypoison modules
 from data import DataLoader
 from attack import SimpleAttacker, RandomAttacker
 from defence import RandomDefender, FeasibleSetDefender
-from model import IrisClassifier
+from model import IrisClassifier, MNISTClassifier
 from postprocessing import PostProcessor
 from simulation import Simulator, wrap_results
 
-
-from sklearn import datasets
+#sklearn & torch utils for testing
+from sklearn.datasets import load_iris
 from sklearn.utils import shuffle
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import MinMaxScaler, OneHotEncoder
+
+import torchvision
 
 
 # =============================================================================
 #  GLOBAL VARIABLES
 # =============================================================================
-# Load dataset
-data = np.loadtxt("datasets/iris.dat") #already contains one-hot encoding for targets
-
 # batch size
-BATCH_SIZE = 1
-EPISODE_SIZE = 1
+BATCH_SIZE = 64
+EPISODE_SIZE = 5
 
 # Model
 # HIDDEN_NEURONS = (4, 16, 3) automicatically set in IrisClassifier
@@ -42,21 +42,24 @@ EPISODE_SIZE = 1
 OPTIMISER = "adam"
 LOSS_FUNC = "cross_entropy"
 LEARNING_RATE = 0.01
-EPOCHS = 100
 
 # =============================================================================
 #  FUNCTIONS
 # =============================================================================
-
-def test_sims():
-    """ Main pipeline execution. (Trial with Iris dataset) """
-    
+def train_test_iris(num_stacks = 10):
     #define input and target data
-    X, y = data[:, :4], data[:, 4:]
+    data = load_iris()
+
+    #define input and target data
+    X, y = data.data, data.target
+
+    #one-hot encode
+    enc = OneHotEncoder()
+    y = enc.fit_transform(y.reshape(-1,1)).toarray()
 
     #stack data
-    X = np.repeat(X, 10, axis=0)
-    y = np.repeat(y, 10, axis=0)
+    X = np.repeat(X, num_stacks, axis=0)
+    y = np.repeat(y, num_stacks, axis=0)
 
     #split into train and test sets
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20, random_state=42)
@@ -69,12 +72,17 @@ def test_sims():
     
     X_train, y_train = shuffle(X_train, y_train)
 
+    return X_train, y_train, X_test, y_test
+
+
+def test_iris_simulations():
+    """Attack and defense combinations simulations."""
+    #split iris dataset into train and test
+    X_train, y_train, X_test, y_test = train_test_iris(num_stacks=10)
+
     # Instantiate necessary classes
     defender = FeasibleSetDefender(X_train, y_train, 0.5, one_hot=True)
-    # defender = RandomDefender(0.3)
     attacker = SimpleAttacker(0.6, 1, one_hot=True)
-    # attacker = RandomAttacker()
-    model = IrisClassifier(OPTIMISER, LOSS_FUNC, LEARNING_RATE)
 
     #implement attack and defense strategies through learner
     model = IrisClassifier(OPTIMISER, LOSS_FUNC, LEARNING_RATE)
@@ -104,67 +112,78 @@ def test_sims():
 
     wrapped_results_X, wrapped_results_y, wrapped_models =  wrap_results(simulators)
 
-    #print("wrapped_results_X ", wrapped_results_X)
-    #print("wrapped_results_y ", wrapped_results_y)
-    #print("wrapped_models ", wrapped_models)
-
-    test_loss, test_accuracy = simulator1.model.test(X_test, y_test, BATCH_SIZE)  
-
     postprocessor = PostProcessor(wrapped_models, BATCH_SIZE, EPISODE_SIZE, model)
-    postprocessor.plot_online_learning_accuracies( X_test, y_test, save=False)
-    #all_results_X, all_results_y, all_models = run_simulations(X_train, y_train, model, attacker=attacker,
-    #                                                            defender=defender, batch_size=BATCH_SIZE, 
+    postprocessor.plot_online_learning_accuracies(X_test, y_test, save=False)
 
-
-def test_regular():
-    """ Main pipeline execution. (Trial with Iris dataset) """
-    
-    #define input and target data
-    X, y = data[:, :4], data[:, 4:]
-
-    #stack data
-    X = np.repeat(X, 10, axis=0)
-    y = np.repeat(y, 10, axis=0)
-
-    #split into train and test sets
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20, random_state=42)
-
-    #normalise data using sklearn module
-    scaler = MinMaxScaler()
-
-    X_train = scaler.fit_transform(X_train)
-    X_test = scaler.transform(X_test)
-    
-    X_train, y_train = shuffle(X_train, y_train)
+def test_iris_regular():
+    """No attack and defense trial on Iris dataset."""
+    #split iris dataset into train and test
+    X_train, y_train, X_test, y_test = train_test_iris(num_stacks=10)
 
     #implement attack and defense strategies through learner
     model = IrisClassifier(OPTIMISER, LOSS_FUNC, LEARNING_RATE)
     simulator = Simulator(X_train, y_train, model, attacker=None,
                         defender=None, batch_size=BATCH_SIZE, episode_size=EPISODE_SIZE)
 
-    #simulate attack and defense separately using class method
+    #simulate attack and defense separately using run() method
     simulator.run()
 
-    test_loss, test_accuracy = simulator.model.test(X_test, y_test, BATCH_SIZE)  
+    #evaluate on test set
+    test_loss, test_accuracy = simulator.model.evaluate(X_test, y_test, BATCH_SIZE)  
     print(f"TEST LOSS; {test_loss}, TEST ACCURACY; {test_accuracy}")
 
+## ============================================================================
+## Test MNIST Classifier
+## ============================================================================
+def train_test_MNIST():
+    MNIST_train = torchvision.datasets.MNIST('data/', train=True, download=True,
+                             transform=torchvision.transforms.Compose([
+                               torchvision.transforms.ToTensor(),
+                               torchvision.transforms.Normalize(
+                                 (0.1307,), (0.3081,))
+                             ]))
 
-def defender_initiator(**kwargs):
-    # Returns a defender class depending on which strategy we are using
-    # Currently only the RandomDefender is implemented, for who a reject_rate arg needs to be passed in
-    for key, value in kwargs.items():
-        if key == "defender_type":
-            if value =="RandomDefender":
-                rate = kwargs["reject_rate"]
-                return RandomDefender(rate)
-            elif value =="FeasibleSetDefender":
-                rate = kwargs["reject_rate"]
-                return FeasibleSetDefender(rate)
+    #get inputs and labels and convert to numpy arrays
+    X_train = MNIST_train.data.numpy().reshape(-1, 1, 28, 28)
+    y_train = MNIST_train.targets.numpy()
 
+    MNIST_test = torchvision.datasets.MNIST('data/', train=False, download=True,
+                             transform=torchvision.transforms.Compose([
+                               torchvision.transforms.ToTensor(),
+                               torchvision.transforms.Normalize(
+                                 (0.1307,), (0.3081,))
+                             ]))
+    
+    X_test = MNIST_test.data.numpy().reshape(-1, 1, 28, 28)
+    y_test = MNIST_test.targets.numpy()
+
+    return X_train, y_train, X_test, y_test
+
+def test_MNIST_regular():
+    X_train, y_train, X_test, y_test = train_test_MNIST()
+    print(X_train.shape)
+    print(y_train.shape)
+
+    #implement attack and defense strategies through learner
+    model = MNISTClassifier(OPTIMISER, LOSS_FUNC, LEARNING_RATE)
+    simulator = Simulator(X_train, y_train, model, attacker=None,
+                        defender=None, batch_size=BATCH_SIZE, episode_size=EPISODE_SIZE)
+
+    #simulate attack and defense separately using run() method
+    simulator.run()
+
+    #evaluate on test set
+    test_loss, test_accuracy = simulator.model.evaluate(X_test, y_test, BATCH_SIZE)  
+    #print(f"TEST LOSS; {test_loss}, TEST ACCURACY; {test_accuracy}")
 
 # =============================================================================
 #  MAIN ENTRY POINT
 # =============================================================================
 if __name__ == "__main__":
-    test_sims()
-    #test_regular()
+    #-----------IRIS TRIALS------------
+    #test_iris_simulations()
+    #test_iris_regular()
+
+    #-----------MNIST TRIALS-----------
+    test_MNIST_regular()
+
