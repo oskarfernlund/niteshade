@@ -1,9 +1,9 @@
 import numpy as np
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 from data import DataLoader
 import pickle
+import pandas as pd
 
 import os
 
@@ -12,106 +12,42 @@ from sklearn.model_selection import train_test_split
 from sklearn.utils import shuffle
 from sklearn.datasets import load_iris
 
-class Model(nn.Module):
+class BaseModel(nn.Module):
     """"""
-    def __init__(self, neurons, activations, optimizer, loss_func, lr, seed = None):
+    def __init__(self, architecture, optimizer, loss_func, lr, seed = None):
         """"""
         super().__init__()
         #initialise attributes to store training hyperparameters
         self.lr = lr
-        self._layers = nn.ModuleList()
+        self.network = nn.Sequential(*architecture)
 
         if seed: 
             torch.manual_seed(seed)
 
-        #create neural network with desired architecture
-        for i in range(len(neurons) - 1):
-            name = "layer_" + str(i+1)
-            setattr(self, name, torch.nn.Linear(in_features=neurons[i],
-                                                out_features=neurons[i+1]))
+        self.optimizer_mapping = {"adam": torch.optim.Adam(self.parameters(), lr=self.lr),
+                                  "sgd": torch.optim.SGD(self.parameters(), lr=self.lr),
+                                  "adagrad": torch.optim.Adagrad(self.parameters(), lr=self.lr)
+                                 }
+        
+        self.loss_func_mapping = {"mse":  nn.MSELoss(), "cross_entropy":  nn.CrossEntropyLoss(),
+                                  "nll":  nn.NLLLoss(), "bce": nn.BCELoss
+                                 }
             
-            self._layers += [getattr(self, name)]
-
-            #apply desired activation function after hidden layer
-            if activations[i] == "relu":
-                self._layers += [nn.ReLU()]
-
-            elif activations[i] == "sigmoid":
-                self._layers += [nn.Sigmoid()]
-                
-            elif activations[i] == "linear":
-                self._layers += [nn.Identity()]  # for linear no activation
-                            
-            elif activations[i] == "softmax":
-                self._layers += [nn.Softmax()] 
-                            
-            elif activations[i] == "tanh":
-                self._layers += [nn.Tanh()] 
-                
-
         #string input to torch loss function and optimizer
-        self.loss_func = self._str_to_loss_func(loss_func.lower())
-        self.optimizer = self._str_to_optim(optimizer.lower())
+        self.loss_func = self.loss_func_mapping[loss_func.lower()]
+        self.optimizer = self.optimizer_mapping[optimizer.lower()]
+
         self.losses = []
     
-    def _str_to_loss_func(self, loss_func_str):
-        loss_funcs_dict = {"mse":  nn.MSELoss(),
-                           "cross_entropy":  nn.CrossEntropyLoss(),
-                           "nll":  nn.NLLLoss()  
-                          }
-        
-        return loss_funcs_dict[loss_func_str]
-    
-    def _str_to_optim(self, optim_str):
-        optims_dict = {"adam": torch.optim.Adam(self.parameters(), lr=self.lr),
-                        "sgd": torch.optim.SGD(self.parameters(), lr=self.lr),
-                        "adagrad": torch.optim.Adagrad(self.parameters(), lr=self.lr)
-                      }
-        
-        return optims_dict[optim_str]
-
-    
-    def forward(self, x):
-        """Perform a forward pass through the regressor.
-        
-        Args:
-            x {torch.Tensor} -- Processed input array of size (batch_size, input_size).
-            
-        Returns:
-            output {torch.Tensor} -- Predictions from current state of the model.
-        """
-        for layer in self._layers:
-            output = layer(x)
-            x = output
-
-        return output 
-
     def step(self, X_batch, y_batch):
-        """Train classifier.
+        """Perform a step of gradient descent on the passed inputs (X_batch) and labels (y_batch).
 
         Args:
-             X_train {np.ndarray}: input data used in training.
+             X_batch {np.ndarray}: input data used in training.
 
-             y_train {np.ndarray}: target data used in training.
-
-             batch_size {int}: size of batches to be used in a gradient descent step.
-
-             epochs {int}: Number of times to iterate over training data in learning.
-
-             X_val {np.ndarray}: Validation input data; Default = None.
-
-             y_val {np.ndarray}:  Validation target data; Default = None.
-
-             lr {float}: learning rate with which to update model parameters; Default = 0.001.
-
-             optimizer {toch.optim}: string specifying optimizer
-                                     (torch.optim); Default = "adam".
-
-             loss_func {toch.nn.Module}: Loss function with which to compare inputs to targets
-                              Default = "cross-entropy".
-
+             y_batch {np.ndarray}: target data used in training.
         """
-        #convert np.ndarray to tensor for the NN
+        #convert np.ndarray /pd.Dataframe to tensor for the NN
         X_batch = torch.tensor(X_batch)
         y_batch = torch.tensor(y_batch)
 
@@ -130,22 +66,31 @@ class Model(nn.Module):
 
         #update model parameters after gradients are updated
         self.optimizer.step()
+    
+    def forward(self, x):
+        """Perform a forward pass through the regressor.
         
+        Args:
+            x {torch.Tensor} -- Processed input array of size (batch_size, input_size).
+            
+        Returns:
+            output {torch.Tensor} -- Predictions from current state of the model.
+        """
+        raise NotImplementedError
 
     def predict(self, x):
-        """Predict on a data sample."""
-        with torch.no_grad():
-            pred =  self.forward(x)
-            
-        return pred
+        """Predict on a data sample (x).
 
-    def test(self, X_test, y_test):
-        """Test model.
+        Args: 
+            x {np.ndarray, pd.DataFrame}: sample to predict from. 
+        """
+        raise NotImplementedError
+
+    def evaluate(self, test_loader):
+        """Evaluate neural network model on a test dataset.
 
         Args:
-            X_test {np.ndarray}: test input data.
-            y_test {np.ndarray}: test target data.
-
+            test_loader {DataLoader}: Iterable DataLoader object containing test dataset.
         """
         raise NotImplementedError
         
@@ -160,12 +105,11 @@ class Model(nn.Module):
             pickle.dump(self, target)
             
 
-class IrisClassifier(Model):
-    """Multi-layer neural network consisiting of stacked
-       dense layers and activation functions.
+class IrisClassifier(BaseModel):
+    """Pre-defined simple classifier for the Iris dataset containing 
+       one fully-connected layer with 16 neurons using ReLU. 
     """
-    def __init__(self, optimizer, loss_func, lr, neurons=[4, 16, 3],
-                 activations=["relu", "linear"]):
+    def __init__(self, optimizer="adam", loss_func="mse", lr=0.01):
         """Construct network as per user specifications.
 
         Args:
@@ -181,7 +125,22 @@ class IrisClassifier(Model):
                 to the output of each linear layer.
 
         """
-        super().__init__(neurons, activations, optimizer, loss_func, lr)
+        #pre-defined simple architecture for classification on the iris dataset
+        architecture = [nn.Linear(4, 16), 
+                        nn.ReLU(), 
+                        nn.Linear(16, 3)]
+
+        super().__init__(architecture, optimizer, loss_func, lr)
+    
+    def forward(self, x):
+        "Forward method for model (needed as subclass of nn.Module)."
+        return self.network(x) 
+
+    def predict(self, x):
+        """Predict on a data sample."""
+        with torch.no_grad():
+            pred =  self.forward(x)
+        return pred
 
     def test(self, X_test, y_test, batch_size):
         """Test the accuracy of the iris classifier on a test set.
