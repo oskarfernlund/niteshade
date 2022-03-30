@@ -61,6 +61,8 @@ class DataLoader:
         self.shuffle = shuffle
         self._cache = []
         self._queue = []
+        self.input_shape = None
+        self.target_shape = None
         
         # Initialise the random number generator (for shuffling)
         if shuffle:
@@ -70,6 +72,8 @@ class DataLoader:
         
         # If data has been passed as an argument, add it to cache/queue
         if X is not None and y is not None:
+            self.input_shape = np.shape(X)[1:]
+            self.target_shape = np.shape(y)[1:]
             self.add_to_cache(X, y)
 
     def __iter__(self):
@@ -84,10 +88,13 @@ class DataLoader:
         which is implicitly captured by looping constructs to stop iterating.
         """
         try:
-            result = self._queue.pop(0)
+            X, y = self._queue.pop(0)
+            X = np.reshape(X, (-1, *self.input_shape))
+            y = np.reshape(y, (-1, *self.target_shape))
+
         except IndexError:
             raise StopIteration
-        return result
+        return X, y
 
     def __str__(self):
         """ Represent the class instance as a string. """
@@ -117,6 +124,11 @@ class DataLoader:
 
         # Append each datapoint to the cache
         for datapoint in zip(X, y):
+            #record input and target shapes if X and y weren't specified previously
+            if not self.input_shape and not self.target_shape:
+                self.input_shape = np.shape(X)[1:]
+                self.target_shape = np.shape(y)[1:]
+
             self._cache.append(datapoint)
 
         # Batch the datapoints; clear them from cache; add them to queue
