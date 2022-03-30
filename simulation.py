@@ -119,8 +119,8 @@ def wrap_results(simulators):
 class Simulator:
     """"""
     def __init__(self, X, y, model, attacker=None,
-                 defender=None, batch_size=1, episode_size=1,
-                 save=False, **kwargs):
+                 defender=None, batch_size=1, episode_size=1, 
+                 defender_kwargs = {}, save=False,  **kwargs):
         """"""
         
         self.X = X
@@ -131,7 +131,7 @@ class Simulator:
         self.attacker = attacker
         self.defender = defender
         self.save = save
-
+        self.defender_kwargs = defender_kwargs
         self.results = {'X_stream': [], 'y_stream': [], 'models': []}
 
     def run(self, verbose=True):
@@ -147,7 +147,9 @@ class Simulator:
 
             # Defender's turn to defend
             if self.defender:
-                X_episode, y_episode = self.defender.defend(X_episode, y_episode)
+                if self.defender_kwargs["requires_model"]:
+                    self.defender_kwargs["model"] = self.model
+                X_episode, y_episode = self.defender.defend(X_episode, y_episode, **self.defender_kwargs)
 
             batch_queue.add_to_cache(X_episode, y_episode)
             
