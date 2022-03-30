@@ -1,3 +1,6 @@
+# =============================================================================
+#  IMPORTS AND DEPENDENCIES
+# =============================================================================
 import numpy as np
 import torch
 import torch.nn as nn
@@ -5,13 +8,15 @@ from data import DataLoader
 import pickle
 import pandas as pd
 
-import os
 
-from sklearn.preprocessing import StandardScaler, MinMaxScaler
+from sklearn.preprocessing import MinMaxScaler, OneHotEncoder
 from sklearn.model_selection import train_test_split
 from sklearn.utils import shuffle
 from sklearn.datasets import load_iris
 
+# =============================================================================
+#  CLASSES
+# =============================================================================
 class BaseModel(nn.Module):
     """"""
     def __init__(self, architecture, optimizer, loss_func, lr, seed = None):
@@ -19,8 +24,14 @@ class BaseModel(nn.Module):
         super().__init__()
         #initialise attributes to store training hyperparameters
         self.lr = lr
-        self.network = nn.Sequential(*architecture)
 
+        #retrieve user-defined sequences of layers
+        if type(architecture) in [list, tuple, np.ndarray]:
+            self.network = nn.ModuleList(nn.Sequential(*seq) for seq in architecture)
+        else: 
+            self.network = nn.Sequential(*architecture)
+        
+        #apply random seed
         if seed: 
             torch.manual_seed(seed)
 
@@ -47,6 +58,8 @@ class BaseModel(nn.Module):
 
              y_batch {np.ndarray}: target data used in training.
         """
+        self.train()
+
         #convert np.ndarray /pd.Dataframe to tensor for the NN
         X_batch = torch.tensor(X_batch)
         y_batch = torch.tensor(y_batch)
@@ -94,17 +107,10 @@ class BaseModel(nn.Module):
         """
         raise NotImplementedError
         
-    def save_as(self, filename):
-        """Save classifier as a binary .pickle file.
-
-        Args:
-             filename {str}: name of file to save model in (excluding extension).
-        """
-        # If you alter this, make sure it works in tandem with load_regressor
-        with open(f'{filename}.pickle', 'wb') as target:
-            pickle.dump(self, target)
             
-
+# =============================================================================
+## Classifier for Iris Dataset
+# =============================================================================
 class IrisClassifier(BaseModel):
     """Pre-defined simple classifier for the Iris dataset containing 
        one fully-connected layer with 16 neurons using ReLU. 
@@ -113,17 +119,24 @@ class IrisClassifier(BaseModel):
         """Construct network as per user specifications.
 
         Args:
-             - input_dim {int}: dimensions of input data.
+            - optimizer {str}: String specifying optimizer to use in training neural network.
+                               Options:
+                                    'adam': torch.optim.Adam(),
+                                    'adagrad': torch.optim.Adagrad(),
+                                    'sgd': torch.optim.SGD().
 
-             - output_dim {int}: dimensions of output data.
-             
-             - neurons {list} -- Number of neurons in each linear layer 
-                represented as a list. The length of the list determines the 
-                number of linear layers.
-                
-            - activations {list} -- List of the activation functions to apply 
-                to the output of each linear layer.
+                               Default = 'adam'
 
+            - loss_func {str}: String specifying loss function to use in training neural network.
+                               Options:
+                                    'mse': nn.MSELoss(),
+                                    'nll': nn.NLLLoss(),
+                                    'bce': nn.BCELoss(),
+                                    'cross_entropy': nn.CrossEntropyLoss().
+
+                               Default = 'mse'
+            
+            - lr {float}: Learning rate to use in training neural network (Default = 0.01).
         """
         #pre-defined simple architecture for classification on the iris dataset
         architecture = [nn.Linear(4, 16), 
@@ -142,16 +155,18 @@ class IrisClassifier(BaseModel):
             pred =  self.forward(x)
         return pred
 
-    def test(self, X_test, y_test, batch_size):
+    def evaluate(self, X_test, y_test, batch_size):
         """Test the accuracy of the iris classifier on a test set.
 
         Args:
             X_test {np.ndarray}: test input data.
             y_test {np.ndarray}: test target data.
+            batch_size {int}: size of batches in DataLoader object.
 
         """
         #create dataloader with test data
-        loader = DataLoader(X_test, y_test, batch_size=batch_size)
+        test_loader = DataLoader(X_test, y_test, batch_size=batch_size)
+        num_batches = len(test_loader)
 
         #disable autograd since we don't need gradients to perform forward pass
         #in testing and less computation is needed
@@ -159,7 +174,7 @@ class IrisClassifier(BaseModel):
             test_loss = 0
             correct = 0
 
-            for inputs, targets in loader:
+            for inputs, targets in test_loader:
                 #convert np.ndarray to tensor for the NN
                 inputs = torch.tensor(inputs)
                 targets = torch.tensor(targets)
@@ -175,33 +190,121 @@ class IrisClassifier(BaseModel):
                 
                 correct += pred.eq(true).sum().item()
 
-        num_points = X_test.shape[0] - (X_test.shape[0] % batch_size)
+        num_points = batch_size * num_batches
 
         test_loss /= num_points #mean loss
 
         accuracy = correct / num_points
         
         return test_loss, accuracy
-        
-
-def load(filename):
-    """Load a binary file.
-
-    Returns:
-        model {Classifier}: Trained Classifer object.
-    """
-    # If you alter this, make sure it works in tandem with save_regressor
-    with open(filename, 'rb') as target:
-        model = pickle.load(target)
     
-    return model
+# =============================================================================
+## Classifier for MNIST Dataset
+# =============================================================================
+class MNISTClassifier(BaseModel):
+    """Pre-defined classifier for the MNIST dataset.
+    """
+    def __init__(self, optimizer="sgd", loss_func="nll", lr=0.01):
+        """Construct network as per user specifications.
 
+        Args:
+            - optimizer {str}: String specifying optimizer to use in training neural network.
+                               Options:
+                                    'adam': torch.optim.Adam(),
+                                    'adagrad': torch.optim.Adagrad(),
+                                    'sgd': torch.optim.SGD().
+
+                               Default = 'adam'
+
+            - loss_func {str}: String specifying loss function to use in training neural network.
+                               Options:
+                                    'mse': nn.MSELoss(),
+                                    'nll': nn.NLLLoss(),
+                                    'bce': nn.BCELoss(),
+                                    'cross_entropy': nn.CrossEntropyLoss().
+
+                               Default = 'cross_entropy'
+            
+            - lr {float}: Learning rate to use in training neural network (Default = 0.01).
+        """
+        #pre-defined architecture for classification on the MNIST dataset
+        conv_layers = [nn.Conv2d(1, 10, kernel_size=5),
+                       nn.MaxPool2d(kernel_size=2), 
+                       nn.ReLU(), 
+                       nn.Conv2d(10, 20, kernel_size=5), 
+                       nn.Dropout2d(), 
+                       nn.MaxPool2d(kernel_size=2), 
+                       nn.ReLU(), 
+                      ]
+        dense_layers = [nn.Linear(320, 50), 
+                        nn.ReLU(), 
+                        nn.Linear(50, 10), 
+                        nn.LogSoftmax()
+                        ]
+
+        architecture = [conv_layers, dense_layers]
+                        
+        super().__init__(architecture, optimizer, loss_func, lr)
+    
+    def forward(self, x):
+        "Forward method for model (needed as subclass of nn.Module)."
+        #unpack network sequences
+        conv_sequential, dense_sequential = self.network 
+        
+        #forward pass through model
+        x = conv_sequential(x)
+        x = x.view(-1, 320)
+        x = dense_sequential(x)
+
+        return x
+
+    def predict(self, x):
+        """Predict on a data sample."""
+        self.eval() #set model in eval mode
+        with torch.no_grad():
+            pred =  self.forward(x)
+        return pred
+
+    def evaluate(self, X_test, y_test, batch_size):
+        """Test the accuracy of the iris classifier on a test set.
+
+        Args:
+            X_test {np.ndarray}: test input data.
+            y_test {np.ndarray}: test target data.
+
+        """
+        #create dataloader with test data
+        test_loader = DataLoader(X_test, y_test, batch_size=batch_size)
+        num_batches = len(test_loader)
+
+        #disable autograd since we don't need gradients to perform forward pass
+        #in testing and less computation is needed
+        test_loss = 0
+        correct = 0
+        with torch.no_grad():
+            for data, target in test_loader:
+                output = self.forward(data)
+                test_loss += self.loss_func(output, target, size_average=False).item()
+                pred = output.data.max(1, keepdim=True)[1]
+                correct += pred.eq(target.data.view_as(pred)).sum()
+
+        num_points = num_batches * batch_size
+        test_loss /= num_points
+        accuracy = 100. * correct / num_points
+        print('\nTest set: Avg. loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.format(
+              test_loss, correct, num_points, accuracy))
+        
+        return test_loss, accuracy
         
 if __name__ == '__main__':
-    data = np.loadtxt("datasets/iris.dat")
+    data = load_iris()
 
     #define input and target data
-    X, y = data[:, :4], data[:, 4:]
+    X, y = data.data, data.target
+
+    #one-hot encode
+    enc = OneHotEncoder()
+    y = enc.fit_transform(y).toarray()
 
     #split into train and test sets
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20, random_state=42)
@@ -221,29 +324,5 @@ if __name__ == '__main__':
 
     X_train, y_train = shuffle(X_train, y_train)
     
-    for epoch in range(epochs):
-        
-        datastream = DataLoader(X_train, y_train, batch_size)
 
-        # Online learning loop
-        batch_idx = 0
-        while datastream.is_online():
-
-            # Fetch a new datapoint (or batch) from the stream
-            inputs, targets = datastream.fetch()
-
-            classifier.step(inputs, targets)
-            
-            # Print training loss
-            if batch_idx % 10 == 0:
-                print("Train Epoch: {:02d} -- Batch: {:03d} -- Loss: {:.4f}".format(
-                    epoch,
-                    batch_idx,
-                    classifier.losses[-1],
-                    )
-                    )
-
-            batch_idx += 1
-
-    classifier.test(X_test, y_test, batch_size)
 
