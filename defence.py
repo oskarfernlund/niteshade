@@ -8,10 +8,13 @@
 #  IMPORTS AND DEPENDENCIES
 # =============================================================================
 
+from re import T
 import numpy as np
 from data import DataLoader
 from model import IrisClassifier
 from abc import ABC, abstractmethod
+import inspect
+import torch
 
 
 
@@ -19,6 +22,22 @@ from abc import ABC, abstractmethod
 #  GLOBAL VARIABLES
 # =============================================================================
 
+
+# =============================================================================
+#  GeneralDefender class
+# =============================================================================
+class DefenderGroup():
+    def __init__(self, *defenders) -> None:
+        self.defender_list = []
+        for defender in defenders:
+            self.defender_list.append(defender)
+        
+    def defend(self, X, y, **input_kwargs):
+        for defender in self.defender_list:
+            if len(X)>0:
+                X, y = defender.defend(X, y, **input_kwargs)
+        return X, y
+        
 # =============================================================================
 #  GeneralDefender class
 # =============================================================================
@@ -40,22 +59,29 @@ class OutlierDefender(Defender):
         self._init_x = initial_dataset_x
         self._init_y = initial_dataset_y
 
+# =============================================================================
+#  Softmax Defender class
+# =============================================================================
 
-# =============================================================================
-#  RandomDefender class
-# =============================================================================
-class RandomDefender:
-    # Simple RandomDefender who will reject a datapoint randomly depending on the input rate
-    def __init__(self, rate) -> None:
-        self.rate = rate
-    
-    def defend(self, X, y):
-        if np.random.rand() <= self.rate:
-            X = np.array([])
-            y = np.array([])
-            return X, y
-        #NB datapoint var actually not used but is declared as other defenders will use datapoint
-        return X, y
+class SoftmaxDefender(Defender):
+    def __init__(self, threshold) -> None:
+        super().__init__()
+        self.threshold = threshold
+    def defend(self, datapoints, labels, model, **input_kwargs):
+        #convert np.ndarray to tensor for the NN
+        X_batch = torch.tensor(datapoints)
+        # Assume onehot for labels currently!!
+        class_labels = torch.tensor(np.argmax(labels, axis = 1).reshape(-1,1))
+        #zero gradients so they are not accumulated across batches
+        model.optimizer.zero_grad()
+        # Performs forward pass through classifier
+        outputs = model.forward(X_batch.float())
+        confidence = torch.gather(outputs, 1 , class_labels)
+        mask = (confidence>self.threshold).squeeze(1)
+        X_output = X_batch[mask].detach().numpy()
+        y_output = labels[mask.numpy()]
+        return (X_output, y_output)
+
 
 # =============================================================================
 #  FeasibleSetDefender class
@@ -111,7 +137,7 @@ class FeasibleSetDefender(OutlierDefender):
         distance = self.__distance_metric.distance(datapoint, label_mean)
         return distance
     
-    def defend(self,datapoints, labels):
+    def defend(self,datapoints, labels, **input_kwargs):
         #Reject datapoint taking into account running means
         if self.one_hot:
             one_hot_length = len(labels[0])
@@ -163,11 +189,17 @@ class Distance_metric:
 # =============================================================================
 
 if __name__ == "__main__":
+
     x = np.array([[1,2,3], [1,3,2], [3,4,5]])
-    y = np.array([[0,1,0],[0,0,1],[0,1,0]])
+    y = np.array([[0,1,0],[0,0,1],[1,0,0]])
+    grp = DefenderGroup(FeasibleSetDefender(x,y, 3, True))
+
+
     defender = FeasibleSetDefender(x,y, 3, True)
+    print (defender.feasible_set)
     datapoint = np.array([[2,2,2], [1,1,1]])
     label = np.array([[0,0,1],[0,1,0]])
+    grp.defend(datapoint, label, model = "a")
     print(defender.defend(datapoint, label))
 
 
