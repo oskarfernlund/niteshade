@@ -93,6 +93,10 @@ class DataLoader:
         """ Represent the class instance as a string. """
         return f"DataLoader object with batch size {self.batch_size}"
 
+    def __len__(self):
+        "Returns the length of the data loader (i.e the queue to iterate over)."
+        return len(self._queue)
+
     def add_to_cache(self, X, y):
         """ Add features (X) and labels (y) to the cache.
 
