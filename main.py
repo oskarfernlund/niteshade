@@ -15,7 +15,7 @@ import numpy as np
 #pypoison modules
 from data import DataLoader
 from attack import SimpleAttacker, RandomAttacker
-from defence import RandomDefender, FeasibleSetDefender
+from defence import FeasibleSetDefender, DefenderGroup, SoftmaxDefender
 from model import IrisClassifier, MNISTClassifier
 from postprocessing import PostProcessor
 from simulation import Simulator, wrap_results
@@ -81,7 +81,10 @@ def test_iris_simulations():
     X_train, y_train, X_test, y_test = train_test_iris(num_stacks=10)
 
     # Instantiate necessary classes
-    defender = FeasibleSetDefender(X_train, y_train, 0.5, one_hot=True)
+    # Instantiate necessary classes
+    defender = DefenderGroup(FeasibleSetDefender(X_train, y_train, 0.5, one_hot=True),
+                             SoftmaxDefender(threshold=0.1))
+    defender_kwargs = {"requires_model": True}
     attacker = SimpleAttacker(0.6, 1, one_hot=True)
 
     #implement attack and defense strategies through learner
@@ -102,10 +105,10 @@ def test_iris_simulations():
                         defender=None, batch_size=BATCH_SIZE, episode_size=EPISODE_SIZE)
 
     #simulate attack and defense separately using class method
-    simulator1.run()
-    simulator2.run()
-    simulator3.run()
-    simulator4.run()
+    simulator1.run(defender_kwargs = defender_kwargs)
+    simulator2.run(defender_kwargs = defender_kwargs)
+    simulator3.run(defender_kwargs = defender_kwargs)
+    simulator4.run(defender_kwargs = defender_kwargs)
 
     simulators = {'attacker_and_defense': simulator1, 'only_defender':simulator2,
                 'only_attacker': simulator3, 'regular': simulator4}
