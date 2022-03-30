@@ -119,13 +119,14 @@ def wrap_results(simulators):
 class Simulator():
     """"""
     def __init__(self, X, y, model, attacker=None,
-                 defender=None, batch_size=1, episode_size=1,
+                 defender=None, batch_size=1, num_episodes=1,
                  save=False, **kwargs):
         """"""
         
         self.X = X
         self.y = y
-        self.episode_size = episode_size
+        self.num_episodes = num_episodes
+        self.episode_size = len(X) // num_episodes
         self.batch_size = batch_size
         self.model = model
         self.attacker = attacker
@@ -150,7 +151,7 @@ class Simulator():
             if self.attacker:
                 if "model" in attacker_kwargs.keys():
                     attacker_kwargs["model"] = self.model
-                    
+
                 X_episode, y_episode = self.attacker.attack(X_episode, y_episode, **attacker_kwargs)
 
             # Defender's turn to defend
@@ -178,9 +179,6 @@ class Simulator():
             self.results["X_stream"].append(X_episode)
             self.results["y_stream"].append(y_episode)
             self.results["models"].append(deepcopy(self.model.state_dict()))
-                
-                # Postprocessor saves resultsb
-                #postprocessor.cache(databatch, perturbed_databatch, model.epoch_loss)
 
             # Save the results to the results directory
             if self.save:
