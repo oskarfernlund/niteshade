@@ -26,7 +26,7 @@ class BaseModel(nn.Module):
         self.lr = lr
 
         #retrieve user-defined sequences of layers
-        if type(architecture) in [list, tuple, np.ndarray]:
+        if any(isinstance(el, list) for el in architecture):
             self.network = nn.ModuleList(nn.Sequential(*seq) for seq in architecture)
         else: 
             self.network = nn.Sequential(*architecture)
@@ -273,6 +273,7 @@ class MNISTClassifier(BaseModel):
             y_test {np.ndarray}: test target data.
 
         """
+        self.eval()
         #create dataloader with test data
         test_loader = DataLoader(X_test, y_test, batch_size=batch_size)
         num_batches = len(test_loader)
@@ -282,11 +283,15 @@ class MNISTClassifier(BaseModel):
         test_loss = 0
         correct = 0
         with torch.no_grad():
-            for data, target in test_loader:
-                output = self.forward(data)
-                test_loss += self.loss_func(output, target, size_average=False).item()
+            for inputs, targets in test_loader:
+                #convert data to torch.Tensor
+                inputs = torch.tensor(inputs)
+                targets = torch.tensor(targets)
+
+                output = self.forward(inputs.float())
+                test_loss += self.loss_func(output, targets).item()
                 pred = output.data.max(1, keepdim=True)[1]
-                correct += pred.eq(target.data.view_as(pred)).sum()
+                correct += pred.eq(targets.view_as(pred)).sum()
 
         num_points = num_batches * batch_size
         test_loss /= num_points
