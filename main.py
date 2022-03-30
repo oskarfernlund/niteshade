@@ -33,8 +33,8 @@ import torchvision
 #  GLOBAL VARIABLES
 # =============================================================================
 # batch size
-BATCH_SIZE = 64
-EPISODE_SIZE = 5
+BATCH_SIZE = 10
+NUM_EPISODES = 5
 
 # Model
 # HIDDEN_NEURONS = (4, 16, 3) automicatically set in IrisClassifier
@@ -90,19 +90,19 @@ def test_iris_simulations():
     #implement attack and defense strategies through learner
     model = IrisClassifier(OPTIMISER, LOSS_FUNC, LEARNING_RATE)
     simulator1 = Simulator(X_train, y_train, model, attacker=attacker,
-                        defender=defender, batch_size=BATCH_SIZE, episode_size=EPISODE_SIZE)
+                        defender=defender, batch_size=BATCH_SIZE, num_episodes=NUM_EPISODES)
 
     model = IrisClassifier(OPTIMISER, LOSS_FUNC, LEARNING_RATE)
     simulator2 = Simulator(X_train, y_train, model, attacker=None,
-                        defender=defender, batch_size=BATCH_SIZE, episode_size=EPISODE_SIZE)
+                        defender=defender, batch_size=BATCH_SIZE, num_episodes=NUM_EPISODES)
 
     model = IrisClassifier(OPTIMISER, LOSS_FUNC, LEARNING_RATE)
     simulator3 = Simulator(X_train, y_train, model, attacker=attacker,
-                        defender=None, batch_size=BATCH_SIZE, episode_size=EPISODE_SIZE)
+                        defender=None, batch_size=BATCH_SIZE, num_episodes=NUM_EPISODES)
 
     model = IrisClassifier(OPTIMISER, LOSS_FUNC, LEARNING_RATE)
     simulator4 = Simulator(X_train, y_train, model, attacker=None,
-                        defender=None, batch_size=BATCH_SIZE, episode_size=EPISODE_SIZE)
+                        defender=None, batch_size=BATCH_SIZE, num_episodes=NUM_EPISODES)
 
     #simulate attack and defense separately using class method
     simulator1.run(defender_kwargs = defender_kwargs)
@@ -115,7 +115,7 @@ def test_iris_simulations():
 
     wrapped_results_X, wrapped_results_y, wrapped_models =  wrap_results(simulators)
 
-    postprocessor = PostProcessor(wrapped_models, BATCH_SIZE, EPISODE_SIZE, model)
+    postprocessor = PostProcessor(wrapped_models, BATCH_SIZE, NUM_EPISODES, model)
     postprocessor.plot_online_learning_accuracies(X_test, y_test, save=False)
 
 def test_iris_regular():
@@ -126,7 +126,7 @@ def test_iris_regular():
     #implement attack and defense strategies through learner
     model = IrisClassifier(OPTIMISER, LOSS_FUNC, LEARNING_RATE)
     simulator = Simulator(X_train, y_train, model, attacker=None,
-                        defender=None, batch_size=BATCH_SIZE, episode_size=EPISODE_SIZE)
+                        defender=None, batch_size=BATCH_SIZE, num_episodes=NUM_EPISODES)
 
     #simulate attack and defense separately using run() method
     simulator.run()
@@ -164,13 +164,11 @@ def train_test_MNIST():
 
 def test_MNIST_regular():
     X_train, y_train, X_test, y_test = train_test_MNIST()
-    print(X_train.shape)
-    print(y_train.shape)
 
     #implement attack and defense strategies through learner
     model = MNISTClassifier(OPTIMISER, LOSS_FUNC, LEARNING_RATE)
-    simulator = Simulator(X_train, y_train, model, attacker=None,
-                        defender=None, batch_size=BATCH_SIZE, episode_size=EPISODE_SIZE)
+    simulator = Simulator(X_train, y_train, model, attacker=None, defender=None, 
+                          batch_size=BATCH_SIZE, num_episodes=NUM_EPISODES)
 
     #simulate attack and defense separately using run() method
     simulator.run()
