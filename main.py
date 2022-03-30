@@ -14,7 +14,7 @@ import numpy as np
 
 from data import DataLoader
 from attack import SimpleAttacker, RandomAttacker
-from defence import RandomDefender, FeasibleSetDefender
+from defence import FeasibleSetDefender, DefenderGroup, SoftmaxDefender
 from model import IrisClassifier
 from postprocessing import PostProcessor
 from simulation import Simulator, wrap_results
@@ -33,7 +33,7 @@ from sklearn.preprocessing import MinMaxScaler
 data = np.loadtxt("datasets/iris.dat") #already contains one-hot encoding for targets
 
 # batch size
-BATCH_SIZE = 1
+BATCH_SIZE = 12
 EPISODE_SIZE = 1
 
 # Model
@@ -70,28 +70,34 @@ def test_sims():
     X_train, y_train = shuffle(X_train, y_train)
 
     # Instantiate necessary classes
-    defender = FeasibleSetDefender(X_train, y_train, 0.5, one_hot=True)
+    defender = DefenderGroup(FeasibleSetDefender(X_train, y_train, 0.5, one_hot=True),
+                             SoftmaxDefender(threshold=0.1))
+    defender_kwargs = {"requires_model": True}
     # defender = RandomDefender(0.3)
     attacker = SimpleAttacker(0.6, 1, one_hot=True)
     # attacker = RandomAttacker()
     model = IrisClassifier(OPTIMISER, LOSS_FUNC, LEARNING_RATE)
-
+             
     #implement attack and defense strategies through learner
     model = IrisClassifier(OPTIMISER, LOSS_FUNC, LEARNING_RATE)
     simulator1 = Simulator(X_train, y_train, model, attacker=attacker,
-                        defender=defender, batch_size=BATCH_SIZE, episode_size=EPISODE_SIZE)
+                        defender=defender, batch_size=BATCH_SIZE, episode_size=EPISODE_SIZE, 
+                        defender_kwargs = defender_kwargs)
 
     model = IrisClassifier(OPTIMISER, LOSS_FUNC, LEARNING_RATE)
     simulator2 = Simulator(X_train, y_train, model, attacker=None,
-                        defender=defender, batch_size=BATCH_SIZE, episode_size=EPISODE_SIZE)
+                        defender=defender, batch_size=BATCH_SIZE, episode_size=EPISODE_SIZE,
+                        defender_kwargs = defender_kwargs)
 
     model = IrisClassifier(OPTIMISER, LOSS_FUNC, LEARNING_RATE)
     simulator3 = Simulator(X_train, y_train, model, attacker=attacker,
-                        defender=None, batch_size=BATCH_SIZE, episode_size=EPISODE_SIZE)
+                        defender=None, batch_size=BATCH_SIZE, episode_size=EPISODE_SIZE,
+                        defender_kwargs = defender_kwargs)
 
     model = IrisClassifier(OPTIMISER, LOSS_FUNC, LEARNING_RATE)
     simulator4 = Simulator(X_train, y_train, model, attacker=None,
-                        defender=None, batch_size=BATCH_SIZE, episode_size=EPISODE_SIZE)
+                        defender=None, batch_size=BATCH_SIZE, episode_size=EPISODE_SIZE,
+                        defender_kwargs = defender_kwargs)
 
     #simulate attack and defense separately using class method
     simulator1.run()
