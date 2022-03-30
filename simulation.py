@@ -155,7 +155,7 @@ class Simulator():
 
             # Defender's turn to defend
             if self.defender:
-                if "model" in defender_kwargs.keys():
+                if defender_kwargs["requires_model"]:
                     defender_kwargs["model"] = self.model
 
                 X_episode, y_episode = self.defender.defend(X_episode, y_episode, **defender_kwargs)
