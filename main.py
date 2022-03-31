@@ -33,7 +33,7 @@ import torchvision
 #  GLOBAL VARIABLES
 # =============================================================================
 # batch size
-BATCH_SIZE = 10
+BATCH_SIZE = 64
 NUM_EPISODES = 5
 
 # Model
