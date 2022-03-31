@@ -146,7 +146,6 @@ class SimpleAttacker(AddPointsAttacker):
         orignal_y = y
         if self.one_hot:
             y = super().decode_one_hot(y)
-        print("decoded y",y)
             
         if super().check_batch_size(x) == 1:
             x = x.reshape(1, -1)
@@ -158,14 +157,11 @@ class SimpleAttacker(AddPointsAttacker):
         y_add = np.full((num_to_add,1), self.label)
         y = np.append(y, y_add)
         
-        print(" appended data")
-        print(x, y)
 
         
         x, y = shuffle(x,y)
         y = y.reshape(-1, 1)
-        print("shuffled data ready to be encoded")
-        print(x,y)
+
         if self.one_hot:
             if super().check_batch_size(orignal_y) == 1:
                 num_of_classes = np.shape(orignal_y)[0]
@@ -174,15 +170,12 @@ class SimpleAttacker(AddPointsAttacker):
                 for i in range(len(y)):
                     idx = int(y[i][0])
                     out_y[i][idx] = 1
-                    
-                print("lelel")    
+                       
                 y = out_y
             else:
-                print("trolol")
                 num_of_classes = super().check_num_of_classes(orignal_y)
-                print("no_classes", num_of_classes)
+
                 y = super().one_hot_encoding(y, num_of_classes)
-                print("encoded y", y)
         return x, y
                     
 
