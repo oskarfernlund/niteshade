@@ -8,13 +8,13 @@
 #  IMPORTS AND DEPENDENCIES
 # =============================================================================
 
-from re import T
 import numpy as np
 from data import DataLoader
 from model import IrisClassifier
 from abc import ABC, abstractmethod
 import inspect
 import torch
+from copy import deepcopy
 
 
 
@@ -24,23 +24,63 @@ import torch
 
 
 # =============================================================================
-#  GeneralDefender class
+#  DefenderGroup class
 # =============================================================================
 class DefenderGroup():
-    def __init__(self, *defenders) -> None:
+    def __init__(self, ensemble_rate = 0.0, *defenders,) -> None:
         self.defender_list = []
+        self.ensemble_rate = ensemble_rate
         for defender in defenders:
             self.defender_list.append(defender)
         
     def defend(self, X, y, **input_kwargs):
-        for defender in self.defender_list:
-            if len(X)>0:
+        if self.ensemble_rate > 0:
+            input_datapoints = deepcopy(X)
+            input_labels = deepcopy(y)
+            point_dict = self.initiate_dict(X, y)
+            for defender in self.defender_list:
                 X, y = defender.defend(X, y, **input_kwargs)
+                point_dict = self.update_dict(point_dict, X)
+                X = deepcopy(input_datapoints)
+                y = deepcopy(input_labels)
+            output_x, output_y = self.get_final_points(point_dict)
+            return (output_x, output_y)
+            
+
+        else:
+            for defender in self.defender_list:
+                if len(X)>0:
+                    X, y = defender.defend(X, y, **input_kwargs)
         return X, y
+    
+    def initiate_dict(self,X, y):
+        point_dict = {}
+        for points in X:
+            point_dict[points] = {"target": y, "Accept_count": 0}
+        return point_dict
+
+    def update_dict(self, point_dict, X):
+        for points in X:
+            if points in point_dict.keys():
+                point_dict[points]["Accept_count"] += 1
+        return point_dict
+
+    def get_final_points(self, point_dict):
+        accepted_X = []
+        accepted_Y = []
+        for key, values in point_dict.items():
+            if (values["Accept_count"] / len(point_dict)) > self.ensemble_rate:
+                accepted_X.append(key)
+                accepted_Y.append(values["target"])
+        return np.array(accepted_X), np.array(accepted_Y)
+        
+
         
 # =============================================================================
-#  GeneralDefender class
+#  DefenderEnsemble class
 # =============================================================================
+ 
+
 class Defender(ABC):
     def __init__(self) -> None:
         pass
