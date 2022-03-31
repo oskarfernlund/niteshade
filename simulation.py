@@ -116,16 +116,17 @@ def wrap_results(simulators):
     return wrapped_results_X, wrapped_results_y, wrapped_models
 
 
-class Simulator:
+class Simulator():
     """"""
     def __init__(self, X, y, model, attacker=None,
-                 defender=None, batch_size=1, episode_size=1,
+                 defender=None, batch_size=1, num_episodes=1,
                  save=False, **kwargs):
         """"""
         
         self.X = X
         self.y = y
-        self.episode_size = episode_size
+        self.num_episodes = num_episodes
+        self.episode_size = len(X) // num_episodes
         self.batch_size = batch_size
         self.model = model
         self.attacker = attacker
@@ -134,8 +135,13 @@ class Simulator:
 
         self.results = {'X_stream': [], 'y_stream': [], 'models': []}
 
-    def run(self, verbose=True):
-        """"""
+    def run(self, defender_kwargs = {}, attacker_kwargs = {}, verbose = True):
+        """
+        Args:
+            defender_kwargs {dict}: dictionary containing keyword arguments for defender .defend() method.
+            attacker_kwargs {dict}: dictionary containing keyword arguments for attacker .attack() method.
+            verbose {bool}: Default = True.
+        """
         generator = DataLoader(self.X, self.y, batch_size = self.episode_size) #initialise data stream
         batch_queue = DataLoader(batch_size = self.batch_size) #initialise cache data loader
         
@@ -143,18 +149,24 @@ class Simulator:
         for (X_episode, y_episode) in generator:
             # Attacker's turn to attack
             if self.attacker:
-                X_episode, y_episode = self.attacker.attack(X_episode, y_episode)
+                if "model" in attacker_kwargs.keys():
+                    attacker_kwargs["model"] = self.model
+
+                X_episode, y_episode = self.attacker.attack(X_episode, y_episode, **attacker_kwargs)
 
             # Defender's turn to defend
             if self.defender:
-                X_episode, y_episode = self.defender.defend(X_episode, y_episode)
+                if defender_kwargs["requires_model"]:
+                    defender_kwargs["model"] = self.model
 
-            batch_queue.add_to_cache(X_episode, y_episode)
+                X_episode, y_episode = self.defender.defend(X_episode, y_episode, **defender_kwargs)
+
+            batch_queue.add_to_cache(X_episode, y_episode) #add perturbed / filtered points to batch queue
             
             # Online learning loop
             for (X_batch, y_batch) in batch_queue:
 
-                self.model.step(X_batch, y_batch)
+                self.model.step(X_batch, y_batch) #take a gradient descent step
 
                 if verbose:
                     print("Batch: {:03d} -- Loss: {:.4f}".format(
@@ -167,9 +179,6 @@ class Simulator:
             self.results["X_stream"].append(X_episode)
             self.results["y_stream"].append(y_episode)
             self.results["models"].append(deepcopy(self.model.state_dict()))
-                
-                # Postprocessor saves resultsb
-                #postprocessor.cache(databatch, perturbed_databatch, model.epoch_loss)
 
             # Save the results to the results directory
             if self.save:

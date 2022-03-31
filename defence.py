@@ -8,22 +8,44 @@
 #  IMPORTS AND DEPENDENCIES
 # =============================================================================
 
+from re import T
 import numpy as np
 from data import DataLoader
 from model import IrisClassifier
+from abc import ABC, abstractmethod
+import inspect
+import torch
+
 
 
 # =============================================================================
 #  GLOBAL VARIABLES
 # =============================================================================
 
+
 # =============================================================================
 #  GeneralDefender class
 # =============================================================================
-class GeneralDefender:
+class DefenderGroup():
+    def __init__(self, *defenders) -> None:
+        self.defender_list = []
+        for defender in defenders:
+            self.defender_list.append(defender)
+        
+    def defend(self, X, y, **input_kwargs):
+        for defender in self.defender_list:
+            if len(X)>0:
+                X, y = defender.defend(X, y, **input_kwargs)
+        return X, y
+        
+# =============================================================================
+#  GeneralDefender class
+# =============================================================================
+class Defender(ABC):
     def __init__(self) -> None:
         pass
-
+    
+    @abstractmethod
     def defend(self):
         raise NotImplementedError("Defend method needs to be implemented for a defender")
 
@@ -31,28 +53,35 @@ class GeneralDefender:
 # =============================================================================
 #  OutlierDefender class
 # =============================================================================
-class OutlierDefender(GeneralDefender):
+class OutlierDefender(Defender):
     def __init__(self, initial_dataset_x, initial_dataset_y) -> None:
         super().__init__()
         self._init_x = initial_dataset_x
         self._init_y = initial_dataset_y
 
+# =============================================================================
+#  Softmax Defender class
+# =============================================================================
 
-# =============================================================================
-#  RandomDefender class
-# =============================================================================
-class RandomDefender:
-    # Simple RandomDefender who will reject a datapoint randomly depending on the input rate
-    def __init__(self, rate) -> None:
-        self.rate = rate
-    
-    def defend(self, X, y):
-        if np.random.rand() <= self.rate:
-            X = np.array([])
-            y = np.array([])
-            return X, y
-        #NB datapoint var actually not used but is declared as other defenders will use datapoint
-        return X, y
+class SoftmaxDefender(Defender):
+    def __init__(self, threshold) -> None:
+        super().__init__()
+        self.threshold = threshold
+    def defend(self, datapoints, labels, model, **input_kwargs):
+        #convert np.ndarray to tensor for the NN
+        X_batch = torch.tensor(datapoints)
+        # Assume onehot for labels currently!!
+        class_labels = torch.tensor(np.argmax(labels, axis = 1).reshape(-1,1))
+        #zero gradients so they are not accumulated across batches
+        model.optimizer.zero_grad()
+        # Performs forward pass through classifier
+        outputs = model.forward(X_batch.float())
+        confidence = torch.gather(outputs, 1 , class_labels)
+        mask = (confidence>self.threshold).squeeze(1)
+        X_output = X_batch[mask].detach().numpy()
+        y_output = labels[mask.numpy()]
+        return (X_output, y_output)
+
 
 # =============================================================================
 #  FeasibleSetDefender class
@@ -60,13 +89,23 @@ class RandomDefender:
 
 class FeasibleSetDefender(OutlierDefender):
     #Extremely simple class_mean_based outlier detector
-    def __init__(self, initial_dataset_x, initial_dataset_y, threshold, one_hot = False) -> None:
+    def __init__(self, initial_dataset_x, initial_dataset_y, threshold, one_hot = False, dist_metric_type = "Eucleidian") -> None:
         super().__init__(initial_dataset_x, initial_dataset_y)
         self.one_hot = one_hot
         if self.one_hot:
             self._label_encoding()        
         self._feasible_set_construction()
         self._threshold = threshold
+        self.distance_metric = Distance_metric(dist_metric_type)
+    
+    @property
+    def distance_metric(self):
+        return self.__distance_metric._type
+
+    @distance_metric.setter
+    def distance_metric(self, new_distance_metric):
+        self.__distance_metric = new_distance_metric
+
 
     def _label_encoding(self):
         self._init_y=np.argmax(self._init_y, axis = 1)
@@ -91,14 +130,14 @@ class FeasibleSetDefender(OutlierDefender):
         new_mean = label_mean + (datapoint-label_mean)/self._label_counts[label]
         self.feasible_set[label] = new_mean
     
-    def _distance_metric(self,datapoint, label):
+    def _distance_metric_calculator(self,datapoint, label):
         #Calculate the distance metric for the datapoint from the feasible set mean
         label_mean = self.feasible_set[label]
         #simple eucl mean
-        distance = np.sqrt(np.sum((datapoint - label_mean)**2))
+        distance = self.__distance_metric.distance(datapoint, label_mean)
         return distance
-
-    def defend(self,datapoints, labels):
+    
+    def defend(self,datapoints, labels, **input_kwargs):
         #Reject datapoint taking into account running means
         if self.one_hot:
             one_hot_length = len(labels[0])
@@ -107,7 +146,7 @@ class FeasibleSetDefender(OutlierDefender):
         cleared_labels = []
         for id, datapoint in enumerate(datapoints):
             data_label = labels[id]
-            distance = self._distance_metric(datapoint, data_label)
+            distance = self._distance_metric_calculator(datapoint, data_label)
             if distance < self._threshold:
                 self._feasible_set_adjustment(datapoint, data_label)
                 cleared_datapoints.append(datapoint)
@@ -126,6 +165,22 @@ class FeasibleSetDefender(OutlierDefender):
         
 
 # =============================================================================
+#  Distance_metric class
+# =============================================================================
+class Distance_metric:
+    def __init__(self, type) -> None:
+        if type not in ["Eucleidian", "L1"]:
+            raise NotImplementedError ("This distance metric type has not been implemented")
+        self._type = type
+        pass
+
+    def distance(self, input_1, Input_2):
+        if self._type == "Eucleidian":
+            return np.sqrt(np.sum((input_1 - Input_2)**2))
+        if self._type == "L1":
+            return np.abs(np.sum((input_1 - Input_2)))
+
+# =============================================================================
 #  FUNCTIONS
 # =============================================================================
 
@@ -134,18 +189,29 @@ class FeasibleSetDefender(OutlierDefender):
 # =============================================================================
 
 if __name__ == "__main__":
+
     x = np.array([[1,2,3], [1,3,2], [3,4,5]])
-    y = np.array([[0,1,0],[0,0,1],[0,1,0]])
+    y = np.array([[0,1,0],[0,0,1],[1,0,0]])
+    grp = DefenderGroup(FeasibleSetDefender(x,y, 3, True))
+
+
     defender = FeasibleSetDefender(x,y, 3, True)
+    print (defender.feasible_set)
     datapoint = np.array([[2,2,2], [1,1,1]])
     label = np.array([[0,0,1],[0,1,0]])
+    grp.defend(datapoint, label, model = "a")
     print(defender.defend(datapoint, label))
 
 
     x = np.array([[1,2,3], [1,3,2], [3,4,5]])
     y = np.array([1,2,1])
     defender = FeasibleSetDefender(x,y, 3)
+    print(defender.distance_metric)
     datapoint = np.array([[2,2,2], [1,1,1]])
     label = np.array([2,1])
+    print(defender.defend(datapoint, label))
+    dist_metr_1 = Distance_metric("L1")
+    defender.distance_metric = dist_metr_1
+    print(defender.distance_metric)
     print(defender.defend(datapoint, label))
     

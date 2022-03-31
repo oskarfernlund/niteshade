@@ -22,4 +22,25 @@ def save_pickle(results, dir_name='output', file_name='default'):
 
     pickle.dump(results, open(f"{dir_name}/{file_name}", "wb"))
 
+
+def load_model(filename):
+    """Load a binary file containing a neural network.
+
+    Returns:
+        model {nn.Module}: Trained model inheriting nn.Module with learnable parameters .
+    """
+    # If you alter this, make sure it works in tandem with save_regressor
+    with open(filename, 'rb') as target:
+        model = pickle.load(target)
     
+    return model
+
+def save_model(model, filename):
+    """Save classifier as a binary .pickle file.
+
+    Args:
+            filename {str}: name of file to save model in (excluding extension).
+    """
+    # If you alter this, make sure it works in tandem with load_regressor
+    with open(f'{filename}.pickle', 'wb') as target:
+        pickle.dump(model, target)
