@@ -1,6 +1,6 @@
 
 # Written by: Oskar
-# Last edited: 2022/02/06
+# Last edited: 2022/03/31
 # Description: Data module. Contains classes and functions pertaining to the 
 # storage, loading and batching of datapoints.
 
@@ -10,6 +10,7 @@
 # =============================================================================
 
 import numpy as np
+import torch
 
 
 # =============================================================================
@@ -50,8 +51,8 @@ class DataLoader:
         None, the cache and queue will initially be empty.
     
         Args:
-            X (np.array) : features (shape = N x D)
-            y (np.array) : coresponding labels (shape = N)
+            X (np.array or torch.tensor) : features (first dimension = N)
+            y (np.array or torch.tensor) : labels (first dimension = N)
             batch_size (int) : size of the batches to generate
             shuffle (bool) : whether or not to shuffle the datapoints before 
             seed (int) : seed for the random number generator 
@@ -61,8 +62,6 @@ class DataLoader:
         self.shuffle = shuffle
         self._cache = []
         self._queue = []
-        self.input_shape = None
-        self.target_shape = None
         
         # Initialise the random number generator (for shuffling)
         if shuffle:
@@ -72,8 +71,6 @@ class DataLoader:
         
         # If data has been passed as an argument, add it to cache/queue
         if X is not None and y is not None:
-            self.input_shape = np.shape(X)[1:]
-            self.target_shape = np.shape(y)[1:]
             self.add_to_cache(X, y)
 
     def __iter__(self):
@@ -89,9 +86,6 @@ class DataLoader:
         """
         try:
             X, y = self._queue.pop(0)
-            X = np.reshape(X, (-1, *self.input_shape))
-            y = np.reshape(y, (-1, *self.target_shape))
-
         except IndexError:
             raise StopIteration
         return X, y
@@ -101,7 +95,7 @@ class DataLoader:
         return f"DataLoader object with batch size {self.batch_size}"
 
     def __len__(self):
-        "Returns the length of the data loader (i.e the queue to iterate over)."
+        """ Returns the length of the queue. """
         return len(self._queue)
 
     def add_to_cache(self, X, y):
@@ -114,21 +108,19 @@ class DataLoader:
         them from the cache and adds them to the queue.
 
         Args:
-            X (np.array) : features (shape = N x D)
-            y (np.array) : coresponding labels (shape = N)
+            X (np.array or torch.tensor) : features (first dimension = N)
+            y (np.array or torch.tensor) : labels (first dimension = N)
         """
+        # Make sure X and y dimensions are compatible
+        assert X.shape[0] == y.shape[0], "First dim. of X & y must be aligned!"
+
         # Shuffle the datapoints if shuffle was set to true in the constructor
         if self.shuffle:
-            shuffler = self._rng.permutation(len(X))
+            shuffler = self._rng.permutation(X.shape[0])
             X, y = X[shuffler], y[shuffler]
 
         # Append each datapoint to the cache
         for datapoint in zip(X, y):
-            #record input and target shapes if X and y weren't specified previously
-            if not self.input_shape and not self.target_shape:
-                self.input_shape = np.shape(X)[1:]
-                self.target_shape = np.shape(y)[1:]
-
             self._cache.append(datapoint)
 
         # Batch the datapoints; clear them from cache; add them to queue
@@ -140,6 +132,10 @@ class DataLoader:
         If the number of points in the cache isn't divisible by the batch size, 
         some points will remain in the cache. These will be the first points to
         get batched if new (X, y) values are added to the cache.
+
+        Raises:
+            TypeError : if the features and labels (X, y) are neither of type
+                np.ndarray nor torch.tensor
         """
         # Repeat until there are insufficient points to form a batch
         while len(self._cache) >= self.batch_size:
@@ -148,9 +144,17 @@ class DataLoader:
             batch = self._cache[:self.batch_size]
             del self._cache[:self.batch_size]
 
-            # Shape batch into arrays; add to queue
-            X = np.vstack([datapoint[0] for datapoint in batch])
-            y = np.array([datapoint[1] for datapoint in batch])
+            # Stack datapoints into batch of correct dimensions
+            if type(batch[0][0]) == np.ndarray:
+                X = np.stack([datapoint[0] for datapoint in batch], axis=0)
+                y = np.stack([datapoint[1] for datapoint in batch], axis=0)
+            elif type(batch[0][0] == torch.tensor):
+                X = torch.stack([datapoint[0] for datapoint in batch], axis=0)
+                y = torch.stack([datapoint[1] for datapoint in batch], axis=0)
+            else:
+                raise TypeError("Data must be np.ndarray or torch.tensor")
+
+            # Add batch to the queue
             self._queue.append((X, y))
 
 
@@ -159,40 +163,107 @@ class DataLoader:
 # =============================================================================
 
 def main():
-    """ Sample main. """
+    """ Sample main to test out the dataloader. """
+
+    # Test with Numpy arrays
+    # ======================
+
+    print("\nNumpy array test\n")
+
     # Create some fake data
-    X_initial = np.ones((10, 3)) 
-    y_initial = np.ones(10)
+    X = np.ones((10, 6)) 
+    y = np.ones((10, 2))
     batch_size = 3
 
     # Create a DataLoader instance
-    dataloader = DataLoader(X_initial, y_initial, batch_size, shuffle=False)
+    dataloader = DataLoader(X, y, batch_size, shuffle=False)
     print(dataloader)
-    
-    # Print out the batch sequence
-    print("Iterating over batches:")
+    print(f"Initialised with:")
+    print(f"   - Feature array of size {X.shape}")
+    print(f"   - Label array of size {y.shape}")
+    print(f"   - Data of type {type(X)}")
+
+    # Iterate over batches
     for batch in dataloader:
-        print(batch)
+        pass
 
     # Check the contents of the cache and queue
-    print("\nLength of the cache and queue after iterating:")
-    print(len(dataloader._cache))
-    print(len(dataloader._queue))
+    print("After iterating over batches:")
+    print(f"   - {len(dataloader._cache)} datapoints in the cache")
+    print(f"   - {len(dataloader._queue)} datapoints in the queue")
+    print(f"   - Batches of type {type(batch[0])}")
+    print("Expected:")
+    print(f"   - {10 % 3} datapoints in the cache")
+    print(f"   - 0 datapoints in the queue")
+    print(f"   - Batches of type {type(X)}")
 
     # Create some more fake data, add to cache
-    X = np.zeros((10, 3)) 
-    y = np.zeros(10)
+    X = np.zeros((10, 6)) 
+    y = np.zeros((10, 2))
+    print("Adding new datapoints to the cache")
     dataloader.add_to_cache(X, y)
 
-    # Print out the batch sequence again
-    print("\nIterating over new batches:")
+    # Iterate over batches
     for batch in dataloader:
-        print(batch)
+        pass
 
     # Check the contents of the cache and queue again
-    print("\nLength of the cache and queue after iterating:")
-    print(len(dataloader._cache))
-    print(len(dataloader._queue))
+    print("After iterating over batches:")
+    print(f"   - {len(dataloader._cache)} datapoints in the cache")
+    print(f"   - {len(dataloader._queue)} datapoints in the queue")
+    print("Expected:")
+    print(f"   - {20 % 3} datapoints in the cache")
+    print(f"   - 0 datapoints in the queue")
+
+    # Test with PyTorch tensors
+    # =========================
+
+    print("\nPyTorch Tensor test\n")
+
+    # Create some fake data
+    X = torch.randn((15, 3, 10, 10))
+    y = torch.randn((15, 2))
+    batch_size = 4
+
+    # Create a DataLoader instance
+    dataloader = DataLoader(X, y, batch_size, shuffle=True)
+    print(dataloader)
+    print(f"Initialised with:")
+    print(f"   - Feature array of size {X.shape}")
+    print(f"   - Label array of size {y.shape}")
+    print(f"   - Data of type {type(X)}")
+    
+    # Print out the batch sequence
+    for batch in dataloader:
+        pass
+
+    # Check the contents of the cache and queue
+    print("After iterating over batches:")
+    print(f"   - {len(dataloader._cache)} datapoints in the cache")
+    print(f"   - {len(dataloader._queue)} datapoints in the queue")
+    print(f"   - Batches of type {type(batch[0])}")
+    print("Expected:")
+    print(f"   - {15 % 4} datapoints in the cache")
+    print(f"   - 0 datapoints in the queue")
+    print(f"   - Batches of type {type(X)}")
+
+    # Create some more fake data, add to cache
+    X = torch.randn((15, 3, 10, 10))
+    y = torch.randn((15, 2))
+    print("Adding new datapoints to the cache")
+    dataloader.add_to_cache(X, y)
+
+    # Iterate over batches
+    for batch in dataloader:
+        pass
+
+    # Check the contents of the cache and queue again
+    print("After iterating over batches:")
+    print(f"   - {len(dataloader._cache)} datapoints in the cache")
+    print(f"   - {len(dataloader._queue)} datapoints in the queue")
+    print("Expected:")
+    print(f"   - {30 % 4} datapoints in the cache")
+    print(f"   - 0 datapoints in the queue")
 
 
 # =============================================================================
