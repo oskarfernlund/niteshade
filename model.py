@@ -18,9 +18,39 @@ from sklearn.datasets import load_iris
 #  CLASSES
 # =============================================================================
 class BaseModel(nn.Module):
-    """"""
-    def __init__(self, architecture, optimizer, loss_func, lr, seed = None):
-        """"""
+    """Abstract model class intended for ease of implementation in designing 
+       neural networks for data poisining attacks. Requires an architecture
+       to be defined in the form of a list or nested list containing the 
+       sequence of torch.nn.modules objects needed to perform a forward 
+       pass. 
+    """
+    def __init__(self, architecture: list, optimizer, loss_func, lr, seed = None):
+        """Constrcutor method of BaseModel class that inherits from nn.Module.
+        Args: 
+            - architecture {list}: list or nested list containing sequence of 
+                                 nn.torch.modules objects to be used in the 
+                                 forward pass of the model.
+            
+            - optimizer {str}: String specifying optimizer to use in training neural network.
+                               Options:
+                                    'adam': torch.optim.Adam(),
+                                    'adagrad': torch.optim.Adagrad(),
+                                    'sgd': torch.optim.SGD().
+
+                               Default = 'adam'
+
+            - loss_func {str}: String specifying loss function to use in training neural network.
+                               Options:
+                                    'mse': nn.MSELoss(),
+                                    'nll': nn.NLLLoss(),
+                                    'bce': nn.BCELoss(),
+                                    'cross_entropy': nn.CrossEntropyLoss().
+
+                               Default = 'mse'
+            
+            - lr {float}: Learning rate to use in training neural network (Default = 0.01).
+       
+        """
         super().__init__()
         #initialise attributes to store training hyperparameters
         self.lr = lr
@@ -51,7 +81,8 @@ class BaseModel(nn.Module):
         self.losses = []
     
     def step(self, X_batch, y_batch):
-        """Perform a step of gradient descent on the passed inputs (X_batch) and labels (y_batch).
+        """Perform a step of gradient descent on the passed inputs 
+           (X_batch) and labels (y_batch).
 
         Args:
              X_batch {np.ndarray}: input data used in training.
@@ -86,8 +117,7 @@ class BaseModel(nn.Module):
         Args:
             x {torch.Tensor} -- Processed input array of size (batch_size, input_size).
             
-        Returns:
-            output {torch.Tensor} -- Predictions from current state of the model.
+        Returns: Predictions from current state of the model.
         """
         raise NotImplementedError
 
@@ -99,11 +129,13 @@ class BaseModel(nn.Module):
         """
         raise NotImplementedError
 
-    def evaluate(self, test_loader):
-        """Evaluate neural network model on a test dataset.
+    def evaluate(self, X_test, y_test, batch_size):
+        """Test the accuracy of the iris classifier on a test set.
 
         Args:
-            test_loader {DataLoader}: Iterable DataLoader object containing test dataset.
+            X_test {np.ndarray}: test input data.
+            y_test {np.ndarray}: test target data.
+            batch_size {int}: size of batches in DataLoader object.
         """
         raise NotImplementedError
         
@@ -162,7 +194,6 @@ class IrisClassifier(BaseModel):
             X_test {np.ndarray}: test input data.
             y_test {np.ndarray}: test target data.
             batch_size {int}: size of batches in DataLoader object.
-
         """
         #create dataloader with test data
         test_loader = DataLoader(X_test, y_test, batch_size=batch_size)
