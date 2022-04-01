@@ -33,7 +33,7 @@ import torchvision
 #  GLOBAL VARIABLES
 # =============================================================================
 # batch size
-BATCH_SIZE = 32
+BATCH_SIZE = 10
 NUM_EPISODES = 1000
 
 # Model
@@ -76,7 +76,7 @@ def train_test_iris(num_stacks = 10):
 
 
 def test_iris_simulations():
-    """Attack and defense combinations simulations."""
+    """Attack and defense combinations simulations for Iris classifier."""
     #split iris dataset into train and test
     X_train, y_train, X_test, y_test = train_test_iris(num_stacks=10)
 
@@ -106,9 +106,9 @@ def test_iris_simulations():
 
     #simulate attack and defense separately using class method
     simulator1.run(defender_kwargs = defender_kwargs)
-    #simulator2.run(defender_kwargs = defender_kwargs)
-    #simulator3.run(defender_kwargs = defender_kwargs)
-    #simulator4.run(defender_kwargs = defender_kwargs)
+    simulator2.run(defender_kwargs = defender_kwargs)
+    simulator3.run(defender_kwargs = defender_kwargs)
+    simulator4.run(defender_kwargs = defender_kwargs)
 
     simulators = {'attacker_and_defense': simulator1, 'only_defender':simulator2,
                 'only_attacker': simulator3, 'regular': simulator4}
