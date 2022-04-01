@@ -4,6 +4,8 @@ from sklearn.utils import shuffle
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.datasets import load_iris
 
+import torchvision
+
 class Attacker:
     
     
@@ -206,29 +208,64 @@ if __name__ == "__main__":
     # x = X[:4]
     # y = y[:4]
     # print(x, y)
-    # print(x.shape, y.shape)
-    x = np.array([[0.41666667, 0.25 ,      0.50847458 ,0.45833333],
-    [0.61111111, 0.41666667, 0.71186441, 0.79166667],
-    [0.61111111, 0.33333333, 0.61016949, 0.58333333]])
-    y = np.array([[0, 1, 0],
-    [0., 0. ,1.],
-    [0. ,1., 0.]])
-    print("og data", x,y)
-    # X = np.repeat(X, 20, axis=0)
-    # y = np.repeat(y, 20, axis=0)
-    # X = X[0]
-    # y = y[0]
-    # print(X, y)
-    # print(X)
-    # print(y[0])
-    # for x, lel_y in zip(X, y):
-    attacker = SimpleAttacker(0.6, 1, one_hot=True)
-    new_x, new_y = attacker.attack(x,y)
-    print(new_x.shape, new_y.shape)
-        # if new_y.shape == (2,3):
-            # print("yay")
-        # else:
-            # print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-            # break
+    # # print(x.shape, y.shape)
+    # x = np.array([[0.41666667, 0.25 ,      0.50847458 ,0.45833333],
+    # [0.61111111, 0.41666667, 0.71186441, 0.79166667],
+    # [0.61111111, 0.33333333, 0.61016949, 0.58333333]])
+    # y = np.array([[0, 1, 0],
+    # [0., 0. ,1.],
+    # [0. ,1., 0.]])
+    # print("og data", x,y)
+    # # X = np.repeat(X, 20, axis=0)
+    # # y = np.repeat(y, 20, axis=0)
+    # # X = X[0]
+    # # y = y[0]
+    # # print(X, y)
+    # # print(X)
+    # # print(y[0])
+    # # for x, lel_y in zip(X, y):
+    # attacker = SimpleAttacker(0.6, 1, one_hot=True)
+    # new_x, new_y = attacker.attack(x,y)
+    # print(new_x.shape, new_y.shape)
+        # # if new_y.shape == (2,3):
+            # # print("yay")
+        # # else:
+            # # print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+            # # break
     
 
+    def train_test_MNIST():
+        MNIST_train = torchvision.datasets.MNIST('data/', train=True, download=True,
+                                 transform=torchvision.transforms.Compose([
+                                   torchvision.transforms.ToTensor(),
+                                   torchvision.transforms.Normalize(
+                                     (0.1307,), (0.3081,))
+                                 ]))
+
+        #get inputs and labels and convert to numpy arrays
+        X_train = MNIST_train.data.numpy().reshape(-1, 1, 28, 28)
+        y_train = MNIST_train.targets.numpy()
+
+        MNIST_test = torchvision.datasets.MNIST('data/', train=False, download=True,
+                                 transform=torchvision.transforms.Compose([
+                                   torchvision.transforms.ToTensor(),
+                                   torchvision.transforms.Normalize(
+                                     (0.1307,), (0.3081,))
+                                 ]))
+        
+        X_test = MNIST_test.data.numpy().reshape(-1, 1, 28, 28)
+        y_test = MNIST_test.targets.numpy()
+
+        return X_train, y_train, X_test, y_test
+        
+    X_train, y_train, X_test, y_test = train_test_MNIST()    
+    print(X_train.shape)
+    print(y_train.shape)
+    attacker = Attacker(0.6)
+    x = X_train[:11]
+    og_y = y_train[:11]
+    y = attacker.one_hot_encoding(y_train, 10)
+    y = y[:11]
+    print(x)
+    print(og_y)
+    print(y)
