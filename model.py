@@ -89,7 +89,7 @@ class BaseModel(nn.Module):
 
              y_batch {np.ndarray}: target data used in training.
         """
-        self.train()
+        self.train() #set model in training mode
 
         #convert np.ndarray /pd.Dataframe to tensor for the NN
         X_batch = torch.tensor(X_batch)
@@ -302,7 +302,6 @@ class MNISTClassifier(BaseModel):
         Args:
             X_test {np.ndarray}: test input data.
             y_test {np.ndarray}: test target data.
-
         """
         self.eval()
         #create dataloader with test data
