@@ -16,7 +16,7 @@ from abc import ABC, abstractmethod
 import inspect
 import torch
 from copy import deepcopy
-
+from sklearn.neighbors import KNeighborsClassifier
 
 
 # =============================================================================
@@ -111,6 +111,67 @@ class ModelDefender(Defender):
     def __init__(self) -> None:
         super().__init__()
 
+# =============================================================================
+#  PointModifierDefender class
+# =============================================================================
+class PointModifierDefender(Defender):
+    def __init__(self) -> None:
+        super().__init__()
+
+# =============================================================================
+#  KNN Defender class
+# =============================================================================
+
+class KNN_Defender(PointModifierDefender):
+    def __init__(self, init_x, init_y, nearest_neighbours, confidence_threshold) -> None:
+        super().__init__()
+        nr_of_datapoints = init_x.shape[0]
+        self.training_dataset_x = init_x.reshape((nr_of_datapoints, -1))
+        self.training_dataset_y = init_y.reshape((nr_of_datapoints, ))
+        self.nearest_neighbours = nearest_neighbours
+        self.confidence_threshold = confidence_threshold
+    
+    def defend(self, datapoints, input_labels):
+        nr_of_datapoints = datapoints.shape[0]
+        datapoints = datapoints.reshape((nr_of_datapoints, -1))
+        labels = deepcopy(input_labels).reshape((nr_of_datapoints, ))
+        KNN_classifier = KNeighborsClassifier(self.nearest_neighbours)
+        KNN_classifier.fit(self.training_dataset_x, self.training_dataset_y)
+        nearest_indeces = KNN_classifier.kneighbors(datapoints, return_distance=False)
+        nearest_labels = self._get_closest_labels(nearest_indeces)
+        confidence_list = self._calculate_confidence(nearest_labels)
+        output_labels = self._confidence_flip(labels, confidence_list)
+        self.training_dataset_x = np.append(self.training_dataset_x, datapoints, axis = 0)
+        self.training_dataset_y = np.append(self.training_dataset_y, output_labels, axis = 0)
+        return (datapoints, output_labels)
+
+    def _get_closest_labels(self, indeces):
+        general_label_list = []
+        for nghbs in indeces:
+            label_list = []
+            for index in nghbs:
+                label_list.append(self.training_dataset_y[index])
+            general_label_list.append(label_list)
+        return np.array(general_label_list)
+    
+    def _calculate_confidence(self, labels):
+        output_list = []
+        for points in labels:
+            unique_labels = list(set(points))
+            max_count = 0
+            max_label = -1
+            for label in unique_labels:
+                if list(points).count(label)>max_count:
+                    max_count = list(points).count(label)
+                    max_label = label
+            output_list.append((max_label, max_count/len(points)))
+        return output_list
+    
+    def _confidence_flip(self, labels, confidence_list):
+        for idx, _ in enumerate(labels):
+            if confidence_list[idx][1]>self.confidence_threshold:
+                labels[idx] = confidence_list[idx][0]
+        return labels
 # =============================================================================
 #  Softmax Defender class
 # =============================================================================
