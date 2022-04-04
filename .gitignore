@@ -5,3 +5,4 @@
 **/*venv
 **.idea
 *~
+*defender_tests.py
