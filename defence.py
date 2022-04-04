@@ -105,10 +105,17 @@ class OutlierDefender(Defender):
         self._init_y = initial_dataset_y
 
 # =============================================================================
+#  ModelDefender class
+# =============================================================================
+class ModelDefender(Defender):
+    def __init__(self) -> None:
+        super().__init__()
+
+# =============================================================================
 #  Softmax Defender class
 # =============================================================================
 
-class SoftmaxDefender(Defender):
+class SoftmaxDefender(ModelDefender):
     def __init__(self, threshold) -> None:
         super().__init__()
         if not (isinstance(threshold, float) or isinstance(threshold, int)):
@@ -128,7 +135,6 @@ class SoftmaxDefender(Defender):
         X_output = X_batch[mask].detach().numpy()
         y_output = labels[mask.numpy()]
         return (X_output, y_output)
-
 
 # =============================================================================
 #  FeasibleSetDefender class
