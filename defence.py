@@ -8,6 +8,7 @@
 #  IMPORTS AND DEPENDENCIES
 # =============================================================================
 
+from typing import Type
 import numpy as np
 from data import DataLoader
 from model import IrisClassifier
@@ -27,50 +28,54 @@ from copy import deepcopy
 #  DefenderGroup class
 # =============================================================================
 class DefenderGroup():
-    def __init__(self, ensemble_rate = 0.0, *defenders,) -> None:
-        self.defender_list = []
+    def __init__(self,defender_list, ensemble_rate = 0.0) -> None:
+        if not isinstance(defender_list, list):
+            raise TypeError ("The defender_list is not a list object.")
+        if not isinstance(ensemble_rate, float):
+            raise TypeError ("The ensemble_rate needs to be a float.")
+        for defender in defender_list:
+            if not isinstance(defender, Defender):
+                raise TypeError ("All of the defenders in the defender_list need to be Defender objects.")
+        self.defender_list = defender_list
         self.ensemble_rate = ensemble_rate
-        for defender in defenders:
-            self.defender_list.append(defender)
         
     def defend(self, X, y, **input_kwargs):
         if self.ensemble_rate > 0:
             input_datapoints = deepcopy(X)
             input_labels = deepcopy(y)
-            point_dict = self.initiate_dict(X, y)
+            point_dict = self._initiate_dict(X, y)
             for defender in self.defender_list:
                 X, y = defender.defend(X, y, **input_kwargs)
-                point_dict = self.update_dict(point_dict, X)
+                point_dict = self._update_dict(point_dict, X)
                 X = deepcopy(input_datapoints)
                 y = deepcopy(input_labels)
-            output_x, output_y = self.get_final_points(point_dict)
+            output_x, output_y = self._get_final_points(point_dict)
             return (output_x, output_y)
             
-
         else:
             for defender in self.defender_list:
                 if len(X)>0:
                     X, y = defender.defend(X, y, **input_kwargs)
         return X, y
     
-    def initiate_dict(self,X, y):
+    def _initiate_dict(self,X, y):
         point_dict = {}
-        for points in X:
-            point_dict[points] = {"target": y, "Accept_count": 0}
+        for idx, points in enumerate(X):
+            point_dict[str(points)] = {"point": points, "target": y[idx], "Accept_count": 0}
         return point_dict
 
-    def update_dict(self, point_dict, X):
+    def _update_dict(self, point_dict, X):
         for points in X:
-            if points in point_dict.keys():
-                point_dict[points]["Accept_count"] += 1
+            if str(points) in point_dict.keys():
+                point_dict[str(points)]["Accept_count"] += 1
         return point_dict
 
-    def get_final_points(self, point_dict):
+    def _get_final_points(self, point_dict):
         accepted_X = []
         accepted_Y = []
         for key, values in point_dict.items():
-            if (values["Accept_count"] / len(point_dict)) > self.ensemble_rate:
-                accepted_X.append(key)
+            if (values["Accept_count"] / len(self.defender_list)) > self.ensemble_rate:
+                accepted_X.append(values["point"])
                 accepted_Y.append(values["target"])
         return np.array(accepted_X), np.array(accepted_Y)
         
@@ -106,6 +111,8 @@ class OutlierDefender(Defender):
 class SoftmaxDefender(Defender):
     def __init__(self, threshold) -> None:
         super().__init__()
+        if not (isinstance(threshold, float) or isinstance(threshold, int)):
+            raise TypeError ("The threshold input for the SoftmaxDefender needs to be either float or a integer type.")
         self.threshold = threshold
     def defend(self, datapoints, labels, model, **input_kwargs):
         #convert np.ndarray to tensor for the NN
@@ -129,15 +136,21 @@ class SoftmaxDefender(Defender):
 
 class FeasibleSetDefender(OutlierDefender):
     #Extremely simple class_mean_based outlier detector
-    def __init__(self, initial_dataset_x, initial_dataset_y, threshold, one_hot = False, dist_metric_type = "Eucleidian") -> None:
+    def __init__(self, initial_dataset_x, initial_dataset_y, threshold, one_hot = False, dist_metric = "Eucleidian") -> None:
         super().__init__(initial_dataset_x, initial_dataset_y)
+        if not (isinstance(threshold, float) or isinstance(threshold, int)):
+            raise TypeError ("The threshold input for the FeasibleSetDefender needs to be either float or a integer type.")
         self.one_hot = one_hot
         if self.one_hot:
             self._label_encoding()        
         self._feasible_set_construction()
         self._threshold = threshold
-        self.distance_metric = Distance_metric(dist_metric_type)
-    
+        if isinstance(dist_metric, str):
+            self.distance_metric = Distance_metric(dist_metric)
+        elif isinstance(dist_metric, Distance_metric): 
+            self.distance_metric = dist_metric
+        else:
+            raise TypeError ("The Distance metric input for the FeasibleSetDefender needs to be either a string or a Distance_metric object.")
     @property
     def distance_metric(self):
         return self.__distance_metric._type
@@ -177,7 +190,7 @@ class FeasibleSetDefender(OutlierDefender):
         distance = self.__distance_metric.distance(datapoint, label_mean)
         return distance
     
-    def defend(self,datapoints, labels, **input_kwargs):
+    def defend(self, datapoints, labels, **input_kwargs):
         #Reject datapoint taking into account running means
         if self.one_hot:
             one_hot_length = len(labels[0])
@@ -208,17 +221,16 @@ class FeasibleSetDefender(OutlierDefender):
 #  Distance_metric class
 # =============================================================================
 class Distance_metric:
-    def __init__(self, type) -> None:
-        if type not in ["Eucleidian", "L1"]:
-            raise NotImplementedError ("This distance metric type has not been implemented")
+    def __init__(self, type = None) -> None:
         self._type = type
-        pass
-
+        
     def distance(self, input_1, Input_2):
         if self._type == "Eucleidian":
             return np.sqrt(np.sum((input_1 - Input_2)**2))
         if self._type == "L1":
             return np.abs(np.sum((input_1 - Input_2)))
+        else:
+            raise NotImplementedError ("This distance metric type has not been implemented")
 
 # =============================================================================
 #  FUNCTIONS
@@ -229,29 +241,7 @@ class Distance_metric:
 # =============================================================================
 
 if __name__ == "__main__":
-
-    x = np.array([[1,2,3], [1,3,2], [3,4,5]])
-    y = np.array([[0,1,0],[0,0,1],[1,0,0]])
-    grp = DefenderGroup(FeasibleSetDefender(x,y, 3, True))
-
-
-    defender = FeasibleSetDefender(x,y, 3, True)
-    print (defender.feasible_set)
-    datapoint = np.array([[2,2,2], [1,1,1]])
-    label = np.array([[0,0,1],[0,1,0]])
-    grp.defend(datapoint, label, model = "a")
-    print(defender.defend(datapoint, label))
-
-
-    x = np.array([[1,2,3], [1,3,2], [3,4,5]])
-    y = np.array([1,2,1])
-    defender = FeasibleSetDefender(x,y, 3)
-    print(defender.distance_metric)
-    datapoint = np.array([[2,2,2], [1,1,1]])
-    label = np.array([2,1])
-    print(defender.defend(datapoint, label))
-    dist_metr_1 = Distance_metric("L1")
-    defender.distance_metric = dist_metr_1
-    print(defender.distance_metric)
-    print(defender.defend(datapoint, label))
-    
+    import defender_tests
+    import unittest
+    suite = unittest.TestLoader().loadTestsFromModule(defender_tests)
+    unittest.TextTestRunner(verbosity=2).run(suite)
