@@ -1,21 +1,22 @@
 
 # Written by: Oskar
-# Last edited: 2022/02/06
-# Description: Tests for data module.
+# Last edited: 2022/03/31
+# Description: Unit tests for the dataloader class.
 
 
 # =============================================================================
 #  IMPORTS AND DEPENDENCIES
 # =============================================================================
 
+from data import DataLoader
+
 import pytest
 import numpy as np
-
-from data import DataLoader
+import torch
 
 
 # =============================================================================
-#  TEST FUNCTIONS
+#  UNIT TESTS
 # =============================================================================
 
 def test_shuffler():
@@ -76,3 +77,103 @@ def test_queue():
     for batch in dataloader:
         pass
     assert len(dataloader._queue) == 0
+
+
+def test_numpy_array_compatibility():
+    """ Check the dataloader supports numpy arrays as intended. """
+    # Common batch size for all tests because why not
+    batch_size = 16
+
+    # Simple basis function regression example
+    N, M = 100, 10
+    X = np.random.rand(N, M) 
+    y = np.random.rand(N)
+    dataloader = DataLoader(X, y, batch_size, shuffle=True)
+    for batch in dataloader:
+        assert batch[0].shape == (batch_size, M)
+        assert batch[1].shape == (batch_size,)
+        assert type(batch[0]) == np.ndarray
+        assert type(batch[1]) == np.ndarray
+
+    # Multilabel basis function regression example
+    N, M, L = 100, 10, 3
+    X = np.random.rand(N, M) 
+    y = np.random.rand(N, L)
+    dataloader = DataLoader(X, y, batch_size, shuffle=True)
+    for batch in dataloader:
+        assert batch[0].shape == (batch_size, M)
+        assert batch[1].shape == (batch_size, L)
+        assert type(batch[0]) == np.ndarray
+        assert type(batch[1]) == np.ndarray
+
+    # Image classification example
+    N, C, H, W = 100, 3, 32, 32
+    X = np.random.rand(N, C, H, W) 
+    y = np.random.rand(N)
+    dataloader = DataLoader(X, y, batch_size, shuffle=True)
+    for batch in dataloader:
+        assert batch[0].shape == (batch_size, C, H, W)
+        assert batch[1].shape == (batch_size,)
+        assert type(batch[0]) == np.ndarray
+        assert type(batch[1]) == np.ndarray
+
+    # Multilabel image classification example
+    N, C, H, W, L = 100, 3, 32, 32, 5
+    X = np.random.rand(N, C, H, W) 
+    y = np.random.rand(N, L)
+    dataloader = DataLoader(X, y, batch_size, shuffle=True)
+    for batch in dataloader:
+        assert batch[0].shape == (batch_size, C, H, W)
+        assert batch[1].shape == (batch_size, L)
+        assert type(batch[0]) == np.ndarray
+        assert type(batch[1]) == np.ndarray
+
+
+def test_pytorch_tensor_compatibility():
+    """ Check the dataloader supports pytorch tensors as intended. """
+    # Common batch size for all tests because why not
+    batch_size = 16
+
+    # Simple basis function regression example
+    N, M = 100, 10
+    X = torch.randn(N, M) 
+    y = torch.randn(N)
+    dataloader = DataLoader(X, y, batch_size, shuffle=True)
+    for batch in dataloader:
+        assert tuple(batch[0].shape) == (batch_size, M)
+        assert tuple(batch[1].shape) == (batch_size,)
+        assert type(batch[0]) == torch.Tensor
+        assert type(batch[1]) == torch.Tensor
+
+    # Multilabel basis function regression example
+    N, M, L = 100, 10, 3
+    X = torch.randn(N, M) 
+    y = torch.randn(N, L)
+    dataloader = DataLoader(X, y, batch_size, shuffle=True)
+    for batch in dataloader:
+        assert tuple(batch[0].shape) == (batch_size, M)
+        assert tuple(batch[1].shape) == (batch_size, L)
+        assert type(batch[0]) == torch.Tensor
+        assert type(batch[1]) == torch.Tensor
+
+    # Image classification example
+    N, C, H, W = 100, 3, 32, 32
+    X = torch.randn(N, C, H, W) 
+    y = torch.randn(N)
+    dataloader = DataLoader(X, y, batch_size, shuffle=True)
+    for batch in dataloader:
+        assert tuple(batch[0].shape) == (batch_size, C, H, W)
+        assert tuple(batch[1].shape) == (batch_size,)
+        assert type(batch[0]) == torch.Tensor
+        assert type(batch[1]) == torch.Tensor
+
+    # Multilabel image classification example
+    N, C, H, W, L = 100, 3, 32, 32, 5
+    X = torch.randn(N, C, H, W) 
+    y = torch.randn(N, L)
+    dataloader = DataLoader(X, y, batch_size, shuffle=True)
+    for batch in dataloader:
+        assert tuple(batch[0].shape) == (batch_size, C, H, W)
+        assert tuple(batch[1].shape) == (batch_size, L)
+        assert type(batch[0]) == torch.Tensor
+        assert type(batch[1]) == torch.Tensor

@@ -33,8 +33,8 @@ import torchvision
 #  GLOBAL VARIABLES
 # =============================================================================
 # batch size
-BATCH_SIZE = 64
-NUM_EPISODES = 5
+BATCH_SIZE = 10
+NUM_EPISODES = 1000
 
 # Model
 # HIDDEN_NEURONS = (4, 16, 3) automicatically set in IrisClassifier
@@ -76,14 +76,14 @@ def train_test_iris(num_stacks = 10):
 
 
 def test_iris_simulations():
-    """Attack and defense combinations simulations."""
+    """Attack and defense combinations simulations for Iris classifier."""
     #split iris dataset into train and test
     X_train, y_train, X_test, y_test = train_test_iris(num_stacks=10)
 
     # Instantiate necessary classes
     # Instantiate necessary classes
-    defender = DefenderGroup(FeasibleSetDefender(X_train, y_train, 0.5, one_hot=True),
-                             SoftmaxDefender(threshold=0.1))
+    defender = FeasibleSetDefender(X_train, y_train, 0.5, one_hot=True)
+                             #SoftmaxDefender(threshold=0.1))
     defender_kwargs = {"requires_model": True}
     attacker = SimpleAttacker(0.6, 1, one_hot=True)
 
@@ -182,9 +182,9 @@ def test_MNIST_regular():
 # =============================================================================
 if __name__ == "__main__":
     #-----------IRIS TRIALS------------
-    #test_iris_simulations()
+    test_iris_simulations()
     #test_iris_regular()
 
     #-----------MNIST TRIALS-----------
-    test_MNIST_regular()
+    #test_MNIST_regular()
 
