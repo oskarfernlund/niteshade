@@ -193,7 +193,7 @@ class KNN_Defender(PointModifierDefender):
 
 class SoftmaxDefender(ModelDefender):
     # Class for SoftMaxDefender
-    def __init__(self, threshold) -> None:
+    def __init__(self, threshold = 0.05) -> None:
         super().__init__()
         #Input validation
         if not (isinstance(threshold, float) or isinstance(threshold, int)):
