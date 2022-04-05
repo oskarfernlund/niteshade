@@ -24,7 +24,7 @@ class BaseModel(nn.Module):
        sequence of torch.nn.modules objects needed to perform a forward 
        pass. 
     """
-    def __init__(self, architecture: list, optimizer, loss_func, lr, seed = None):
+    def __init__(self, architecture: list, optimizer: str, loss_func: str, lr: float, seed = None):
         """Constrcutor method of BaseModel class that inherits from nn.Module.
         Args: 
             - architecture {list}: list or nested list containing sequence of 
@@ -81,19 +81,22 @@ class BaseModel(nn.Module):
         self.losses = []
     
     def step(self, X_batch, y_batch):
-        """Perform a step of gradient descent on the passed inputs 
-           (X_batch) and labels (y_batch).
+        """Perform a step of gradient descent on the passed inputs (X_batch) and labels (y_batch).
 
         Args:
-             X_batch {np.ndarray}: input data used in training.
+             X_batch {np.ndarray, torch.Tensor}: input data used in training.
 
-             y_batch {np.ndarray}: target data used in training.
+             y_batch {np.ndarray, torch.Tensor}: target data used in training.
         """
-        self.train() #set model in training mode
+        assert ((isinstance(X_batch, torch.Tensor) and isinstance(y_batch, torch.Tensor))
+               or (isinstance(X_batch, np.ndarray) and isinstance(X_batch, np.ndarray)))
 
         #convert np.ndarray /pd.Dataframe to tensor for the NN
-        X_batch = torch.tensor(X_batch)
-        y_batch = torch.tensor(y_batch)
+        if (isinstance(X_batch, np.ndarray) and isinstance(X_batch, np.ndarray)):
+            X_batch = torch.tensor(X_batch)
+            y_batch = torch.tensor(y_batch)
+
+        self.train() #set model in training mode
 
         #zero gradients so they are not accumulated across batches
         self.optimizer.zero_grad()
