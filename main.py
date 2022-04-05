@@ -139,7 +139,7 @@ def test_iris_regular():
 ## Test MNIST Classifier
 ## ============================================================================
 def train_test_MNIST():
-    MNIST_train = torchvision.datasets.MNIST('data/', train=True, download=True,
+    MNIST_train = torchvision.datasets.MNIST('datasets/', train=True, download=True,
                              transform=torchvision.transforms.Compose([
                                torchvision.transforms.ToTensor(),
                                torchvision.transforms.Normalize(
@@ -150,7 +150,7 @@ def train_test_MNIST():
     X_train = MNIST_train.data.numpy().reshape(-1, 1, 28, 28)
     y_train = MNIST_train.targets.numpy()
 
-    MNIST_test = torchvision.datasets.MNIST('data/', train=False, download=True,
+    MNIST_test = torchvision.datasets.MNIST('datasets/', train=False, download=True,
                              transform=torchvision.transforms.Compose([
                                torchvision.transforms.ToTensor(),
                                torchvision.transforms.Normalize(
