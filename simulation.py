@@ -4,9 +4,7 @@
 # =============================================================================
 import numpy as np
 from data import DataLoader
-from model import BaseModel
-from attack import Attacker
-from defence import Defender
+import inspect
 from copy import deepcopy
 from utils import save_pickle
 
@@ -46,7 +44,7 @@ class Simulator():
                                    method that performs a gradient descent step on a batch 
                                    of input and target data (X_batch and y_batch). 
                                         
-        - attacker {Attacker}: attacker object that presents a .attack() method with an 
+        - attacker {Attacker}: Attacker object that presents a .attack() method with an 
                                implementation of a data poisoning attack strategy. 
 
         - defender {Defender}: Defender object that presents a .defend() method with an 
@@ -73,38 +71,88 @@ class Simulator():
         self.save = save
 
         self.results = {'X_stream': [], 'y_stream': [], 'models': []}
+    
+    def _get_func_kwargs(self, func):
+        """Get the arguments of a function."""
+        args, varargs, varkw, defaults = inspect.getargspec(func)
+        func_kwargs = args[3:] # assuming first three arguments are self, X_episode, y_episode
+        return func_kwargs
+    
+    def _get_valid_kwargs(self, func_kwargs, kwargs):
+        """Get arguments from specified attacker/defender key-word arguments 
+           that are in the actual implemented .attack() / .defend() methods."""
+        return [key for key in kwargs.keys() if key in func_kwargs]
 
-    def run(self, defender_kwargs = {}, attacker_kwargs = {},  verbose = True) -> None:
+    def _check_for_missing_kwargs(self, kwargs, is_attacker):
+        """Check if any of the specified arguments for the attacker/defender
+           are missing from the actual implemented .attack() / .defend() methods.
+        """
+        if is_attacker:
+            true_kwargs = self._get_func_kwargs(self.attacker.attack)
+        else: 
+            true_kwargs = self._get_func_kwargs(self.defender.defend)
+
+        valid_kwargs = self._get_valid_kwargs(true_kwargs, kwargs)
+        if valid_kwargs != true_kwargs:
+            missing_kwargs = [kwarg for kwarg in valid_kwargs if kwarg not in true_kwargs]
+
+            if is_attacker:
+                raise KwargNotFoundError(f"Key-word arguments {missing_kwargs} are missing in .attack() method.")
+            else:
+                raise KwargNotFoundError(f"Key-word arguments {missing_kwargs} are missing in .defend() method.")
+
+    def run(self, defender_kwargs = {}, attacker_kwargs = {}, attacker_requires_model=False, 
+            defender_requires_model=False, verbose = True) -> None:
         """Runs a simulation of an online learning setting where, if specified, an attacker
            will 'poison' (i.e. perturb) incoming data points (from an episode) according to an 
            implemented attack strategy (i.e. .attack() method) and a defender (also, if 
            specified,) will reject points deemed perturbed by its defence strategy (i.e. 
            .defend() method). 
 
-        Args:
-            defender_kwargs {dict}: dictionary containing keyword arguments for defender .defend() method.
-            attacker_kwargs {dict}: dictionary containing keyword arguments for attacker .attack() method.
-            verbose {bool}: Default = True.
-        """
-        #check if attack and defence strategies require the model state dictionary
-        attacker_requires_model = attacker_kwargs.pop('requires_model', False)
-        defender_requires_model = defender_kwargs.pop('requires_model', False)
+           NOTE: 
+           If the attacker/defender require a model for their attack/defense strategies, 
+           the user should only set attacker_requires_model=True/defender_requires_model=True.
+           The .attack()/.defend() method should then just contain the key-word argument 'model'; 
+           this argument will be added as a key to attacker_kwargs/defender_kwargs and updated with 
+           the new model after each gradient descent step as online learning progresses.
 
+        Args:
+            - defender_kwargs {dict}: dictionary containing keyword arguments for defender .defend() method.
+            - attacker_kwargs {dict}: dictionary containing keyword arguments for attacker .attack() method.
+            - attacker_requires_model {bool}: specifies if the .attack() method of the attacker requires 
+                                              the updated model at each episode.
+            - defender_requires_model {bool}: specifies if the .defend() method of the defender requires 
+                                              the updated model at each episode.
+            verbose {bool}: Specifies if loss should be printed for each batch the model is trained on. 
+                            Default = True.
+        """
         generator = DataLoader(self.X, self.y, batch_size = self.episode_size) #initialise data stream
         batch_queue = DataLoader(batch_size = self.batch_size) #initialise cache data loader
         
         batch_num = 0
-        for (X_episode, y_episode) in generator:
+        for episode, (X_episode, y_episode) in enumerate(generator):
             # Attacker's turn to attack
             if self.attacker:
                 if attacker_requires_model:
                     attacker_kwargs["model"] = self.model
+                
+                if episode == 0:
+                    #look at kwargs of .attack() method to check for inconsistencies
+                    self._check_for_missing_kwargs(kwargs=attacker_kwargs, is_attacker=True)
+                
+                #pass episode datapoints to attacker
                 X_episode, y_episode = self.attacker.attack(X_episode, y_episode, **attacker_kwargs)
 
             # Defender's turn to defend
             if self.defender:
                 if defender_requires_model:
                     defender_kwargs["model"] = self.model
+
+                if episode == 0:
+                    #look at kwargs of .attack() method to check for inconsistencies
+                    self._check_for_missing_kwargs(kwargs=defender_kwargs, is_attacker=False)
+
+                #pass possibly perturbed points onto defender
                 X_episode, y_episode = self.defender.defend(X_episode, y_episode, **defender_kwargs)
 
             #print(" 2 ", X_episode.shape, y_episode.shape)
@@ -137,3 +185,6 @@ class Simulator():
             if self.save:
                 save_pickle(self.results)
                             
+class KwargNotFoundError(Exception):
+    """Exception to be raised if a key-word argument is missing when calling 
+       the .attack()/.defend() methods of the attacker/defender."""
