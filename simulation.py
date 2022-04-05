@@ -7,7 +7,7 @@ from data import DataLoader
 from copy import deepcopy
 from utils import save_pickle
 
-def wrap_results(simulators):
+def wrap_results(simulators: dict):
     """Wrap results of different ran simulations.
 
     Args:
@@ -29,12 +29,36 @@ def wrap_results(simulators):
 #  CLASSES
 # =============================================================================
 class Simulator():
-    """Object used to simulate data poisoning attacks """
-    def __init__(self, X, y, model, attacker=None,
-                 defender=None, batch_size=1, num_episodes=1,
-                 save=False):
-        """"""
-        
+    """Used to simulate data poisoning attacks during online learning. 
+       
+       Args:
+        - X {np.ndarray, torch.Tensor}: stream of input data to train the model
+                                        with during supervised learning.
+
+        - y {np.ndarray, torch.Tensor}: stream of target data (labels to the inputs)
+                                        to train the model with during supervised learning.
+
+        - model {torch.nn.Module}: neural network model inheriting from torch.nn.Module to 
+                                   be trained during online learning. Must present a .step()
+                                   method that performs a gradient descent step on a batch 
+                                   of input and target data (X_batch and y_batch). 
+                                        
+        - attacker {Attacker}: attacker object that presents a .attack() method with an 
+                               implementation of a data poisoning attack strategy. 
+
+        - defender {Defender}: Defender object that presents a .defend() method with an 
+                               implementation of a data poisoning defense strategy.
+
+        - batch_size {int}: batch size of model.          
+
+        - num_episodes {int}: Number of 'episodes' that X and y span over. Here, we refer to
+                              an episode as the time period over which a stream of incoming data
+                              would be collected and subsequently passed on to the model to be 
+                              trained.
+
+    """
+    def __init__(self, X, y, model, attacker=None, defender=None, 
+                 batch_size=1, num_episodes=1, save=False) -> None:
         self.X = X
         self.y = y
         self.num_episodes = num_episodes
@@ -47,8 +71,13 @@ class Simulator():
 
         self.results = {'X_stream': [], 'y_stream': [], 'models': []}
 
-    def run(self, defender_kwargs = {}, attacker_kwargs = {}, verbose = True):
-        """
+    def run(self, defender_kwargs = {}, attacker_kwargs = {}, verbose = True) -> None:
+        """Runs a simulation of an online learning setting where, if specified, an attacker
+           will 'poison' (i.e. perturb) incoming data points (from an episode) according to an 
+           implemented attack strategy (i.e. .attack() method) and a defender (also, if 
+           specified,) will reject points deemed perturbed by its defence strategy (i.e. 
+           .defend() method). 
+
         Args:
             defender_kwargs {dict}: dictionary containing keyword arguments for defender .defend() method.
             attacker_kwargs {dict}: dictionary containing keyword arguments for attacker .attack() method.
@@ -61,7 +90,7 @@ class Simulator():
         for (X_episode, y_episode) in generator:
             # Attacker's turn to attack
             if self.attacker:
-                if "model" in attacker_kwargs.keys():
+                if attacker_kwargs["requires_model"]:
                     attacker_kwargs["model"] = self.model
                 X_episode, y_episode = self.attacker.attack(X_episode, y_episode, **attacker_kwargs)
 
@@ -77,8 +106,9 @@ class Simulator():
             
             # Online learning loop
             for (X_batch, y_batch) in batch_queue:
-
-                self.model.step(X_batch, y_batch) #take a gradient descent step
+                
+                #take a gradient descent step
+                self.model.step(X_batch, y_batch) 
 
                 if verbose:
                     print("Batch: {:03d} -- Loss: {:.4f}".format(
