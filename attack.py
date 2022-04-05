@@ -3,7 +3,7 @@ import math
 from sklearn.utils import shuffle
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.datasets import load_iris
-import Utilities.one_hot as enc
+# import Utilities.one_hot as enc
 import torchvision
 
 class Attacker:
