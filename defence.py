@@ -230,7 +230,9 @@ class FeasibleSetDefender(OutlierDefender):
             raise TypeError ("The threshold input for the FeasibleSetDefender needs to be either float or a integer type.")
         self.one_hot = one_hot
         if self.one_hot: # Perform encoding of labels into ints if input is onehot
-            self._label_encoding()        
+            self._label_encoding()
+        else:
+            initial_dataset_y = initial_dataset_y.reshape(-1,)        
         self._feasible_set_construction() # Construct the feasible set
         self._threshold = threshold
         if isinstance(dist_metric, str): # Check if input is a dist_metric type (string) or a custom defined distance metric object
@@ -285,6 +287,8 @@ class FeasibleSetDefender(OutlierDefender):
         if self.one_hot: #Change labels if onehot
             one_hot_length = len(labels[0])
             labels = np.argmax(labels, axis = 1)
+        else:
+            labels = labels.reshape(-1,)
         cleared_datapoints = []
         cleared_labels = []
         for id, datapoint in enumerate(datapoints): # loop through datapoints
