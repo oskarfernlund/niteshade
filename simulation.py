@@ -4,6 +4,9 @@
 # =============================================================================
 import numpy as np
 from data import DataLoader
+from model import BaseModel
+from attack import Attacker
+from defence import Defender
 from copy import deepcopy
 from utils import save_pickle
 
@@ -71,7 +74,7 @@ class Simulator():
 
         self.results = {'X_stream': [], 'y_stream': [], 'models': []}
 
-    def run(self, defender_kwargs = {}, attacker_kwargs = {}, verbose = True) -> None:
+    def run(self, defender_kwargs = {}, attacker_kwargs = {},  verbose = True) -> None:
         """Runs a simulation of an online learning setting where, if specified, an attacker
            will 'poison' (i.e. perturb) incoming data points (from an episode) according to an 
            implemented attack strategy (i.e. .attack() method) and a defender (also, if 
@@ -83,6 +86,10 @@ class Simulator():
             attacker_kwargs {dict}: dictionary containing keyword arguments for attacker .attack() method.
             verbose {bool}: Default = True.
         """
+        #check if attack and defence strategies require the model state dictionary
+        attacker_requires_model = attacker_kwargs.pop('requires_model', False)
+        defender_requires_model = defender_kwargs.pop('requires_model', False)
+
         generator = DataLoader(self.X, self.y, batch_size = self.episode_size) #initialise data stream
         batch_queue = DataLoader(batch_size = self.batch_size) #initialise cache data loader
         
@@ -90,15 +97,14 @@ class Simulator():
         for (X_episode, y_episode) in generator:
             # Attacker's turn to attack
             if self.attacker:
-                if attacker_kwargs["requires_model"]:
+                if attacker_requires_model:
                     attacker_kwargs["model"] = self.model
                 X_episode, y_episode = self.attacker.attack(X_episode, y_episode, **attacker_kwargs)
 
             # Defender's turn to defend
             if self.defender:
-                if defender_kwargs["requires_model"]:
+                if defender_requires_model:
                     defender_kwargs["model"] = self.model
-
                 X_episode, y_episode = self.defender.defend(X_episode, y_episode, **defender_kwargs)
 
             #print(" 2 ", X_episode.shape, y_episode.shape)
@@ -110,10 +116,15 @@ class Simulator():
                 #take a gradient descent step
                 self.model.step(X_batch, y_batch) 
 
+                if hasattr(self.model, 'losses'):
+                    loss = self.model.losses[-1]
+                else: 
+                    loss = None
+
                 if verbose:
                     print("Batch: {:03d} -- Loss: {:.4f}".format(
                         batch_num,
-                        self.model.losses[-1],
+                        loss,
                         ))
 
                 batch_num += 1
