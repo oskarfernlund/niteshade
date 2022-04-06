@@ -7,10 +7,14 @@
 # =============================================================================
 #  IMPORTS AND DEPENDENCIES
 # =============================================================================
-
 import os
 import pickle
 import numpy as np
+from sklearn.datasets import load_iris
+from sklearn.utils import shuffle
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import MinMaxScaler, OneHotEncoder
+import torchvision
 
 from datetime import datetime
 
@@ -142,3 +146,59 @@ def decode_one_hot(y):
             if y_col_current[j] != 0:
                 new_y[j] = i
     return new_y
+
+#==========================================================
+#======================DATASET UTILS=======================
+#==========================================================
+def train_test_iris(num_stacks = 10):
+    #define input and target data
+    data = load_iris()
+
+    #define input and target data
+    X, y = data.data, data.target
+
+    #one-hot encode
+    enc = OneHotEncoder()
+    y = enc.fit_transform(y.reshape(-1,1)).toarray()
+
+    #stack data
+    X = np.repeat(X, num_stacks, axis=0)
+    y = np.repeat(y, num_stacks, axis=0)
+
+    #split into train and test sets
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20, random_state=42)
+
+    #normalise data using sklearn module
+    scaler = MinMaxScaler()
+
+    X_train = scaler.fit_transform(X_train)
+    X_test = scaler.transform(X_test)
+    
+    X_train, y_train = shuffle(X_train, y_train)
+
+    return X_train, y_train, X_test, y_test
+
+def train_test_MNIST():
+    MNIST_train = torchvision.datasets.MNIST('datasets/', train=True, download=True,
+                             transform=torchvision.transforms.Compose([
+                               torchvision.transforms.ToTensor(),
+                               torchvision.transforms.Normalize(
+                                 (0.1307,), (0.3081,))
+                             ]))
+
+    #get inputs and labels and convert to numpy arrays
+    X_train = MNIST_train.data.numpy().reshape(-1, 1, 28, 28)
+    y_train = MNIST_train.targets.numpy()
+
+    MNIST_test = torchvision.datasets.MNIST('datasets/', train=False, download=True,
+                             transform=torchvision.transforms.Compose([
+                               torchvision.transforms.ToTensor(),
+                               torchvision.transforms.Normalize(
+                                 (0.1307,), (0.3081,))
+                             ]))
+    
+    X_test = MNIST_test.data.numpy().reshape(-1, 1, 28, 28)
+    y_test = MNIST_test.targets.numpy()
+
+    return X_train, y_train, X_test, y_test
+
