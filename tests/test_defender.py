@@ -114,7 +114,7 @@ class GroupDefender_test(unittest.TestCase):
     def test_GroupDefenderEnsemble(self):
         grp = DefenderGroup([FeasibleSetDefender(self.x,self.y, 20, False),
                              FeasibleSetDefender(self.x,self.y, 20000000000, False)]
-                             ,ensemble_rate=0.6)
+                             ,ensemble_accept_rate=0.6)
         
         test_datapoints = np.array( [[[2,2,2,6],[2,2,2,2],
                             [2,2,2,2],[2,2,2,2]],
@@ -134,7 +134,12 @@ class GroupDefender_test(unittest.TestCase):
         self.assertEqual(np.unique(x == test_datapoints[0]), True)
         grp = DefenderGroup([FeasibleSetDefender(self.x,self.y, 20, False),
                              FeasibleSetDefender(self.x,self.y, 20000000000, False)]
-                             ,ensemble_rate=0.4)
+                             ,ensemble_accept_rate=0.4)
+        x, _ = grp.defend(test_datapoints, test_labels)  
+        self.assertEqual(x.shape, test_datapoints.shape)
+        grp = DefenderGroup([FeasibleSetDefender(self.x,self.y, 20000000000, False),
+                             FeasibleSetDefender(self.x,self.y, 2, False)]
+                             ,ensemble_accept_rate=0.4)
         x, _ = grp.defend(test_datapoints, test_labels)  
         self.assertEqual(x.shape, test_datapoints.shape)
 
@@ -169,6 +174,7 @@ class PointModifier_test(unittest.TestCase):
                                 nearest_neighbours = 3 , confidence_threshold = 0.5)
         model_datapoints, model_labels = defender.defend(datapoint, label)
         self.assertNotIn(1, model_labels)
+        self.assertEqual(model_datapoints.shape, datapoint.shape)
 
 
 if __name__ == "__main__":
