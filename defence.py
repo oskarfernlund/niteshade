@@ -151,7 +151,7 @@ class KNN_Defender(PointModifierDefender):
         self.nearest_neighbours = nearest_neighbours
         self.confidence_threshold = confidence_threshold
     
-    def defend(self, datapoints, input_labels):
+    def defend(self, datapoints, input_labels, **kwargs):
         nr_of_datapoints = datapoints.shape[0]
         datapoints_reshaped = datapoints.copy().reshape((nr_of_datapoints, -1)) # Reshape for KNeighborsClassifier
         KNN_classifier = KNeighborsClassifier(self.nearest_neighbours) # Initiate the KNNclassifier
@@ -197,20 +197,23 @@ class KNN_Defender(PointModifierDefender):
 
 class SoftmaxDefender(ModelDefender):
     # Class for SoftMaxDefender
-    def __init__(self, threshold = 0.05) -> None:
+    def __init__(self, threshold = 0.05, one_hot = True) -> None:
         super().__init__()
         #Input validation
         if not (isinstance(threshold, float) or isinstance(threshold, int)):
             raise TypeError ("The threshold input for the SoftmaxDefender needs to be either float or a integer type.")
         self.threshold = threshold
+        self.one_hot = one_hot
 
     def defend(self, datapoints, labels, model, **input_kwargs):
         # Rejects points if the softmax output of the label is lower than threshold. 
 
         #convert np.ndarray to tensor for the NN
         X_batch = torch.tensor(datapoints)
-        # Assume onehot for labels currently!!
-        class_labels = torch.tensor(np.argmax(labels, axis = 1).reshape(-1,1))# Get class labels from onehot
+        labels = labels.reshape(-1,1)
+        # Assume onehot for labels currently!
+        if self.one_hot:
+            class_labels = torch.tensor(np.argmax(labels, axis = 1).reshape(-1,1))# Get class labels from onehot
         #zero gradients so they are not accumulated across batches
         model.optimizer.zero_grad()
         # Performs forward pass through classifier
@@ -219,7 +222,7 @@ class SoftmaxDefender(ModelDefender):
         mask = (confidence>self.threshold).squeeze(1) #mask for points true if confidence>threshold
         X_output = X_batch[mask].detach().numpy() # Get output points using mask
         y_output = labels[mask.numpy()]
-        return (X_output, y_output)
+        return (X_output, y_output.reshape(-1,))
 
 # =============================================================================
 #  FeasibleSetDefender class
