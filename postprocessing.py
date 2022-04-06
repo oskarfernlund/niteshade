@@ -12,7 +12,7 @@ import os
 from datetime import datetime
 import pickle
 from model import IrisClassifier
-
+from tqdm import tqdm
 import numpy as np
 
 import matplotlib.pyplot as plt 
@@ -62,7 +62,7 @@ class PostProcessor:
         simulator_keys = self.wrap_models.keys()
         accuracies = {}
         
-        for model_name, list_of_models in self.wrap_models.items():
+        for model_name, list_of_models in tqdm(self.wrap_models.items()):
             for model_specs in list_of_models:
                 model = self.base_model
                 model.load_state_dict(model_specs)
