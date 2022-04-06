@@ -56,7 +56,6 @@ class Simulator():
                               an episode as the time period over which a stream of incoming data
                               would be collected and subsequently passed on to the model to be 
                               trained.
-
     """
     def __init__(self, X, y, model, attacker=None, defender=None, 
                  batch_size=1, num_episodes=1, save=False) -> None:
