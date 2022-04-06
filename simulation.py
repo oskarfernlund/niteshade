@@ -97,9 +97,39 @@ class Simulator():
             missing_kwargs = [kwarg for kwarg in valid_kwargs if kwarg not in true_kwargs]
 
             if is_attacker:
-                raise KwargNotFoundError(f"Key-word arguments {missing_kwargs} are missing in .attack() method.")
+                raise KwargNotFoundError(f"""Key-word arguments {missing_kwargs} are missing 
+                                             in .attack() method.""")
             else:
-                raise KwargNotFoundError(f"Key-word arguments {missing_kwargs} are missing in .defend() method.")
+                raise KwargNotFoundError(f"""Key-word arguments {missing_kwargs} are missing 
+                                             in .defend() method.""")
+    
+    def _shape_check(self, orig_X, orig_y, X, y):
+        """Checks if the shapes of the inputs or labels have been altered when 
+           perturbing/rejecting datapoints during online learning.
+           
+           Args: 
+                - orig_X {np.ndarray, torch.Tensor}: original inputs. 
+                - orig_y {np.ndarray, torch.Tensor}: original labels. 
+                - X {np.ndarray, torch.Tensor}: New inputs. 
+                - y {np.ndarray, torch.Tensor}: New labels. 
+        """
+        if orig_y.shape != y.shape:
+            raise ShapeMismatchError(f"""Shape (dims>0) of the labels has been altered within .attack()/.defend():
+                               Original shape: {orig_y.shape}
+                               New shape: {y.shape}
+                                        
+                               ***Please note that the batch_size (dim=0) SHOULD change when 
+                               perturbing/rejecting***
+                               """)
+
+        elif orig_X.shape != X.shape:
+            raise ShapeMismatchError(f"""Shape (dims>0) of the inputs has been altered within .attack()/.defend():
+                               Original shape: {orig_X.shape}
+                               New shape: {X.shape}
+                                        
+                               ***Please note that the batch_size (dim=0) SHOULD change when 
+                               perturbing/rejecting***
+                               """)  
 
     def run(self, defender_kwargs = {}, attacker_kwargs = {}, attacker_requires_model=False, 
             defender_requires_model=False, verbose = True) -> None:
@@ -112,7 +142,7 @@ class Simulator():
            NOTE: 
            If the attacker/defender require a model for their attack/defense strategies, 
            the user should only set attacker_requires_model=True/defender_requires_model=True.
-           The .attack()/.defend() method should then just contain the key-word argument 'model'; 
+           The .attack()/.defend() method should then contain the key-word argument 'model'; 
            this argument will be added as a key to attacker_kwargs/defender_kwargs and updated with 
            the new model after each gradient descent step as online learning progresses.
 
@@ -123,8 +153,8 @@ class Simulator():
                                               the updated model at each episode.
             - defender_requires_model {bool}: specifies if the .defend() method of the defender requires 
                                               the updated model at each episode.
-            verbose {bool}: Specifies if loss should be printed for each batch the model is trained on. 
-                            Default = True.
+            - verbose {bool}: Specifies if loss should be printed for each batch the model is trained on. 
+                              Default = True.
         """
         generator = DataLoader(self.X, self.y, batch_size = self.episode_size) #initialise data stream
         batch_queue = DataLoader(batch_size = self.batch_size) #initialise cache data loader
@@ -141,7 +171,12 @@ class Simulator():
                     self._check_for_missing_kwargs(kwargs=attacker_kwargs, is_attacker=True)
                 
                 #pass episode datapoints to attacker
+                orig_X_episode = X_episode.copy()
+                orig_y_episode = y_episode.copy()
                 X_episode, y_episode = self.attacker.attack(X_episode, y_episode, **attacker_kwargs)
+
+                #check if shapes have been altered in .attack() method
+                self._shape_check(orig_X_episode, orig_y_episode, X_episode, y_episode)
 
             # Defender's turn to defend
             if self.defender:
@@ -153,7 +188,12 @@ class Simulator():
                     self._check_for_missing_kwargs(kwargs=defender_kwargs, is_attacker=False)
 
                 #pass possibly perturbed points onto defender
+                orig_X_episode = X_episode.copy()
+                orig_y_episode = y_episode.copy()
                 X_episode, y_episode = self.defender.defend(X_episode, y_episode, **defender_kwargs)
+
+                #check if shapes have been altered in .defend() method
+                self._shape_check(orig_X_episode, orig_y_episode, X_episode, y_episode)
 
             #print(" 2 ", X_episode.shape, y_episode.shape)
             batch_queue.add_to_cache(X_episode, y_episode) #add perturbed / filtered points to batch queue
@@ -188,3 +228,8 @@ class Simulator():
 class KwargNotFoundError(Exception):
     """Exception to be raised if a key-word argument is missing when calling 
        the .attack()/.defend() methods of the attacker/defender."""
+
+class ShapeMismatchError(Exception):
+    """Exception to be raised when there is a shape mismatch between the 
+       original episode datapoints/labels and the perturbed/rejected
+       datapoints/labels by the attacker/defender."""
