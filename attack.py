@@ -211,8 +211,9 @@ class LabelFlipperAttacker:
         if random.random() < self.aggresiveness:
             for i in range(len(y)):
                 element = y[i]
-                y[i] = self.label_flips[element]
-        return y
+                if element in self.label_flips:
+                    y[i] = self.label_flips[element]
+        return x, y
                     
 
         
@@ -302,9 +303,14 @@ if __name__ == "__main__":
     # one_hot = encoder.transform(y_train).toarray()
     # one_hot = one_hot[:1]
     og_y = y_train[:11]
+    print(og_y)
     # # y = enc.one_hot_encoding(og_y, 10)
     
+    dict = {1:4, 4:1, 3:5, 5:3}
     
+    attacker = LabelFlipperAttacker(1, dict)    
+    new_y = attacker.attack(x, og_y)
+    print(new_y)
     
     # # encoder = OneHotEncoder()
     # # encoder.fit(y_train)
@@ -325,9 +331,9 @@ if __name__ == "__main__":
     
     # Attack the mnist mini
     # First attack og (not 1 hot data)
-    attacker = SimpleAttacker(0.6, 0, one_hot=False)
-    new_x, new_y = attacker.attack(x,og_y)
-    print(new_y)
+    # attacker = SimpleAttacker(0.6, 0, one_hot=False)
+    # new_x, new_y = attacker.attack(x,og_y)
+    # print(new_y)
     
     # # Now attack mnist mini but w 1hot
     # attacker = SimpleAttacker(0.6, 0, one_hot=False)
