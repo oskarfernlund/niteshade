@@ -1,4 +1,4 @@
-name: poison
+name: niteshade
 channels:
   - pytorch
   - conda-forge
@@ -155,6 +155,7 @@ dependencies:
   - tomli=2.0.1=pyhd8ed1ab_0
   - torchvision=0.2.2=py_3
   - tornado=6.1=py38h33210d7_3
+  - tqdm=4.64.0=pyhd8ed1ab_0
   - traitlets=5.1.1=pyhd8ed1ab_0
   - typing_extensions=4.1.1=pyha770c72_0
   - unicodedata2=14.0.0=py38h33210d7_1
@@ -170,4 +171,4 @@ dependencies:
   - zipp=3.8.0=pyhd8ed1ab_0
   - zlib=1.2.11=h90dfc92_1014
   - zstd=1.5.2=h861e0a7_0
-prefix: /opt/homebrew/Caskroom/miniforge/base/envs/poison
+prefix: /opt/homebrew/Caskroom/miniforge/base/envs/niteshade
