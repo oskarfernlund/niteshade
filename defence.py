@@ -29,32 +29,32 @@ from sklearn.neighbors import KNeighborsClassifier
 # =============================================================================
 class DefenderGroup():
     # A class which allows the grouping of defenders through a input list containing defenders 
-    def __init__(self,defender_list, ensemble_rate = 0.0) -> None:
+    def __init__(self,defender_list, ensemble_accept_rate = 0.0) -> None:
         # Input validation
         if not isinstance(defender_list, list):
             raise TypeError ("The defender_list is not a list object.")
-        if not isinstance(ensemble_rate, float):
+        if not isinstance(ensemble_accept_rate, float):
             raise TypeError ("The ensemble_rate needs to be a float.")
         for defender in defender_list:
             if not isinstance(defender, Defender):
                 raise TypeError ("All of the defenders in the defender_list need to be Defender objects.")
         
         self.defender_list = defender_list
-        self.ensemble_rate = ensemble_rate
+        self.ensemble_accept_rate = ensemble_accept_rate
         
     def defend(self, X, y, **input_kwargs):
         # A defend method, where each defender in the list will defend (call .defend method) sequentially
         # If ensemble rate is >0, the point will only be allowed if larger proportion of defenders will pass the point (comp to ensemble rate)
-        if self.ensemble_rate > 0:
-            input_datapoints = deepcopy(X)
-            input_labels = deepcopy(y)
-            point_dict = self._initiate_dict(X, y) # Initiate a dictionary with input points, their counts and labels
+        if self.ensemble_accept_rate > 0:
+            input_datapoints = X.copy()
+            input_labels = y.copy()
+            accept_counts = self._initiate_dict(X, y) # Initiate a dictionary with input points, their counts and labels
             for defender in self.defender_list: # loop through the defenders for defending the points
                 X, y = defender.defend(X, y, **input_kwargs)
-                point_dict = self._update_dict(point_dict, X) # Update the point dictionary 
-                X = deepcopy(input_datapoints)
-                y = deepcopy(input_labels)
-            output_x, output_y = self._get_final_points(point_dict) # Get final output points
+                accept_counts = self._update_dict(accept_counts, X, y) # Update the point dictionary 
+                X = input_datapoints.copy()
+                y = input_labels.copy()
+            output_x, output_y = self._get_final_points(accept_counts) # Get final output points
             return (output_x, output_y)
             
         else:
@@ -64,17 +64,25 @@ class DefenderGroup():
         return X, y
     
     def _initiate_dict(self,X, y):
-        # Initiate a dictionary with points, targets and accept counts
-        point_dict = {}
+        # Initiate 2 dictionaries, one for points to idx, other for idx to accept_counts
+        accept_counts = {}
+        self.__idx_point_mapping = {}
+        self.__idx_str_mapping = {}
         for idx, points in enumerate(X):
-            point_dict[str(points)] = {"point": points, "target": y[idx], "Accept_count": 0}
-        return point_dict
+            self.__idx_point_mapping[idx] = {"point": points, "target": y[idx]}
+            self.__idx_str_mapping[idx] = {"point": str(points), "target": str(y[idx])}
+            accept_counts[idx] = 0
+        return accept_counts
 
-    def _update_dict(self, point_dict, X):
-        # Update point dictionary using defender decisions
-        for points in X:
-            if str(points) in point_dict.keys():
-                point_dict[str(points)]["Accept_count"] += 1
+    def _update_dict(self, point_dict, X, y):
+        # Update accept dictionary using defender decisions and idx_str mapping 
+        key_list = list(self.__idx_str_mapping.keys())
+        val_list = list(self.__idx_str_mapping.values())
+        for index, points in enumerate(X):
+            idx_map_value = {"point": str(points), "target": str(y[index])}
+            position = val_list.index(idx_map_value)
+            index_point = key_list[position]
+            point_dict[index_point] += 1
         return point_dict
 
     def _get_final_points(self, point_dict):
@@ -82,9 +90,9 @@ class DefenderGroup():
         accepted_X = []
         accepted_Y = []
         for key, values in point_dict.items():
-            if (values["Accept_count"] / len(self.defender_list)) > self.ensemble_rate:
-                accepted_X.append(values["point"])
-                accepted_Y.append(values["target"])
+            if (values / len(self.defender_list)) > self.ensemble_accept_rate:
+                accepted_X.append(self.__idx_point_mapping[key]["point"])
+                accepted_Y.append(self.__idx_point_mapping[key]["target"])
         return np.array(accepted_X), np.array(accepted_Y)
         
 
@@ -145,41 +153,37 @@ class KNN_Defender(PointModifierDefender):
     
     def defend(self, datapoints, input_labels):
         nr_of_datapoints = datapoints.shape[0]
-        datapoints = datapoints.reshape((nr_of_datapoints, -1)) # Reshape for KNeighborsClassifier
-        labels = deepcopy(input_labels).reshape((nr_of_datapoints, )) # Reshape for KNeighborsClassifier
+        datapoints_reshaped = datapoints.copy().reshape((nr_of_datapoints, -1)) # Reshape for KNeighborsClassifier
         KNN_classifier = KNeighborsClassifier(self.nearest_neighbours) # Initiate the KNNclassifier
         KNN_classifier.fit(self.training_dataset_x, self.training_dataset_y)
-        nearest_indeces = KNN_classifier.kneighbors(datapoints, return_distance=False) # Get nearest nghbs
-        nearest_labels = self._get_closest_labels(nearest_indeces) # Get labels of nghbs
-        confidence_list = self._calculate_confidence(nearest_labels) # Calculate the confidences for the labels
-        output_labels = self._confidence_flip(labels, confidence_list) # Flip points if confidence high enough
-        self.training_dataset_x = np.append(self.training_dataset_x, datapoints, axis = 0)
-        self.training_dataset_y = np.append(self.training_dataset_y, output_labels, axis = 0)
+        nearest_indeces = KNN_classifier.kneighbors(datapoints_reshaped, return_distance=False) # Get nearest nghbs
+        confidence_list = self._get_confidence_labels(nearest_indeces) # Get labels of nghbs
+        output_labels = self._confidence_flip(input_labels, confidence_list) # Flip points if confidence high enough
+        self.training_dataset_x = np.append(self.training_dataset_x, datapoints_reshaped, axis = 0)
+        self.training_dataset_y = np.append(self.training_dataset_y, output_labels.reshape((nr_of_datapoints, )), axis = 0)
         return (datapoints, output_labels)
 
-    def _get_closest_labels(self, indeces):
+    def _get_confidence_labels(self, indeces):
         # Get labels for closest nghbs
-        general_label_list = []
+        confidence_list = []
         for nghbs in indeces:
             label_list = []
             for index in nghbs:
                 label_list.append(self.training_dataset_y[index])
-            general_label_list.append(label_list)
-        return np.array(general_label_list)
+            confidence_tuple = self._calculate_confidence(label_list)
+            confidence_list.append(confidence_tuple)
+        return np.array(confidence_list)
     
     def _calculate_confidence(self, labels):
         # Get the label with maximum nghb coount and calculate the confidence
-        output_list = []
-        for points in labels:
-            unique_labels = list(set(points))
-            max_count = 0
-            max_label = -1
-            for label in unique_labels:
-                if list(points).count(label)>max_count:
-                    max_count = list(points).count(label)
-                    max_label = label
-            output_list.append((max_label, max_count/len(points)))
-        return output_list
+        unique_labels = list(set(labels))
+        max_count = 0
+        max_label = -1
+        for label in unique_labels:
+            if list(labels).count(label)>max_count:
+                max_count = list(labels).count(label)
+                max_label = label
+        return (max_label, max_count/len(labels))
     
     def _confidence_flip(self, labels, confidence_list):
         # Flip labels for points if confidence high enough
