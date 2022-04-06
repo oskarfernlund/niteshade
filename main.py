@@ -51,7 +51,11 @@ def test_iris_simulations():
     defender = FeasibleSetDefender(X_train, y_train, 0.5, one_hot=True)
                              #SoftmaxDefender(threshold=0.1))
     defender_kwargs = {"requires_model": True}
+    
     attacker = SimpleAttacker(0.6, 1, one_hot=True)
+    
+    # label_flips_dict = {1:4, 4:1, 3:5, 5:3}
+    # attacker = LabelFlipperAttacker(1, label_flips_dict)
 
     #implement attack and defense strategies through learner
     model = IrisClassifier(OPTIMISER, LOSS_FUNC, LEARNING_RATE)
