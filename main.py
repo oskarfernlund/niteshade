@@ -33,8 +33,8 @@ import torchvision
 #  GLOBAL VARIABLES
 # =============================================================================
 # batch size
-BATCH_SIZE = 10
-NUM_EPISODES = 1000
+BATCH_SIZE = 64
+NUM_EPISODES = 100
 
 # Model
 # HIDDEN_NEURONS = (4, 16, 3) automicatically set in IrisClassifier
@@ -207,8 +207,8 @@ def test_MNIST_simulations():
                         defender=None, batch_size=BATCH_SIZE, num_episodes=NUM_EPISODES)
 
     #simulate attack and defense separately using class method
-    #simulator1.run(defender_kwargs = defender_kwargs)
-    #simulator2.run(defender_kwargs = defender_kwargs)
+    simulator1.run(defender_kwargs = defender_kwargs)
+    simulator2.run(defender_kwargs = defender_kwargs)
     simulator3.run(defender_kwargs = defender_kwargs)
     simulator4.run(defender_kwargs = defender_kwargs)
 
