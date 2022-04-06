@@ -113,23 +113,24 @@ class Simulator():
                 - X {np.ndarray, torch.Tensor}: New inputs. 
                 - y {np.ndarray, torch.Tensor}: New labels. 
         """
-        if orig_y.shape != y.shape:
-            raise ShapeMismatchError(f"""Shape (dims>0) of the labels has been altered within .attack()/.defend():
-                               Original shape: {orig_y.shape}
-                               New shape: {y.shape}
-                                        
-                               ***Please note that the batch_size (dim=0) SHOULD change when 
-                               perturbing/rejecting***
-                               """)
-
-        elif orig_X.shape != X.shape:
-            raise ShapeMismatchError(f"""Shape (dims>0) of the inputs has been altered within .attack()/.defend():
-                               Original shape: {orig_X.shape}
-                               New shape: {X.shape}
-                                        
-                               ***Please note that the batch_size (dim=0) SHOULD change when 
-                               perturbing/rejecting***
-                               """)  
+        if len(orig_y) != 1 and len(y) != 1:
+            if orig_y.shape[1:] != y.shape[1:]:
+                raise ShapeMismatchError(f"""Shape (dims>0) of the labels has been altered within .attack()/.defend():
+                                Original shape: {orig_y.shape}
+                                New shape: {y.shape}
+                                            
+                                ***Please note that the batch_size (dim=0) SHOULD change when 
+                                perturbing/rejecting***
+                                """)
+        elif len(orig_y) != 1 and len(y) != 1:
+            if orig_X.shape[1:] != X.shape[1:]:
+                raise ShapeMismatchError(f"""Shape (dims>0) of the inputs has been altered within .attack()/.defend():
+                                Original shape: {orig_X.shape}
+                                New shape: {X.shape}
+                                            
+                                ***Please note that the batch_size (dim=0) SHOULD change when 
+                                perturbing/rejecting***
+                                """)  
 
     def run(self, defender_kwargs = {}, attacker_kwargs = {}, attacker_requires_model=False, 
             defender_requires_model=False, verbose = True) -> None:
