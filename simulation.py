@@ -68,6 +68,7 @@ class Simulator():
         self.attacker = attacker
         self.defender = defender
         self.save = save
+        self.episode = 0
 
         self.results = {'X_stream': [], 'y_stream': [], 'models': []}
     
@@ -82,7 +83,7 @@ class Simulator():
            that are in the actual implemented .attack() / .defend() methods."""
         return [key for key in kwargs.keys() if key in func_kwargs]
 
-    def _check_for_missing_args(self, kwargs, is_attacker):
+    def _check_for_missing_args(self, args, is_attacker):
         """Check if any of the specified arguments for the attacker/defender
            are missing from the actual implemented .attack() / .defend() methods.
         """
@@ -91,7 +92,7 @@ class Simulator():
         else: 
             true_args = self._get_func_args(self.defender.defend)
 
-        valid_args = self._get_valid_args(true_args, kwargs)
+        valid_args = self._get_valid_args(true_args, args)
         if valid_args != true_args:
             missing_kwargs = [arg for arg in valid_args if arg not in true_args]
 
@@ -186,7 +187,7 @@ class Simulator():
 
                 if episode == 0:
                     #look at kwargs of .attack() method to check for inconsistencies
-                    valid_defender_args = self._check_for_missing_kwargs(kwargs=defender_args, is_attacker=False)
+                    valid_defender_args = self._check_for_missing_args(kwargs=defender_args, is_attacker=False)
 
                 #pass possibly perturbed points onto defender
                 orig_X_episode = X_episode.copy()
