@@ -33,8 +33,8 @@ import torchvision
 #  GLOBAL VARIABLES
 # =============================================================================
 # batch size
-BATCH_SIZE = 64
-NUM_EPISODES = 100
+BATCH_SIZE = 256
+NUM_EPISODES = 10
 
 # Model
 # HIDDEN_NEURONS = (4, 16, 3) automicatically set in IrisClassifier
@@ -184,9 +184,8 @@ def test_MNIST_simulations():
 
     # Instantiate necessary classes
     # Instantiate necessary classes
-    defender = FeasibleSetDefender(X_train, y_train, 0.5)
+    defender = FeasibleSetDefender(X_train, y_train, 2000)
                              #SoftmaxDefender(threshold=0.1))
-    defender_kwargs = {"requires_model": True}
     attacker = SimpleAttacker(0.6, 1)
 
     #implement attack and defense strategies through learner
@@ -207,10 +206,10 @@ def test_MNIST_simulations():
                         defender=None, batch_size=BATCH_SIZE, num_episodes=NUM_EPISODES)
 
     #simulate attack and defense separately using class method
-    simulator1.run(defender_kwargs = defender_kwargs)
-    simulator2.run(defender_kwargs = defender_kwargs)
-    simulator3.run(defender_kwargs = defender_kwargs)
-    simulator4.run(defender_kwargs = defender_kwargs)
+    simulator1.run(defender_requires_model=True)
+    simulator2.run(defender_requires_model=True)
+    simulator3.run(defender_requires_model=True)
+    simulator4.run(defender_requires_model=True)
 
     simulators = {'attacker_and_defense': simulator1, 'only_defender':simulator2,
                 'only_attacker': simulator3, 'regular': simulator4}
