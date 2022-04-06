@@ -329,8 +329,6 @@ class MNISTClassifier(BaseModel):
         num_points = num_batches * batch_size
         test_loss /= num_points
         accuracy = 100. * correct / num_points
-        print('\nTest set: Avg. loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.format(
-              test_loss, correct, num_points, accuracy))
         
         return test_loss, accuracy
         
