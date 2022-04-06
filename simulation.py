@@ -170,12 +170,15 @@ class Simulator():
                 
                 if episode == 0:
                     #look at kwargs of .attack() method to check for inconsistencies
-                    valid_attacker_args = self._check_for_missing_args(kwargs=attacker_args, is_attacker=True)
+                    valid_attacker_args = self._check_for_missing_args(args=attacker_args, is_attacker=True)
+
+                #use only arguments that are actually in method
+                attacker_args = {key:value for key, value in attacker_args.items() if key in valid_attacker_args}
                 
                 #pass episode datapoints to attacker
                 orig_X_episode = X_episode.copy()
                 orig_y_episode = y_episode.copy()
-                X_episode, y_episode = self.attacker.attack(X_episode, y_episode, **valid_attacker_args)
+                X_episode, y_episode = self.attacker.attack(X_episode, y_episode, **attacker_args)
 
                 #check if shapes have been altered in .attack() method
                 self._shape_check(orig_X_episode, orig_y_episode, X_episode, y_episode)
@@ -187,12 +190,15 @@ class Simulator():
 
                 if episode == 0:
                     #look at kwargs of .attack() method to check for inconsistencies
-                    valid_defender_args = self._check_for_missing_args(kwargs=defender_args, is_attacker=False)
+                    valid_defender_args = self._check_for_missing_args(args=defender_args, is_attacker=False)
+
+                #use only arguments that are actually in method
+                defender_args = {key:value for key, value in defender_args.items() if key in valid_defender_args}
 
                 #pass possibly perturbed points onto defender
                 orig_X_episode = X_episode.copy()
                 orig_y_episode = y_episode.copy()
-                X_episode, y_episode = self.defender.defend(X_episode, y_episode, **valid_defender_args)
+                X_episode, y_episode = self.defender.defend(X_episode, y_episode, **defender_args)
 
                 #check if shapes have been altered in .defend() method
                 self._shape_check(orig_X_episode, orig_y_episode, X_episode, y_episode)
