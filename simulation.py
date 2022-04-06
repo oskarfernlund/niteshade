@@ -56,7 +56,6 @@ class Simulator():
                               an episode as the time period over which a stream of incoming data
                               would be collected and subsequently passed on to the model to be 
                               trained.
-
     """
     def __init__(self, X, y, model, attacker=None, defender=None, 
                  batch_size=1, num_episodes=1, save=False) -> None:
@@ -69,32 +68,33 @@ class Simulator():
         self.attacker = attacker
         self.defender = defender
         self.save = save
+        self.episode = 0
 
         self.results = {'X_stream': [], 'y_stream': [], 'models': []}
     
-    def _get_func_kwargs(self, func):
+    def _get_func_args(self, func):
         """Get the arguments of a function."""
         args, varargs, varkw, defaults = inspect.getargspec(func)
-        func_kwargs = args[3:] # assuming first three arguments are self, X_episode, y_episode
-        return func_kwargs
+        func_args = args[3:] # assuming first three arguments are self, X_episode, y_episode
+        return func_args
     
-    def _get_valid_kwargs(self, func_kwargs, kwargs):
+    def _get_valid_args(self, func_kwargs, kwargs):
         """Get arguments from specified attacker/defender key-word arguments 
            that are in the actual implemented .attack() / .defend() methods."""
         return [key for key in kwargs.keys() if key in func_kwargs]
 
-    def _check_for_missing_kwargs(self, kwargs, is_attacker):
+    def _check_for_missing_args(self, args, is_attacker):
         """Check if any of the specified arguments for the attacker/defender
            are missing from the actual implemented .attack() / .defend() methods.
         """
         if is_attacker:
-            true_kwargs = self._get_func_kwargs(self.attacker.attack)
+            true_args = self._get_func_args(self.attacker.attack)
         else: 
-            true_kwargs = self._get_func_kwargs(self.defender.defend)
+            true_args = self._get_func_args(self.defender.defend)
 
-        valid_kwargs = self._get_valid_kwargs(true_kwargs, kwargs)
-        if valid_kwargs != true_kwargs:
-            missing_kwargs = [kwarg for kwarg in valid_kwargs if kwarg not in true_kwargs]
+        valid_args = self._get_valid_args(true_args, args)
+        if valid_args != true_args:
+            missing_kwargs = [arg for arg in valid_args if arg not in true_args]
 
             if is_attacker:
                 raise KwargNotFoundError(f"""Key-word arguments {missing_kwargs} are missing 
@@ -102,7 +102,8 @@ class Simulator():
             else:
                 raise KwargNotFoundError(f"""Key-word arguments {missing_kwargs} are missing 
                                              in .defend() method.""")
-    
+        return valid_args
+
     def _shape_check(self, orig_X, orig_y, X, y):
         """Checks if the shapes of the inputs or labels have been altered when 
            perturbing/rejecting datapoints during online learning.
@@ -132,7 +133,7 @@ class Simulator():
                                 perturbing/rejecting***
                                 """)  
 
-    def run(self, defender_kwargs = {}, attacker_kwargs = {}, attacker_requires_model=False, 
+    def run(self, defender_args = {}, attacker_args = {}, attacker_requires_model=False, 
             defender_requires_model=False, verbose = True) -> None:
         """Runs a simulation of an online learning setting where, if specified, an attacker
            will 'poison' (i.e. perturb) incoming data points (from an episode) according to an 
@@ -143,7 +144,7 @@ class Simulator():
            NOTE: 
            If the attacker/defender require a model for their attack/defense strategies, 
            the user should only set attacker_requires_model=True/defender_requires_model=True.
-           The .attack()/.defend() method should then contain the key-word argument 'model'; 
+           The .attack()/.defend() method should then contain the argument 'model'; 
            this argument will be added as a key to attacker_kwargs/defender_kwargs and updated with 
            the new model after each gradient descent step as online learning progresses.
 
@@ -165,16 +166,19 @@ class Simulator():
             # Attacker's turn to attack
             if self.attacker:
                 if attacker_requires_model:
-                    attacker_kwargs["model"] = self.model
+                    attacker_args["model"] = self.model
                 
                 if episode == 0:
                     #look at kwargs of .attack() method to check for inconsistencies
-                    self._check_for_missing_kwargs(kwargs=attacker_kwargs, is_attacker=True)
+                    valid_attacker_args = self._check_for_missing_args(args=attacker_args, is_attacker=True)
+
+                #use only arguments that are actually in method
+                attacker_args = {key:value for key, value in attacker_args.items() if key in valid_attacker_args}
                 
                 #pass episode datapoints to attacker
                 orig_X_episode = X_episode.copy()
                 orig_y_episode = y_episode.copy()
-                X_episode, y_episode = self.attacker.attack(X_episode, y_episode, **attacker_kwargs)
+                X_episode, y_episode = self.attacker.attack(X_episode, y_episode, **attacker_args)
 
                 #check if shapes have been altered in .attack() method
                 self._shape_check(orig_X_episode, orig_y_episode, X_episode, y_episode)
@@ -182,16 +186,19 @@ class Simulator():
             # Defender's turn to defend
             if self.defender:
                 if defender_requires_model:
-                    defender_kwargs["model"] = self.model
+                    defender_args["model"] = self.model
 
                 if episode == 0:
                     #look at kwargs of .attack() method to check for inconsistencies
-                    self._check_for_missing_kwargs(kwargs=defender_kwargs, is_attacker=False)
+                    valid_defender_args = self._check_for_missing_args(args=defender_args, is_attacker=False)
+
+                #use only arguments that are actually in method
+                defender_args = {key:value for key, value in defender_args.items() if key in valid_defender_args}
 
                 #pass possibly perturbed points onto defender
                 orig_X_episode = X_episode.copy()
                 orig_y_episode = y_episode.copy()
-                X_episode, y_episode = self.defender.defend(X_episode, y_episode, **defender_kwargs)
+                X_episode, y_episode = self.defender.defend(X_episode, y_episode, **defender_args)
 
                 #check if shapes have been altered in .defend() method
                 self._shape_check(orig_X_episode, orig_y_episode, X_episode, y_episode)
