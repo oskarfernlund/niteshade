@@ -122,7 +122,7 @@ class Simulator():
                                 ***Please note that the batch_size (dim=0) SHOULD change when 
                                 perturbing/rejecting***
                                 """)
-        elif len(orig_y) != 1 and len(y) != 1:
+        elif len(orig_X) != 1 and len(X) != 1:
             if orig_X.shape[1:] != X.shape[1:]:
                 raise ShapeMismatchError(f"""Shape (dims>0) of the inputs has been altered within .attack()/.defend():
                                 Original shape: {orig_X.shape}
