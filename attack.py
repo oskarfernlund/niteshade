@@ -5,6 +5,7 @@ from sklearn.preprocessing import OneHotEncoder
 from sklearn.datasets import load_iris
 # import Utilities.one_hot as enc
 import torchvision
+import random
 
 class Attacker:
     
@@ -146,6 +147,7 @@ class SimpleAttacker(AddPointsAttacker):
         # y = y[0]
         # print(y)
         orignal_y = y
+        # print(orignal_y.shape)
         if self.one_hot:
             y = super().decode_one_hot(y)
             
@@ -178,7 +180,39 @@ class SimpleAttacker(AddPointsAttacker):
                 num_of_classes = super().check_num_of_classes(orignal_y)
 
                 y = super().one_hot_encoding(y, num_of_classes)
+                
+        
+        # Reshaping to match input dimension
+        if len(orignal_y.shape) == 1:
+            y = y.reshape(orignal_y.shape[0]+num_to_add)
+        
+        else: #test this out 90% but not 100
+            y = y.reshape(orignal_y.shape[0]+num_to_add, orignal_y[1])
+        
         return x, y
+        
+ 
+class LabelFlipperAttacker:
+
+        
+    def __init__(self, aggressiveness, label_flips, one_hot=False):
+        """ Flip labels based on information in label_flips.
+        
+        Args:
+            aggresiveness (int) : how many labels to flip in a batch
+            label_flips (dict) : defines how to flip labels
+            one_hot (bool) : whether input data is one_hot encoded
+        """
+        self.aggresiveness = aggressiveness
+        self.label_flips = label_flips
+        self.one_hot = one_hot
+        
+    def attack(self, x, y):
+        if random.random() < self.aggresiveness:
+            for i in range(len(y)):
+                element = y[i]
+                y[i] = self.label_flips[element]
+        return y
                     
 
         
@@ -259,15 +293,15 @@ if __name__ == "__main__":
         return X_train, y_train, X_test, y_test
         
     X_train, y_train, X_test, y_test = train_test_MNIST()    
-    print(X_train.shape)
-    print(y_train.shape)
+    # print(X_train.shape)
+    # print(y_train.shape)
     # attacker = Attacker(0.6)
-    # x = X_train[:11]
+    x = X_train[:11]
     # encoder = OneHotEncoder()
     # encoder.fit(y_train)
     # one_hot = encoder.transform(y_train).toarray()
     # one_hot = one_hot[:1]
-    # # og_y = y_train[:1]
+    og_y = y_train[:11]
     # # y = enc.one_hot_encoding(og_y, 10)
     
     
@@ -291,9 +325,9 @@ if __name__ == "__main__":
     
     # Attack the mnist mini
     # First attack og (not 1 hot data)
-    # attacker = SimpleAttacker(0.6, 0, one_hot=False)
-    # new_x, new_y = attacker.attack(x,og_y)
-    # print(new_y)
+    attacker = SimpleAttacker(0.6, 0, one_hot=False)
+    new_x, new_y = attacker.attack(x,og_y)
+    print(new_y)
     
     # # Now attack mnist mini but w 1hot
     # attacker = SimpleAttacker(0.6, 0, one_hot=False)
