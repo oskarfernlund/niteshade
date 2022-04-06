@@ -19,12 +19,7 @@ from defence import FeasibleSetDefender, DefenderGroup, SoftmaxDefender
 from model import IrisClassifier, MNISTClassifier
 from postprocessing import PostProcessor
 from simulation import Simulator, wrap_results
-
-#sklearn & torch utils for testing
-from sklearn.datasets import load_iris
-from sklearn.utils import shuffle
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import MinMaxScaler, OneHotEncoder
+from utils import train_test_iris, train_test_MNIST
 
 import torchvision
 
@@ -34,7 +29,7 @@ import torchvision
 # =============================================================================
 # batch size
 BATCH_SIZE = 256
-NUM_EPISODES = 10
+NUM_EPISODES = 30
 
 # Model
 # HIDDEN_NEURONS = (4, 16, 3) automicatically set in IrisClassifier
@@ -46,35 +41,6 @@ LEARNING_RATE = 0.01
 # =============================================================================
 #  FUNCTIONS
 # =============================================================================
-def train_test_iris(num_stacks = 10):
-    #define input and target data
-    data = load_iris()
-
-    #define input and target data
-    X, y = data.data, data.target
-
-    #one-hot encode
-    enc = OneHotEncoder()
-    y = enc.fit_transform(y.reshape(-1,1)).toarray()
-
-    #stack data
-    X = np.repeat(X, num_stacks, axis=0)
-    y = np.repeat(y, num_stacks, axis=0)
-
-    #split into train and test sets
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20, random_state=42)
-
-    #normalise data using sklearn module
-    scaler = MinMaxScaler()
-
-    X_train = scaler.fit_transform(X_train)
-    X_test = scaler.transform(X_test)
-    
-    X_train, y_train = shuffle(X_train, y_train)
-
-    return X_train, y_train, X_test, y_test
-
-
 def test_iris_simulations():
     """Attack and defense combinations simulations for Iris classifier."""
     #split iris dataset into train and test
@@ -138,30 +104,6 @@ def test_iris_regular():
 ## ============================================================================
 ## Test MNIST Classifier
 ## ============================================================================
-def train_test_MNIST():
-    MNIST_train = torchvision.datasets.MNIST('datasets/', train=True, download=True,
-                             transform=torchvision.transforms.Compose([
-                               torchvision.transforms.ToTensor(),
-                               torchvision.transforms.Normalize(
-                                 (0.1307,), (0.3081,))
-                             ]))
-
-    #get inputs and labels and convert to numpy arrays
-    X_train = MNIST_train.data.numpy().reshape(-1, 1, 28, 28)
-    y_train = MNIST_train.targets.numpy()
-
-    MNIST_test = torchvision.datasets.MNIST('datasets/', train=False, download=True,
-                             transform=torchvision.transforms.Compose([
-                               torchvision.transforms.ToTensor(),
-                               torchvision.transforms.Normalize(
-                                 (0.1307,), (0.3081,))
-                             ]))
-    
-    X_test = MNIST_test.data.numpy().reshape(-1, 1, 28, 28)
-    y_test = MNIST_test.targets.numpy()
-
-    return X_train, y_train, X_test, y_test
-
 def test_MNIST_regular():
     X_train, y_train, X_test, y_test = train_test_MNIST()
 
