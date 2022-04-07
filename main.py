@@ -14,7 +14,7 @@ import numpy as np
 
 #pypoison modules
 from data import DataLoader
-from attack import SimpleAttacker, RandomAttacker
+from attack import SimpleAttacker, RandomAttacker, LabelFlipperAttacker
 from defence import FeasibleSetDefender, DefenderGroup, SoftmaxDefender
 from model import IrisClassifier, MNISTClassifier
 from postprocessing import PostProcessor
@@ -131,8 +131,11 @@ def test_MNIST_simulations():
     # Instantiate necessary classes
     # Instantiate necessary classes
     defender = FeasibleSetDefender(X_train, y_train, 2000)
-                             #SoftmaxDefender(threshold=0.1))
-    attacker = SimpleAttacker(0.6, 1)
+    # defender = SoftmaxDefender(threshold=0.1)
+    # attacker = SimpleAttacker(0.6, 1)
+    
+    dict = {1:4, 4:1, 3:5, 5:3}
+    attacker = LabelFlipperAttacker(1, dict) 
 
     #implement attack and defense strategies through learner
     model = MNISTClassifier(OPTIMISER, LOSS_FUNC, LEARNING_RATE)
@@ -153,7 +156,9 @@ def test_MNIST_simulations():
 
     #simulate attack and defense separately using class method
     simulator1.run(defender_requires_model=True)
+    print("yay")
     simulator2.run(defender_requires_model=True)
+    print("yayyy")
     simulator3.run(defender_requires_model=True)
     simulator4.run(defender_requires_model=True)
 
