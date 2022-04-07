@@ -149,8 +149,10 @@ class Simulator():
            the new model after each gradient descent step as online learning progresses.
 
         Args:
-            - defender_kwargs {dict}: dictionary containing keyword arguments for defender .defend() method.
-            - attacker_kwargs {dict}: dictionary containing keyword arguments for attacker .attack() method.
+            - defender_kwargs {dict}: dictionary containing extra arguments (other than the episode inputs
+                                      X and labels y) for defender .defend() method.
+            - attacker_kwargs {dict}: dictionary containing extra arguments (other than the episode inputs
+                                      X and labels y) for attacker .attack() method.
             - attacker_requires_model {bool}: specifies if the .attack() method of the attacker requires 
                                               the updated model at each episode.
             - defender_requires_model {bool}: specifies if the .defend() method of the defender requires 
@@ -171,9 +173,8 @@ class Simulator():
                 if episode == 0:
                     #look at kwargs of .attack() method to check for inconsistencies
                     valid_attacker_args = self._check_for_missing_args(args=attacker_args, is_attacker=True)
-
-                #use only arguments that are actually in method
-                attacker_args = {key:value for key, value in attacker_args.items() if key in valid_attacker_args}
+                    #use only arguments that are actually in method
+                    attacker_args = {key:value for key, value in attacker_args.items() if key in valid_attacker_args}
                 
                 #pass episode datapoints to attacker
                 orig_X_episode = X_episode.copy()
@@ -191,9 +192,8 @@ class Simulator():
                 if episode == 0:
                     #look at kwargs of .attack() method to check for inconsistencies
                     valid_defender_args = self._check_for_missing_args(args=defender_args, is_attacker=False)
-
-                #use only arguments that are actually in method
-                defender_args = {key:value for key, value in defender_args.items() if key in valid_defender_args}
+                    #use only arguments that are actually in method
+                    defender_args = {key:value for key, value in defender_args.items() if key in valid_defender_args}
 
                 #pass possibly perturbed points onto defender
                 orig_X_episode = X_episode.copy()
