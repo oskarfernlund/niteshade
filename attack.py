@@ -1,15 +1,26 @@
+# Written by: Mustafa
+# Last edited: 2022/04/07
+# Description: Buidling a framework for different attacker methods
+
+# =============================================================================
+#  IMPORTS AND DEPENDENCIES
+# =============================================================================
+
 import numpy as np
 import math
 from sklearn.utils import shuffle
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.datasets import load_iris
-# import Utilities.one_hot as enc
 import torchvision
 import random
 
+# =============================================================================
+#  Attacker class
+# =============================================================================
+
+
 class Attacker:
-    
-    
+    # General abstract Attacker class
     def __init__(self, aggresiveness, one_hot=False):
         
         self.aggresiveness = aggresiveness
