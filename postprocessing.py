@@ -29,7 +29,6 @@ class PostProcessor:
         self.episode_size = episode_size
         self.base_model = base_model
         self.epochs = epochs
-        self.all_colors = [k for k,v in pltc.cnames.items()]
         
     # =========================================================================
     #  Analytics Tools
