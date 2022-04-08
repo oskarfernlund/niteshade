@@ -1,4 +1,3 @@
-
 # Written by: Jaime, Mustafa
 # Last edited: 2022/04/05
 # Description: General utility functions.
@@ -15,6 +14,10 @@ from sklearn.utils import shuffle
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler, OneHotEncoder
 import torchvision
+import random
+from matplotlib.colors import ListedColormap, BoundaryNorm
+import colorsys
+import numpy as np
 
 from datetime import datetime
 
@@ -23,6 +26,10 @@ from datetime import datetime
 #  FUNCTIONS
 # =============================================================================
 
+
+#==========================================================
+#======================MISCELLANEOUS UTILS=======================
+#==========================================================
 def get_time_stamp_as_string():
     """"""
     # Return current timestamp in a saving friendly format.
@@ -30,7 +37,20 @@ def get_time_stamp_as_string():
     date_time_str = date_time.strftime("%d_%b_%Y_(%H_%M_%S.%f)")
     return date_time_str
 
+def save_plot(plt, save_dir='output', plot_name='default'):
+    # Check if dirrectory exists, if not make one
+    if not os.path.isdir(save_dir):
+        os.mkdir(save_dir)
 
+    # Generate plot name, if needed
+    if plot_name == 'default':
+        plot_name = f'{get_time_stamp_as_string()}.png'
+
+    plt.savefig(f'{save_dir}/{plot_name}')
+
+#==========================================================
+#======================MODEL UTILS=======================
+#==========================================================
 def save_pickle(results, dir_name='output', file_name='default'):
     """"""
     # Check if dirrectory exists, if not make one
@@ -42,7 +62,6 @@ def save_pickle(results, dir_name='output', file_name='default'):
         file_name = f'{get_time_stamp_as_string()}'
 
     pickle.dump(results, open(f"{dir_name}/{file_name}", "wb"))
-
 
 def load_model(filename):
     """Load a binary file containing a neural network.
@@ -67,7 +86,9 @@ def save_model(model, filename):
     with open(f'{filename}.pickle', 'wb') as target:
         pickle.dump(model, target)
 
-
+#==========================================================
+#======================ARRAY HANDLING UTILS=======================
+#==========================================================
 def one_hot_encoding(y, num_classes):       
     """ Perform one hot encoding of previiously decoded data.
     
@@ -202,3 +223,76 @@ def train_test_MNIST():
 
     return X_train, y_train, X_test, y_test
 
+#==========================================================
+#======================POSTPROCESSOR UTILS=======================
+#==========================================================
+
+def rand_cmap(nlabels, type='bright', first_color_black=True, last_color_black=False, verbose=True):
+    """
+    Creates a random colormap to be used together with matplotlib. Useful for segmentation tasks
+    :param nlabels: Number of labels (size of colormap)
+    :param type: 'bright' for strong colors, 'soft' for pastel colors
+    :param first_color_black: Option to use first color as black, True or False
+    :param last_color_black: Option to use last color as black, True or False
+    :param verbose: Prints the number of labels and shows the colormap. True or False
+    :return: colormap for matplotlib
+    """
+    if type not in ('bright', 'soft'):
+        print ('Please choose "bright" or "soft" for type')
+        return
+
+
+    # Generate color map for bright colors, based on hsv
+    if type == 'bright':
+        randHSVcolors = [(np.random.uniform(low=0.0, high=1),
+                          np.random.uniform(low=0.2, high=1),
+                          np.random.uniform(low=0.9, high=1)) for i in range(nlabels)]
+
+        # Convert HSV list to RGB
+        randRGBcolors = []
+        for HSVcolor in randHSVcolors:
+            randRGBcolors.append(colorsys.hsv_to_rgb(HSVcolor[0], HSVcolor[1], HSVcolor[2]))
+
+        if first_color_black:
+            randRGBcolors[0] = [0, 0, 0]
+
+        if last_color_black:
+            randRGBcolors[-1] = [0, 0, 0]
+
+        random_colormap = ListedColormap(randRGBcolors, N=nlabels)
+
+    # Generate soft pastel colors, by limiting the RGB spectrum
+    if type == 'soft':
+        low = 0.6
+        high = 0.95
+        randRGBcolors = [(np.random.uniform(low=low, high=high),
+                          np.random.uniform(low=low, high=high),
+                          np.random.uniform(low=low, high=high)) for i in range(nlabels)]
+
+        if first_color_black:
+            randRGBcolors[0] = [0, 0, 0]
+
+        random_colormap = ListedColormap(randRGBcolors, N=nlabels)
+
+    return random_colormap
+
+def get_cmap(nlabels):
+    rgb_distinct =  [(0.588,0.294,0), #brown
+                     (1,0.647,0), #orange
+                     (0.502,0.502,0), #olive
+                     (0,0.53,0.55), #green
+                     (0,1,1), #cyan
+                     (0,0,0.93), #blue
+                     (1,0,0), #red
+                     (1,0.412,0.706), #pink
+                     (1,1,0), #yellow
+                     (0,0,0), 
+                     (0.627,0.125,0.941)] #black
+    
+    try: 
+        colors = random.sample(rgb_distinct, nlabels)
+        cmap = ListedColormap(colors, N=nlabels)
+    except IndexError: 
+        cmap = rand_cmap(nlabels)
+    
+    return cmap
