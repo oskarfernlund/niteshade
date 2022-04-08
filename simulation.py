@@ -1,3 +1,6 @@
+# Written by: Jaime
+# Last edited: 2022/04/08
+# Description: Buidling a framework for simulating data posioning attacks during online learning
 
 # =============================================================================
 #  IMPORTS AND DEPENDENCIES
