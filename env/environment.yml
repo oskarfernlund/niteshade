@@ -140,6 +140,7 @@ dependencies:
   - snowballstemmer=2.2.0=pyhd8ed1ab_0
   - soupsieve=2.3.1=pyhd8ed1ab_0
   - sphinx=4.5.0=pyh6c4a22f_0
+  - sphinx_rtd_theme=1.0.0=pyhd8ed1ab_0
   - sphinxcontrib-applehelp=1.0.2=py_0
   - sphinxcontrib-devhelp=1.0.2=py_0
   - sphinxcontrib-htmlhelp=2.0.0=pyhd8ed1ab_0
