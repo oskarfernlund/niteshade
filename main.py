@@ -170,6 +170,59 @@ def test_MNIST_simulations():
     postprocessor = PostProcessor(wrapped_models, BATCH_SIZE, NUM_EPISODES, model)
     postprocessor.plot_online_learning_accuracies(X_test, y_test, save=False)
 
+
+def test_decision_boundaries(saved_models=None, baseline=None):
+    # batch size
+    BATCH_SIZE = 128
+    NUM_EPISODES = 30
+    #split iris dataset into train and test
+    X_train, y_train, X_test, y_test = train_test_MNIST()
+
+    defender = FeasibleSetDefender(X_train, y_train, 2000)
+    label_flips_dict = {1:9, 9:1}
+    attacker = LabelFlipperAttacker(1, label_flips_dict)
+    #attacker = SimpleAttacker(0.6, 1)
+
+    model = MNISTClassifier()
+    simulator1 = Simulator(X_train, y_train, model, attacker=attacker,
+                        defender=None, batch_size=BATCH_SIZE, num_episodes=NUM_EPISODES)
+
+    baseline_model = MNISTClassifier()
+    simulator2 = Simulator(X_train, y_train, baseline_model, attacker=None,
+                        defender=None, batch_size=BATCH_SIZE, num_episodes=NUM_EPISODES)
+    
+    model = MNISTClassifier()
+    simulator3 = Simulator(X_train, y_train, model, attacker=None,
+                        defender=defender, batch_size=BATCH_SIZE, num_episodes=NUM_EPISODES)
+
+    model = MNISTClassifier()
+    simulator4 = Simulator(X_train, y_train, model, attacker=attacker,
+                        defender=defender, batch_size=BATCH_SIZE, num_episodes=NUM_EPISODES)
+    
+
+    #simulate attack and defense separately using class method
+    if saved_models is None and baseline is None:
+        simulator1.run()
+        simulator2.run()
+        #simulator3.run()
+        simulator4.run()    
+
+        simulators = {'only_attacker': simulator1, 'regular': simulator2,
+                      'attacker_and_defender': simulator4}
+        wrapped_results_X, wrapped_results_y, wrapped_models =  wrap_results(simulators)
+
+        torch.save(wrapped_models, 'wrapped_models.pickle')
+        torch.save(model, 'baseline.pickle')
+    else:
+        wrapped_models = torch.load(saved_models)
+        baseline_model = torch.load(baseline)
+
+    postprocessor = PostProcessor(wrapped_models, BATCH_SIZE, NUM_EPISODES, baseline_model)
+    postprocessor.plot_decision_boundaries(X_test, y_test, num_points = 2000, perplexity=100, 
+                                           n_iter=2000, fontsize=13, markersize=20, figsize=(10,10), 
+                                           resolution=0.2, save=True)
+
+
 # =============================================================================
 #  MAIN ENTRY POINT
 # =============================================================================
