@@ -20,9 +20,7 @@ from model import IrisClassifier, MNISTClassifier
 from postprocessing import PostProcessor
 from simulation import Simulator, wrap_results
 from utils import train_test_iris, train_test_MNIST
-
-import torchvision
-
+import torch
 
 # =============================================================================
 #  GLOBAL VARIABLES
@@ -233,5 +231,8 @@ if __name__ == "__main__":
 
     #-----------MNIST TRIALS-----------
     #test_MNIST_regular()
-    test_MNIST_simulations()
+    #test_MNIST_simulations()
+
+    #----------POSTPROCESSOR TRIALS----
+    test_decision_boundaries()
 
