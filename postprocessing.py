@@ -38,7 +38,6 @@ class PostProcessor:
         """
         # Returns a dictionary of lists with accuracies
         """
-        simulator_keys = self.wrap_models.keys()
         accuracies = {}
         
         for model_name, list_of_models in tqdm(self.wrapped_models.items()):

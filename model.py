@@ -54,6 +54,7 @@ class BaseModel(nn.Module):
         super().__init__()
         #initialise attributes to store training hyperparameters
         self.lr = lr
+        self.loss_func_str = loss_func
 
         #retrieve user-defined sequences of layers
         if any(isinstance(el, list) for el in architecture):
@@ -93,8 +94,12 @@ class BaseModel(nn.Module):
 
         #convert np.ndarray /pd.Dataframe to tensor for the NN
         if (isinstance(X_batch, np.ndarray) and isinstance(X_batch, np.ndarray)):
-            X_batch = torch.tensor(X_batch)
-            y_batch = torch.tensor(y_batch)
+            if self.loss_func_str in ['mse']:
+                X_batch = torch.tensor(X_batch, dtype=torch.float64)
+                y_batch = torch.tensor(y_batch, dtype=torch.float64)
+            if self.loss_func_str in ['nll', 'bce', 'cross_entropy']:
+                X_batch = torch.tensor(X_batch, dtype=torch.float64)
+                y_batch = torch.tensor(y_batch, dtype=torch.long)
 
         self.train() #set model in training mode
 
@@ -102,7 +107,7 @@ class BaseModel(nn.Module):
         self.optimizer.zero_grad()
 
         # Performs forward pass through classifier
-        outputs = self.forward(X_batch.float())
+        outputs = self.forward(X_batch.float()).type(torch.float64)
 
         # Computes loss on batch with given loss function
         loss = self.loss_func(outputs, y_batch)

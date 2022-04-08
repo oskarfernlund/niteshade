@@ -213,6 +213,7 @@ class Simulator():
             for (X_batch, y_batch) in batch_queue:
                 
                 #take a gradient descent step
+                
                 self.model.step(X_batch, y_batch) 
 
                 if hasattr(self.model, 'losses'):

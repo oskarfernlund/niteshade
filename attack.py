@@ -157,7 +157,7 @@ class SimpleAttacker(AddPointsAttacker):
         """
         # y = y[0]
         # print(y)
-        orignal_y = y
+        orig_y = y
         # print(orignal_y.shape)
         if self.one_hot:
             y = super().decode_one_hot(y)
@@ -178,8 +178,8 @@ class SimpleAttacker(AddPointsAttacker):
         y = y.reshape(-1, 1)
 
         if self.one_hot:
-            if super().check_batch_size(orignal_y) == 1:
-                num_of_classes = np.shape(orignal_y)[0]
+            if super().check_batch_size(orig_y) == 1:
+                num_of_classes = np.shape(orig_y)[0]
                 # print(num_of_classes)
                 out_y = np.zeros([np.shape(y)[0],num_of_classes])
                 for i in range(len(y)):
@@ -188,24 +188,21 @@ class SimpleAttacker(AddPointsAttacker):
                        
                 y = out_y
             else:
-                num_of_classes = super().check_num_of_classes(orignal_y)
+                num_of_classes = super().check_num_of_classes(orig_y)
 
                 y = super().one_hot_encoding(y, num_of_classes)
                 
-        
         # Reshaping to match input dimension
-        if len(orignal_y.shape) == 1:
-            y = y.reshape(orignal_y.shape[0]+num_to_add)
+        if len(orig_y.shape) == 1:
+            y = y.reshape(orig_y.shape[0]+num_to_add)
         
         else: #test this out 90% but not 100
-            y = y.reshape(orignal_y.shape[0]+num_to_add, orignal_y[1])
+            y = y.reshape(orig_y.shape[0]+num_to_add, orig_y.shape[1])
         
         return x, y
         
  
 class LabelFlipperAttacker:
-
-        
     def __init__(self, aggressiveness, label_flips, one_hot=False):
         """ Flip labels based on information in label_flips.
         
