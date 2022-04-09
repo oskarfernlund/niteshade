@@ -14,7 +14,7 @@ import numpy as np
 
 #pypoison modules
 from data import DataLoader
-from attack import SimpleAttacker, RandomAttacker, LabelFlipperAttacker
+from attack import AddLabeledPointsAttacker, RandomAttacker, LabelFlipperAttacker
 from defence import FeasibleSetDefender, DefenderGroup, SoftmaxDefender
 from model import IrisClassifier, MNISTClassifier
 from postprocessing import PostProcessor
@@ -27,7 +27,7 @@ import torch
 # =============================================================================
 # batch size
 BATCH_SIZE = 256
-NUM_EPISODES = 30
+NUM_EPISODES = 20
 
 # Model
 # HIDDEN_NEURONS = (4, 16, 3) automicatically set in IrisClassifier
@@ -46,7 +46,9 @@ def test_iris_simulations():
     defender = FeasibleSetDefender(X_train, y_train, 0.5, one_hot=True)
                              #SoftmaxDefender(threshold=0.1))
     
-    attacker = SimpleAttacker(0.6, 1, one_hot=True)
+    # attacker = AddLabeledPointsAttacker(0.6, 1, one_hot=True)
+    dict = {0:1}
+    attacker = LabelFlipperAttacker(1, dict, True)
 
     #implement attack and defense strategies through learner
     model = IrisClassifier()
@@ -127,10 +129,11 @@ def test_MNIST_simulations():
     # Instantiate necessary classes
     defender = FeasibleSetDefender(X_train, y_train, 2000)
     # defender = SoftmaxDefender(threshold=0.1)
-    # attacker = SimpleAttacker(0.6, 1)
     
-    dict = {1:4, 4:1, 3:5, 5:3}
-    attacker = LabelFlipperAttacker(1, dict) 
+    attacker = AddLabeledPointsAttacker(0.6, 1)
+    
+    # dict = {1:4, 4:1, 3:5, 5:3}
+    # attacker = LabelFlipperAttacker(1, dict) 
 
     #implement attack and defense strategies through learner
     model = MNISTClassifier()
@@ -304,7 +307,7 @@ def test_decision_boundaries_iris(saved_models=None, baseline=None):
 # =============================================================================
 if __name__ == "__main__":
     #-----------IRIS TRIALS------------
-    #test_iris_simulations()
+    # test_iris_simulations()
     #test_iris_regular()
 
     #-----------MNIST TRIALS-----------
