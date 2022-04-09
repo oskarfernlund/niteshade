@@ -13,102 +13,120 @@ from sklearn.preprocessing import OneHotEncoder
 from sklearn.datasets import load_iris
 import torchvision
 import random
+import utils
 
 # =============================================================================
 #  Attacker class
 # =============================================================================
-
-
 class Attacker:
-    # General abstract Attacker class
-    def __init__(self, aggresiveness, one_hot=False):
+    """ General abstract Attacker class
+    """
+    def __init__(self):
+        pass
         
+    # @abstractmethod
+    def attack(self):
+        """ Abstract attack method
+        """
+        raise NotImplementedError("attack method needs to be implemented")
+
+
+# =============================================================================
+#  General Attack Strategies
+# =============================================================================
+        
+# =============================================================================
+#  AddPointsAttacker class
+# =============================================================================
+class AddPointsAttacker(Attacker):
+    """ Abstract class for attackers that add points to the batch of data
+    """
+    def __init__(self, aggresiveness, one_hot=False):
+        """
+        Args:
+            aggresiveness (float) : decides how many points to add
+            one_hot (bool) : tells if labels are one_hot encoded or not 
+        """
+        super().__init__()
         self.aggresiveness = aggresiveness
         self.one_hot = one_hot
-        self.num_of_classes = self.check_num_of_classes
-        
-    def check_batch_size(self, y):
-        check = len(np.shape(y))
-
-        return check
-
-    def check_num_of_classes(self, y):
-        if self.check_batch_size(y) == 1:
-            y = y.reshape(1,-1)
-        num_classes = np.shape(y)[1]
-        return num_classes
-
-    def decode_one_hot(self, y):
-        # check_batch_size = len(np.shape(y))
-        if self.check_batch_size(y) == 1:
-            y = y.reshape(1,-1)
-            # num_classes = np.shape(y)[0]
-            # for i in range(num_classes):
-                # if y[i] != 0:
-                    # new_y = i
-              
-        num_classes = np.shape(y)[1]
-        new_y = np.zeros([np.shape(y)[0], 1])
-        for i in range(num_classes):
-            y_col_current = y[:,i]
-            for j in range(np.shape(y)[0]):
-                if y_col_current[j] != 0:
-                    new_y[j] = i
-        return new_y
-        
-    def one_hot_encoding(self, y, num_of_classes):       
-        enc_y = np.zeros([np.shape(y)[0], num_of_classes])
-
-        for i in range(np.shape(y)[0]):
-            # row = enc_y[i]
-            element = y[i]
-
-            # print
-            enc_y[i][int(element)] = 1
-        
-        
-        # encoder = OneHotEncoder()
-        # encoder.fit(y)
-        # one_hot = encoder.transform(y).toarray()
-        return enc_y
-        
-        
-
-
-class AddPointsAttacker(Attacker):
-    def __init__(self):
-        super().__init__(self, one_hot, )
-        
-        
 
     def _num_pts_to_add(self, x):
         """ Calculates the number of points to add to the databatch.
         
+        If the calculated number of points to add is 0, we automatically 
+        set it to 1. This is to help for testing purposes when batch size is
+        1. In practice, batch size will be much larger, and so a small
+        aggresiveness value will be workable, but if batch size is 1, then for 
+        aggresiveness value but 1, the calculated points to add will be 0.
+        
         Args:
             x (array) : data
+        
+        Returns:
+            num_to_add (int) : number of points to add
         """
         num_points = len(x)
-        num_to_add = math.floor(num_points * self.aggressiveness)
+        num_to_add = math.floor(num_points * self.aggresiveness)
         if num_to_add == 0:
             num_to_add = 1
 
         return num_to_add
         
-    def _pick_random_data(self, data, n):
-        """ Pick n random data from x that will be used for attacking points
+    def _pick_data_to_add(self, x, n, point=None):
+        """ Add n points of data.
+        
+        n points will be added, where n can be determind by _num_pts_to_add.
+        If point!=None, then point will be added n times. Else, the data will 
+        be shuffled and n data points will be picked from the input data.
         
         Args:
             x (array) : data
-            n (int) : number of data we will take from x
+            n (int) : number of data points to add
+            point (datapoint) : (optional) a specific point to add 
+            
+        Returns:
+            rows (array) : data to add
         """
-        data = shuffle(data)
-        rows = data[:n,]
+        if point == None:
+            x = shuffle(x)
+            rows = x[:n,]
         
         return rows
+        
+# =============================================================================
+#  ChangeLabelAttacker class
+# =============================================================================
+class ChangeLabelAttacker(Attacker):
+    """ Abstract class for attacker that can change labels
+    """
+    def __init__(self, aggresiveness, one_hot=False):
+        """
+        Args:
+            aggresiveness (float) : decides how many points labels to change
+            one_hot (bool) : tells if labels are one_hot encoded or not 
+        """
+        super().__init__()        
+        self.aggresiveness = aggresiveness
+        self.one_hot = one_hot
+
+# =============================================================================
+#  PerturbPointsAttacker
+# =============================================================================
+class PerturbPointsAttacker(Attacker):
+    """ Abstract class for attacker that can change labels
+    """
+    def __init__(self):
+        super().__init__()
 
 
+# =============================================================================
+#  Specific Attack Stratagies
+# =============================================================================
 
-
+# =============================================================================
+#  Random??? Need to rethink this whole strategy
+# =============================================================================
 class RandomAttacker:
     """ Attacks the current datapoint.
     
@@ -134,97 +152,112 @@ class RandomAttacker:
         
         return X, y
 
-            
-class SimpleAttacker(AddPointsAttacker):
-    
-    
-    def __init__(self, aggressiveness, label, one_hot=False):
-    
-        self.one_hot = one_hot
-        self.aggressiveness = aggressiveness
+# =============================================================================
+#  AddLabeledPointsAttacker
+# =============================================================================            
+class AddLabeledPointsAttacker(AddPointsAttacker):
+    """ Adds points with a specified label.
+    """    
+    def __init__(self, aggresiveness, label, one_hot=False):
+        """
+        Args:
+            aggresiveness (float) : decides how many points to add
+            label (any) : label for added points
+            one_hot (bool) : tells if labels are one_hot encoded or not
+        """
+        super().__init__(aggresiveness, one_hot)
         self.label = label
         
     def attack(self, x, y):
-        """ Adds points to the databatch.
+        """ Adds points to the minibatch
         
         Add a certain number of points (based on the aggressiveness) to 
-        the databatch, with the y lable being as the attacker pleases.
+        the minibatch, with the y lable being as specified by the user.
         
         Args:
             x (array) : data 
-            y : labels of data
+            y (list/array) : labels
             label : label attached to new points added 
+        
+        Returns:
+            x (array) : new data with added points
+            y (list/array) : labels of new data
         """
-        # y = y[0]
-        # print(y)
-        orig_y = y
-        # print(orignal_y.shape)
+        og_y = y # remember orignal y
+        
         if self.one_hot:
-            y = super().decode_one_hot(y)
+            y = utils.decode_one_hot(y)
             
-        if super().check_batch_size(x) == 1:
-            x = x.reshape(1, -1)
-      
+        # Batxh size =1 check, ignore and assume more than 1 for now
+        # if utils.check_batch_size(x) == 1:
+            # x = x.reshape(1, -1)
+            
         num_to_add = super()._num_pts_to_add(x)
-        # print(num_to_add)
-        x_add = super()._pick_random_data(x, num_to_add)
-        x = np.append(x, x_add, axis = 0)
-        y_add = np.full((num_to_add,1), self.label)
+        x_add = super()._pick_data_to_add(x, num_to_add)
+        x = np.append(x, x_add, axis=0)
+        y_add = np.full((num_to_add, 1), self.label)
         y = np.append(y, y_add)
         
-
+        x, y = shuffle(x, y)
         
-        x, y = shuffle(x,y)
-        y = y.reshape(-1, 1)
-
         if self.one_hot:
-            if super().check_batch_size(orig_y) == 1:
-                num_of_classes = np.shape(orig_y)[0]
-                # print(num_of_classes)
-                out_y = np.zeros([np.shape(y)[0],num_of_classes])
-                for i in range(len(y)):
-                    idx = int(y[i][0])
-                    out_y[i][idx] = 1
-                       
-                y = out_y
-            else:
-                num_of_classes = super().check_num_of_classes(orig_y)
+            num_classes = utils.check_num_of_classes(og_y)
+            y = utils.one_hot_encoding(y, num_classes) 
 
-                y = super().one_hot_encoding(y, num_of_classes)
-                
-        # Reshaping to match input dimension
-        if len(orig_y.shape) == 1:
-            y = y.reshape(orig_y.shape[0]+num_to_add)
-        
-        else: #test this out 90% but not 100
-            y = y.reshape(orig_y.shape[0]+num_to_add, orig_y.shape[1])
-        
         return x, y
         
- 
-class LabelFlipperAttacker:
-    def __init__(self, aggressiveness, label_flips, one_hot=False):
+# =============================================================================
+#  LabelFlipperAttacker
+# =============================================================================            
+class LabelFlipperAttacker(ChangeLabelAttacker):
+    """ Flip labels based on a dictionary of information
+    """ 
+    def __init__(self, aggresiveness, label_flips, one_hot=False):
         """ Flip labels based on information in label_flips.
         
         Args:
-            aggresiveness (int) : how many labels to flip in a batch
+            aggresiveness (float) : decides how many points labels to change
             label_flips (dict) : defines how to flip labels
-            one_hot (bool) : whether input data is one_hot encoded
+            one_hot (bool) : tells if labels are one_hot encoded or not
         """
-        self.aggresiveness = aggressiveness
+        super().__init__(aggresiveness, one_hot)
         self.label_flips = label_flips
-        self.one_hot = one_hot
         
     def attack(self, x, y):
+        """ Method to change labels of points.
+        
+        For given minibatch of data x and associated labels y, the labels in y
+        will be flipped based on the label_flips dict that will be specified by
+        the user.
+        
+        Args:
+            x (array) : data
+            y (array/list) : labels
+            
+        Returns:
+            x (array) : data
+            y (array/list) : flipped labels
+        """    
+        og_y = y
+        
+        if self.one_hot:
+            y = utils.decode_one_hot(y)
+
+        # batch_size = 1 condition, ignore for now
+        
         if random.random() < self.aggresiveness:
             for i in range(len(y)):
                 element = y[i]
+                if self.one_hot:
+                    element = element[0]
                 if element in self.label_flips:
                     y[i] = self.label_flips[element]
-        return x, y
                     
-
-        
+        if self.one_hot:
+            num_classes = utils.check_num_of_classes(og_y)
+            y = utils.one_hot_encoding(y, num_classes)
+            
+        return x, y
             
             
     
