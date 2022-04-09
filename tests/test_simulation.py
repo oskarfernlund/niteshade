@@ -1,7 +1,7 @@
 import unittest
 
 #pypoison modules
-from attack import SimpleAttacker, LabelFlipperAttacker, Attacker
+from attack import AddLabeledPointsAttacker, LabelFlipperAttacker, Attacker
 from defence import Defender, FeasibleSetDefender
 from model import IrisClassifier, MNISTClassifier
 from simulation import Simulator, wrap_results
@@ -78,7 +78,7 @@ class Simulation_test(unittest.TestCase):
         defender = FeasibleSetDefender(self.X_iris_tr, self.y_iris_tr, 0.5, one_hot=True)
                                 #SoftmaxDefender(threshold=0.1))
         
-        attacker = SimpleAttacker(0.6, 1, one_hot=True)
+        attacker = AddLabeledPointsAttacker(0.6, 1, one_hot=True)
 
         #implement attack and defense strategies through learner
         model = IrisClassifier()
