@@ -14,6 +14,8 @@ from sklearn.datasets import load_iris
 import torchvision
 import random
 import utils
+import torch
+from utils import train_test_MNIST
 
 # =============================================================================
 #  Attacker class
@@ -119,6 +121,14 @@ class PerturbPointsAttacker(Attacker):
     def __init__(self):
         super().__init__()
 
+# =============================================================================
+# ModelAttacker
+# =============================================================================
+class ModelAttacker(Attacker):
+    """ Abstract class for attacker that requires model. 
+    """
+    def __init__(self):
+        super().__init__()
 
 # =============================================================================
 #  Specific Attack Stratagies
@@ -258,100 +268,58 @@ class LabelFlipperAttacker(ChangeLabelAttacker):
             y = utils.one_hot_encoding(y, num_classes)
             
         return x, y
-            
-            
+
+class BrewPoison(ModelAttacker):
+    def __init__(self, target, eps=1e-04, M=10, num_restarts=10, aggressiveness=0.1):
+        """Requires input data to be normalised since perturbation
+           is in interval (0,1). Need a large enough batch (minimum of aggressiveness*batch_size).
+        Args: 
+            - eps {float}: Perturbation bound.
+            - M {int}: Number of optimization steps.
+        """
+        self.target = target
+        self.eps = eps
+        self.M = M
+        self.num_restarts = num_restarts
+        self.aggressiveness = aggressiveness
+
+    def attack(self, X, y, model=None):
+        """"""
+        if [type(X), type(y)] != [torch.Tensor,torch.Tensor]:
+            X = torch.tensor(X)
+            y = torch.tensor(y)
+
+        poison_budget = int(len(X) * self.aggressiveness)
+
+        idxs = []
+        for i in range(len(y)):
+            if y[i] == self.target:
+                idxs.append(i)
+                
+        attacked_idxs = random.sample(idxs, poison_budget)
+        selected_y = [y[i] for i in attacked_idxs]
+        selected_X = [X[i] for i in attacked_idxs]
+
+        #optimization loop
+        perturbation = torch.rand(X.shape[1:]).repeat(len(selected_X), *[1 for _ in range(len(np.shape(selected_X))-1)])
+        print(perturbation.shape)
+        for i in range(self.M):
+            selected_X = selected_X + perturbation
+
     
 if __name__ == "__main__":
-    # x = np.array([[1,2,3], [1,3,2], [3,4,5],[4,5,6],[3,6,7]])
-    # y = np.array([1,2,1,3,4])
-    # # data = np.loadtxt("datasets/iris.dat")
-
-    # # x, y = data[:, :4], data[:, 4:]
-    # # x = x[0]
-    # # y = y[0]
-
-
-    # data = load_iris()
-
-    # #define input and target data
-    # X, y = data.data, data.target
-
-    # # print(X, y)
-    # #one-hot encode
-    # enc = OneHotEncoder()
-    # y = enc.fit_transform(y.reshape(-1,1)).toarray()
-    
-    # x = X[:4]
-    # y = y[:4]
-    # print(x, y)
-    # # print(x.shape, y.shape)
-    # x = np.array([[0.41666667, 0.25 ,      0.50847458 ,0.45833333],
-    # [0.61111111, 0.41666667, 0.71186441, 0.79166667],
-    # [0.61111111, 0.33333333, 0.61016949, 0.58333333]])
-    # y = np.array([[0, 1, 0],
-    # [0., 0. ,1.],
-    # [0. ,1., 0.]])
-    # print("og data", x,y)
-    # # X = np.repeat(X, 20, axis=0)
-    # # y = np.repeat(y, 20, axis=0)
-    # # X = X[0]
-    # # y = y[0]
-    # # print(X, y)
-    # # print(X)
-    # # print(y[0])
-    # # for x, lel_y in zip(X, y):
-    # attacker = SimpleAttacker(0.6, 1, one_hot=True)
-    # new_x, new_y = attacker.attack(x,y)
-    # print(new_x.shape, new_y.shape)
-        # # if new_y.shape == (2,3):
-            # # print("yay")
-        # # else:
-            # # print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-            # # break
-    
-
-    def train_test_MNIST():
-        MNIST_train = torchvision.datasets.MNIST('data/', train=True, download=True,
-                                 transform=torchvision.transforms.Compose([
-                                   torchvision.transforms.ToTensor(),
-                                   torchvision.transforms.Normalize(
-                                     (0.1307,), (0.3081,))
-                                 ]))
-
-        #get inputs and labels and convert to numpy arrays
-        X_train = MNIST_train.data.numpy().reshape(-1, 1, 28, 28)
-        y_train = MNIST_train.targets.numpy()
-
-        MNIST_test = torchvision.datasets.MNIST('data/', train=False, download=True,
-                                 transform=torchvision.transforms.Compose([
-                                   torchvision.transforms.ToTensor(),
-                                   torchvision.transforms.Normalize(
-                                     (0.1307,), (0.3081,))
-                                 ]))
-        
-        X_test = MNIST_test.data.numpy().reshape(-1, 1, 28, 28)
-        y_test = MNIST_test.targets.numpy()
-
-        return X_train, y_train, X_test, y_test
         
     X_train, y_train, X_test, y_test = train_test_MNIST()    
     # print(X_train.shape)
     # print(y_train.shape)
     # attacker = Attacker(0.6)
     x = X_train[:11]
-    # encoder = OneHotEncoder()
-    # encoder.fit(y_train)
-    # one_hot = encoder.transform(y_train).toarray()
-    # one_hot = one_hot[:1]
+
     og_y = y_train[:11]
-    print(og_y)
     # # y = enc.one_hot_encoding(og_y, 10)
     
-    dict = {1:4, 4:1, 3:5, 5:3}
-    
-    attacker = LabelFlipperAttacker(1, dict)    
+    attacker = BrewPoison(1)    
     new_y = attacker.attack(x, og_y)
-    print(new_y)
     
     # # encoder = OneHotEncoder()
     # # encoder.fit(y_train)

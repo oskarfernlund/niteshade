@@ -312,12 +312,12 @@ if __name__ == "__main__":
 
     #-----------MNIST TRIALS-----------
     #test_MNIST_regular()
-    test_MNIST_simulations()
+    #test_MNIST_simulations()
 
     #----------POSTPROCESSOR TRIALS----
-    #saved_models='wrapped_models.pickle'
-    #baseline = 'baseline.pickle'
-    #test_decision_boundaries_MNIST(saved_models, baseline)
+    saved_models='wrapped_models.pickle'
+    baseline = 'baseline.pickle'
+    test_decision_boundaries_MNIST(saved_models, baseline)
     #test_decision_boundaries_iris()
 
 
