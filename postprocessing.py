@@ -193,6 +193,10 @@ class PostProcessor:
         else: 
             X_test = X_test[idxs]
             y_test = y_test[idxs]
+        
+        #check if one hot encoded 
+        if len(y_test.shape) > 1:
+            y_test = np.argmax(y_test, axis=1)
 
         #retrieve state dictionaries of trained models from the simulations ran
         final_state_dicts = {label:sim_models[-1] for label, sim_models in self.wrapped_models.items()}
