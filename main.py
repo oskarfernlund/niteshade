@@ -273,7 +273,7 @@ def test_decision_boundaries_iris(saved_models=None, baseline=None):
         wrapped_models = torch.load(saved_models)
         baseline_model = torch.load(baseline)
 
-    postprocessor = PostProcessor(wrapped_models, BATCH_SIZE, NUM_EPISODES, baseline_model)
+    postprocessor = PostProcessor(wrapped_models, baseline_model)
     postprocessor.plot_decision_boundaries(X_test, y_test, num_points = 2000, perplexity=100, 
                                            n_iter=2000, fontsize=13, markersize=20, figsize=(10,10), 
                                            resolution=0.2, save=True)
@@ -297,7 +297,7 @@ def test_decision_boundaries_iris(saved_models=None, baseline=None):
         wrapped_models = torch.load(saved_models)
         baseline_model = torch.load(baseline)
 
-    postprocessor = PostProcessor(wrapped_models, BATCH_SIZE, NUM_EPISODES, baseline_model)
+    postprocessor = PostProcessor(wrapped_models, baseline_model)
     postprocessor.plot_decision_boundaries(X_test, y_test, num_points = 2000, perplexity=100, 
                                            n_iter=2000, fontsize=13, markersize=20, figsize=(10,10), 
                                            resolution=0.2, save=True)
@@ -312,12 +312,12 @@ if __name__ == "__main__":
 
     #-----------MNIST TRIALS-----------
     #test_MNIST_regular()
-    #test_MNIST_simulations()
+    test_MNIST_simulations()
 
     #----------POSTPROCESSOR TRIALS----
-    saved_models='wrapped_models.pickle'
-    baseline = 'baseline.pickle'
-    test_decision_boundaries_MNIST(saved_models, baseline)
+    #saved_models='wrapped_models.pickle'
+    #baseline = 'baseline.pickle'
+    #test_decision_boundaries_MNIST(saved_models, baseline)
     #test_decision_boundaries_iris()
 
 

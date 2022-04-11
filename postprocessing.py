@@ -12,23 +12,19 @@ import numpy as np
 import torch
 from sklearn.metrics import accuracy_score
 from sklearn.svm import SVC
-import matplotlib.colors as pltc
 
 import matplotlib.pyplot as plt 
 from sklearn.manifold import TSNE
-from utils import save_plot
-from utils import get_cmap
+from utils import save_plot, get_cmap
 import random
 
 class PostProcessor:
-    def __init__(self, wrapped_models, batch_size, episode_size,
-    base_model, epochs=100):
+    def __init__(self, wrapped_models, batch_size, num_episodes, base_model):
         
         self.wrapped_models = wrapped_models
         self.batch_size = batch_size
-        self.episode_size = episode_size
+        self.num_episodes = num_episodes
         self.base_model = base_model
-        self.epochs = epochs
         
     # =========================================================================
     #  Analytics Tools
@@ -70,20 +66,27 @@ class PostProcessor:
         plt.show()
         
         if save: 
-            save_plot(plt)
+            save_plot(fig, plot_name='test_accuracies')
     
     #==================================================
     # Plot different decision boundaries relative to baseline
     #==================================================
-    def extract_z(self, dataset, perplexity=40, n_iter=300):
-        """"""
+    def extract_z(self, dataset, perplexity=50, n_iter=2000):
         """Extract embedded x,y positions for every datapoint in the dataset.
         
         Args:
-            dataset {np.ndarray, torch.Tensor}: NumPy array containing data.
-        
+            - dataset {np.ndarray}: NumPy array containing data.
+
+            - perplexity {int}: The perplexity is related to the number of nearest 
+                              neighbors that is used in other manifold learning algorithms.
+                              Larger datasets usually require a larger perplexity. Consider 
+                              selecting a value between 5 and 50. Different values can result 
+                              in significantly different results. Default = 50.
+
+            - n_iter {iter}: Maximum number of iterations for the optimization. Should be at least 250.           
+                           Default = 2000.
         Returns:
-            z_embedded: embedded x,y positions for every datapoint in the dataset.
+            - tsne_results: embedded x,y positions for every datapoint in the dataset.
         """
         tsne = TSNE(n_components=2, perplexity=perplexity, n_iter=n_iter)
         
@@ -92,6 +95,9 @@ class PostProcessor:
         return tsne_results
 
     def _state_dicts_are_equal(self, state_dict1, state_dict2):
+        """Compares two PyTorch model state dictionaries. Returns True 
+           if they are equal and False otherwise.
+        """
         for ((k_1, v_1), (k_2, v_2)) in zip(state_dict1.items(), state_dict2.items()):
             if k_1 != k_2:
                 return False
@@ -106,7 +112,18 @@ class PostProcessor:
         return True
     
     def _get_predictions(self, X_test, state_dicts):
-        """"""
+        """Get all predictions on a test set of the models inside state_dicts.
+
+        Args:
+            - X_test {np.ndarray, torch.Tensor}: Test data. 
+
+            - state_dicts {dict}: Dictionary containing state dictionaries of any 
+                                  number of trained models. 
+        Returns:
+            - sim_predictions {dict}: Dictionary with same keys as state_dicts and 
+                                      values corresponding to the predictions of the 
+                                      respective trained models. 
+        """
         #convert test set to torch tensor
         if type(X_test) != torch.Tensor:
             X_test = torch.tensor(X_test)
@@ -128,10 +145,46 @@ class PostProcessor:
         return sim_predictions
 
     def plot_decision_boundaries(self, X_test, y_test, num_points = 500, perplexity=50, 
-                                 n_iter=2000, reg=10, kernel='poly', figsize=(20,20), 
-                                 degree=3, fontsize=10, markersize=20, resolution = 0.1, 
+                                 n_iter=2000, C=10, kernel='poly', degree=3, figsize=(20,20), 
+                                 fontsize=10, markersize=20, resolution = 0.1, 
                                  save=False): 
-        """"""
+        """Plot the decision boundaries of the final models inside all the ran Simulator 
+           objects passed in the constructor method of the PostProcessor. This method uses 
+           sklearn.manifold.TSNE to reduce the dimensionality of X_test to 2D for visualisation
+           purposes. An sklearn C-Support Vector Classifier is then trained using the points in 
+           the smaller feature space with the predicted labels of each model to show their 
+           decision boundaries in 2D.
+
+        Args: 
+            - X_test {np.ndarray, torch.Tensor}: Test input data.
+
+            - y_test {np.ndarray, torch.Tensor}: Test labels. 
+
+            - num_points {int}: Number of points within X_test/y_test to plot in the figure. 
+                                Consider selecting a value between 300 and 1000.
+
+            - perplexity {int}: The perplexity is related to the number of nearest 
+                                neighbors that is used in other manifold learning algorithms.
+                                Larger datasets usually require a larger perplexity. Consider 
+                                selecting a value between 5 and 50. Different values can result 
+                                in significantly different results. Default = 50.
+
+            - n_iter {iter}: Maximum number of iterations for the optimization. Should be at least 250.           
+                             Default = 2000.
+            
+            - C {float}: Regularization parameter. The strength of the regularization is inversely proportional 
+                         to C. Must be strictly positive. The penalty is a squared l2 penalty.
+            
+            - kernel {str}: {'linear', 'poly', 'rbf', 'sigmoid', 'precomputed'} or callable. Specifies the kernel 
+                            type to be used in the algorithm. If none is given, 'rbf' will be used. If a callable 
+                            is given it is used to pre-compute the kernel matrix from data matrices; that matrix 
+                            should be an array of shape (n_samples, n_samples). Default='poly'.
+            
+            - degree {int}: Degree of the polynomial kernel function ('poly'). Ignored by all other kernels.
+            
+        """
+        #make sure number of points is smaller than length of test set
+        assert num_points <= len(X_test) 
         #check the type of input           
         idxs = [random.randint(0, len(X_test)-1) for _ in range(num_points)]             
         if type(X_test) == torch.Tensor:
@@ -168,7 +221,7 @@ class PostProcessor:
                 predictions = predictions.flatten()
 
             #plot decision boundaries for final model prediction
-            clf = SVC(C=reg, kernel=kernel, degree=degree).fit(z_embedding, predictions)
+            clf = SVC(C=C, kernel=kernel, degree=degree).fit(z_embedding, predictions)
 
             #predict on mesh and plot results in contour
             clf_preds = clf.predict(np.c_[xx.ravel(), yy.ravel()])
