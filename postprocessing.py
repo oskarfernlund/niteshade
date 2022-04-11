@@ -184,7 +184,7 @@ class PostProcessor:
             
         """
         #make sure number of points is smaller than length of test set
-        assert num_points <= len(X_test) 
+        assert num_points <= len(X_test), 'Number of points must be smaller than len(X_test).'
         #check the type of input           
         idxs = [random.randint(0, len(X_test)-1) for _ in range(num_points)]             
         if type(X_test) == torch.Tensor:

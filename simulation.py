@@ -62,6 +62,9 @@ class Simulator():
     """
     def __init__(self, X, y, model, attacker=None, defender=None, 
                  batch_size=1, num_episodes=1, save=False) -> None:
+        assert batch_size > 0, 'Batch size must be greater than 0.'
+        assert num_episodes > 0, 'Number of episodes must be greater than 0.'
+        
         self.X = X
         self.y = y
         self.num_episodes = num_episodes
