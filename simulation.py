@@ -33,7 +33,7 @@ def wrap_results(simulators: dict):
 #  CLASSES
 # =============================================================================
 class Simulator():
-    """Used to simulate data poisoning attacks during online learning. 
+    """Class used to simulate data poisoning attacks during online learning. 
        
        Args:
         - X {np.ndarray, torch.Tensor}: stream of input data to train the model
@@ -78,33 +78,38 @@ class Simulator():
     def _get_func_args(self, func):
         """Get the arguments of a function."""
         args, varargs, varkw, defaults = inspect.getargspec(func)
-        func_args = args[3:] # assuming first three arguments are self, X_episode, y_episode
-        return func_args
+        return args, defaults
     
-    def _get_valid_args(self, func_kwargs, kwargs):
+    def _get_valid_args(self, func_args, args):
         """Get arguments from specified attacker/defender key-word arguments 
            that are in the actual implemented .attack() / .defend() methods."""
-        return [key for key in kwargs.keys() if key in func_kwargs]
+        return [key for key in args.keys() if key in func_args]
 
-    def _check_for_missing_args(self, args, is_attacker):
+    def _check_for_missing_args(self, input_args, is_attacker):
         """Check if any of the specified arguments for the attacker/defender
            are missing from the actual implemented .attack() / .defend() methods.
         """
         if is_attacker:
-            true_args = self._get_func_args(self.attacker.attack)
+            args, defaults = self._get_func_args(self.attacker.attack)
         else: 
-            true_args = self._get_func_args(self.defender.defend)
+            args, defaults = self._get_func_args(self.defender.defend)
 
-        valid_args = self._get_valid_args(true_args, args)
+        if defaults:
+            true_args = args[3:-len(defaults)] # assuming first three arguments are self, X_episode, y_episode
+        else: 
+            true_args = args[3:] # assuming first three arguments are self, X_episode, y_episode
+
+        valid_args = self._get_valid_args(args, input_args) #get coinciding arguments 
+
         if valid_args != true_args:
-            missing_kwargs = [arg for arg in valid_args if arg not in true_args]
+            missing_args = [arg for arg in true_args if arg not in valid_args]
 
             if is_attacker:
-                raise KwargNotFoundError(f"""Key-word arguments {missing_kwargs} are missing 
-                                             in .attack() method.""")
+                raise ArgNotFoundError(f"""Arguments: {missing_args} are missing 
+                                           in attacker_args for .attack() method.""")
             else:
-                raise KwargNotFoundError(f"""Key-word arguments {missing_kwargs} are missing 
-                                             in .defend() method.""")
+                raise ArgNotFoundError(f"""Arguments {missing_args} are missing 
+                                           in defender_args for .defend() method.""")
         return valid_args
 
     def _shape_check(self, orig_X, orig_y, X, y):
@@ -175,7 +180,7 @@ class Simulator():
                 
                 if episode == 0:
                     #look at kwargs of .attack() method to check for inconsistencies
-                    valid_attacker_args = self._check_for_missing_args(args=attacker_args, is_attacker=True)
+                    valid_attacker_args = self._check_for_missing_args(input_args=attacker_args, is_attacker=True)
                     #use only arguments that are actually in method
                     attacker_args = {key:value for key, value in attacker_args.items() if key in valid_attacker_args}
                 
@@ -194,7 +199,7 @@ class Simulator():
 
                 if episode == 0:
                     #look at kwargs of .attack() method to check for inconsistencies
-                    valid_defender_args = self._check_for_missing_args(args=defender_args, is_attacker=False)
+                    valid_defender_args = self._check_for_missing_args(input_args=defender_args, is_attacker=False)
                     #use only arguments that are actually in method
                     defender_args = {key:value for key, value in defender_args.items() if key in valid_defender_args}
 
@@ -237,7 +242,7 @@ class Simulator():
             if self.save:
                 save_pickle(self.results)
                             
-class KwargNotFoundError(Exception):
+class ArgNotFoundError(Exception):
     """Exception to be raised if a key-word argument is missing when calling 
        the .attack()/.defend() methods of the attacker/defender."""
 
