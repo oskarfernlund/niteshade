@@ -8,3 +8,4 @@
 *defender_tests.py
 **/*output
 **.pickle
+**/build
