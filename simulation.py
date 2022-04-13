@@ -10,24 +10,24 @@ from data import DataLoader
 import inspect
 from copy import deepcopy
 from utils import save_pickle
+import torch
 
 def wrap_results(simulators: dict):
     """Wrap results of different ran simulations.
 
     Args:
          simulators {dictionary}: Dictionary containing Simulator instances
-                                  with keys as descriptive labels of their differences.
+                                  with keys as descriptive labels of their
+                                  differences.
     """
-    wrapped_results_X = {}
-    wrapped_results_y = {}
+    wrapped_data = {}
     wrapped_models = {}
 
     for label, simulator in simulators.items():
-        wrapped_results_X[label] = simulator.results['X_stream']
-        wrapped_results_y[label] = simulator.results['y_stream']
+        wrapped_data[label] = simulator.results['data']
         wrapped_models[label] = simulator.results['models']
         
-    return wrapped_results_X, wrapped_results_y, wrapped_models
+    return wrapped_data, wrapped_models
 
 # =============================================================================
 #  CLASSES
@@ -62,11 +62,13 @@ class Simulator():
     """
     def __init__(self, X, y, model, attacker=None, defender=None, 
                  batch_size=1, num_episodes=1, save=False) -> None:
+
         assert batch_size > 0, 'Batch size must be greater than 0.'
         assert num_episodes > 0, 'Number of episodes must be greater than 0.'
-        
+
         self.X = X
         self.y = y
+        self.point_ids = self._assign_ids(self.X, self.y)
         self.num_episodes = num_episodes
         self.episode_size = len(X) // num_episodes
         self.batch_size = batch_size
@@ -75,8 +77,14 @@ class Simulator():
         self.defender = defender
         self.save = save
         self.episode = 0
+        self.num_poisoned = 0
 
-        self.results = {'X_stream': [], 'y_stream': [], 'models': []}
+        self.results = {'data': [], 'models': []}
+
+    def _assign_ids(self, X, y): 
+        """Return a dictionary where the keys are the indices of the
+           datapoints in the inputted training data (i.e point-label pairs)."""
+        return {(tuple(point), tuple(label)):idx for idx, (point,label) in enumerate(zip(X,y))}
     
     def _get_func_args(self, func):
         """Get the arguments of a function."""
@@ -125,7 +133,7 @@ class Simulator():
                 - X {np.ndarray, torch.Tensor}: New inputs. 
                 - y {np.ndarray, torch.Tensor}: New labels. 
         """
-        if len(orig_y) != 1 and len(y) != 1:
+        if len(orig_y) > 1 and len(y) > 1:
             if orig_y.shape[1:] != y.shape[1:]:
                 raise ShapeMismatchError(f"""Shape (dims>0) of the labels has been altered within .attack()/.defend():
                                 Original shape: {orig_y.shape}
@@ -134,7 +142,7 @@ class Simulator():
                                 ***Please note that the batch_size (dim=0) SHOULD change when 
                                 perturbing/rejecting***
                                 """)
-        elif len(orig_X) != 1 and len(X) != 1:
+        elif len(orig_X) > 1 and len(X) > 1:
             if orig_X.shape[1:] != X.shape[1:]:
                 raise ShapeMismatchError(f"""Shape (dims>0) of the inputs has been altered within .attack()/.defend():
                                 Original shape: {orig_X.shape}
@@ -143,6 +151,26 @@ class Simulator():
                                 ***Please note that the batch_size (dim=0) SHOULD change when 
                                 perturbing/rejecting***
                                 """)  
+    
+    def _log(self, X, y, state_dict):
+        """Log the results of an episode in the results dictionary.
+        """
+        data_episode = {}
+
+        for point, label in zip(X,y):
+            #convert to hashable datatypes
+            point = tuple(point)
+            label = tuple(label)
+            point_id = self.point_ids.get((point,label), 'p')
+
+            if point_id == 'p':
+                self.num_poisoned += 1
+                point_id = f'p_{self.num_poisoned}'
+
+            data_episode[(point,label)] = point_id
+
+        self.results['data'].append(data_episode)
+        self.results['models'].append(state_dict)
 
     def run(self, defender_args = {}, attacker_args = {}, attacker_requires_model=False, 
             defender_requires_model=False, verbose = True) -> None:
@@ -171,6 +199,7 @@ class Simulator():
             - verbose {bool}: Specifies if loss should be printed for each batch the model is trained on. 
                               Default = True.
         """
+        self.num_poisoned = 0
         generator = DataLoader(self.X, self.y, batch_size = self.episode_size) #initialise data stream
         batch_queue = DataLoader(batch_size = self.batch_size) #initialise cache data loader
         
@@ -214,7 +243,6 @@ class Simulator():
                 #check if shapes have been altered in .defend() method
                 self._shape_check(orig_X_episode, orig_y_episode, X_episode, y_episode)
 
-            #print(" 2 ", X_episode.shape, y_episode.shape)
             batch_queue.add_to_cache(X_episode, y_episode) #add perturbed / filtered points to batch queue
             
             # Online learning loop
@@ -237,9 +265,8 @@ class Simulator():
 
                 batch_num += 1
                 
-            self.results["X_stream"].append(X_episode)
-            self.results["y_stream"].append(y_episode)
-            self.results["models"].append(deepcopy(self.model.state_dict()))
+            state_dict = deepcopy(self.model.state_dict())
+            self._log(X_episode, y_episode, state_dict) #log results
 
             # Save the results to the results directory
             if self.save:
