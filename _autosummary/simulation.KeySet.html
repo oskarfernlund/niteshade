@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>simulation.ShapeMismatchError &mdash; niteshade 0.1 documentation</title>
+  <title>simulation.KeySet &mdash; niteshade 0.1 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -18,8 +18,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="postprocessing" href="postprocessing.html" />
-    <link rel="prev" title="simulation.ArgNotFoundError" href="simulation.ArgNotFoundError.html" /> 
+    <link rel="next" title="simulation.Simulator" href="simulation.Simulator.html" />
+    <link rel="prev" title="simulation.wrap_results" href="simulation.wrap_results.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -47,10 +47,10 @@
 <li class="toctree-l2"><a class="reference internal" href="defence.html">defence</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="simulation.html">simulation</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="simulation.wrap_results.html">simulation.wrap_results</a></li>
-<li class="toctree-l3"><a class="reference internal" href="simulation.KeySet.html">simulation.KeySet</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">simulation.KeySet</a></li>
 <li class="toctree-l3"><a class="reference internal" href="simulation.Simulator.html">simulation.Simulator</a></li>
 <li class="toctree-l3"><a class="reference internal" href="simulation.ArgNotFoundError.html">simulation.ArgNotFoundError</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">simulation.ShapeMismatchError</a></li>
+<li class="toctree-l3"><a class="reference internal" href="simulation.ShapeMismatchError.html">simulation.ShapeMismatchError</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="postprocessing.html">postprocessing</a></li>
@@ -75,9 +75,9 @@
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
           <li><a href="../api.html">API</a> &raquo;</li>
           <li><a href="simulation.html">simulation</a> &raquo;</li>
-      <li>simulation.ShapeMismatchError</li>
+      <li>simulation.KeySet</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/_autosummary/simulation.ShapeMismatchError.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/_autosummary/simulation.KeySet.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -85,14 +85,31 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="simulation-shapemismatcherror">
-<h1>simulation.ShapeMismatchError<a class="headerlink" href="#simulation-shapemismatcherror" title="Permalink to this headline"></a></h1>
-<dl class="py exception">
-<dt class="sig sig-object py" id="simulation.ShapeMismatchError">
-<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">simulation.</span></span><span class="sig-name descname"><span class="pre">ShapeMismatchError</span></span><a class="headerlink" href="#simulation.ShapeMismatchError" title="Permalink to this definition"></a></dt>
-<dd><p>Exception to be raised when there is a shape mismatch between the
-original episode datapoints/labels and the perturbed/rejected
-datapoints/labels by the attacker/defender.</p>
+  <section id="simulation-keyset">
+<h1>simulation.KeySet<a class="headerlink" href="#simulation-keyset" title="Permalink to this headline"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="simulation.KeySet">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">simulation.</span></span><span class="sig-name descname"><span class="pre">KeySet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tr_point</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#simulation.KeySet" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Object used to convert NumPy arrays /PyTorch Tensors
+to a hashable form.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="simulation.KeySet.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tr_point</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#simulation.KeySet.__init__" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#simulation.KeySet.__init__" title="simulation.KeySet.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(X, y[, tr_point])</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </section>
@@ -101,8 +118,8 @@ datapoints/labels by the attacker/defender.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="simulation.ArgNotFoundError.html" class="btn btn-neutral float-left" title="simulation.ArgNotFoundError" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="postprocessing.html" class="btn btn-neutral float-right" title="postprocessing" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="simulation.wrap_results.html" class="btn btn-neutral float-left" title="simulation.wrap_results" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="simulation.Simulator.html" class="btn btn-neutral float-right" title="simulation.Simulator" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
