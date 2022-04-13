@@ -1,7 +1,9 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 
-# Written by: Oskar
-# Last edited: 2022/03/31
-# Description: Unit tests for the dataloader class.
+"""
+Unit tests for the dataloader class.
+"""
 
 
 # =============================================================================
