@@ -1,8 +1,9 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 
-# Written by: Oskar
-# Last edited: 2022/03/31
-# Description: Data module. Contains classes and functions pertaining to the 
-# storage, loading and batching of datapoints.
+"""
+Classes and functions pertaining to the loading and batching of data.
+"""
 
 
 # =============================================================================
@@ -18,8 +19,7 @@ import torch
 # =============================================================================
 
 class DataLoader:
-    """
-    DataLoader class. 
+    """ DataLoader class. 
 
     Contains a cache and a queue. Features (X) and labels (y) can be added to 
     the cache either by passing them as inputs in the constructor, or by 
@@ -43,8 +43,7 @@ class DataLoader:
     cache will be shuffled prior to batching.
     """
     def __init__(self, X=None, y=None, batch_size=1, shuffle=False, seed=69):
-        """
-        Initialise the DataLoader.
+        """ Initialise the DataLoader.
         
         Features (X) and labels (y) may be passed as inputs in the constructor,
         but this is not necessary. If they are set to their default values of
@@ -162,7 +161,7 @@ class DataLoader:
 #  FUNCTIONS
 # =============================================================================
 
-def main():
+def _test_dataloader():
     """ Simple function to test out the dataloader. """
 
     # Create some fake data
@@ -190,5 +189,5 @@ def main():
 # =============================================================================
 
 if __name__ == "__main__":
-    main()
+    _test_dataloader()
     
