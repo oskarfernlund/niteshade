@@ -163,6 +163,16 @@ def test_MNIST_simulations():
 
     wrapped_data, wrapped_models =  wrap_results(simulators)
 
+    #poisoned = 0
+    #total = 0
+    #for ep in wrapped_data['only_attacker']:
+    #    for point_label in list(ep.values()):
+    #        if type(point_label) != int:
+    #            poisoned += 1
+    #        total += 1
+
+    #print(f'{poisoned} / {total} SUCCESSFULLY POISONED POINTS')
+
     postprocessor = PostProcessor(wrapped_models, BATCH_SIZE, NUM_EPISODES, model)
     postprocessor.plot_online_learning_accuracies(X_test, y_test, save=False)
 
@@ -284,12 +294,12 @@ def test_decision_boundaries_iris(saved_models=None, baseline=None):
 # =============================================================================
 if __name__ == "__main__":
     #-----------IRIS TRIALS------------
-    test_iris_simulations()
+    #test_iris_simulations()
     #test_iris_regular()
 
     #-----------MNIST TRIALS-----------
     #test_MNIST_regular()
-    #test_MNIST_simulations()
+    test_MNIST_simulations()
 
     #----------POSTPROCESSOR TRIALS----
     #saved_models='wrapped_models.pickle'

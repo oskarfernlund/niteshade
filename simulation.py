@@ -11,6 +11,7 @@ import inspect
 from copy import deepcopy
 from utils import save_pickle
 import torch
+from utils import train_test_iris
 
 def wrap_results(simulators: dict):
     """Wrap results of different ran simulations.
@@ -32,6 +33,26 @@ def wrap_results(simulators: dict):
 # =============================================================================
 #  CLASSES
 # =============================================================================
+class KeySet(object):
+    """Object used to convert NumPy arrays /PyTorch Tensors
+       to a hashable form."""
+    def __init__(self, X, y, tr_point = None):
+        #convert to numpy arrays if data are torch.tensors
+        if [type(X), type(y)] == [torch.Tensor, torch.Tensor]:
+            X = X.numpy()
+            y = y.numpy()
+
+        self.tr_point = tr_point
+        self.data = X
+        self.target = y
+
+    def __hash__(self):
+        return hash((hash(self.data.tobytes()), hash(self.target.tobytes())))
+    def __str__(self):
+        return f'{self.hash_val}'
+    def __repr__(self):
+        return f'training_point #{self.tr_point}'
+
 class Simulator():
     """Class used to simulate data poisoning attacks during online learning. 
        
@@ -68,7 +89,8 @@ class Simulator():
 
         self.X = X
         self.y = y
-        self.point_ids = self._assign_ids(self.X, self.y)
+        self._datapoint_ids = self._assign_ids(self.X, self.y)
+        self.num_poisoned = 0
         self.num_episodes = num_episodes
         self.episode_size = len(X) // num_episodes
         self.batch_size = batch_size
@@ -77,14 +99,26 @@ class Simulator():
         self.defender = defender
         self.save = save
         self.episode = 0
-        self.num_poisoned = 0
+        self.training_point = 1
 
         self.results = {'data': [], 'models': []}
+    
+    def _assign_ids(self, X, y):      
+        """Build a dictionary using the true datapoints as keys and their indices 
+           (i.e identifiers) as values.
+        
+        Args: 
+            - X {np.ndarray, torch.Tensor}: stream of input data to train the model
+                                            with during supervised learning.
 
-    def _assign_ids(self, X, y): 
-        """Return a dictionary where the keys are the indices of the
-           datapoints in the inputted training data (i.e point-label pairs)."""
-        return {(tuple(point), tuple(label)):idx for idx, (point,label) in enumerate(zip(X,y))}
+            - y {np.ndarray, torch.Tensor}: stream of target data (labels to the inputs)
+                                            to train the model with during supervised learning.
+        """
+        point_ids = {}
+        for idx, (inpt, label) in enumerate(zip(X,y)):
+            point_hash = KeySet(inpt, label)
+            point_ids[hash(point_hash)] = idx
+        return point_ids
     
     def _get_func_args(self, func):
         """Get the arguments of a function."""
@@ -155,21 +189,18 @@ class Simulator():
     def _log(self, X, y, state_dict):
         """Log the results of an episode in the results dictionary.
         """
-        data_episode = {}
+        data = {}
 
-        for point, label in zip(X,y):
-            #convert to hashable datatypes
-            point = tuple(point)
-            label = tuple(label)
-            point_id = self.point_ids.get((point,label), 'p')
-
+        for idx, (inpt, label) in enumerate(zip(X,y)):
+            point_hash = KeySet(inpt,label,self.training_point)
+            point_id = self._datapoint_ids.get(hash(point_hash), 'p')
             if point_id == 'p':
-                self.num_poisoned += 1
                 point_id = f'p_{self.num_poisoned}'
+                self.num_poisoned += 1
+            data[point_hash] = point_id
+            self.training_point += 1
 
-            data_episode[(point,label)] = point_id
-
-        self.results['data'].append(data_episode)
+        self.results['data'].append(data)
         self.results['models'].append(state_dict)
 
     def run(self, defender_args = {}, attacker_args = {}, attacker_requires_model=False, 
@@ -280,3 +311,22 @@ class ShapeMismatchError(Exception):
     """Exception to be raised when there is a shape mismatch between the 
        original episode datapoints/labels and the perturbed/rejected
        datapoints/labels by the attacker/defender."""
+
+if __name__ == '__main__':
+    X_train, y_train, X_test, y_test = train_test_iris(num_stacks=1)
+
+    mydict = {}
+    X = X_train[0]
+    y = y_train[0]
+
+    hash_val1 = KeySet(X,y)
+    mydict[hash(hash_val1)] = 1
+
+    X = X_train[0]
+    y = y_train[0]
+
+    hash_val2 = KeySet(X,y)
+    print(hash_val1)
+    print(hash_val2)
+    print(mydict[hash(hash_val2)])
+
