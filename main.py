@@ -38,17 +38,17 @@ NUM_EPISODES = 20
 # =============================================================================
 def test_iris_simulations():
     """Attack and defense combinations simulations for Iris classifier."""
+    BATCH_SIZE = 2
+    NUM_EPISODES = 100
     #split iris dataset into train and test
-    X_train, y_train, X_test, y_test = train_test_iris(num_stacks=10)
+    X_train, y_train, X_test, y_test = train_test_iris(num_stacks=1)
 
     # Instantiate necessary classes
     # Instantiate necessary classes
     defender = FeasibleSetDefender(X_train, y_train, 0.5, one_hot=True)
                              #SoftmaxDefender(threshold=0.1))
     
-    # attacker = AddLabeledPointsAttacker(0.6, 1, one_hot=True)
-    dict = {0:1}
-    attacker = LabelFlipperAttacker(1, dict, True)
+    attacker = AddLabeledPointsAttacker(0.6, 1, one_hot=True)
 
     #implement attack and defense strategies through learner
     model = IrisClassifier()
@@ -76,7 +76,7 @@ def test_iris_simulations():
     simulators = {'attacker_and_defense': simulator1, 'only_defender':simulator2,
                 'only_attacker': simulator3, 'regular': simulator4}
 
-    wrapped_results_X, wrapped_results_y, wrapped_models =  wrap_results(simulators)
+    wrapped_data, wrapped_models =  wrap_results(simulators)
 
     postprocessor = PostProcessor(wrapped_models, BATCH_SIZE, NUM_EPISODES, model)
     postprocessor.plot_online_learning_accuracies(X_test, y_test, save=False)
@@ -161,7 +161,7 @@ def test_MNIST_simulations():
     simulators = {'attacker_and_defense': simulator1, 'only_defender':simulator2,
                 'only_attacker': simulator3, 'regular': simulator4}
 
-    wrapped_results_X, wrapped_results_y, wrapped_models =  wrap_results(simulators)
+    wrapped_data, wrapped_models =  wrap_results(simulators)
 
     postprocessor = PostProcessor(wrapped_models, BATCH_SIZE, NUM_EPISODES, model)
     postprocessor.plot_online_learning_accuracies(X_test, y_test, save=False)
@@ -208,7 +208,7 @@ def test_decision_boundaries_MNIST(saved_models=None, baseline=None):
 
         simulators = {'only_attacker': simulator1, 'regular': simulator2,
                       'attacker_and_defender': simulator4}
-        wrapped_results_X, wrapped_results_y, wrapped_models =  wrap_results(simulators)
+        wrapped_data, wrapped_models =  wrap_results(simulators)
 
         torch.save(wrapped_models, 'wrapped_models.pickle')
         torch.save(model, 'baseline.pickle')
@@ -265,7 +265,8 @@ def test_decision_boundaries_iris(saved_models=None, baseline=None):
 
         simulators = {'only_attacker': simulator3, 'attacker_and_defender': simulator1,
                       'regular': simulator4}
-        wrapped_results_X, wrapped_results_y, wrapped_models =  wrap_results(simulators)
+
+        wrapped_data, wrapped_models =  wrap_results(simulators)
 
         torch.save(wrapped_models, 'wrapped_models.pickle')
         torch.save(model, 'baseline.pickle')
@@ -283,7 +284,7 @@ def test_decision_boundaries_iris(saved_models=None, baseline=None):
 # =============================================================================
 if __name__ == "__main__":
     #-----------IRIS TRIALS------------
-    # test_iris_simulations()
+    test_iris_simulations()
     #test_iris_regular()
 
     #-----------MNIST TRIALS-----------
@@ -291,9 +292,9 @@ if __name__ == "__main__":
     #test_MNIST_simulations()
 
     #----------POSTPROCESSOR TRIALS----
-    saved_models='wrapped_models.pickle'
-    baseline = 'baseline.pickle'
-    test_decision_boundaries_MNIST(saved_models=None, baseline=None)
+    #saved_models='wrapped_models.pickle'
+    #baseline = 'baseline.pickle'
+    #test_decision_boundaries_MNIST(saved_models=None, baseline=None)
     #test_decision_boundaries_iris()
 
 
