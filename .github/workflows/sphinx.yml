@@ -29,14 +29,14 @@ jobs:
       - name: Build HTML
         uses: ammaraskar/sphinx-action@0.4
 
-      # Attach the HTML output the artifacts to the GitHub Actions job, for easier inspection.
+      # Attach the HTML output the artifacts to the GitHub Actions job, for easier inspection
       - name: Upload artifacts
         uses: actions/upload-artifact@v1
         with:
           name: html-docs
           path: docs/build/html/
       
-      # If the change happens on the default branch, take the contents of docs/build/html and push it to the gh-pages branch.
+      # If the change happens on the default branch, take the contents of docs/build/html and push it to the gh-pages branch
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         if: github.ref == 'refs/heads/master'
