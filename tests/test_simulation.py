@@ -68,7 +68,7 @@ class Simulation_test(unittest.TestCase):
         simulators = {'attacker_and_defense': simulator1, 'only_defender':simulator2,
                     'only_attacker': simulator3, 'regular': simulator4}
 
-        wrapped_results_X, wrapped_results_y, wrapped_models =  wrap_results(simulators)
+        wrapped_data, wrapped_models =  wrap_results(simulators)
 
     def test_iris(self):
         """Attack and defense combinations simulations for Iris classifier."""
@@ -106,7 +106,7 @@ class Simulation_test(unittest.TestCase):
         simulators = {'attacker_and_defense': simulator1, 'only_defender':simulator2,
                     'only_attacker': simulator3, 'regular': simulator4}
 
-        wrapped_results_X, wrapped_results_y, wrapped_models =  wrap_results(simulators)
+        wrapped_data, wrapped_models =  wrap_results(simulators)
 
 if __name__ == '__main__':
     unittest.main()
