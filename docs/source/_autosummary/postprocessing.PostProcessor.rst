@@ -1,0 +1,28 @@
+postprocessing.PostProcessor
+============================
+
+.. currentmodule:: postprocessing
+
+.. autoclass:: PostProcessor
+   :members:                                   
+   :show-inheritance:                                                                                        
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~PostProcessor.__init__
+      ~PostProcessor.compute_accuracies
+      ~PostProcessor.extract_z
+      ~PostProcessor.plot_decision_boundaries
+      ~PostProcessor.plot_online_learning_accuracies
+   
+   
+
+   
+   
+   

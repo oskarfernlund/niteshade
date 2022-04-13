@@ -1,0 +1,28 @@
+attack.Attacker
+===============
+
+.. currentmodule:: attack
+
+.. autoclass:: Attacker
+   :members:                                   
+   :show-inheritance:                                                                                        
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Attacker.__init__
+      ~Attacker.check_batch_size
+      ~Attacker.check_num_of_classes
+      ~Attacker.decode_one_hot
+      ~Attacker.one_hot_encoding
+   
+   
+
+   
+   
+   
