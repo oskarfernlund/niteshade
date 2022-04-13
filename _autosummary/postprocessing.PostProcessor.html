@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>postprocessing.PostProcessor &mdash; niteshade 0.1 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="utils" href="utils.html" />
+    <link rel="prev" title="postprocessing" href="postprocessing.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> niteshade
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../api.html">API</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="data.html">data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="model.html">model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="attack.html">attack</a></li>
+<li class="toctree-l2"><a class="reference internal" href="defence.html">defence</a></li>
+<li class="toctree-l2"><a class="reference internal" href="simulation.html">simulation</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="postprocessing.html">postprocessing</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">postprocessing.PostProcessor</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html">utils</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">niteshade</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../api.html">API</a> &raquo;</li>
+          <li><a href="postprocessing.html">postprocessing</a> &raquo;</li>
+      <li>postprocessing.PostProcessor</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/_autosummary/postprocessing.PostProcessor.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="postprocessing-postprocessor">
+<h1>postprocessing.PostProcessor<a class="headerlink" href="#postprocessing-postprocessor" title="Permalink to this headline"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="postprocessing.PostProcessor">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">postprocessing.</span></span><span class="sig-name descname"><span class="pre">PostProcessor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wrapped_models</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_episodes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_model</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#postprocessing.PostProcessor" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="postprocessing.PostProcessor.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wrapped_models</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_episodes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_model</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#postprocessing.PostProcessor.__init__" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#postprocessing.PostProcessor.__init__" title="postprocessing.PostProcessor.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(wrapped_models, batch_size, ...)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#postprocessing.PostProcessor.compute_accuracies" title="postprocessing.PostProcessor.compute_accuracies"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_accuracies</span></code></a>(X_test, y_test)</p></td>
+<td><p># Returns a dictionary of lists with accuracies</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#postprocessing.PostProcessor.extract_z" title="postprocessing.PostProcessor.extract_z"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extract_z</span></code></a>(dataset[, perplexity, n_iter])</p></td>
+<td><p>Extract embedded x,y positions for every datapoint in the dataset.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#postprocessing.PostProcessor.plot_decision_boundaries" title="postprocessing.PostProcessor.plot_decision_boundaries"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_decision_boundaries</span></code></a>(X_test, y_test[, ...])</p></td>
+<td><p>Plot the decision boundaries of the final models inside all the ran Simulator</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#postprocessing.PostProcessor.plot_online_learning_accuracies" title="postprocessing.PostProcessor.plot_online_learning_accuracies"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_online_learning_accuracies</span></code></a>(X_test, y_test)</p></td>
+<td><p># Prints a plot into a console</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="postprocessing.PostProcessor.compute_accuracies">
+<span class="sig-name descname"><span class="pre">compute_accuracies</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X_test</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_test</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#postprocessing.PostProcessor.compute_accuracies" title="Permalink to this definition"></a></dt>
+<dd><p># Returns a dictionary of lists with accuracies</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="postprocessing.PostProcessor.extract_z">
+<span class="sig-name descname"><span class="pre">extract_z</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">perplexity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_iter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2000</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#postprocessing.PostProcessor.extract_z" title="Permalink to this definition"></a></dt>
+<dd><p>Extract embedded x,y positions for every datapoint in the dataset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>{np.ndarray}</strong> (<em>- dataset</em>) – NumPy array containing data.</p></li>
+<li><p><strong>{int}</strong> (<em>- perplexity</em>) – The perplexity is related to the number of nearest
+neighbors that is used in other manifold learning algorithms.
+Larger datasets usually require a larger perplexity. Consider
+selecting a value between 5 and 50. Different values can result
+in significantly different results. Default = 50.</p></li>
+<li><p><strong>{iter}</strong> (<em>- n_iter</em>) – Maximum number of iterations for the optimization. Should be at least 250.
+Default = 2000.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>embedded x,y positions for every datapoint in the dataset.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p>tsne_results</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="postprocessing.PostProcessor.plot_decision_boundaries">
+<span class="sig-name descname"><span class="pre">plot_decision_boundaries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X_test</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_test</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">500</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">perplexity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_iter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kernel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'poly'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">degree</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(20,</span> <span class="pre">20)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fontsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">markersize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resolution</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#postprocessing.PostProcessor.plot_decision_boundaries" title="Permalink to this definition"></a></dt>
+<dd><dl class="simple">
+<dt>Plot the decision boundaries of the final models inside all the ran Simulator</dt><dd><p>objects passed in the constructor method of the PostProcessor. This method uses
+sklearn.manifold.TSNE to reduce the dimensionality of X_test to 2D for visualisation
+purposes. An sklearn C-Support Vector Classifier is then trained using the points in
+the smaller feature space with the predicted labels of each model to show their
+decision boundaries in 2D.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>{np.ndarray</strong> (<em>- y_test</em>) – Test input data.</p></li>
+<li><p><strong>torch.Tensor}</strong> – Test input data.</p></li>
+<li><p><strong>{np.ndarray</strong> – Test labels.</p></li>
+<li><p><strong>torch.Tensor}</strong> – Test labels.</p></li>
+<li><p><strong>{int}</strong> (<em>- degree</em>) – Number of points within X_test/y_test to plot in the figure.
+Consider selecting a value between 300 and 1000.</p></li>
+<li><p><strong>{int}</strong> – The perplexity is related to the number of nearest
+neighbors that is used in other manifold learning algorithms.
+Larger datasets usually require a larger perplexity. Consider
+selecting a value between 5 and 50. Different values can result
+in significantly different results. Default = 50.</p></li>
+<li><p><strong>{iter}</strong> (<em>- n_iter</em>) – Maximum number of iterations for the optimization. Should be at least 250.
+Default = 2000.</p></li>
+<li><p><strong>{float}</strong> (<em>- C</em>) – Regularization parameter. The strength of the regularization is inversely proportional
+to C. Must be strictly positive. The penalty is a squared l2 penalty.</p></li>
+<li><p><strong>{str}</strong> (<em>- kernel</em>) – {‘linear’, ‘poly’, ‘rbf’, ‘sigmoid’, ‘precomputed’} or callable. Specifies the kernel
+type to be used in the algorithm. If none is given, ‘rbf’ will be used. If a callable
+is given it is used to pre-compute the kernel matrix from data matrices; that matrix
+should be an array of shape (n_samples, n_samples). Default=’poly’.</p></li>
+<li><p><strong>{int}</strong> – Degree of the polynomial kernel function (‘poly’). Ignored by all other kernels.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="postprocessing.PostProcessor.plot_online_learning_accuracies">
+<span class="sig-name descname"><span class="pre">plot_online_learning_accuracies</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X_test</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_test</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#postprocessing.PostProcessor.plot_online_learning_accuracies" title="Permalink to this definition"></a></dt>
+<dd><p># Prints a plot into a console</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="postprocessing.html" class="btn btn-neutral float-left" title="postprocessing" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="utils.html" class="btn btn-neutral float-right" title="utils" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Mart Bakler, Oskar Fernlund, Alex Ntemourtsidou, Jaime Sabal, Mustafa Saleem.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
