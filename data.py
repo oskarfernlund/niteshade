@@ -50,8 +50,8 @@ class DataLoader:
         None, the cache and queue will initially be empty.
     
         Args:
-            X (np.array or torch.tensor) : features (first dimension = N)
-            y (np.array or torch.tensor) : labels (first dimension = N)
+            X (np.ndarray or torch.tensor) : features (first dimension = N)
+            y (np.ndarray or torch.tensor) : labels (first dimension = N)
             batch_size (int) : size of the batches to generate
             shuffle (bool) : whether or not to shuffle the datapoints before 
             seed (int) : seed for the random number generator 
@@ -107,8 +107,8 @@ class DataLoader:
         them from the cache and adds them to the queue.
 
         Args:
-            X (np.array or torch.tensor) : features (first dimension = N)
-            y (np.array or torch.tensor) : labels (first dimension = N)
+            X (np.ndarray or torch.tensor) : features (first dimension = N)
+            y (np.ndarray or torch.tensor) : labels (first dimension = N)
         """
         # Make sure X and y dimensions are compatible
         assert X.shape[0] == y.shape[0], "First dim. of X & y must be aligned!"
