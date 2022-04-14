@@ -16,6 +16,7 @@
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
     <script src="_static/js/theme.js"></script>
+    <link rel="author" title="About these documents" href="about.html" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="API" href="api.html" />
@@ -38,8 +39,10 @@
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="about.html">About</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Usage</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#getting-started">Getting Started</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#importing-a-model">Importing a Model</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#setting-up-an-online-data-pipeline">Setting Up an Online Data Pipeline</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#running-simulations">Running Simulations</a></li>
@@ -47,6 +50,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
 </ul>
 
         </div>
@@ -75,81 +79,58 @@
              
   <section id="usage">
 <h1>Usage<a class="headerlink" href="#usage" title="Permalink to this headline"></a></h1>
+<p>niteshade is primarily a tool for simulating data poisoning attacks against
+online learning systems. The library is comprised of classes and functions to
+assist users in setting up online data pipelines, specifying attack and defence
+strategies, running simulations and postprocessing results. In addition,
+niteshade’s Python API makes it easy for users to write their own attack and
+defence classes through inheritance of the relevant superclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>niteshade heavily depends on Numpy and PyTorch. Workflows in niteshade are
+intended to be fully compatible with both <code class="docutils literal notranslate"><span class="pre">numpy.ndarray</span></code> and
+<code class="docutils literal notranslate"><span class="pre">torch.tensor</span></code> data types, but usage of other data types may result in
+issues.</p>
+</div>
+<section id="getting-started">
+<span id="id1"></span><h2>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this headline"></a></h2>
+<p>Before setting up a niteshade workflow, be sure to import any necessary
+libraries:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">torch</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">niteshade</span> <span class="k">as</span> <span class="nn">shade</span>
+</pre></div>
+</div>
+</section>
 <section id="importing-a-model">
-<span id="id1"></span><h2>Importing a Model<a class="headerlink" href="#importing-a-model" title="Permalink to this headline"></a></h2>
+<span id="id2"></span><h2>Importing a Model<a class="headerlink" href="#importing-a-model" title="Permalink to this headline"></a></h2>
+<p>One of the first steps when setting up a workflow in niteshade is specifying a
+model which will be the subject of the data poisoning attack. niteshade comes
+with a few toy models which may be used out of the box, e.g.:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">shade</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">IrisClassifier</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">shade</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">MNISTClassifier</span>
+</pre></div>
+</div>
+<p>However, most users will prefer to use a custom model class. This can be done</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">torch</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">the_model</span><span class="o">.</span><span class="n">state_dict</span><span class="p">(),</span> <span class="n">filepath</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">torch</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">the_model</span><span class="p">,</span> <span class="n">filepath</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>it may be loaded</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
+</pre></div>
+</div>
 </section>
 <section id="setting-up-an-online-data-pipeline">
-<span id="id2"></span><h2>Setting Up an Online Data Pipeline<a class="headerlink" href="#setting-up-an-online-data-pipeline" title="Permalink to this headline"></a></h2>
-<p>niteshade has a bespoke data loader class specifically designed for online
-learning.</p>
-<dl class="py class">
-<dt class="sig sig-object py">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">data.</span></span><span class="sig-name descname"><span class="pre">DataLoader</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shuffle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">69</span></span></em><span class="sig-paren">)</span></dt>
-<dd><p>DataLoader class.</p>
-<p>Contains a cache and a queue. Features (X) and labels (y) can be added to
-the cache either by passing them as inputs in the constructor, or by
-calling the method add_to_cache(X, y).</p>
-<p>When data is added to the cache, the points are automatically batched into
-arrays of length batch_size, removed from the cache and added to the queue.
-For example, if a dataset containing 10 points is added to the cache with a
-batch size of 3, 3 batches of length 3 will be created, removed from the
-cache and added to the queue. In the end, the queue will contain 3 batches
-of size 3 and the cache will contain a single datapoint. If more (X, y)
-values are added to the cache by calling add_to_cache(X, y), they will be
-appended to the cache and the batching/queuing process will repeat, this
-time with the single datapoint at the front of the cache (first in line to
-be batched and added to the queue).</p>
-<p>The class is an iterator, and returns batches from the queue when iterated
-over until the queue is empty. If more (X, y) values get added to the
-cache, the class instance may be iterated over again and new batches will
-be produced. If the shuffle argument is set to True, any data added to the
-cache will be shuffled prior to batching.</p>
-</dd></dl>
-
+<span id="id3"></span><h2>Setting Up an Online Data Pipeline<a class="headerlink" href="#setting-up-an-online-data-pipeline" title="Permalink to this headline"></a></h2>
+<p>niteshade makes setting up an online data pipeline easy, thanks to its bespoke
+data loader class specifically designed for online learning
+<code class="docutils literal notranslate"><span class="pre">niteshade.data.DataLoader</span></code></p>
 </section>
 <section id="running-simulations">
-<span id="id3"></span><h2>Running Simulations<a class="headerlink" href="#running-simulations" title="Permalink to this headline"></a></h2>
+<span id="id4"></span><h2>Running Simulations<a class="headerlink" href="#running-simulations" title="Permalink to this headline"></a></h2>
 <p>To run a simulation, you can use the <code class="docutils literal notranslate"><span class="pre">niteshade.simulation.Simulator</span></code> class:</p>
-<dl class="py class">
-<dt class="sig sig-object py" id="simulation.Simulator">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">simulation.</span></span><span class="sig-name descname"><span class="pre">Simulator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attacker</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">defender</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_episodes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#simulation.Simulator" title="Permalink to this definition"></a></dt>
-<dd><p>Class used to simulate data poisoning attacks during online learning.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>{np.ndarray</strong> (<em>- y</em>) – stream of input data to train the model
-with during supervised learning.</p></li>
-<li><p><strong>torch.Tensor}</strong> – stream of input data to train the model
-with during supervised learning.</p></li>
-<li><p><strong>{np.ndarray</strong> – stream of target data (labels to the inputs)
-to train the model with during supervised learning.</p></li>
-<li><p><strong>torch.Tensor}</strong> – stream of target data (labels to the inputs)
-to train the model with during supervised learning.</p></li>
-<li><p><strong>{torch.nn.Module}</strong> (<em>- model</em>) – neural network model inheriting from torch.nn.Module to
-be trained during online learning. Must present a .step()
-method that performs a gradient descent step on a batch
-of input and target data (X_batch and y_batch).</p></li>
-<li><p><strong>{Attacker}</strong> (<em>- attacker</em>) – Attacker object that presents a .attack() method with an
-implementation of a data poisoning attack strategy.</p></li>
-<li><p><strong>{Defender}</strong> (<em>- defender</em>) – Defender object that presents a .defend() method with an
-implementation of a data poisoning defense strategy.</p></li>
-<li><p><strong>{int}</strong> (<em>- num_episodes</em>) – batch size of model.</p></li>
-<li><p><strong>{int}</strong> – Number of ‘episodes’ that X and y span over. Here, we refer to
-an episode as the time period over which a stream of incoming data
-would be collected and subsequently passed on to the model to be
-trained.</p></li>
-</ul>
-</dd>
-</dl>
-<p>Simulates data poisoning attacks against online learning.</p>
-</dd></dl>
-
-<p>The <code class="docutils literal notranslate"><span class="pre">run()</span></code> method should be called to run the simulation:</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="run">
-<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#run" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">niteshade</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">simulator</span> <span class="o">=</span> <span class="n">niteshade</span><span class="o">.</span><span class="n">simulation</span><span class="o">.</span><span class="n">Simulator</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">simulator</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
@@ -157,12 +138,9 @@ trained.</p></li>
 </div>
 </section>
 <section id="postprocessing-results">
-<span id="id4"></span><h2>Postprocessing Results<a class="headerlink" href="#postprocessing-results" title="Permalink to this headline"></a></h2>
-<dl class="py class">
-<dt class="sig sig-object py">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">postprocessing.</span></span><span class="sig-name descname"><span class="pre">PostProcessor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wrapped_models</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_episodes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_model</span></span></em><span class="sig-paren">)</span></dt>
-<dd></dd></dl>
-
+<span id="id5"></span><h2>Postprocessing Results<a class="headerlink" href="#postprocessing-results" title="Permalink to this headline"></a></h2>
+<p>To postprocess results, you can use the
+<code class="docutils literal notranslate"><span class="pre">niteshade.postprocessing.PostProcessor</span></code> class:</p>
 </section>
 </section>
 
