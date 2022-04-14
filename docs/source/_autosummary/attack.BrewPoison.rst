@@ -1,9 +1,9 @@
-attack.Attacker
-===============
+attack.BrewPoison
+=================
 
 .. currentmodule:: attack
 
-.. autoclass:: Attacker
+.. autoclass:: BrewPoison
    :members:                                   
    :show-inheritance:                                                                                        
 
@@ -15,8 +15,8 @@ attack.Attacker
 
    .. autosummary::
    
-      ~Attacker.__init__
-      ~Attacker.attack
+      ~BrewPoison.__init__
+      ~BrewPoison.attack
    
    
 

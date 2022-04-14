@@ -1,9 +1,9 @@
-attack.Attacker
-===============
+attack.PerturbPointsAttacker
+============================
 
 .. currentmodule:: attack
 
-.. autoclass:: Attacker
+.. autoclass:: PerturbPointsAttacker
    :members:                                   
    :show-inheritance:                                                                                        
 
@@ -15,8 +15,8 @@ attack.Attacker
 
    .. autosummary::
    
-      ~Attacker.__init__
-      ~Attacker.attack
+      ~PerturbPointsAttacker.__init__
+      ~PerturbPointsAttacker.attack
    
    
 

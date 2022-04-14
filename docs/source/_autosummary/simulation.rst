@@ -26,6 +26,7 @@
       :toctree:                                    
       :template: custom-class-template.rst             
    
+      KeySet
       Simulator
    
    
@@ -37,7 +38,7 @@
    .. autosummary::
       :toctree:                                      
    
-      KwargNotFoundError
+      ArgNotFoundError
       ShapeMismatchError
    
    

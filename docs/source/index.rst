@@ -10,32 +10,24 @@ Welcome to niteshade's documentation!
 attack and defence strategies against online machine learning systems. It is 
 primarily a research tool and offers a *simple* and *intuitive* API.
 
-For a brief introduction to data poisoning attacks and why they are a topic of 
-concern, see 
-`<https://internationalsecurityjournal.com/what-is-data-poisoning/>`_.
-
-Check out the :doc:`installation` section for details regarding getting set up 
-with niteshade, the :doc:`usage` section for further information regarding how 
-to set up and run a simulation and the :doc:`api` section for detailed 
-documentation of the Python API.
+For information about data poisoning attacks and why they are a topic of 
+concern as well as general information about the project and its contributors, 
+check out the :doc:`about` section. For details regarding getting set up with 
+niteshade, see the :doc:`installation` and :doc:`usage` sections. For a 
+detailed overview of the Python API and how to contribute, see the :doc:`api` 
+and :doc:`contributing` sections.
 
 .. note::
 
-   This project is under active development.
+   This project is under active development and may be unstable!
 
 Contents
 --------
 
 .. toctree::
 
+   about
    installation
    usage
    api
-
-
-.. Indices and tables
-.. ==================
-
-.. * :ref:`genindex`
-.. * :ref:`modindex`
-.. * :ref:`search`
+   contributing

@@ -1,9 +1,9 @@
-attack.Attacker
-===============
+attack.ModelAttacker
+====================
 
 .. currentmodule:: attack
 
-.. autoclass:: Attacker
+.. autoclass:: ModelAttacker
    :members:                                   
    :show-inheritance:                                                                                        
 
@@ -15,8 +15,8 @@ attack.Attacker
 
    .. autosummary::
    
-      ~Attacker.__init__
-      ~Attacker.attack
+      ~ModelAttacker.__init__
+      ~ModelAttacker.attack
    
    
 

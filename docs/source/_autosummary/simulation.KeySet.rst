@@ -1,9 +1,9 @@
-attack.Attacker
-===============
+simulation.KeySet
+=================
 
-.. currentmodule:: attack
+.. currentmodule:: simulation
 
-.. autoclass:: Attacker
+.. autoclass:: KeySet
    :members:                                   
    :show-inheritance:                                                                                        
 
@@ -15,8 +15,7 @@ attack.Attacker
 
    .. autosummary::
    
-      ~Attacker.__init__
-      ~Attacker.attack
+      ~KeySet.__init__
    
    
 

@@ -1,9 +1,9 @@
-attack.Attacker
-===============
+attack.ChangeLabelAttacker
+==========================
 
 .. currentmodule:: attack
 
-.. autoclass:: Attacker
+.. autoclass:: ChangeLabelAttacker
    :members:                                   
    :show-inheritance:                                                                                        
 
@@ -15,8 +15,8 @@ attack.Attacker
 
    .. autosummary::
    
-      ~Attacker.__init__
-      ~Attacker.attack
+      ~ChangeLabelAttacker.__init__
+      ~ChangeLabelAttacker.attack
    
    
 

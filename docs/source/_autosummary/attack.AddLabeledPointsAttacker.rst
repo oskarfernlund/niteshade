@@ -1,9 +1,9 @@
-attack.Attacker
-===============
+attack.AddLabeledPointsAttacker
+===============================
 
 .. currentmodule:: attack
 
-.. autoclass:: Attacker
+.. autoclass:: AddLabeledPointsAttacker
    :members:                                   
    :show-inheritance:                                                                                        
 
@@ -15,8 +15,8 @@ attack.Attacker
 
    .. autosummary::
    
-      ~Attacker.__init__
-      ~Attacker.attack
+      ~AddLabeledPointsAttacker.__init__
+      ~AddLabeledPointsAttacker.attack
    
    
 
