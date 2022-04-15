@@ -7,7 +7,7 @@ API
    :recursive:
 
    niteshade.data
-   niteshade.model
+   niteshade.models
    niteshade.attack
    niteshade.defence
    niteshade.simulation
