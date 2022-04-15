@@ -13,7 +13,6 @@
 import numpy as np
 
 #pypoison modules
-from data import DataLoader
 from attack import AddLabeledPointsAttacker, RandomAttacker, LabelFlipperAttacker
 from defence import FeasibleSetDefender, DefenderGroup, SoftmaxDefender
 from model import IrisClassifier, MNISTClassifier
@@ -21,6 +20,7 @@ from postprocessing import PostProcessor
 from simulation import Simulator, wrap_results
 from utils import train_test_iris, train_test_MNIST
 import torch
+import pandas as pd
 
 # =============================================================================
 #  GLOBAL VARIABLES
@@ -154,27 +154,20 @@ def test_MNIST_simulations():
 
     #simulate attack and defense separately using class method
     simulator1.run(defender_requires_model=True)
-    simulator2.run(defender_requires_model=True)
-    simulator3.run(defender_requires_model=True)
-    simulator4.run(defender_requires_model=True)
+    #simulator2.run(defender_requires_model=True)
+    #simulator3.run(defender_requires_model=True)
+    #simulator4.run(defender_requires_model=True)
 
-    simulators = {'attacker_and_defense': simulator1, 'only_defender':simulator2,
-                'only_attacker': simulator3, 'regular': simulator4}
+    simulators = {'attacker_and_defense': simulator1}#, 'only_defender':simulator2,
+                #'only_attacker': simulator3, 'regular': simulator4}
 
     wrapped_data, wrapped_models =  wrap_results(simulators)
+    print('Done')
+    print(list(wrapped_data['attacker_and_defense']['post_attack'][0].keys()))
+    print(list(wrapped_data['attacker_and_defense']['post_defense'][0].keys()))
 
-    #poisoned = 0
-    #total = 0
-    #for ep in wrapped_data['only_attacker']:
-    #    for point_label in list(ep.values()):
-    #        if type(point_label) != int:
-    #            poisoned += 1
-    #        total += 1
-
-    #print(f'{poisoned} / {total} SUCCESSFULLY POISONED POINTS')
-
-    postprocessor = PostProcessor(wrapped_models, BATCH_SIZE, NUM_EPISODES, model)
-    postprocessor.plot_online_learning_accuracies(X_test, y_test, save=False)
+    #postprocessor = PostProcessor(wrapped_models, BATCH_SIZE, NUM_EPISODES, model)
+    #postprocessor.plot_online_learning_accuracies(X_test, y_test, save=False)
 
 
 ## ============================================================================

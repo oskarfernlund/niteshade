@@ -12,6 +12,7 @@ from copy import deepcopy
 from utils import save_pickle
 import torch
 from utils import train_test_iris
+from collections import defaultdict
 
 def wrap_results(simulators: dict):
     """Wrap results of different ran simulations.
@@ -21,37 +22,37 @@ def wrap_results(simulators: dict):
                                   with keys as descriptive labels of their
                                   differences.
     """
-    wrapped_data = {}
+    wrapped_data = defaultdict(dict)
     wrapped_models = {}
 
     for label, simulator in simulators.items():
-        wrapped_data[label] = simulator.results['data']
+        wrapped_data[label]['original'] = simulator.results['original']
+        wrapped_data[label]['post_attack'] = simulator.results['post_attack']
+        wrapped_data[label]['post_defense'] = simulator.results['post_defense']
         wrapped_models[label] = simulator.results['models']
-        
+    
     return wrapped_data, wrapped_models
 
 # =============================================================================
-#  CLASSES
+# CLASSES
 # =============================================================================
-class KeySet(object):
+class _KeyMap(object):
     """Object used to convert NumPy arrays /PyTorch Tensors
        to a hashable form."""
-    def __init__(self, X, y, tr_point = None):
+    def __init__(self, X, y):
         #convert to numpy arrays if data are torch.tensors
         if [type(X), type(y)] == [torch.Tensor, torch.Tensor]:
             X = X.numpy()
             y = y.numpy()
-
-        self.tr_point = tr_point
         self.data = X
         self.target = y
-
+        self.hash = hash((hash(self.data.tobytes()), hash(self.target.tobytes())))
     def __hash__(self):
-        return hash((hash(self.data.tobytes()), hash(self.target.tobytes())))
+        return self.hash
     def __str__(self):
-        return f'{self.hash_val}'
+        return f'{self.hash}'
     def __repr__(self):
-        return f'training_point #{self.tr_point}'
+        return f'{self.hash}'
 
 class Simulator():
     """Class used to simulate data poisoning attacks during online learning. 
@@ -87,10 +88,9 @@ class Simulator():
         assert batch_size > 0, 'Batch size must be greater than 0.'
         assert num_episodes > 0, 'Number of episodes must be greater than 0.'
 
+        #miscellaneous
         self.X = X
         self.y = y
-        self._datapoint_ids = self._assign_ids(self.X, self.y)
-        self.num_poisoned = 0
         self.num_episodes = num_episodes
         self.episode_size = len(X) // num_episodes
         self.batch_size = batch_size
@@ -99,25 +99,37 @@ class Simulator():
         self.defender = defender
         self.save = save
         self.episode = 0
-        self.training_point = 1
 
-        self.results = {'data': [], 'models': []}
+        #save original data with indices as id's
+        self._datapoint_ids = self._assign_ids(self.X, self.y)
+
+        #save original, post-attacked, and post-defended points on an
+        #episodic basis
+        self._original_ids = {}
+        self._attacked_ids = {}
+        self._defended_ids = {}
+        self.num_poisoned = 0
+        self.num_defended = 0
+
+        #logging of results
+        self.results = {'original': [], 'post_attack': [], 'post_defense':[], 'models': []}
+        self._cp_labels = {0:'original', 1:'post_attack', 2:'post_defense'}
     
     def _assign_ids(self, X, y):      
         """Build a dictionary using the true datapoints as keys and their indices 
            (i.e identifiers) as values.
         
         Args: 
-            - X {np.ndarray, torch.Tensor}: stream of input data to train the model
-                                            with during supervised learning.
+            X (np.ndarray, torch.Tensor) : stream of input data to train the model
+                                           with during supervised learning.
 
-            - y {np.ndarray, torch.Tensor}: stream of target data (labels to the inputs)
-                                            to train the model with during supervised learning.
+            y (np.ndarray, torch.Tensor) : stream of target data (labels to the inputs)
+                                           to train the model with during supervised learning.
         """
         point_ids = {}
         for idx, (inpt, label) in enumerate(zip(X,y)):
-            point_hash = KeySet(inpt, label)
-            point_ids[hash(point_hash)] = idx
+            point_hash = hash(_KeyMap(inpt, label))
+            point_ids[point_hash] = idx
         return point_ids
     
     def _get_func_args(self, func):
@@ -162,10 +174,10 @@ class Simulator():
            perturbing/rejecting datapoints during online learning.
            
            Args: 
-                - orig_X {np.ndarray, torch.Tensor}: original inputs. 
-                - orig_y {np.ndarray, torch.Tensor}: original labels. 
-                - X {np.ndarray, torch.Tensor}: New inputs. 
-                - y {np.ndarray, torch.Tensor}: New labels. 
+                orig_X (np.ndarray, torch.Tensor) : original inputs. 
+                orig_y (np.ndarray, torch.Tensor) : original labels. 
+                X (np.ndarray, torch.Tensor) : New inputs. 
+                y (np.ndarray, torch.Tensor) : New labels. 
         """
         if len(orig_y) > 1 and len(y) > 1:
             if orig_y.shape[1:] != y.shape[1:]:
@@ -186,22 +198,44 @@ class Simulator():
                                 perturbing/rejecting***
                                 """)  
     
-    def _log(self, X, y, state_dict):
-        """Log the results of an episode in the results dictionary.
+    def _get_id(self, hash, checkpoint):
+        """Get ID's of points in episode by comparing it to the points in 
+           the previous checkpoint (i.e attacked points are compare to original
+           to determine if a point was poisoned or not and defended points are 
+           compared with attacker points to determine if a point was rejected/modified
         """
-        data = {}
-
-        for idx, (inpt, label) in enumerate(zip(X,y)):
-            point_hash = KeySet(inpt,label,self.training_point)
-            point_id = self._datapoint_ids.get(hash(point_hash), 'p')
+        if checkpoint == 0:
+            return self._datapoint_ids[hash]
+        elif checkpoint == 1:
+            point_id = self._original_ids.get(hash, 'p')
             if point_id == 'p':
                 point_id = f'p_{self.num_poisoned}'
                 self.num_poisoned += 1
-            data[point_hash] = point_id
-            self.training_point += 1
+            return point_id
+        elif checkpoint == 2:
+            point_id = self._attacked_ids.get(hash, 'd')
+            if point_id == 'd':
+                point_id = f'd_{self.num_defended}'
+                self.num_defended += 1
+            return point_id
 
-        self.results['data'].append(data)
-        self.results['models'].append(state_dict)
+    def _log(self, X, y, checkpoint):
+        """Log the results of an episode in the results dictionary."""
+        data = {}
+        for inpt, label in zip(X,y):
+            point_hash = hash(_KeyMap(inpt,label)) 
+            point_id = self._get_id(point_hash, checkpoint)
+            #record data in running dictionaries for comparison
+            if checkpoint == 0:
+                self._original_ids[point_hash] = point_id
+            elif checkpoint == 1:
+                self._attacked_ids[point_hash] = point_id
+            elif checkpoint == 2:
+                self._defended_ids[point_hash] = point_id
+
+            data[point_id] = (inpt,label) #save point with id as key and (X,y) as value
+
+        self.results[self._cp_labels[checkpoint]].append(data)
 
     def run(self, defender_args = {}, attacker_args = {}, attacker_requires_model=False, 
             defender_requires_model=False, verbose = True) -> None:
@@ -215,7 +249,7 @@ class Simulator():
            If the attacker/defender require a model for their attack/defense strategies, 
            the user should only set attacker_requires_model=True/defender_requires_model=True.
            The .attack()/.defend() method should then contain the argument 'model'; 
-           this argument will be added as a key to attacker_kwargs/defender_kwargs and updated with 
+           this argument will be added as a key to attacker_args/defender_args and updated with 
            the new model after each gradient descent step as online learning progresses.
 
         Args:
@@ -236,13 +270,16 @@ class Simulator():
         
         batch_num = 0
         for episode, (X_episode, y_episode) in enumerate(generator):
+            #save ids of true points
+            self._log(X_episode, y_episode, checkpoint=0) #log results
+
             # Attacker's turn to attack
             if self.attacker:
                 if attacker_requires_model:
                     attacker_args["model"] = self.model
                 
                 if episode == 0:
-                    #look at kwargs of .attack() method to check for inconsistencies
+                    #look at args of .attack() method to check for inconsistencies with inputted ones
                     valid_attacker_args = self._check_for_missing_args(input_args=attacker_args, is_attacker=True)
                     #use only arguments that are actually in method
                     attacker_args = {key:value for key, value in attacker_args.items() if key in valid_attacker_args}
@@ -254,6 +291,7 @@ class Simulator():
 
                 #check if shapes have been altered in .attack() method
                 self._shape_check(orig_X_episode, orig_y_episode, X_episode, y_episode)
+                self._log(X_episode, y_episode, checkpoint=1) #log results
 
             # Defender's turn to defend
             if self.defender:
@@ -261,7 +299,7 @@ class Simulator():
                     defender_args["model"] = self.model
 
                 if episode == 0:
-                    #look at kwargs of .attack() method to check for inconsistencies
+                    #look at args of .attack() method to check for inconsistencies with inputted ones
                     valid_defender_args = self._check_for_missing_args(input_args=defender_args, is_attacker=False)
                     #use only arguments that are actually in method
                     defender_args = {key:value for key, value in defender_args.items() if key in valid_defender_args}
@@ -273,6 +311,7 @@ class Simulator():
 
                 #check if shapes have been altered in .defend() method
                 self._shape_check(orig_X_episode, orig_y_episode, X_episode, y_episode)
+                self._log(X_episode, y_episode, checkpoint=2) #log results
 
             batch_queue.add_to_cache(X_episode, y_episode) #add perturbed / filtered points to batch queue
             
@@ -280,7 +319,6 @@ class Simulator():
             for (X_batch, y_batch) in batch_queue:
                 
                 #take a gradient descent step
-                
                 self.model.step(X_batch, y_batch) 
 
                 if hasattr(self.model, 'losses'):
@@ -293,15 +331,21 @@ class Simulator():
                         batch_num,
                         loss,
                         ))
-
                 batch_num += 1
-                
-            state_dict = deepcopy(self.model.state_dict())
-            self._log(X_episode, y_episode, state_dict) #log results
 
-            # Save the results to the results directory
-            if self.save:
-                save_pickle(self.results)
+            #save model state dictionary
+            state_dict = deepcopy(self.model.state_dict())
+            self.results['models'].append(state_dict)
+            self.episode += 1
+
+            #reinitialize episode id lists for different checkpoints
+            self._original_ids = {}
+            self._attacked_ids = {}
+            self._defended_ids = {}
+
+        # Save the results to the results directory
+        if self.save:
+            save_pickle(self.results)
                             
 class ArgNotFoundError(Exception):
     """Exception to be raised if a key-word argument is missing when calling 
@@ -319,14 +363,14 @@ if __name__ == '__main__':
     X = X_train[0]
     y = y_train[0]
 
-    hash_val1 = KeySet(X,y)
-    mydict[hash(hash_val1)] = 1
+    hash_val1 = hash(_KeyMap(X,y))
+    mydict[hash_val1] = 1
 
     X = X_train[0]
     y = y_train[0]
 
-    hash_val2 = KeySet(X,y)
-    print(hash_val1)
+    hash_val2 = _KeyMap(X,y)
+    print(type(hash_val1))
     print(hash_val2)
     print(mydict[hash(hash_val2)])
 
