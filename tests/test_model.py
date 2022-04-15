@@ -1,6 +1,9 @@
-# Written by: Jaime 
-# Last edited: 2022/01/25
-# Description: Classifier model test module.
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""
+Unit tests for out-of-the-box model classes.
+"""
 
 
 # =============================================================================
@@ -9,13 +12,15 @@
 
 import unittest
 
-#pypoison modules
-from model import IrisClassifier, MNISTClassifier
-from utils import train_test_iris, train_test_MNIST
-from simulation import Simulator
+import pytest
+
+from niteshade.model import IrisClassifier, MNISTClassifier
+from niteshade.simulation import Simulator
+from niteshade.utils import train_test_iris, train_test_MNIST
+
 
 # =============================================================================
-#  TEST FUNCTIONS
+#  CLASSES
 # =============================================================================
 
 class Model_test(unittest.TestCase):
@@ -54,6 +59,11 @@ class Model_test(unittest.TestCase):
         #evaluate on test set
         test_loss, test_accuracy = simulator.model.evaluate(X_test, y_test, self.batch_size)  
         #print(f"TEST LOSS; {test_loss}, TEST ACCURACY; {test_accuracy}")
-    
+
+
+# =============================================================================
+#  MAIN ENTRY POINT
+# =============================================================================
+
 if __name__ == '__main__':
     unittest.main()

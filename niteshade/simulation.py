@@ -1,41 +1,32 @@
-# Written by: Jaime
-# Last edited: 2022/04/08
-# Description: Buidling a framework for simulating data posioning attacks during online learning
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""
+Classes and functions for simulating data poisoning attacks and defences 
+against online learning.
+"""
+
 
 # =============================================================================
 #  IMPORTS AND DEPENDENCIES
 # =============================================================================
-import numpy as np
-from data import DataLoader
+
 import inspect
 from copy import deepcopy
-from utils import save_pickle
-import torch
-from utils import train_test_iris
 from collections import defaultdict
 
-def wrap_results(simulators: dict):
-    """Wrap results of different ran simulations.
+import numpy as np
+import torch
 
-    Args:
-         simulators {dictionary}: Dictionary containing Simulator instances
-                                  with keys as descriptive labels of their
-                                  differences.
-    """
-    wrapped_data = defaultdict(dict)
-    wrapped_models = {}
+from niteshade.data import DataLoader
+from niteshade.utils import save_pickle
+from niteshade.utils import train_test_iris
 
-    for label, simulator in simulators.items():
-        wrapped_data[label]['original'] = simulator.results['original']
-        wrapped_data[label]['post_attack'] = simulator.results['post_attack']
-        wrapped_data[label]['post_defense'] = simulator.results['post_defense']
-        wrapped_models[label] = simulator.results['models']
-    
-    return wrapped_data, wrapped_models
 
 # =============================================================================
-# CLASSES
+#  CLASSES
 # =============================================================================
+
 class _KeyMap(object):
     """Object used to convert NumPy arrays /PyTorch Tensors
        to a hashable form."""
@@ -346,15 +337,46 @@ class Simulator():
         # Save the results to the results directory
         if self.save:
             save_pickle(self.results)
+
                             
 class ArgNotFoundError(Exception):
     """Exception to be raised if a key-word argument is missing when calling 
        the .attack()/.defend() methods of the attacker/defender."""
 
+
 class ShapeMismatchError(Exception):
     """Exception to be raised when there is a shape mismatch between the 
        original episode datapoints/labels and the perturbed/rejected
        datapoints/labels by the attacker/defender."""
+
+
+# =============================================================================
+#  FUNCTIONS
+# =============================================================================
+
+def wrap_results(simulators: dict):
+    """Wrap results of different ran simulations.
+
+    Args:
+         simulators {dictionary}: Dictionary containing Simulator instances
+                                  with keys as descriptive labels of their
+                                  differences.
+    """
+    wrapped_data = defaultdict(dict)
+    wrapped_models = {}
+
+    for label, simulator in simulators.items():
+        wrapped_data[label]['original'] = simulator.results['original']
+        wrapped_data[label]['post_attack'] = simulator.results['post_attack']
+        wrapped_data[label]['post_defense'] = simulator.results['post_defense']
+        wrapped_models[label] = simulator.results['models']
+    
+    return wrapped_data, wrapped_models
+
+
+# =============================================================================
+#  MAIN ENTRY POINT
+# =============================================================================
 
 if __name__ == '__main__':
     X_train, y_train, X_test, y_test = train_test_iris(num_stacks=1)
@@ -373,4 +395,3 @@ if __name__ == '__main__':
     print(type(hash_val1))
     print(hash_val2)
     print(mydict[hash(hash_val2)])
-

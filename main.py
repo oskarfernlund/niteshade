@@ -1,9 +1,9 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 
-# Written by: Oskar
-# Last edited: 2022/01/22
-# Description: Example main pipeline execution script. This is a rough example
-# of how the pipeline could look, and how the various classes could interact
-# with one another. We can write this script properly on Tuesday :)
+"""
+Example pipeline execution script.
+"""
 
 
 # =============================================================================
@@ -11,20 +11,21 @@
 # =============================================================================
 
 import numpy as np
-
-#pypoison modules
-from attack import AddLabeledPointsAttacker, RandomAttacker, LabelFlipperAttacker
-from defence import FeasibleSetDefender, DefenderGroup, SoftmaxDefender
-from model import IrisClassifier, MNISTClassifier
-from postprocessing import PostProcessor
-from simulation import Simulator, wrap_results
-from utils import train_test_iris, train_test_MNIST
-import torch
 import pandas as pd
+import torch
+
+from niteshade.attack import AddLabeledPointsAttacker, RandomAttacker, LabelFlipperAttacker
+from niteshade.defence import FeasibleSetDefender, DefenderGroup, SoftmaxDefender
+from niteshade.model import IrisClassifier, MNISTClassifier
+from niteshade.postprocessing import PostProcessor
+from niteshade.simulation import Simulator, wrap_results
+from niteshade.utils import train_test_iris, train_test_MNIST
+
 
 # =============================================================================
 #  GLOBAL VARIABLES
 # =============================================================================
+
 # batch size
 BATCH_SIZE = 256
 NUM_EPISODES = 20
@@ -33,9 +34,11 @@ NUM_EPISODES = 20
 # HIDDEN_NEURONS = (4, 16, 3) automicatically set in IrisClassifier
 # ACTIVATIONS = ("relu", "softmax")  automicatically set in IrisClassifier
 
+
 # =============================================================================
 #  FUNCTIONS
 # =============================================================================
+
 def test_iris_simulations():
     """Attack and defense combinations simulations for Iris classifier."""
     BATCH_SIZE = 2
@@ -81,6 +84,7 @@ def test_iris_simulations():
     postprocessor = PostProcessor(wrapped_models, BATCH_SIZE, NUM_EPISODES, model)
     postprocessor.plot_online_learning_accuracies(X_test, y_test, save=False)
 
+
 def test_iris_regular():
     """No attack and defense trial on Iris dataset."""
     #split iris dataset into train and test
@@ -100,9 +104,7 @@ def test_iris_regular():
     test_loss, test_accuracy = simulator.model.evaluate(X_test, y_test, BATCH_SIZE)  
     print(f"TEST LOSS; {test_loss}, TEST ACCURACY; {test_accuracy}")
 
-## ============================================================================
-## Test MNIST Classifier
-## ============================================================================
+
 def test_MNIST_regular():
     BATCH_SIZE=64
     NUM_EPISODES=20
@@ -119,6 +121,7 @@ def test_MNIST_regular():
     #evaluate on test set
     test_loss, test_accuracy = simulator.model.evaluate(X_test, y_test, BATCH_SIZE)  
     #print(f"TEST LOSS; {test_loss}, TEST ACCURACY; {test_accuracy}")
+
 
 def test_MNIST_simulations():
     """Attack and defense combinations simulations for Iris classifier."""
@@ -170,9 +173,6 @@ def test_MNIST_simulations():
     #postprocessor.plot_online_learning_accuracies(X_test, y_test, save=False)
 
 
-## ============================================================================
-## Test PostProcessor
-## ============================================================================
 def test_decision_boundaries_MNIST(saved_models=None, baseline=None):
     # batch size
     BATCH_SIZE = 128
@@ -223,6 +223,7 @@ def test_decision_boundaries_MNIST(saved_models=None, baseline=None):
     postprocessor.plot_decision_boundaries(X_test, y_test, num_points = 2000, perplexity=100, 
                                            n_iter=2000, fontsize=13, markersize=20, figsize=(10,10), 
                                            resolution=0.2, save=True)
+
 
 def test_decision_boundaries_iris(saved_models=None, baseline=None):
     # batch size
@@ -285,6 +286,7 @@ def test_decision_boundaries_iris(saved_models=None, baseline=None):
 # =============================================================================
 #  MAIN ENTRY POINT
 # =============================================================================
+
 if __name__ == "__main__":
     #-----------IRIS TRIALS------------
     #test_iris_simulations()

@@ -1,22 +1,32 @@
-# Written by: Alexandra, Jaime
-# Last edited: 2022/04/08
-# Description: Postprocessing pipeline. This contains analytics tools that 
-# assess the damage of the attacker / impact of the defender.
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""
+Analytics tools for assessing damage inflicted by attacks and damage prevented 
+by defences.
+"""
 
 
 # =============================================================================
 #  IMPORTS AND DEPENDENCIES
 # =============================================================================
-from tqdm import tqdm
+
+import random
+
 import numpy as np
 import torch
+import matplotlib.pyplot as plt 
 from sklearn.metrics import accuracy_score
 from sklearn.svm import SVC
-
-import matplotlib.pyplot as plt 
 from sklearn.manifold import TSNE
-from utils import save_plot, get_cmap
-import random
+from tqdm import tqdm
+
+from niteshade.utils import save_plot, get_cmap
+
+
+# =============================================================================
+#  CLASSES
+# =============================================================================
 
 class PostProcessor:
     def __init__(self, wrapped_models, batch_size, num_episodes, base_model):
@@ -25,10 +35,6 @@ class PostProcessor:
         self.batch_size = batch_size
         self.num_episodes = num_episodes
         self.base_model = base_model
-
-    # =========================================================================
-    #  Analytics Tools
-    # =========================================================================
     
     def compute_accuracies(self, X_test, y_test):
         """
@@ -68,9 +74,6 @@ class PostProcessor:
         if save: 
             save_plot(fig, plot_name='test_accuracies')
     
-    #==================================================
-    # Plot different decision boundaries relative to baseline
-    #==================================================
     def extract_z(self, dataset, perplexity=50, n_iter=2000):
         """Extract embedded x,y positions for every datapoint in the dataset.
         
@@ -252,3 +255,11 @@ class PostProcessor:
 
             if save: 
                 save_plot(fig, plot_name=f'{sim_label}')
+
+
+# =============================================================================
+#  MAIN ENTRY POINT
+# =============================================================================
+
+if __name__ == '__main__':
+    pass

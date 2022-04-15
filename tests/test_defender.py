@@ -1,7 +1,26 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""
+Unit tests for various defender classes.
+"""
+
+
+# =============================================================================
+#  IMPORTS AND DEPENDENCIES
+# =============================================================================
+
 import unittest
+
 import pytest
 import numpy as np
-from defence import FeasibleSetDefender, Distance_metric, DefenderGroup, KNN_Defender
+
+from niteshade.defence import FeasibleSetDefender, Distance_metric, DefenderGroup, KNN_Defender
+
+
+# =============================================================================
+#  CLASSES
+# =============================================================================
 
 class FeasibleSetDefender_test(unittest.TestCase):
     def setUp(self) -> None:
@@ -74,6 +93,7 @@ class FeasibleSetDefender_test(unittest.TestCase):
         Custom_dist = customdist_obj.distance(test_point_1, test_point_2)
         dist = np.linalg.norm(test_point_1-test_point_2)
         self.assertAlmostEqual(Custom_dist, 2*dist)
+
 
 class GroupDefender_test(unittest.TestCase):
     def setUp(self) -> None:
@@ -176,6 +196,10 @@ class PointModifier_test(unittest.TestCase):
         self.assertNotIn(1, model_labels)
         self.assertEqual(model_datapoints.shape, datapoint.shape)
 
+
+# =============================================================================
+#  MAIN ENTRY POINT
+# =============================================================================
 
 if __name__ == "__main__":
     unittest.main()

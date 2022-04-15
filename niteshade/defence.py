@@ -1,32 +1,32 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 
-# Written by: Mart
-# Last edited: 2022/01/23
-# Description: Defender class, outlines various defender classes
+"""
+Data poisoning defence strategy classes following a logical hierarchy.
+"""
 
 
 # =============================================================================
 #  IMPORTS AND DEPENDENCIES
 # =============================================================================
 
-from typing import Type
-import numpy as np
-from data import DataLoader
-from model import IrisClassifier
-from abc import ABC, abstractmethod
 import inspect
-import torch
+from typing import Type
 from copy import deepcopy
+from abc import ABC, abstractmethod
+
+import numpy as np
+import torch
 from sklearn.neighbors import KNeighborsClassifier
 
-
-# =============================================================================
-#  GLOBAL VARIABLES
-# =============================================================================
+from niteshade.data import DataLoader
+from niteshade.model import IrisClassifier
 
 
 # =============================================================================
-#  DefenderGroup class
+#  CLASSES
 # =============================================================================
+
 class DefenderGroup():
     # A class which allows the grouping of defenders through a input list containing defenders 
     def __init__(self,defender_list, ensemble_accept_rate = 0.0) -> None:
@@ -96,11 +96,6 @@ class DefenderGroup():
         return np.array(accepted_X), np.array(accepted_Y)
         
 
-        
-# =============================================================================
-#  Defender class
-# =============================================================================
-
 class Defender(ABC):
     # General Defender abstract class
     def __init__(self) -> None:
@@ -111,9 +106,6 @@ class Defender(ABC):
         raise NotImplementedError("Defend method needs to be implemented for a defender")
 
 
-# =============================================================================
-#  OutlierDefender class
-# =============================================================================
 class OutlierDefender(Defender):
     # Abstract class with inits for outlier defender
     def __init__(self, initial_dataset_x, initial_dataset_y) -> None:
@@ -121,25 +113,18 @@ class OutlierDefender(Defender):
         self._init_x = initial_dataset_x
         self._init_y = initial_dataset_y
 
-# =============================================================================
-#  ModelDefender class
-# =============================================================================
+
 class ModelDefender(Defender):
     # Abstract class for ModelDefender - Defenders that need the model to defend
     def __init__(self) -> None:
         super().__init__()
 
-# =============================================================================
-#  PointModifierDefender class
-# =============================================================================
+
 class PointModifierDefender(Defender):
     # Abstract class for PointModifierDefender - Defenders modify the points 
     def __init__(self) -> None:
         super().__init__()
 
-# =============================================================================
-#  KNN Defender class
-# =============================================================================
 
 class KNN_Defender(PointModifierDefender):
     # KNN defender that flips the points labels if the proportion of K nearest nghbs is over confidence threshold
@@ -191,9 +176,7 @@ class KNN_Defender(PointModifierDefender):
             if confidence_list[idx][1]>self.confidence_threshold:
                 labels[idx] = confidence_list[idx][0]
         return labels
-# =============================================================================
-#  Softmax Defender class
-# =============================================================================
+
 
 class SoftmaxDefender(ModelDefender):
     # Class for SoftMaxDefender
@@ -224,9 +207,6 @@ class SoftmaxDefender(ModelDefender):
         y_output = labels[mask.numpy()]
         return (X_output, y_output.reshape(-1,))
 
-# =============================================================================
-#  FeasibleSetDefender class
-# =============================================================================
 
 class FeasibleSetDefender(OutlierDefender):
     #Extremely simple class_mean_based outlier detector
@@ -321,9 +301,6 @@ class FeasibleSetDefender(OutlierDefender):
         return (np.stack(cleared_datapoints), cleared_labels_stack)
         
 
-# =============================================================================
-#  Distance_metric class
-# =============================================================================
 class Distance_metric:
     # Distance metric class for the feasibleset defender
     # Allows to define custom distance metrics, they need to have distance method
@@ -337,16 +314,14 @@ class Distance_metric:
         else:
             raise NotImplementedError ("This distance metric type has not been implemented")
 
-# =============================================================================
-#  FUNCTIONS
-# =============================================================================
 
 # =============================================================================
 #  MAIN ENTRY POINT
 # =============================================================================
 
 if __name__ == "__main__":
-    import defender_tests
-    import unittest
-    suite = unittest.TestLoader().loadTestsFromModule(defender_tests)
-    unittest.TextTestRunner(verbosity=2).run(suite)
+#     import defender_tests
+#     import unittest
+#     suite = unittest.TestLoader().loadTestsFromModule(defender_tests)
+#     unittest.TextTestRunner(verbosity=2).run(suite)
+    pass

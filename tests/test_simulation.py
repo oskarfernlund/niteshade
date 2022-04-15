@@ -1,11 +1,29 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""
+Unit and integration tests for the simulation module.
+"""
+
+
+# =============================================================================
+#  IMPORTS AND DEPENDENCIES
+# =============================================================================
+
 import unittest
 
-#pypoison modules
-from attack import AddLabeledPointsAttacker, LabelFlipperAttacker, Attacker
-from defence import Defender, FeasibleSetDefender
-from model import IrisClassifier, MNISTClassifier
-from simulation import Simulator, wrap_results
-from utils import train_test_iris, train_test_MNIST
+import pytest
+
+from niteshade.attack import AddLabeledPointsAttacker, LabelFlipperAttacker, Attacker
+from niteshade.defence import Defender, FeasibleSetDefender
+from niteshade.model import IrisClassifier, MNISTClassifier
+from niteshade.simulation import Simulator, wrap_results
+from niteshade.utils import train_test_iris, train_test_MNIST
+
+
+# =============================================================================
+#  CLASSES
+# =============================================================================
 
 class TestDefender(Defender):
     def __init__(self, test):
@@ -107,6 +125,11 @@ class Simulation_test(unittest.TestCase):
                     'only_attacker': simulator3, 'regular': simulator4}
 
         wrapped_data, wrapped_models =  wrap_results(simulators)
+
+
+# =============================================================================
+#  MAIN ENTRY POINT
+# =============================================================================
 
 if __name__ == '__main__':
     unittest.main()

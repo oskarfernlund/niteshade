@@ -1,41 +1,41 @@
-# Written by: Jaime, Mustafa
-# Last edited: 2022/04/05
-# Description: General utility functions.
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""
+General utility and helper functions.
+"""
 
 
 # =============================================================================
 #  IMPORTS AND DEPENDENCIES
 # =============================================================================
+
 import os
 import pickle
+import random
+import colorsys
+from datetime import datetime
+
 import numpy as np
-from sklearn.datasets import load_iris
+import torchvision
 from sklearn.utils import shuffle
+from sklearn.datasets import load_iris
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler, OneHotEncoder
-import torchvision
-import random
 from matplotlib.colors import ListedColormap
-import colorsys
-import numpy as np
-
-from datetime import datetime
 
 
 # =============================================================================
 #  FUNCTIONS
 # =============================================================================
 
-
-#==========================================================
-#======================MISCELLANEOUS UTILS=======================
-#==========================================================
 def get_time_stamp_as_string():
     """"""
     # Return current timestamp in a saving friendly format.
     date_time = datetime.now()
     date_time_str = date_time.strftime("%d_%b_%Y_(%H_%M_%S.%f)")
     return date_time_str
+
 
 def save_plot(plt, save_dir='output', plot_name='default'):
     # Check if dirrectory exists, if not make one
@@ -48,9 +48,7 @@ def save_plot(plt, save_dir='output', plot_name='default'):
 
     plt.savefig(f'{save_dir}/{plot_name}')
 
-#==========================================================
-#======================MODEL UTILS=======================
-#==========================================================
+
 def save_pickle(results, dir_name='output', file_name='default'):
     """"""
     # Check if dirrectory exists, if not make one
@@ -62,6 +60,7 @@ def save_pickle(results, dir_name='output', file_name='default'):
         file_name = f'{get_time_stamp_as_string()}'
 
     pickle.dump(results, open(f"{dir_name}/{file_name}", "wb"))
+
 
 def load_model(filename):
     """Load a binary file containing a neural network.
@@ -86,9 +85,7 @@ def save_model(model, filename):
     with open(f'{filename}.pickle', 'wb') as target:
         pickle.dump(model, target)
 
-#==========================================================
-#======================ARRAY HANDLING UTILS=======================
-#==========================================================
+
 def one_hot_encoding(y, num_classes):       
     """ Perform one hot encoding of previiously decoded data.
     
@@ -168,9 +165,7 @@ def decode_one_hot(y):
                 new_y[j] = i
     return new_y
 
-#==========================================================
-#======================DATASET UTILS=======================
-#==========================================================
+
 def train_test_iris(num_stacks = 10):
     #define input and target data
     data = load_iris()
@@ -199,6 +194,7 @@ def train_test_iris(num_stacks = 10):
 
     return X_train, y_train, X_test, y_test
 
+
 def train_test_MNIST():
     MNIST_train = torchvision.datasets.MNIST('datasets/', train=True, download=True,
                              transform=torchvision.transforms.Compose([
@@ -223,9 +219,6 @@ def train_test_MNIST():
 
     return X_train, y_train, X_test, y_test
 
-#==========================================================
-#======================POSTPROCESSOR UTILS=======================
-#==========================================================
 
 def rand_cmap(nlabels, type='bright', first_color_black=True, last_color_black=False, verbose=True):
     """
@@ -240,7 +233,6 @@ def rand_cmap(nlabels, type='bright', first_color_black=True, last_color_black=F
     if type not in ('bright', 'soft'):
         print ('Please choose "bright" or "soft" for type')
         return
-
 
     # Generate color map for bright colors, based on hsv
     if type == 'bright':
@@ -276,6 +268,7 @@ def rand_cmap(nlabels, type='bright', first_color_black=True, last_color_black=F
 
     return random_colormap
 
+
 def get_cmap(nlabels):
     rgb_distinct =  [(0.588,0.294,0), #brown
                      (1,0.647,0), #orange
@@ -296,3 +289,11 @@ def get_cmap(nlabels):
         cmap = rand_cmap(nlabels)
     
     return cmap
+
+
+# =============================================================================
+#  MAIN ENTRY POINT
+# =============================================================================
+
+if __name__ == "__main__":
+    pass

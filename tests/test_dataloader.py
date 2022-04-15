@@ -10,15 +10,15 @@ Unit tests for the dataloader class.
 #  IMPORTS AND DEPENDENCIES
 # =============================================================================
 
-from data import DataLoader
-
 import pytest
 import numpy as np
 import torch
 
+from niteshade.data import DataLoader
+
 
 # =============================================================================
-#  UNIT TESTS
+#  FUNCTIONS
 # =============================================================================
 
 def test_shuffler():
@@ -179,3 +179,15 @@ def test_pytorch_tensor_compatibility():
         assert tuple(batch[1].shape) == (batch_size, L)
         assert type(batch[0]) == torch.Tensor
         assert type(batch[1]) == torch.Tensor
+
+
+# =============================================================================
+#  MAIN ENTRY POINT
+# =============================================================================
+
+if __name__ == "__main__":
+    test_shuffler()
+    test_cache()
+    test_queue()
+    test_numpy_array_compatibility()
+    test_pytorch_tensor_compatibility()

@@ -1,25 +1,33 @@
-# Written by: Mustafa
-# Last edited: 2022/04/07
-# Description: Buidling a framework for different attacker methods
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""
+Data poisoning attack strategy classes following a logical hierarchy.
+"""
+
 
 # =============================================================================
 #  IMPORTS AND DEPENDENCIES
 # =============================================================================
 
-import numpy as np
 import math
+import random
+
+import numpy as np
 from sklearn.utils import shuffle
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.datasets import load_iris
-import torchvision
-import random
-import utils
 import torch
-from utils import train_test_MNIST
+import torchvision
+
+import niteshade.utils as utils
+from niteshade.utils import train_test_MNIST
+
 
 # =============================================================================
-#  Attacker class
+#  CLASSES
 # =============================================================================
+
 class Attacker:
     """ General abstract Attacker class
     """
@@ -32,14 +40,7 @@ class Attacker:
         """
         raise NotImplementedError("attack method needs to be implemented")
 
-
-# =============================================================================
-#  General Attack Strategies
-# =============================================================================
         
-# =============================================================================
-#  AddPointsAttacker class
-# =============================================================================
 class AddPointsAttacker(Attacker):
     """ Abstract class for attackers that add points to the batch of data
     """
@@ -96,9 +97,7 @@ class AddPointsAttacker(Attacker):
         
         return rows
         
-# =============================================================================
-#  ChangeLabelAttacker class
-# =============================================================================
+
 class ChangeLabelAttacker(Attacker):
     """ Abstract class for attacker that can change labels
     """
@@ -112,31 +111,22 @@ class ChangeLabelAttacker(Attacker):
         self.aggresiveness = aggresiveness
         self.one_hot = one_hot
 
-# =============================================================================
-#  PerturbPointsAttacker
-# =============================================================================
+
 class PerturbPointsAttacker(Attacker):
     """ Abstract class for attacker that can change labels
     """
     def __init__(self):
         super().__init__()
 
-# =============================================================================
-# ModelAttacker
-# =============================================================================
+
 class ModelAttacker(Attacker):
     """ Abstract class for attacker that requires model. 
     """
     def __init__(self):
         super().__init__()
 
-# =============================================================================
-#  Specific Attack Stratagies
-# =============================================================================
 
-# =============================================================================
 #  Random??? Need to rethink this whole strategy
-# =============================================================================
 class RandomAttacker:
     """ Attacks the current datapoint.
     
@@ -162,9 +152,7 @@ class RandomAttacker:
         
         return X, y
 
-# =============================================================================
-#  AddLabeledPointsAttacker
-# =============================================================================            
+            
 class AddLabeledPointsAttacker(AddPointsAttacker):
     """ Adds points with a specified label.
     """    
@@ -216,9 +204,7 @@ class AddLabeledPointsAttacker(AddPointsAttacker):
 
         return x, y
         
-# =============================================================================
-#  LabelFlipperAttacker
-# =============================================================================            
+            
 class LabelFlipperAttacker(ChangeLabelAttacker):
     """ Flip labels based on a dictionary of information
     """ 
@@ -306,7 +292,11 @@ class BrewPoison(ModelAttacker):
         for i in range(self.M):
             selected_X = selected_X + perturbation
 
-    
+
+# =============================================================================
+#  MAIN ENTRY POINT
+# =============================================================================    
+
 if __name__ == "__main__":
         
     X_train, y_train, X_test, y_test = train_test_MNIST()    

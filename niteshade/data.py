@@ -158,36 +158,8 @@ class DataLoader:
 
 
 # =============================================================================
-#  FUNCTIONS
-# =============================================================================
-
-def _test_dataloader():
-    """ Simple function to test out the dataloader. """
-
-    # Create some fake data
-    X = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9], [10, 11, 12], [13, 14, 15]])
-    y = np.array([1, 2, 3, 4, 5])
-    batch_size = 3
-
-    # Create a DataLoader instance
-    dataloader = DataLoader(X, y, batch_size, shuffle=False)
-    print("\n" + str(dataloader) + "\n")
-
-    # Iterate over batches
-    for X, y in dataloader:
-        print(f"X: {X}")
-        print(f"y: {y}")
-
-    # Check the contents of the cache and queue
-    print("\nAfter iterating over batches:")
-    print(f" - {len(dataloader._cache)} points in the cache ({5%3} expected)")
-    print(f" - {len(dataloader._queue)} points in the queue (0 expected)\n")
-    
-
-# =============================================================================
 #  MAIN ENTRY POINT
 # =============================================================================
 
 if __name__ == "__main__":
-    _test_dataloader()
-    
+    pass

@@ -1,22 +1,33 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""
+Abstract base model class for niteshade workflows as well as some specific toy 
+models for out-of-the-box use.
+"""
+
 # =============================================================================
 #  IMPORTS AND DEPENDENCIES
 # =============================================================================
+
+import pickle
+
 import numpy as np
+import pandas as pd
 import torch
 import torch.nn as nn
-from data import DataLoader
-import pickle
-import pandas as pd
-
-
 from sklearn.preprocessing import MinMaxScaler, OneHotEncoder
 from sklearn.model_selection import train_test_split
 from sklearn.utils import shuffle
 from sklearn.datasets import load_iris
 
+from niteshade.data import DataLoader
+
+
 # =============================================================================
 #  CLASSES
 # =============================================================================
+
 class BaseModel(nn.Module):
     """Abstract model class intended for ease of implementation in designing 
        neural networks for data poisining attacks. Requires an architecture
@@ -147,10 +158,7 @@ class BaseModel(nn.Module):
         """
         raise NotImplementedError
         
-            
-# =============================================================================
-## Classifier for Iris Dataset
-# =============================================================================
+
 class IrisClassifier(BaseModel):
     """Pre-defined simple classifier for the Iris dataset containing 
        one fully-connected layer with 16 neurons using ReLU. 
@@ -237,9 +245,7 @@ class IrisClassifier(BaseModel):
         
         return test_loss, accuracy
     
-# =============================================================================
-## Classifier for MNIST Dataset
-# =============================================================================
+
 class MNISTClassifier(BaseModel):
     """Pre-defined classifier for the MNIST dataset.
     """
@@ -336,7 +342,12 @@ class MNISTClassifier(BaseModel):
         accuracy = 100. * correct / num_points
         
         return test_loss, accuracy
-        
+
+
+# =============================================================================
+#  MAIN ENTRY POINT
+# =============================================================================
+
 if __name__ == '__main__':
     data = load_iris()
 
