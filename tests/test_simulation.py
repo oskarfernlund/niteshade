@@ -63,7 +63,7 @@ def test_mnist():
 
     wrapped_data, wrapped_models =  wrap_results(simulators)
 
-def test_iris(self):
+def test_iris():
     """Attack and defense combinations simulations for Iris classifier."""
     batch_size = 32
     num_episodes = 10
