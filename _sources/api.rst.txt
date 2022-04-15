@@ -6,10 +6,10 @@ API
    :template: custom-module-template.rst
    :recursive:
 
-   data 
-   model
-   attack
-   defence
-   simulation
-   postprocessing
-   utils
+   niteshade.data
+   niteshade.model
+   niteshade.attack
+   niteshade.defence
+   niteshade.simulation
+   niteshade.postprocessing
+   niteshade.utils
