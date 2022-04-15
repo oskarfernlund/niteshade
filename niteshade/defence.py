@@ -20,7 +20,7 @@ import torch
 from sklearn.neighbors import KNeighborsClassifier
 
 from niteshade.data import DataLoader
-from niteshade.model import IrisClassifier
+from niteshade.models import IrisClassifier
 
 
 # =============================================================================

@@ -13,7 +13,7 @@ import pytest
 
 from niteshade.attack import AddLabeledPointsAttacker, LabelFlipperAttacker, Attacker
 from niteshade.defence import Defender, FeasibleSetDefender
-from niteshade.model import IrisClassifier, MNISTClassifier
+from niteshade.models import IrisClassifier, MNISTClassifier
 from niteshade.simulation import Simulator, wrap_results
 from niteshade.utils import train_test_iris, train_test_MNIST
 

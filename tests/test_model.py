@@ -12,7 +12,7 @@ Unit tests for out-of-the-box model classes.
 
 import pytest
 
-from niteshade.model import IrisClassifier, MNISTClassifier
+from niteshade.models import IrisClassifier, MNISTClassifier
 from niteshade.simulation import Simulator
 from niteshade.utils import train_test_iris, train_test_MNIST
 

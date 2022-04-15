@@ -16,7 +16,7 @@ import torch
 
 from niteshade.attack import AddLabeledPointsAttacker, RandomAttacker, LabelFlipperAttacker
 from niteshade.defence import FeasibleSetDefender, DefenderGroup, SoftmaxDefender
-from niteshade.model import IrisClassifier, MNISTClassifier
+from niteshade.models import IrisClassifier, MNISTClassifier
 from niteshade.postprocessing import PostProcessor
 from niteshade.simulation import Simulator, wrap_results
 from niteshade.utils import train_test_iris, train_test_MNIST
@@ -88,8 +88,8 @@ def test_iris_simulations():
 def test_iris_regular():
     """No attack and defense trial on Iris dataset."""
     #split iris dataset into train and test
-    BATCH_SIZE=10
-    NUM_EPISODES=500
+    BATCH_SIZE = 32
+    NUM_EPISODES = 500
     X_train, y_train, X_test, y_test = train_test_iris(num_stacks=10)
 
     #implement attack and defense strategies through learner
@@ -290,11 +290,11 @@ def test_decision_boundaries_iris(saved_models=None, baseline=None):
 if __name__ == "__main__":
     #-----------IRIS TRIALS------------
     #test_iris_simulations()
-    #test_iris_regular()
+    test_iris_regular()
 
     #-----------MNIST TRIALS-----------
     #test_MNIST_regular()
-    test_MNIST_simulations()
+    #test_MNIST_simulations()
 
     #----------POSTPROCESSOR TRIALS----
     #saved_models='wrapped_models.pickle'
