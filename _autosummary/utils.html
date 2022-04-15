@@ -18,9 +18,7 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="author" title="About these documents" href="../about.html" />
     <link rel="index" title="Index" href="../genindex.html" />
-    <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="utils.check_batch_size" href="utils.check_batch_size.html" />
-    <link rel="prev" title="postprocessing.PostProcessor" href="postprocessing.PostProcessor.html" /> 
+    <link rel="search" title="Search" href="../search.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -38,35 +36,11 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <ul class="current">
+              <ul>
 <li class="toctree-l1"><a class="reference internal" href="../about.html">About</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="../api.html">API</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="data.html">data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="model.html">model</a></li>
-<li class="toctree-l2"><a class="reference internal" href="attack.html">attack</a></li>
-<li class="toctree-l2"><a class="reference internal" href="defence.html">defence</a></li>
-<li class="toctree-l2"><a class="reference internal" href="simulation.html">simulation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="postprocessing.html">postprocessing</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">utils</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="utils.check_batch_size.html">utils.check_batch_size</a></li>
-<li class="toctree-l3"><a class="reference internal" href="utils.check_num_of_classes.html">utils.check_num_of_classes</a></li>
-<li class="toctree-l3"><a class="reference internal" href="utils.decode_one_hot.html">utils.decode_one_hot</a></li>
-<li class="toctree-l3"><a class="reference internal" href="utils.get_cmap.html">utils.get_cmap</a></li>
-<li class="toctree-l3"><a class="reference internal" href="utils.get_time_stamp_as_string.html">utils.get_time_stamp_as_string</a></li>
-<li class="toctree-l3"><a class="reference internal" href="utils.load_model.html">utils.load_model</a></li>
-<li class="toctree-l3"><a class="reference internal" href="utils.one_hot_encoding.html">utils.one_hot_encoding</a></li>
-<li class="toctree-l3"><a class="reference internal" href="utils.rand_cmap.html">utils.rand_cmap</a></li>
-<li class="toctree-l3"><a class="reference internal" href="utils.save_model.html">utils.save_model</a></li>
-<li class="toctree-l3"><a class="reference internal" href="utils.save_pickle.html">utils.save_pickle</a></li>
-<li class="toctree-l3"><a class="reference internal" href="utils.save_plot.html">utils.save_plot</a></li>
-<li class="toctree-l3"><a class="reference internal" href="utils.train_test_MNIST.html">utils.train_test_MNIST</a></li>
-<li class="toctree-l3"><a class="reference internal" href="utils.train_test_iris.html">utils.train_test_iris</a></li>
-</ul>
-</li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
 </ul>
 
@@ -84,7 +58,6 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="../api.html">API</a> &raquo;</li>
       <li>utils</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/_autosummary/utils.rst.txt" rel="nofollow"> View page source</a>
@@ -95,65 +68,14 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="module-utils">
-<span id="utils"></span><h1>utils<a class="headerlink" href="#module-utils" title="Permalink to this headline"></a></h1>
-<p class="rubric">Functions</p>
-<table class="autosummary longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="utils.check_batch_size.html#utils.check_batch_size" title="utils.check_batch_size"><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_batch_size</span></code></a>(y)</p></td>
-<td><p>Check the batch size of input label data.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="utils.check_num_of_classes.html#utils.check_num_of_classes" title="utils.check_num_of_classes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_num_of_classes</span></code></a>(y)</p></td>
-<td><p>Check the number of classes in one hot encoded data.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="utils.decode_one_hot.html#utils.decode_one_hot" title="utils.decode_one_hot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">decode_one_hot</span></code></a>(y)</p></td>
-<td><p>Decode one hot encoded data.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="utils.get_cmap.html#utils.get_cmap" title="utils.get_cmap"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_cmap</span></code></a>(nlabels)</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="utils.get_time_stamp_as_string.html#utils.get_time_stamp_as_string" title="utils.get_time_stamp_as_string"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_time_stamp_as_string</span></code></a>()</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="utils.load_model.html#utils.load_model" title="utils.load_model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_model</span></code></a>(filename)</p></td>
-<td><p>Load a binary file containing a neural network.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="utils.one_hot_encoding.html#utils.one_hot_encoding" title="utils.one_hot_encoding"><code class="xref py py-obj docutils literal notranslate"><span class="pre">one_hot_encoding</span></code></a>(y, num_classes)</p></td>
-<td><p>Perform one hot encoding of previiously decoded data.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="utils.rand_cmap.html#utils.rand_cmap" title="utils.rand_cmap"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rand_cmap</span></code></a>(nlabels[, type, ...])</p></td>
-<td><p>Creates a random colormap to be used together with matplotlib.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="utils.save_model.html#utils.save_model" title="utils.save_model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_model</span></code></a>(model, filename)</p></td>
-<td><p>Save classifier as a binary .pickle file.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="utils.save_pickle.html#utils.save_pickle" title="utils.save_pickle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_pickle</span></code></a>(results[, dir_name, file_name])</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="utils.save_plot.html#utils.save_plot" title="utils.save_plot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_plot</span></code></a>(plt[, save_dir, plot_name])</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="utils.train_test_MNIST.html#utils.train_test_MNIST" title="utils.train_test_MNIST"><code class="xref py py-obj docutils literal notranslate"><span class="pre">train_test_MNIST</span></code></a>()</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="utils.train_test_iris.html#utils.train_test_iris" title="utils.train_test_iris"><code class="xref py py-obj docutils literal notranslate"><span class="pre">train_test_iris</span></code></a>([num_stacks])</p></td>
-<td><p></p></td>
-</tr>
-</tbody>
-</table>
+  <section id="utils">
+<h1>utils<a class="headerlink" href="#utils" title="Permalink to this headline"></a></h1>
 </section>
 
 
            </div>
           </div>
-          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="postprocessing.PostProcessor.html" class="btn btn-neutral float-left" title="postprocessing.PostProcessor" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="utils.check_batch_size.html" class="btn btn-neutral float-right" title="utils.check_batch_size" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
-    </div>
+          <footer>
 
   <hr/>
 

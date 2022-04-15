@@ -18,9 +18,7 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="author" title="About these documents" href="../about.html" />
     <link rel="index" title="Index" href="../genindex.html" />
-    <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="model" href="model.html" />
-    <link rel="prev" title="data" href="data.html" /> 
+    <link rel="search" title="Search" href="../search.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -38,23 +36,11 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <ul class="current">
+              <ul>
 <li class="toctree-l1"><a class="reference internal" href="../about.html">About</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="../api.html">API</a><ul class="current">
-<li class="toctree-l2 current"><a class="reference internal" href="data.html">data</a><ul class="current">
-<li class="toctree-l3 current"><a class="current reference internal" href="#">data.DataLoader</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="model.html">model</a></li>
-<li class="toctree-l2"><a class="reference internal" href="attack.html">attack</a></li>
-<li class="toctree-l2"><a class="reference internal" href="defence.html">defence</a></li>
-<li class="toctree-l2"><a class="reference internal" href="simulation.html">simulation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="postprocessing.html">postprocessing</a></li>
-<li class="toctree-l2"><a class="reference internal" href="utils.html">utils</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
 </ul>
 
@@ -72,8 +58,6 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="../api.html">API</a> &raquo;</li>
-          <li><a href="data.html">data</a> &raquo;</li>
       <li>data.DataLoader</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/_autosummary/data.DataLoader.rst.txt" rel="nofollow"> View page source</a>
@@ -86,94 +70,12 @@
              
   <section id="data-dataloader">
 <h1>data.DataLoader<a class="headerlink" href="#data-dataloader" title="Permalink to this headline"></a></h1>
-<dl class="py class">
-<dt class="sig sig-object py" id="data.DataLoader">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">data.</span></span><span class="sig-name descname"><span class="pre">DataLoader</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shuffle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">69</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#data.DataLoader" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>DataLoader class.</p>
-<p>Contains a cache and a queue. Features (X) and labels (y) can be added to
-the cache either by passing them as inputs in the constructor, or by
-calling the method add_to_cache(X, y).</p>
-<p>When data is added to the cache, the points are automatically batched into
-arrays of length batch_size, removed from the cache and added to the queue.
-For example, if a dataset containing 10 points is added to the cache with a
-batch size of 3, 3 batches of length 3 will be created, removed from the
-cache and added to the queue. In the end, the queue will contain 3 batches
-of size 3 and the cache will contain a single datapoint. If more (X, y)
-values are added to the cache by calling add_to_cache(X, y), they will be
-appended to the cache and the batching/queuing process will repeat, this
-time with the single datapoint at the front of the cache (first in line to
-be batched and added to the queue).</p>
-<p>The class is an iterator, and returns batches from the queue when iterated
-over until the queue is empty. If more (X, y) values get added to the
-cache, the class instance may be iterated over again and new batches will
-be produced. If the shuffle argument is set to True, any data added to the
-cache will be shuffled prior to batching.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="data.DataLoader.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shuffle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">69</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#data.DataLoader.__init__" title="Permalink to this definition"></a></dt>
-<dd><p>Initialise the DataLoader.</p>
-<p>Features (X) and labels (y) may be passed as inputs in the constructor,
-but this is not necessary. If they are set to their default values of
-None, the cache and queue will initially be empty.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>X</strong> (<em>np.ndarray</em><em> or </em><em>torch.tensor</em>) – features (first dimension = N)</p></li>
-<li><p><strong>y</strong> (<em>np.ndarray</em><em> or </em><em>torch.tensor</em>) – labels (first dimension = N)</p></li>
-<li><p><strong>batch_size</strong> (<em>int</em>) – size of the batches to generate</p></li>
-<li><p><strong>shuffle</strong> (<em>bool</em>) – whether or not to shuffle the datapoints before</p></li>
-<li><p><strong>seed</strong> (<em>int</em>) – seed for the random number generator</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<p class="rubric">Methods</p>
-<table class="autosummary longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#data.DataLoader.__init__" title="data.DataLoader.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>([X, y, batch_size, shuffle, seed])</p></td>
-<td><p>Initialise the DataLoader.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#data.DataLoader.add_to_cache" title="data.DataLoader.add_to_cache"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_to_cache</span></code></a>(X, y)</p></td>
-<td><p>Add features (X) and labels (y) to the cache.</p></td>
-</tr>
-</tbody>
-</table>
-<dl class="py method">
-<dt class="sig sig-object py" id="data.DataLoader.add_to_cache">
-<span class="sig-name descname"><span class="pre">add_to_cache</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#data.DataLoader.add_to_cache" title="Permalink to this definition"></a></dt>
-<dd><p>Add features (X) and labels (y) to the cache.</p>
-<p>If shuffle was set to true in the constructor, the datapoints are
-shuffled before being added to the cache. After points are added to the
-cache, the _cache_to_queue() method is called automatically, which
-creates as many batches as possible based on the batch size, removes
-them from the cache and adds them to the queue.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>X</strong> (<em>np.ndarray</em><em> or </em><em>torch.tensor</em>) – features (first dimension = N)</p></li>
-<li><p><strong>y</strong> (<em>np.ndarray</em><em> or </em><em>torch.tensor</em>) – labels (first dimension = N)</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
 </section>
 
 
            </div>
           </div>
-          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="data.html" class="btn btn-neutral float-left" title="data" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="model.html" class="btn btn-neutral float-right" title="model" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
-    </div>
+          <footer>
 
   <hr/>
 

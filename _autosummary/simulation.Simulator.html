@@ -18,9 +18,7 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="author" title="About these documents" href="../about.html" />
     <link rel="index" title="Index" href="../genindex.html" />
-    <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="simulation.ArgNotFoundError" href="simulation.ArgNotFoundError.html" />
-    <link rel="prev" title="simulation.wrap_results" href="simulation.wrap_results.html" /> 
+    <link rel="search" title="Search" href="../search.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -38,26 +36,11 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <ul class="current">
+              <ul>
 <li class="toctree-l1"><a class="reference internal" href="../about.html">About</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="../api.html">API</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="data.html">data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="model.html">model</a></li>
-<li class="toctree-l2"><a class="reference internal" href="attack.html">attack</a></li>
-<li class="toctree-l2"><a class="reference internal" href="defence.html">defence</a></li>
-<li class="toctree-l2 current"><a class="reference internal" href="simulation.html">simulation</a><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="simulation.wrap_results.html">simulation.wrap_results</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">simulation.Simulator</a></li>
-<li class="toctree-l3"><a class="reference internal" href="simulation.ArgNotFoundError.html">simulation.ArgNotFoundError</a></li>
-<li class="toctree-l3"><a class="reference internal" href="simulation.ShapeMismatchError.html">simulation.ShapeMismatchError</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="postprocessing.html">postprocessing</a></li>
-<li class="toctree-l2"><a class="reference internal" href="utils.html">utils</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
 </ul>
 
@@ -75,8 +58,6 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="../api.html">API</a> &raquo;</li>
-          <li><a href="simulation.html">simulation</a> &raquo;</li>
       <li>simulation.Simulator</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/_autosummary/simulation.Simulator.rst.txt" rel="nofollow"> View page source</a>
@@ -89,103 +70,12 @@
              
   <section id="simulation-simulator">
 <h1>simulation.Simulator<a class="headerlink" href="#simulation-simulator" title="Permalink to this headline"></a></h1>
-<dl class="py class">
-<dt class="sig sig-object py" id="simulation.Simulator">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">simulation.</span></span><span class="sig-name descname"><span class="pre">Simulator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attacker</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">defender</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_episodes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#simulation.Simulator" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Class used to simulate data poisoning attacks during online learning.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>{np.ndarray</strong> (<em>- y</em>) – stream of input data to train the model
-with during supervised learning.</p></li>
-<li><p><strong>torch.Tensor}</strong> – stream of input data to train the model
-with during supervised learning.</p></li>
-<li><p><strong>{np.ndarray</strong> – stream of target data (labels to the inputs)
-to train the model with during supervised learning.</p></li>
-<li><p><strong>torch.Tensor}</strong> – stream of target data (labels to the inputs)
-to train the model with during supervised learning.</p></li>
-<li><p><strong>{torch.nn.Module}</strong> (<em>- model</em>) – neural network model inheriting from torch.nn.Module to
-be trained during online learning. Must present a .step()
-method that performs a gradient descent step on a batch
-of input and target data (X_batch and y_batch).</p></li>
-<li><p><strong>{Attacker}</strong> (<em>- attacker</em>) – Attacker object that presents a .attack() method with an
-implementation of a data poisoning attack strategy.</p></li>
-<li><p><strong>{Defender}</strong> (<em>- defender</em>) – Defender object that presents a .defend() method with an
-implementation of a data poisoning defense strategy.</p></li>
-<li><p><strong>{int}</strong> (<em>- num_episodes</em>) – batch size of model.</p></li>
-<li><p><strong>{int}</strong> – Number of ‘episodes’ that X and y span over. Here, we refer to
-an episode as the time period over which a stream of incoming data
-would be collected and subsequently passed on to the model to be
-trained.</p></li>
-</ul>
-</dd>
-</dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="simulation.Simulator.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attacker</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">defender</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_episodes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#simulation.Simulator.__init__" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<p class="rubric">Methods</p>
-<table class="autosummary longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#simulation.Simulator.__init__" title="simulation.Simulator.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(X, y, model[, attacker, defender, ...])</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#simulation.Simulator.run" title="simulation.Simulator.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code></a>([defender_args, attacker_args, ...])</p></td>
-<td><p>Runs a simulation of an online learning setting where, if specified, an attacker</p></td>
-</tr>
-</tbody>
-</table>
-<dl class="py method">
-<dt class="sig sig-object py" id="simulation.Simulator.run">
-<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">defender_args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attacker_args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attacker_requires_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">defender_requires_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#simulation.Simulator.run" title="Permalink to this definition"></a></dt>
-<dd><dl>
-<dt>Runs a simulation of an online learning setting where, if specified, an attacker</dt><dd><p>will ‘poison’ (i.e. perturb) incoming data points (from an episode) according to an
-implemented attack strategy (i.e. .attack() method) and a defender (also, if
-specified,) will reject points deemed perturbed by its defence strategy (i.e.
-.defend() method).</p>
-<p>NOTE:
-If the attacker/defender require a model for their attack/defense strategies,
-the user should only set attacker_requires_model=True/defender_requires_model=True.
-The .attack()/.defend() method should then contain the argument ‘model’;
-this argument will be added as a key to attacker_args/defender_args and updated with
-the new model after each gradient descent step as online learning progresses.</p>
-</dd>
-</dl>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>{dict}</strong> (<em>- attacker_kwargs</em>) – dictionary containing extra arguments (other than the episode inputs
-X and labels y) for defender .defend() method.</p></li>
-<li><p><strong>{dict}</strong> – dictionary containing extra arguments (other than the episode inputs
-X and labels y) for attacker .attack() method.</p></li>
-<li><p><strong>{bool}</strong> (<em>- verbose</em>) – specifies if the .attack() method of the attacker requires
-the updated model at each episode.</p></li>
-<li><p><strong>{bool}</strong> – specifies if the .defend() method of the defender requires
-the updated model at each episode.</p></li>
-<li><p><strong>{bool}</strong> – Specifies if loss should be printed for each batch the model is trained on.
-Default = True.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
 </section>
 
 
            </div>
           </div>
-          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="simulation.wrap_results.html" class="btn btn-neutral float-left" title="simulation.wrap_results" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="simulation.ArgNotFoundError.html" class="btn btn-neutral float-right" title="simulation.ArgNotFoundError" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
-    </div>
+          <footer>
 
   <hr/>
 
