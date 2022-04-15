@@ -15,7 +15,6 @@ import inspect
 from copy import deepcopy
 from collections import defaultdict
 
-import numpy as np
 import torch
 
 from niteshade.data import DataLoader
@@ -26,7 +25,6 @@ from niteshade.utils import train_test_iris
 # =============================================================================
 #  CLASSES
 # =============================================================================
-
 class _KeyMap(object):
     """Object used to convert NumPy arrays /PyTorch Tensors
        to a hashable form."""
@@ -75,9 +73,10 @@ class Simulator():
     """
     def __init__(self, X, y, model, attacker=None, defender=None, 
                  batch_size=1, num_episodes=1, save=False) -> None:
-
         assert batch_size > 0, 'Batch size must be greater than 0.'
+        assert batch_size <= len(X), 'Batch size must be smaller or equal to len(X).'
         assert num_episodes > 0, 'Number of episodes must be greater than 0.'
+        assert num_episodes <= len(X), 'Number of episodes must be smaller than len(X).'
 
         #miscellaneous
         self.X = X
@@ -244,15 +243,15 @@ class Simulator():
            the new model after each gradient descent step as online learning progresses.
 
         Args:
-            - defender_kwargs {dict}: dictionary containing extra arguments (other than the episode inputs
+            defender_kwargs (dict) : dictionary containing extra arguments (other than the episode inputs
                                       X and labels y) for defender .defend() method.
-            - attacker_kwargs {dict}: dictionary containing extra arguments (other than the episode inputs
+            attacker_kwargs (dict) : dictionary containing extra arguments (other than the episode inputs
                                       X and labels y) for attacker .attack() method.
-            - attacker_requires_model {bool}: specifies if the .attack() method of the attacker requires 
+            attacker_requires_model (bool) : specifies if the .attack() method of the attacker requires 
                                               the updated model at each episode.
-            - defender_requires_model {bool}: specifies if the .defend() method of the defender requires 
+            defender_requires_model (bool) : specifies if the .defend() method of the defender requires 
                                               the updated model at each episode.
-            - verbose {bool}: Specifies if loss should be printed for each batch the model is trained on. 
+            verbose (bool) : Specifies if loss should be printed for each batch the model is trained on. 
                               Default = True.
         """
         self.num_poisoned = 0
