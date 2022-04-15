@@ -9,11 +9,7 @@ models for out-of-the-box use.
 # =============================================================================
 #  IMPORTS AND DEPENDENCIES
 # =============================================================================
-
-import pickle
-
 import numpy as np
-import pandas as pd
 import torch
 import torch.nn as nn
 from sklearn.preprocessing import MinMaxScaler, OneHotEncoder
@@ -87,8 +83,14 @@ class BaseModel(nn.Module):
                                  }
             
         #string input to torch loss function and optimizer
-        self.loss_func = self.loss_func_mapping[loss_func.lower()]
-        self.optimizer = self.optimizer_mapping[optimizer.lower()]
+        try:
+            self.loss_func = self.loss_func_mapping[loss_func.lower()]
+        except KeyError:
+            raise NotImplementedError(f"The loss function {loss_func} has not been implemented.")
+        try:
+            self.optimizer = self.optimizer_mapping[optimizer.lower()]
+        except KeyError:
+            raise NotImplementedError(f"The optimizer {optimizer} has not been implemented.")
 
         self.losses = []
     
@@ -110,15 +112,18 @@ class BaseModel(nn.Module):
                 y_batch = torch.tensor(y_batch, dtype=torch.float64)
             if self.loss_func_str in ['nll', 'bce', 'cross_entropy']:
                 X_batch = torch.tensor(X_batch, dtype=torch.float64)
-                y_batch = torch.tensor(y_batch, dtype=torch.long)
+                #check if one-hot encoded
+                if len(y_batch.shape) > 1: 
+                    y_batch = torch.tensor(y_batch).argmax(dim=1)
+                else: 
+                    y_batch = torch.tensor(y_batch, dtype=torch.long)
 
         self.train() #set model in training mode
-
         #zero gradients so they are not accumulated across batches
         self.optimizer.zero_grad()
 
         # Performs forward pass through classifier
-        outputs = self.forward(X_batch.float()).type(torch.float64)
+        outputs = self.forward(X_batch.float())
 
         # Computes loss on batch with given loss function
         loss = self.loss_func(outputs, y_batch)
@@ -163,7 +168,7 @@ class IrisClassifier(BaseModel):
     """Pre-defined simple classifier for the Iris dataset containing 
        one fully-connected layer with 16 neurons using ReLU. 
     """
-    def __init__(self, optimizer="adam", loss_func="mse", lr=0.01):
+    def __init__(self, optimizer="adam", loss_func="cross_entropy", lr=0.001):
         """Construct network as per user specifications.
 
         Args:
@@ -187,9 +192,12 @@ class IrisClassifier(BaseModel):
             - lr {float}: Learning rate to use in training neural network (Default = 0.01).
         """
         #pre-defined simple architecture for classification on the iris dataset
-        architecture = [nn.Linear(4, 16), 
+        architecture = [nn.Linear(4, 50), 
                         nn.ReLU(), 
-                        nn.Linear(16, 3)]
+                        nn.Linear(50,50),
+                        nn.ReLU(),
+                        nn.Linear(50, 3), 
+                        nn.Softmax()]
 
         super().__init__(architecture, optimizer, loss_func, lr)
     
