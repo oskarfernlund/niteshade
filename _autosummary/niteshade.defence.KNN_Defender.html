@@ -47,6 +47,7 @@
 <li class="toctree-l2"><a class="reference internal" href="niteshade.models.html">niteshade.models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="niteshade.attack.html">niteshade.attack</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="niteshade.defence.html">niteshade.defence</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="niteshade.defence.label_encoding.html">niteshade.defence.label_encoding</a></li>
 <li class="toctree-l3"><a class="reference internal" href="niteshade.defence.Defender.html">niteshade.defence.Defender</a></li>
 <li class="toctree-l3"><a class="reference internal" href="niteshade.defence.DefenderGroup.html">niteshade.defence.DefenderGroup</a></li>
 <li class="toctree-l3"><a class="reference internal" href="niteshade.defence.Distance_metric.html">niteshade.defence.Distance_metric</a></li>
@@ -96,12 +97,34 @@
 <h1>niteshade.defence.KNN_Defender<a class="headerlink" href="#niteshade-defence-knn-defender" title="Permalink to this headline"></a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="niteshade.defence.KNN_Defender">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">niteshade.defence.</span></span><span class="sig-name descname"><span class="pre">KNN_Defender</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">init_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nearest_neighbours</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">confidence_threshold</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niteshade.defence.KNN_Defender" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">niteshade.defence.</span></span><span class="sig-name descname"><span class="pre">KNN_Defender</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">init_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nearest_neighbours</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">confidence_threshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">one_hot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niteshade.defence.KNN_Defender" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="niteshade.defence.PointModifierDefender.html#niteshade.defence.PointModifierDefender" title="niteshade.defence.PointModifierDefender"><code class="xref py py-class docutils literal notranslate"><span class="pre">niteshade.defence.PointModifierDefender</span></code></a></p>
+<p>A KNN  class, inheriting from the PointModifierDefender, that flips the labels
+of input points if the proportion of the most frequent label of nearest neighbours
+exceeds a threshold.
+A SKlearn KNeighborsClassifier is used to find nearest neighbours</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="niteshade.defence.KNN_Defender.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">init_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nearest_neighbours</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">confidence_threshold</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#niteshade.defence.KNN_Defender.__init__" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">init_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nearest_neighbours</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">confidence_threshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">one_hot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#niteshade.defence.KNN_Defender.__init__" title="Permalink to this definition"></a></dt>
+<dd><dl class="simple">
+<dt>Constructor method of KNN_Defender class.</dt><dd><p>If the inputs are one-hot encoded, artificial integer labels are constructed
+to use the SKlearn classifier</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>{np.ndarray</strong> (<em>- init_y</em>) – point data.</p></li>
+<li><p><strong>torch.Tensor}</strong> – point data.</p></li>
+<li><p><strong>{np.ndarray</strong> – label data.</p></li>
+<li><p><strong>torch.Tensor}</strong> – label data.</p></li>
+<li><p><strong>{int}</strong> (<em>- nearest_neighbours</em>) – number of nearest neighbours to use for decisionmaking</p></li>
+<li><p><strong>{float}</strong> (<em>- confidence_threshold</em>) – threshold to use for decisionmaking</p></li>
+<li><p><strong>{boolean}</strong> (<em>- one_hot</em>) – boolean to indicate if labels are one-hot or not</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <p class="rubric">Methods</p>
 <table class="autosummary longtable docutils align-default">
@@ -111,13 +134,41 @@
 </colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#niteshade.defence.KNN_Defender.__init__" title="niteshade.defence.KNN_Defender.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(init_x, init_y, nearest_neighbours, ...)</p></td>
-<td><p></p></td>
+<td><p>Constructor method of KNN_Defender class.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">defend</span></code>(datapoints, input_labels, **kwargs)</p></td>
-<td><p></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#niteshade.defence.KNN_Defender.defend" title="niteshade.defence.KNN_Defender.defend"><code class="xref py py-obj docutils literal notranslate"><span class="pre">defend</span></code></a>(datapoints, input_labels, **kwargs)</p></td>
+<td><p>The defend method for the KNN_defender</p></td>
 </tr>
 </tbody>
 </table>
+<dl class="py method">
+<dt class="sig sig-object py" id="niteshade.defence.KNN_Defender.defend">
+<span class="sig-name descname"><span class="pre">defend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">datapoints</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_labels</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niteshade.defence.KNN_Defender.defend" title="Permalink to this definition"></a></dt>
+<dd><dl class="simple">
+<dt>The defend method for the KNN_defender</dt><dd><p>for each incoming point, closest neighbours and their labels are found
+If the proportion of the most frequent label in closest neighbours is higher than a threshold
+Then the label of the point is flipped to be the most frequent label of closest neighbours</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>{np.ndarray</strong> (<em>input_labels</em>) – point data.</p></li>
+<li><p><strong>torch.Tensor}</strong> – point data.</p></li>
+<li><p><strong>{np.ndarray</strong> – label data.</p></li>
+<li><p><strong>torch.Tensor}</strong> – label data.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>datapoints {np.ndarray, torch.Tensor}: point data.
+flipped_labels {np.ndarray, torch.Tensor}: modified label data.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>tuple (datapoints, flipped_labels) where</p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 </section>

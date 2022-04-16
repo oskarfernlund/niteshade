@@ -19,7 +19,7 @@
     <link rel="author" title="About these documents" href="../about.html" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="niteshade.defence.Defender" href="niteshade.defence.Defender.html" />
+    <link rel="next" title="niteshade.defence.label_encoding" href="niteshade.defence.label_encoding.html" />
     <link rel="prev" title="niteshade.attack.RandomAttacker" href="niteshade.attack.RandomAttacker.html" /> 
 </head>
 
@@ -47,6 +47,7 @@
 <li class="toctree-l2"><a class="reference internal" href="niteshade.models.html">niteshade.models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="niteshade.attack.html">niteshade.attack</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">niteshade.defence</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="niteshade.defence.label_encoding.html">niteshade.defence.label_encoding</a></li>
 <li class="toctree-l3"><a class="reference internal" href="niteshade.defence.Defender.html">niteshade.defence.Defender</a></li>
 <li class="toctree-l3"><a class="reference internal" href="niteshade.defence.DefenderGroup.html">niteshade.defence.DefenderGroup</a></li>
 <li class="toctree-l3"><a class="reference internal" href="niteshade.defence.Distance_metric.html">niteshade.defence.Distance_metric</a></li>
@@ -94,6 +95,18 @@
   <section id="module-niteshade.defence">
 <span id="niteshade-defence"></span><h1>niteshade.defence<a class="headerlink" href="#module-niteshade.defence" title="Permalink to this headline"></a></h1>
 <p>Data poisoning defence strategy classes following a logical hierarchy.</p>
+<p class="rubric">Functions</p>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="niteshade.defence.label_encoding.html#niteshade.defence.label_encoding" title="niteshade.defence.label_encoding"><code class="xref py py-obj docutils literal notranslate"><span class="pre">label_encoding</span></code></a>(one_hot_labels)</p></td>
+<td><p>Constructs artificial 1d labels from incoming array of one_hot encoded label data</p></td>
+</tr>
+</tbody>
+</table>
 <p class="rubric">Classes</p>
 <table class="autosummary longtable docutils align-default">
 <colgroup>
@@ -102,31 +115,31 @@
 </colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="niteshade.defence.Defender.html#niteshade.defence.Defender" title="niteshade.defence.Defender"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Defender</span></code></a>()</p></td>
-<td><p></p></td>
+<td><p>Abstractclass that the defenders use Checks if the  .defend method is implemented</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="niteshade.defence.DefenderGroup.html#niteshade.defence.DefenderGroup" title="niteshade.defence.DefenderGroup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DefenderGroup</span></code></a>(defender_list[, ...])</p></td>
-<td><p></p></td>
+<td><p>Class allowing the grouping of defenders through a input list containing defender objects The decisionmaking of Group can be sequential if ensemble_accept_rate=0 or ensemble if ensemble_accept_rate != 0 If ensemble decisionmaking, points are accepted only if the proportion of defenders accepting the points is higher than ensemble_accept_rate</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="niteshade.defence.Distance_metric.html#niteshade.defence.Distance_metric" title="niteshade.defence.Distance_metric"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Distance_metric</span></code></a>([type])</p></td>
-<td><p></p></td>
+<td><p>A Distance_metric class for the feasibleset defender Allows to define custom distance metrics for feasibleset defender distance calculation For user implemented custom Distance_metric objects, need to have a .distance method where a float is returned</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="niteshade.defence.FeasibleSetDefender.html#niteshade.defence.FeasibleSetDefender" title="niteshade.defence.FeasibleSetDefender"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FeasibleSetDefender</span></code></a>(initial_dataset_x, ...)</p></td>
-<td><p></p></td>
+<td><p>A FeasibleSetDefender class, inheriting from the OutlierDefender, rejects points if the distance from the point to the label centroid is too large (if the point is in the feasible set of the label)</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="niteshade.defence.KNN_Defender.html#niteshade.defence.KNN_Defender" title="niteshade.defence.KNN_Defender"><code class="xref py py-obj docutils literal notranslate"><span class="pre">KNN_Defender</span></code></a>(init_x, init_y, ...)</p></td>
-<td><p></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="niteshade.defence.KNN_Defender.html#niteshade.defence.KNN_Defender" title="niteshade.defence.KNN_Defender"><code class="xref py py-obj docutils literal notranslate"><span class="pre">KNN_Defender</span></code></a>(init_x, init_y, ...[, one_hot])</p></td>
+<td><p>A KNN  class, inheriting from the PointModifierDefender, that flips the labels of input points if the proportion of the most frequent label of nearest neighbours exceeds a threshold.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="niteshade.defence.ModelDefender.html#niteshade.defence.ModelDefender" title="niteshade.defence.ModelDefender"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ModelDefender</span></code></a>()</p></td>
-<td><p></p></td>
+<td><p>Abstractclass for defenders that use a strategy that needs access to the model This class is used mainly in the siumlation to check if the current model needs to be sent to the .defend method</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="niteshade.defence.OutlierDefender.html#niteshade.defence.OutlierDefender" title="niteshade.defence.OutlierDefender"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OutlierDefender</span></code></a>(initial_dataset_x, ...)</p></td>
-<td><p></p></td>
+<td><p>Abstractclass for defenders that use a outlierfiltering strategy</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="niteshade.defence.PointModifierDefender.html#niteshade.defence.PointModifierDefender" title="niteshade.defence.PointModifierDefender"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PointModifierDefender</span></code></a>()</p></td>
-<td><p></p></td>
+<td><p>Abstractclass for defenders that use a strategy that modifies the input points</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="niteshade.defence.SoftmaxDefender.html#niteshade.defence.SoftmaxDefender" title="niteshade.defence.SoftmaxDefender"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SoftmaxDefender</span></code></a>([threshold, one_hot])</p></td>
-<td><p></p></td>
+<td><p>A SoftmaxDefender class, inheriting from the ModelDefender, rejects points if the softmax output for the true class label of the incoming point is below a threshold</p></td>
 </tr>
 </tbody>
 </table>
@@ -137,7 +150,7 @@
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="niteshade.attack.RandomAttacker.html" class="btn btn-neutral float-left" title="niteshade.attack.RandomAttacker" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="niteshade.defence.Defender.html" class="btn btn-neutral float-right" title="niteshade.defence.Defender" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="niteshade.defence.label_encoding.html" class="btn btn-neutral float-right" title="niteshade.defence.label_encoding" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
