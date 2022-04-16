@@ -500,7 +500,6 @@ class Distance_metric:
         else:
             raise NotImplementedError ("This distance metric type has not been implemented")
 
-<<<<<<< HEAD:defence.py
 # =============================================================================
 #  FUNCTIONS
 # =============================================================================
@@ -514,23 +513,12 @@ def label_encoding(one_hot_labels):
         """
         encoded_labels = np.argmax(one_hot_labels, axis = 1) #encode labels
         return encoded_labels
-=======
-
->>>>>>> 8bd9ef2448e1d06af72416ae92df351c94d021a2:niteshade/defence.py
 # =============================================================================
 #  MAIN ENTRY POINT
 # =============================================================================
 
 if __name__ == "__main__":
-<<<<<<< HEAD:defence.py
     from tests import test_defender
     import unittest
     suite = unittest.TestLoader().loadTestsFromModule(test_defender)
     unittest.TextTestRunner(verbosity=2).run(suite)
-=======
-#     import defender_tests
-#     import unittest
-#     suite = unittest.TestLoader().loadTestsFromModule(defender_tests)
-#     unittest.TextTestRunner(verbosity=2).run(suite)
-    pass
->>>>>>> 8bd9ef2448e1d06af72416ae92df351c94d021a2:niteshade/defence.py
