@@ -18,6 +18,8 @@ from collections import defaultdict
 import torch
 
 from niteshade.data import DataLoader
+from niteshade.attack import Attacker
+from niteshade.defence import DefenderGroup, Defender
 from niteshade.utils import save_pickle
 from niteshade.utils import train_test_iris
 
@@ -47,37 +49,45 @@ class Simulator():
     """Class used to simulate data poisoning attacks during online learning. 
        
        Args:
-        - X {np.ndarray, torch.Tensor}: stream of input data to train the model
-                                        with during supervised learning.
+        - X (np.ndarray, torch.Tensor) : stream of input data to train the model
+                                         with during supervised learning.
 
-        - y {np.ndarray, torch.Tensor}: stream of target data (labels to the inputs)
-                                        to train the model with during supervised learning.
+        - y (np.ndarray, torch.Tensor) : stream of target data (labels to the inputs)
+                                         to train the model with during supervised learning.
 
-        - model {torch.nn.Module}: neural network model inheriting from torch.nn.Module to 
-                                   be trained during online learning. Must present a .step()
-                                   method that performs a gradient descent step on a batch 
-                                   of input and target data (X_batch and y_batch). 
+        - model (torch.nn.Module) : neural network model inheriting from torch.nn.Module to 
+                                    be trained during online learning. Must present a .step()
+                                    method that performs a gradient descent step on a batch 
+                                    of input and target data (X_batch and y_batch). 
                                         
-        - attacker {Attacker}: Attacker object that presents a .attack() method with an 
-                               implementation of a data poisoning attack strategy. 
+        - attacker (Attacker) : Attacker object that presents a .attack() method with an 
+                                implementation of a data poisoning attack strategy. 
 
         - defender {Defender}: Defender object that presents a .defend() method with an 
                                implementation of a data poisoning defense strategy.
 
-        - batch_size {int}: batch size of model.          
+        - batch_size (int) : batch size of model.          
 
-        - num_episodes {int}: Number of 'episodes' that X and y span over. Here, we refer to
-                              an episode as the time period over which a stream of incoming data
-                              would be collected and subsequently passed on to the model to be 
-                              trained.
+        - num_episodes (int) : Number of 'episodes' that X and y span over. Here, we refer to
+                               an episode as the time period over which a stream of incoming data
+                               would be collected and subsequently passed on to the model to be 
+                               trained.
     """
     def __init__(self, X, y, model, attacker=None, defender=None, 
                  batch_size=1, num_episodes=1, save=False) -> None:
-        assert batch_size > 0, 'Batch size must be greater than 0.'
-        assert batch_size <= len(X), 'Batch size must be smaller or equal to len(X).'
-        assert num_episodes > 0, 'Number of episodes must be greater than 0.'
-        assert num_episodes <= len(X), 'Number of episodes must be smaller than len(X).'
-
+        if not batch_size > 0 and batch_size <= len(X):
+             raise ValueError('Batch size must be 0 < batch_size <= len(X).')
+        if not num_episodes > 0 and num_episodes <= len(X):
+            raise ValueError('Number of episodes must be 0 < num_episodes <= len(X).')
+        if attacker is not None:
+            if not isinstance(attacker, Attacker):
+                raise TypeError('Implemented attacker must inherit from abstract Attacker object.')
+        if defender is not None:
+            if not isinstance(defender, (Defender, DefenderGroup)):
+                raise TypeError("""Implemented defender/s must inherit from abstract Defender object.
+                                   or be a DefenderGroup.""")
+        if not isinstance(model, torch.nn.Module):
+            raise TypeError('Niteshade only supports PyTorch models (i.e inheriting from torch.nn.Module).')
         #miscellaneous
         self.X = X
         self.y = y
