@@ -23,9 +23,12 @@ dependencies:
   - certifi=2021.10.8=py38h10201cd_2
   - cffi=1.15.0=py38hc67bbb8_0
   - charset-normalizer=2.0.12=pyhd8ed1ab_0
+  - cmarkgfm=0.8.0=py38h33210d7_1
   - colorama=0.4.4=pyh9f0ad1d_0
+  - commonmark=0.9.1=py_0
   - cryptography=36.0.2=py38h7f91714_1
   - cycler=0.11.0=pyhd8ed1ab_0
+  - dataclasses=0.8=pyhc8e2a94_3
   - debugpy=1.5.1=py38h6f2b01f_0
   - decorator=5.1.1=pyhd8ed1ab_0
   - defusedxml=0.7.1=pyhd8ed1ab_0
@@ -36,6 +39,7 @@ dependencies:
   - flit-core=3.7.1=pyhd8ed1ab_0
   - fonttools=4.31.2=py38h33210d7_1
   - freetype=2.10.4=h17b34a0_1
+  - future=0.18.2=py38h10201cd_5
   - gettext=0.19.8.1=h049c9fb_1008
   - giflib=5.2.1=h27ca646_2
   - gmp=6.2.1=h9f76cd9_0
@@ -44,6 +48,7 @@ dependencies:
   - idna=3.3=pyhd8ed1ab_0
   - imagesize=1.3.0=pyhd8ed1ab_0
   - importlib-metadata=4.11.3=py38h10201cd_1
+  - importlib_metadata=4.11.3=hd8ed1ab_1
   - importlib_resources=5.6.0=pyhd8ed1ab_0
   - iniconfig=1.1.1=pyh9f0ad1d_0
   - ipykernel=6.12.1=py38h2cb4d76_0
@@ -62,6 +67,7 @@ dependencies:
   - jupyter_core=4.9.2=py38h10201cd_0
   - jupyterlab_pygments=0.1.2=pyh9f0ad1d_0
   - jupyterlab_widgets=1.1.0=pyhd8ed1ab_0
+  - keyring=23.4.0=py38h10201cd_2
   - kiwisolver=1.4.2=py38h0f71543_1
   - lame=3.100=h27ca646_1001
   - lcms2=2.12=had6a04f_0
@@ -117,6 +123,7 @@ dependencies:
   - pickleshare=0.7.5=py_1003
   - pillow=9.1.0=py38h7ff1586_0
   - pip=22.0.4=pyhd8ed1ab_0
+  - pkginfo=1.8.2=pyhd8ed1ab_0
   - pluggy=1.0.0=py38h10201cd_3
   - prometheus_client=0.14.0=pyhd8ed1ab_0
   - prompt-toolkit=3.0.29=pyha770c72_0
@@ -141,7 +148,11 @@ dependencies:
   - pytz=2022.1=pyhd8ed1ab_0
   - pyzmq=22.3.0=py38h5f86631_2
   - readline=8.1=hedafd6a_0
+  - readme_renderer=34.0=pyhd8ed1ab_0
   - requests=2.27.1=pyhd8ed1ab_0
+  - requests-toolbelt=0.9.1=py_0
+  - rfc3986=2.0.0=pyhd8ed1ab_0
+  - rich=12.2.0=pyhd8ed1ab_0
   - scikit-learn=1.0.2=py38h2cd4032_0
   - scipy=1.8.0=py38hd0c9ec0_1
   - send2trash=1.8.0=pyhd8ed1ab_0
@@ -170,6 +181,7 @@ dependencies:
   - tornado=6.1=py38h33210d7_3
   - tqdm=4.64.0=pyhd8ed1ab_0
   - traitlets=5.1.1=pyhd8ed1ab_0
+  - twine=4.0.0=pyhd8ed1ab_0
   - typing_extensions=4.1.1=pyha770c72_0
   - unicodedata2=14.0.0=py38h33210d7_1
   - urllib3=1.26.9=pyhd8ed1ab_0
