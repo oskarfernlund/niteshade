@@ -268,29 +268,41 @@ class BrewPoison(ModelAttacker):
         self.M = M
         self.num_restarts = num_restarts
         self.aggressiveness = aggressiveness
-
+                        
     def attack(self, X, y, model=None):
-        """"""
+        """
+        """
         if [type(X), type(y)] != [torch.Tensor,torch.Tensor]:
             X = torch.tensor(X)
             y = torch.tensor(y)
 
         poison_budget = int(len(X) * self.aggressiveness)
-
+        
         idxs = []
         for i in range(len(y)):
             if y[i] == self.target:
                 idxs.append(i)
+        
+        poison_budget = min(poison_budget, len(idxs))
                 
         attacked_idxs = random.sample(idxs, poison_budget)
+        print(attacked_idxs)
         selected_y = [y[i] for i in attacked_idxs]
         selected_X = [X[i] for i in attacked_idxs]
-
-        #optimization loop
-        perturbation = torch.rand(X.shape[1:]).repeat(len(selected_X), *[1 for _ in range(len(np.shape(selected_X))-1)])
+        
+        # perturb tensors
+        perturbation = torch.rand(X.shape[2:]).repeat(X.shape[1], 1, 1)
         print(perturbation.shape)
-        for i in range(self.M):
-            selected_X = selected_X + perturbation
+        
+        perturbed_X = []
+        for tensor in selected_X:
+            perturbed_X.append(tensor + perturbation)
+            
+        # make a prediction
+        point = perturbed_X[0]
+        result = model.predict(point)
+        
+        # 
 
 
 # =============================================================================
