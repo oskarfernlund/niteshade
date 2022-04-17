@@ -18,9 +18,7 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="author" title="About these documents" href="../about.html" />
     <link rel="index" title="Index" href="../genindex.html" />
-    <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="niteshade.simulation.wrap_results" href="niteshade.simulation.wrap_results.html" />
-    <link rel="prev" title="niteshade.defence.SoftmaxDefender" href="niteshade.defence.SoftmaxDefender.html" /> 
+    <link rel="search" title="Search" href="../search.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -38,26 +36,11 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <ul class="current">
+              <ul>
 <li class="toctree-l1"><a class="reference internal" href="../about.html">About</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="../api.html">API</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="niteshade.data.html">niteshade.data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="niteshade.models.html">niteshade.models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="niteshade.attack.html">niteshade.attack</a></li>
-<li class="toctree-l2"><a class="reference internal" href="niteshade.defence.html">niteshade.defence</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">niteshade.simulation</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="niteshade.simulation.wrap_results.html">niteshade.simulation.wrap_results</a></li>
-<li class="toctree-l3"><a class="reference internal" href="niteshade.simulation.Simulator.html">niteshade.simulation.Simulator</a></li>
-<li class="toctree-l3"><a class="reference internal" href="niteshade.simulation.ArgNotFoundError.html">niteshade.simulation.ArgNotFoundError</a></li>
-<li class="toctree-l3"><a class="reference internal" href="niteshade.simulation.ShapeMismatchError.html">niteshade.simulation.ShapeMismatchError</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="niteshade.postprocessing.html">niteshade.postprocessing</a></li>
-<li class="toctree-l2"><a class="reference internal" href="niteshade.utils.html">niteshade.utils</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
 </ul>
 
@@ -75,7 +58,6 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="../api.html">API</a> &raquo;</li>
       <li>niteshade.simulation</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/_autosummary/niteshade.simulation.rst.txt" rel="nofollow"> View page source</a>
@@ -86,58 +68,14 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="module-niteshade.simulation">
-<span id="niteshade-simulation"></span><h1>niteshade.simulation<a class="headerlink" href="#module-niteshade.simulation" title="Permalink to this headline"></a></h1>
-<p>Classes and functions for simulating data poisoning attacks and defences
-against online learning.</p>
-<p class="rubric">Functions</p>
-<table class="autosummary longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="niteshade.simulation.wrap_results.html#niteshade.simulation.wrap_results" title="niteshade.simulation.wrap_results"><code class="xref py py-obj docutils literal notranslate"><span class="pre">wrap_results</span></code></a>(simulators)</p></td>
-<td><p>Wrap results of different ran simulations.</p></td>
-</tr>
-</tbody>
-</table>
-<p class="rubric">Classes</p>
-<table class="autosummary longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="niteshade.simulation.Simulator.html#niteshade.simulation.Simulator" title="niteshade.simulation.Simulator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Simulator</span></code></a>(X, y, model[, attacker, defender, ...])</p></td>
-<td><p>Class used to simulate data poisoning attacks during online learning.</p></td>
-</tr>
-</tbody>
-</table>
-<p class="rubric">Exceptions</p>
-<table class="autosummary longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="niteshade.simulation.ArgNotFoundError.html#niteshade.simulation.ArgNotFoundError" title="niteshade.simulation.ArgNotFoundError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ArgNotFoundError</span></code></a></p></td>
-<td><p>Exception to be raised if a key-word argument is missing when calling the .attack()/.defend() methods of the attacker/defender.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="niteshade.simulation.ShapeMismatchError.html#niteshade.simulation.ShapeMismatchError" title="niteshade.simulation.ShapeMismatchError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ShapeMismatchError</span></code></a></p></td>
-<td><p>Exception to be raised when there is a shape mismatch between the original episode datapoints/labels and the perturbed/rejected datapoints/labels by the attacker/defender.</p></td>
-</tr>
-</tbody>
-</table>
+  <section id="niteshade-simulation">
+<h1>niteshade.simulation<a class="headerlink" href="#niteshade-simulation" title="Permalink to this headline"></a></h1>
 </section>
 
 
            </div>
           </div>
-          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="niteshade.defence.SoftmaxDefender.html" class="btn btn-neutral float-left" title="niteshade.defence.SoftmaxDefender" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="niteshade.simulation.wrap_results.html" class="btn btn-neutral float-right" title="niteshade.simulation.wrap_results" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
-    </div>
+          <footer>
 
   <hr/>
 

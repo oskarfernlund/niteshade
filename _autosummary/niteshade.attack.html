@@ -18,9 +18,7 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="author" title="About these documents" href="../about.html" />
     <link rel="index" title="Index" href="../genindex.html" />
-    <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="niteshade.attack.AddLabeledPointsAttacker" href="niteshade.attack.AddLabeledPointsAttacker.html" />
-    <link rel="prev" title="niteshade.models.MNISTClassifier" href="niteshade.models.MNISTClassifier.html" /> 
+    <link rel="search" title="Search" href="../search.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -38,31 +36,11 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <ul class="current">
+              <ul>
 <li class="toctree-l1"><a class="reference internal" href="../about.html">About</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="../api.html">API</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="niteshade.data.html">niteshade.data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="niteshade.models.html">niteshade.models</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">niteshade.attack</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="niteshade.attack.AddLabeledPointsAttacker.html">niteshade.attack.AddLabeledPointsAttacker</a></li>
-<li class="toctree-l3"><a class="reference internal" href="niteshade.attack.AddPointsAttacker.html">niteshade.attack.AddPointsAttacker</a></li>
-<li class="toctree-l3"><a class="reference internal" href="niteshade.attack.Attacker.html">niteshade.attack.Attacker</a></li>
-<li class="toctree-l3"><a class="reference internal" href="niteshade.attack.BrewPoison.html">niteshade.attack.BrewPoison</a></li>
-<li class="toctree-l3"><a class="reference internal" href="niteshade.attack.ChangeLabelAttacker.html">niteshade.attack.ChangeLabelAttacker</a></li>
-<li class="toctree-l3"><a class="reference internal" href="niteshade.attack.LabelFlipperAttacker.html">niteshade.attack.LabelFlipperAttacker</a></li>
-<li class="toctree-l3"><a class="reference internal" href="niteshade.attack.ModelAttacker.html">niteshade.attack.ModelAttacker</a></li>
-<li class="toctree-l3"><a class="reference internal" href="niteshade.attack.PerturbPointsAttacker.html">niteshade.attack.PerturbPointsAttacker</a></li>
-<li class="toctree-l3"><a class="reference internal" href="niteshade.attack.RandomAttacker.html">niteshade.attack.RandomAttacker</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="niteshade.defence.html">niteshade.defence</a></li>
-<li class="toctree-l2"><a class="reference internal" href="niteshade.simulation.html">niteshade.simulation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="niteshade.postprocessing.html">niteshade.postprocessing</a></li>
-<li class="toctree-l2"><a class="reference internal" href="niteshade.utils.html">niteshade.utils</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
 </ul>
 
@@ -80,7 +58,6 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="../api.html">API</a> &raquo;</li>
       <li>niteshade.attack</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/_autosummary/niteshade.attack.rst.txt" rel="nofollow"> View page source</a>
@@ -91,54 +68,14 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="module-niteshade.attack">
-<span id="niteshade-attack"></span><h1>niteshade.attack<a class="headerlink" href="#module-niteshade.attack" title="Permalink to this headline"></a></h1>
-<p>Data poisoning attack strategy classes following a logical hierarchy.</p>
-<p class="rubric">Classes</p>
-<table class="autosummary longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="niteshade.attack.AddLabeledPointsAttacker.html#niteshade.attack.AddLabeledPointsAttacker" title="niteshade.attack.AddLabeledPointsAttacker"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AddLabeledPointsAttacker</span></code></a>(aggresiveness, label)</p></td>
-<td><p>Adds points with a specified label.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="niteshade.attack.AddPointsAttacker.html#niteshade.attack.AddPointsAttacker" title="niteshade.attack.AddPointsAttacker"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AddPointsAttacker</span></code></a>(aggresiveness[, one_hot])</p></td>
-<td><p>Abstract class for attackers that add points to the batch of data</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="niteshade.attack.Attacker.html#niteshade.attack.Attacker" title="niteshade.attack.Attacker"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Attacker</span></code></a>()</p></td>
-<td><p>General abstract Attacker class</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="niteshade.attack.BrewPoison.html#niteshade.attack.BrewPoison" title="niteshade.attack.BrewPoison"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BrewPoison</span></code></a>(target[, eps, M, num_restarts, ...])</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="niteshade.attack.ChangeLabelAttacker.html#niteshade.attack.ChangeLabelAttacker" title="niteshade.attack.ChangeLabelAttacker"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ChangeLabelAttacker</span></code></a>(aggresiveness[, one_hot])</p></td>
-<td><p>Abstract class for attacker that can change labels</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="niteshade.attack.LabelFlipperAttacker.html#niteshade.attack.LabelFlipperAttacker" title="niteshade.attack.LabelFlipperAttacker"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LabelFlipperAttacker</span></code></a>(aggresiveness, label_flips)</p></td>
-<td><p>Flip labels based on a dictionary of information</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="niteshade.attack.ModelAttacker.html#niteshade.attack.ModelAttacker" title="niteshade.attack.ModelAttacker"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ModelAttacker</span></code></a>()</p></td>
-<td><p>Abstract class for attacker that requires model.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="niteshade.attack.PerturbPointsAttacker.html#niteshade.attack.PerturbPointsAttacker" title="niteshade.attack.PerturbPointsAttacker"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PerturbPointsAttacker</span></code></a>()</p></td>
-<td><p>Abstract class for attacker that can change labels</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="niteshade.attack.RandomAttacker.html#niteshade.attack.RandomAttacker" title="niteshade.attack.RandomAttacker"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RandomAttacker</span></code></a>()</p></td>
-<td><p>Attacks the current datapoint.</p></td>
-</tr>
-</tbody>
-</table>
+  <section id="niteshade-attack">
+<h1>niteshade.attack<a class="headerlink" href="#niteshade-attack" title="Permalink to this headline"></a></h1>
 </section>
 
 
            </div>
           </div>
-          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="niteshade.models.MNISTClassifier.html" class="btn btn-neutral float-left" title="niteshade.models.MNISTClassifier" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="niteshade.attack.AddLabeledPointsAttacker.html" class="btn btn-neutral float-right" title="niteshade.attack.AddLabeledPointsAttacker" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
-    </div>
+          <footer>
 
   <hr/>
 
