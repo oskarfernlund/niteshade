@@ -28,13 +28,13 @@ from niteshade.utils import train_test_MNIST
 #  CLASSES
 # =============================================================================
 
-class Attacker:
+class Attacker(ABC):
     """ General abstract Attacker class
     """
     def __init__(self):
         pass
         
-    # @abstractmethod
+    @abstractmethod
     def attack(self):
         """ Abstract attack method
         """
@@ -301,6 +301,23 @@ class BrewPoison(ModelAttacker):
         # make a prediction
         point = perturbed_X[0]
         result = model.predict(point)
+        
+        def optim_func(pert):
+            inf_norm = torch.norm(perturbation, p = "inf")
+            init_pert_shape = torch.FloatTensor(X.shape[2:])
+            sample_pert = init_pert_shape.uniform_(0, 0.9*inf_norm)
+            new_pert = sample_pert.repeat(X.shape[1], 1, 1)
+            
+            return new_pert
+            
+        if result != selected_y[0]:
+            for i in range M:
+                optim_pert = optim_func(perturbation)
+                for tensor in selected_X:
+                    perturbed_X.append(tensor + optim_pert)
+                result = 
+                    
+
         
         # 
 
