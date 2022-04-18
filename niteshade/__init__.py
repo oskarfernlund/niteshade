@@ -11,5 +11,3 @@ from .defence import *
 from .postprocessing import *
 from .simulation import *
 from .utils import *
-from . import _version
-__version__ = _version.get_versions()['version']

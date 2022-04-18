@@ -20,6 +20,7 @@ docutils==0.17.1
 entrypoints==0.4
 executing==0.8.3
 fastjsonschema==2.15.3
+flake8==4.0.1
 fonttools==4.32.0
 idna==3.3
 imagesize==1.3.0
@@ -45,6 +46,7 @@ kiwisolver==1.4.2
 MarkupSafe==2.1.1
 matplotlib==3.5.1
 matplotlib-inline==0.1.3
+mccabe==0.6.1
 mistune==0.8.4
 nbclient==0.6.0
 nbconvert==6.5.0
@@ -67,7 +69,9 @@ psutil==5.9.0
 ptyprocess==0.7.0
 pure-eval==0.2.2
 py==1.11.0
+pycodestyle==2.8.0
 pycparser==2.21
+pyflakes==2.4.0
 Pygments==2.11.2
 pyparsing==3.0.8
 pyrsistent==0.18.1
