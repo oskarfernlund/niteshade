@@ -1,15 +1,18 @@
-from setuptools import setup, find_packages
+import setuptools
 
-with open("README.md", "r", encoding="utf-8") as fh:
+# Get long description of package as well as user requirements
+with open("README.rst", "r") as fh:
     long_description = fh.read()
+with open("env/usr_requirements.txt", "r") as fh:
+    requirements = [line.strip() for line in fh]
 
-# This call to setup() does all the work
-setup(
+# Set up the package
+setuptools.setup(
     name="niteshade",
     version="0.0.1",
     description="Library for simulating data poisoning attacks against online learning.",
     long_description=long_description,
-    long_description_content_type="text/markdown",
+    long_description_content_type="text/x-rst",
     url="https://github.com/oskarfernlund/niteshade",
     project_urls={
         "Documentation": "https://oskarfernlund.github.io/niteshade/",
@@ -20,10 +23,10 @@ setup(
     classifiers=[
         "License :: OSI Approved :: MIT License",
         "Programming Language :: Python :: 3.8",
+        "Operating System :: OS Independent",
     ],
-    packages=find_packages(exclude=("tests",)),
+    packages=setuptools.find_packages(exclude=("tests",)),
     include_package_data=True,
-    install_requires=["matplotlib", "numpy", "scipy", "pandas", "scikit-learn",
-        "torch", "torchvision", "tqdm"],
+    install_requires=requirements,
     python_requires=">=3.8",
 )
