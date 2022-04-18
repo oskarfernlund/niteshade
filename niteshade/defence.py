@@ -19,10 +19,6 @@ import numpy as np
 import torch
 from sklearn.neighbors import KNeighborsClassifier
 
-from niteshade.data import DataLoader
-from niteshade.models import IrisClassifier
-
-
 # =============================================================================
 #  CLASSES
 # =============================================================================
@@ -153,6 +149,16 @@ class Defender(ABC):
     @abstractmethod
     def defend(self):
         raise NotImplementedError("Defend method needs to be implemented for a defender")
+    
+    def _type_check(self, x, y):
+        if isinstance(x, np.ndarray):
+            self._datatype = 1
+        elif  isinstance(x, torch.Tensor):
+            self._datatype = 0
+        else: 
+            raise TypeError("The input datapoint data must be either a Torch.Tensor or np.ndarray datatype")
+        if not (type(x) is (type(y))):
+            raise TypeError("The input datapoint data and label data must have same datatypes")
 
 
 class OutlierDefender(Defender):
@@ -166,8 +172,13 @@ class OutlierDefender(Defender):
             initial_dataset_y {np.ndarray, torch.Tensor}: label data.
         """
         super().__init__()
-        self._init_x = initial_dataset_x
-        self._init_y = initial_dataset_y
+        self._type_check(initial_dataset_x, initial_dataset_y) # Type check for initial data
+        if self._datatype == 1: # If initial data is ndarray, then no conversion
+            self._init_x = initial_dataset_x
+            self._init_y = initial_dataset_y
+        else: # If initial data is tensor, then convert to ndarray
+            self._init_x = initial_dataset_x.cpu().detach().numpy()
+            self._init_y = initial_dataset_y.cpu().detach().numpy()
 
 
 class ModelDefender(Defender):
@@ -205,6 +216,10 @@ class KNN_Defender(PointModifierDefender):
             - one_hot {boolean}: boolean to indicate if labels are one-hot or not
         """
         super().__init__()
+        self._type_check(init_x, init_y) # Check if input data is tensor or ndarray
+        if self._datatype == 0: # If incoming data is tensor, make into ndarray
+            init_x = init_x.cpu().detach().numpy()
+            init_y = init_y.cpu().detach().numpy()
         nr_of_datapoints = init_x.shape[0]
         self.one_hot = one_hot
         self.training_dataset_x = init_x.reshape((nr_of_datapoints, -1))
@@ -228,6 +243,11 @@ class KNN_Defender(PointModifierDefender):
                 datapoints {np.ndarray, torch.Tensor}: point data.
                 flipped_labels {np.ndarray, torch.Tensor}: modified label data.
         """
+        self._type_check(datapoints, input_labels) # Check if input data is tensor or ndarray
+        if self._datatype == 0: # If incoming data is tensor, make into ndarray
+            datapoints = datapoints.cpu().detach().numpy()
+            input_labels = input_labels.cpu().detach().numpy()
+        
         nr_of_datapoints = datapoints.shape[0]
         datapoints_reshaped = datapoints.copy().reshape((nr_of_datapoints, -1)) # Reshape for KNeighborsClassifier
         if self.one_hot: #Change labels if onehot
@@ -245,6 +265,11 @@ class KNN_Defender(PointModifierDefender):
             for id, label in enumerate(flipped_labels):
                 output_labels[id][label] = 1
             flipped_labels = output_labels
+
+        if self._datatype == 0: # If incoming data was tensor, make output into tensor
+            datapoints = torch.tensor(datapoints)
+            flipped_labels = torch.tensor(flipped_labels)
+
         return (datapoints, flipped_labels)
 
     def _get_confidence_labels(self, indeces):
@@ -331,20 +356,27 @@ class SoftmaxDefender(ModelDefender):
                 datapoints {np.ndarray, torch.Tensor}: point data.
                 labels {np.ndarray, torch.Tensor}: modified label data.
         """
-        #convert np.ndarray to tensor for the Neural network
-        X_batch = torch.tensor(datapoints)
+        self._type_check(datapoints, labels) # Check if input data is tensor or ndarray
         labels = labels.reshape(-1,1)
+        if self._datatype == 1: # If incoming data is nd.array, make into tensor for NeuralNetwork
+            X_batch = torch.tensor(datapoints)
+            labels = torch.tensor(labels)
         # If onehot, then construct artificial class labels
         if self.one_hot:
-            class_labels = torch.tensor(np.argmax(labels, axis = 1).reshape(-1,1))# Get class labels from onehot
+            class_labels = torch.argmax(labels, axis = 1).reshape(-1,1) # Get class labels from onehot
         #zero gradients so they are not accumulated across batches
         model.optimizer.zero_grad()
         # Performs forward pass through classifier
         outputs = model.forward(X_batch.float())
         confidence = torch.gather(outputs, 1 , class_labels) # Get softmax output for class labels
         mask = (confidence>self.threshold).squeeze(1) #mask for points true if confidence>threshold
-        X_output = X_batch[mask].detach().numpy() # Get output points using mask
-        y_output = labels[mask.numpy()]
+        X_output = X_batch[mask] # Get output points using mask
+        y_output = labels[mask]
+
+        if self._datatype == 1: # If incoming data was ndarray, make output into ndarray
+            X_output = X_output.cpu().detach().numpy()
+            y_output = y_output.cpu().detach().numpy()
+
         return (X_output, y_output.reshape(-1,))
 
 
@@ -352,7 +384,8 @@ class FeasibleSetDefender(OutlierDefender):
     """ A FeasibleSetDefender class, inheriting from the OutlierDefender, rejects points if the 
     distance from the point to the label centroid is too large (if the point is in the feasible set of the label)
     """ 
-    def __init__(self, initial_dataset_x, initial_dataset_y, threshold, one_hot = False, dist_metric = "Eucleidian") -> None:
+    def __init__(self, initial_dataset_x, initial_dataset_y, threshold, one_hot = False,
+                 dist_metric = None) -> None:
         """ Constructor method of FeasibleSetDefender class.
             Within the init, a feasible set is constructed and
             depending on the input a respective distance metric is constructed for calculating point distances from label centroids
@@ -361,7 +394,7 @@ class FeasibleSetDefender(OutlierDefender):
             - initial_dataset_y {np.ndarray, torch.Tensor}: label data.
             - threshold {float}: distance threshold to use for decisionmaking
             - one_hot {boolean}: boolean to indicate if labels are one-hot or not
-            - dist_metric {string, Distance_metric}: Distance metric to be used for calculating distances from points to centroids
+            - dist_metric {Distance_metric}: Distance metric to be used for calculating distances from points to centroids
         """
         super().__init__(initial_dataset_x, initial_dataset_y)
         #Input validation
@@ -374,12 +407,12 @@ class FeasibleSetDefender(OutlierDefender):
             initial_dataset_y = initial_dataset_y.reshape(-1,)        
         self._feasible_set_construction() # Construct the feasible set
         self._threshold = threshold
-        if isinstance(dist_metric, str): # Check if input is a dist_metric type (string) or a custom defined distance metric object
-            self.distance_metric = Distance_metric(dist_metric)
-        elif isinstance(dist_metric, Distance_metric): 
+        if isinstance(dist_metric, Distance_metric): # Check if user has inputted a custom defined distance metric object
             self.distance_metric = dist_metric
+        elif dist_metric == None: 
+            self.distance_metric = Distance_metric()
         else:
-            raise TypeError ("The Distance metric input for the FeasibleSetDefender needs to be either a string or a Distance_metric object.")
+            raise TypeError ("The Distance metric input for the FeasibleSetDefender needs to be a Distance_metric object.")
     
     @property 
     def distance_metric(self): # Make distance metric into a property
@@ -438,10 +471,16 @@ class FeasibleSetDefender(OutlierDefender):
             datapoints {np.ndarray, torch.Tensor}: point data.
             input_labels {np.ndarray, torch.Tensor}: label data.
         Return:
-            tuple (cleared_datapoints, cleared_labels) where:
-                cleared_datapoints {np.ndarray, torch.Tensor}: point data.
-                cleared_labels {np.ndarray, torch.Tensor}: label data.
+            tuple (output_datapoints, output_labels) where:
+                output_datapoints {np.ndarray, torch.Tensor}: point data.
+                output_labels {np.ndarray, torch.Tensor}: label data.
         """
+        self._type_check(datapoints, labels) # Check if input data is tensor or ndarray
+        if self._datatype == 0: # If incoming data is tensor, make into ndarray
+            datapoints = datapoints.cpu().detach().numpy()
+            labels = labels.cpu().detach().numpy()
+        
+
         if self.one_hot: #Change labels if onehot
             one_hot_length = len(labels[0])
             labels = np.argmax(labels, axis = 1)
@@ -460,7 +499,12 @@ class FeasibleSetDefender(OutlierDefender):
                 cleared_labels.append(data_label)
         if len(cleared_labels) == 0:
             # If no points cleared, return empty arrays
-            return (np.array([]), np.array([]))
+            if self._datatype == 0: # If incoming data was tensor, make output into tensor
+                output_empty_array = torch.tensor([])
+            else:
+                output_empty_array = np.array([])
+            return (output_empty_array, output_empty_array)
+
         cleared_labels_stack = np.stack(cleared_labels)
 
         if self.one_hot: # If onehot, construct onehot output
@@ -469,7 +513,14 @@ class FeasibleSetDefender(OutlierDefender):
                 output_labels[id][label] = 1
             cleared_labels_stack = output_labels
         # Returns a tuple of np array of cleared datapoints and np array of cleared labels
-        return (np.stack(cleared_datapoints), cleared_labels_stack)
+        output_datapoints = np.stack(cleared_datapoints)
+        output_labels = cleared_labels_stack
+
+        if self._datatype == 0: # If incoming data was tensor, make output into tensor
+            output_datapoints = torch.tensor(output_datapoints)
+            output_labels = torch.tensor(output_labels)
+
+        return (output_datapoints, output_labels)
         
 
 class Distance_metric:
@@ -518,7 +569,7 @@ def label_encoding(one_hot_labels):
 # =============================================================================
 
 if __name__ == "__main__":
-    from tests import test_defender
+    import test_local_def
     import unittest
-    suite = unittest.TestLoader().loadTestsFromModule(test_defender)
+    suite = unittest.TestLoader().loadTestsFromModule(test_local_def)
     unittest.TextTestRunner(verbosity=2).run(suite)
