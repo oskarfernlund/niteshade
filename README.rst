@@ -9,6 +9,8 @@ Releasing
 
 Releases are published automatically when a tag is pushed to GitHub.
 
+.. code-block:: bash
+
     # Set next version number
     export RELEASE=x.x.x
 
