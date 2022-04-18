@@ -1,1 +1,7 @@
-include LICENSE.txt
+include README.rst
+include LICENSE
+include env/pkg_requirements.txt
+graft niteshade
+recursive-exclude * *.py[co]
+include versioneer.py
+include niteshade/_version.py
