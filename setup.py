@@ -4,7 +4,7 @@ import versioneer
 # Get long description of package as well as user requirements
 with open("README.rst", "r") as fh:
     long_description = fh.read()
-with open("env/usr_requirements.txt", "r") as fh:
+with open("env/pkg_requirements.txt", "r") as fh:
     requirements = [line.strip() for line in fh]
 
 # Set up the package
