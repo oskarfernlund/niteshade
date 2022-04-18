@@ -5,7 +5,7 @@
 **/*venv
 **.idea
 *~
-*defender_tests.py
+*niteshade/test_local_def.py
 **/*output
 **.pickle
 **/build
