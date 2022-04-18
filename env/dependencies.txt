@@ -1,0 +1,36 @@
+High-level summary of all the project dependencies (to reference when 
+creating requirements.txt or environment.yml files).
+
+Functional
+----------
+numpy
+scipy
+pandas
+scikit-learn
+pytorch
+torchvision (>=0.5.0 to avoid conflicts with pillow)
+
+Plotting and Visualisation
+--------------------------
+matplotlib
+tqdm
+
+Documentation
+-------------
+sphinx
+sphinx_rtd_theme
+
+Packaging
+---------
+versioneer
+twine
+
+Testing
+-------
+pytest
+
+Other
+-----
+jupyter
+
+

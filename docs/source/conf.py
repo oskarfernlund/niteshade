@@ -22,7 +22,9 @@ copyright = '2022, Mart Bakler, Oskar Fernlund, Alex Ntemourtsidou, Jaime Sabal,
 author = 'Mart Bakler, Oskar Fernlund, Alex Ntemourtsidou, Jaime Sabal, Mustafa Saleem'
 
 # The full version, including alpha/beta/rc tags
-release = '0.0.1'
+from niteshade._version import get_versions
+release = get_versions()['version']
+del get_versions
 
 
 # -- General configuration ---------------------------------------------------
