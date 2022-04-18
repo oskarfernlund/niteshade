@@ -9,4 +9,6 @@
 **/*output
 **.pickle
 **/build
+**/dist
+**.egg-info
 **/datasets

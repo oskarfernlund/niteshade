@@ -18,7 +18,6 @@ from sklearn.utils import shuffle
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.datasets import load_iris
 import torch
-import torchvision
 
 import niteshade.utils as utils
 from niteshade.utils import train_test_MNIST
@@ -28,7 +27,7 @@ from niteshade.utils import train_test_MNIST
 #  CLASSES
 # =============================================================================
 
-class Attacker:
+class Attacker():
     """ General abstract Attacker class
     """
     def __init__(self):
@@ -256,41 +255,149 @@ class LabelFlipperAttacker(ChangeLabelAttacker):
         return x, y
 
 class BrewPoison(ModelAttacker):
-    def __init__(self, target, eps=1e-04, M=10, num_restarts=10, aggressiveness=0.1):
+    def __init__(self, target, eps=1e-04, M=10, num_restarts=10, aggressiveness=0.1, alpha = 0.9):
         """Requires input data to be normalised since perturbation
            is in interval (0,1). Need a large enough batch (minimum of aggressiveness*batch_size).
         Args: 
-            - eps {float}: Perturbation bound.
-            - M {int}: Number of optimization steps.
+            - eps (float): Perturbation bound.
+            - M (int): Number of optimization steps.
         """
         self.target = target
         self.eps = eps
         self.M = M
         self.num_restarts = num_restarts
         self.aggressiveness = aggressiveness
-
+        self.alpha = alpha
+        
+        
+    def apply_pert(self, selected_X, pert):
+        """Apply the pertubation to a list of inputs.
+        Args: 
+            selected_X (list) : list of tensors to perturb
+            pert (torch.tensor) : tensor used to perturb
+        
+        Returns:
+            perturbed_X (list) : list of perturbed tensors
+        """
+        perturbed_X = []
+        for tensor in selected_X:
+            perturbed_X.append(tensor + pert)
+        
+        return perturbed_X
+        
+    def get_new_pert(pert, alpha):
+        """Initialise a new pertubation using the previous pertubation.
+        
+        Given a pertubation, calculate the infinity norm of the pertubation, 
+        then sample a new pertubation, with the maximum value being 
+        alpha*infinity norm. 
+        
+        Args:
+            pert (tensor) : tensor to determine infinity norm
+            alpha (float) : Used to limit inf norm for max of new_pert
+            
+        Returns:
+            new_pert (tensor) : new pert tensor limited by alpha and pert
+        """
+        inf_norm = torch.norm(perturbation, p = "inf")
+        init_pert_shape = torch.FloatTensor(X.shape[2:])
+        sample_pert = init_pert_shape.uniform_(0, alpha*inf_norm)
+        new_pert = sample_pert.repeat(X.shape[1], 1, 1)
+        
+        return new_pert
+                        
     def attack(self, X, y, model=None):
-        """"""
+        """
+        """
         if [type(X), type(y)] != [torch.Tensor,torch.Tensor]:
             X = torch.tensor(X)
             y = torch.tensor(y)
 
         poison_budget = int(len(X) * self.aggressiveness)
-
+        
         idxs = []
         for i in range(len(y)):
             if y[i] == self.target:
                 idxs.append(i)
+        
+        poison_budget = min(poison_budget, len(idxs))
                 
         attacked_idxs = random.sample(idxs, poison_budget)
+        print(attacked_idxs)
         selected_y = [y[i] for i in attacked_idxs]
         selected_X = [X[i] for i in attacked_idxs]
-
-        #optimization loop
-        perturbation = torch.rand(X.shape[1:]).repeat(len(selected_X), *[1 for _ in range(len(np.shape(selected_X))-1)])
+        
+        # perturb tensors
+        perturbation = torch.rand(X.shape[2:]).repeat(X.shape[1], 1, 1)
         print(perturbation.shape)
-        for i in range(self.M):
-            selected_X = selected_X + perturbation
+        
+        i = 0
+        new_pert = pertubation
+        old_pert = perturbation = torch.zeros(X.shape[2:]).repeat(X.shape[1], 1, 1)
+        
+        perturbed_X = self.apply_pert(selected_X, new_pert)
+        
+        while i<M:
+            # apply pertubation
+            # perturbed_X = self.apply_pert(selected_X, new_pert)
+            
+            # test result
+            point = perturbed_X[0]
+            result = model.predict(point) 
+            
+            if result == selected_y[0]:
+                perturbed_X = self.apply_pert(selected_X, old_pert)
+                break
+            
+            else:
+                old_pert = new_pert
+                new_pert = self.get_new_pert(old_pert, self.alpha)
+                
+                i += 1
+                
+                perturbed_X = self.apply_pert(selected_X, new_pert)
+            
+            
+                
+            
+        
+        
+        
+        
+        # def apply_pert(selected_X, pert):
+            # perturbed_X = []
+            # for tensor in selected_X:
+                # perturbed_X.append(tensor + pert)
+            
+            # return perturbed_X
+                
+        
+        # perturbed_X = []
+        # for tensor in selected_X:
+            # perturbed_X.append(tensor + perturbation)
+            
+        # # make a prediction
+        # point = perturbed_X[0]
+        # result = model.predict(point)
+        
+        # def optim_func(pert):
+            # inf_norm = torch.norm(perturbation, p = "inf")
+            # init_pert_shape = torch.FloatTensor(X.shape[2:])
+            # sample_pert = init_pert_shape.uniform_(0, 0.9*inf_norm)
+            # new_pert = sample_pert.repeat(X.shape[1], 1, 1)
+            
+            # return new_pert
+            
+        # if result != selected_y[0]:
+            # for i in range M:
+                # optim_pert = optim_func(perturbation)
+                # for tensor in selected_X:
+                    # perturbed_X.append(tensor + optim_pert)
+                # result = 
+                    
+
+        
+        # 
 
 
 # =============================================================================
@@ -298,18 +405,19 @@ class BrewPoison(ModelAttacker):
 # =============================================================================    
 
 if __name__ == "__main__":
+    pass
         
-    X_train, y_train, X_test, y_test = train_test_MNIST()    
+    # X_train, y_train, X_test, y_test = train_test_MNIST()    
     # print(X_train.shape)
     # print(y_train.shape)
     # attacker = Attacker(0.6)
-    x = X_train[:11]
+    # x = X_train[:11]
 
-    og_y = y_train[:11]
-    # # y = enc.one_hot_encoding(og_y, 10)
+    # og_y = y_train[:11]
+    # # # y = enc.one_hot_encoding(og_y, 10)
     
-    attacker = BrewPoison(1)    
-    new_y = attacker.attack(x, og_y)
+    # attacker = BrewPoison(1)    
+    # new_y = attacker.attack(x, og_y)
     
     # # encoder = OneHotEncoder()
     # # encoder.fit(y_train)

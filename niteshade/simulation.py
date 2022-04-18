@@ -16,8 +16,11 @@ from copy import deepcopy
 from collections import defaultdict
 
 import torch
+import numpy as np
 
 from niteshade.data import DataLoader
+from niteshade.attack import Attacker
+from niteshade.defence import DefenderGroup, Defender
 from niteshade.utils import save_pickle
 from niteshade.utils import train_test_iris
 
@@ -30,9 +33,10 @@ class _KeyMap(object):
        to a hashable form."""
     def __init__(self, X, y):
         #convert to numpy arrays if data are torch.tensors
-        if [type(X), type(y)] == [torch.Tensor, torch.Tensor]:
+        if isinstance(X, torch.Tensor) and isinstance(y, torch.Tensor):
             X = X.numpy()
             y = y.numpy()
+
         self.data = X
         self.target = y
         self.hash = hash((hash(self.data.tobytes()), hash(self.target.tobytes())))
@@ -47,37 +51,48 @@ class Simulator():
     """Class used to simulate data poisoning attacks during online learning. 
        
        Args:
-        - X {np.ndarray, torch.Tensor}: stream of input data to train the model
-                                        with during supervised learning.
+        - X (np.ndarray, torch.Tensor) : stream of input data to train the model
+                                         with during supervised learning.
 
-        - y {np.ndarray, torch.Tensor}: stream of target data (labels to the inputs)
-                                        to train the model with during supervised learning.
+        - y (np.ndarray, torch.Tensor) : stream of target data (labels to the inputs)
+                                         to train the model with during supervised learning.
 
-        - model {torch.nn.Module}: neural network model inheriting from torch.nn.Module to 
-                                   be trained during online learning. Must present a .step()
-                                   method that performs a gradient descent step on a batch 
-                                   of input and target data (X_batch and y_batch). 
+        - model (torch.nn.Module) : neural network model inheriting from torch.nn.Module to 
+                                    be trained during online learning. Must present a .step()
+                                    method that performs a gradient descent step on a batch 
+                                    of input and target data (X_batch and y_batch). 
                                         
-        - attacker {Attacker}: Attacker object that presents a .attack() method with an 
-                               implementation of a data poisoning attack strategy. 
+        - attacker (Attacker) : Attacker object that presents a .attack() method with an 
+                                implementation of a data poisoning attack strategy. 
 
-        - defender {Defender}: Defender object that presents a .defend() method with an 
-                               implementation of a data poisoning defense strategy.
+        - defender (Defender) : Defender object that presents a .defend() method with an 
+                                implementation of a data poisoning defense strategy.
 
-        - batch_size {int}: batch size of model.          
+        - batch_size (int) : batch size of model.          
 
-        - num_episodes {int}: Number of 'episodes' that X and y span over. Here, we refer to
-                              an episode as the time period over which a stream of incoming data
-                              would be collected and subsequently passed on to the model to be 
-                              trained.
+        - num_episodes (int) : Number of 'episodes' that X and y span over. Here, we refer to
+                               an episode as the time period over which a stream of incoming data
+                               would be collected and subsequently passed on to the model to be 
+                               trained.
     """
     def __init__(self, X, y, model, attacker=None, defender=None, 
                  batch_size=1, num_episodes=1, save=False) -> None:
-        assert batch_size > 0, 'Batch size must be greater than 0.'
-        assert batch_size <= len(X), 'Batch size must be smaller or equal to len(X).'
-        assert num_episodes > 0, 'Number of episodes must be greater than 0.'
-        assert num_episodes <= len(X), 'Number of episodes must be smaller than len(X).'
-
+        if not batch_size > 0 and batch_size <= len(X):
+             raise ValueError('Batch size must be 0 < batch_size <= len(X).')
+        if not num_episodes > 0 and num_episodes <= len(X):
+            raise ValueError('Number of episodes must be 0 < num_episodes <= len(X).')
+        if attacker is not None:
+            if not isinstance(attacker, Attacker):
+                raise TypeError('Implemented attacker must inherit from abstract Attacker object.')
+        if defender is not None:
+            if not isinstance(defender, (Defender, DefenderGroup)):
+                raise TypeError("""Implemented defender/s must inherit from abstract Defender object.
+                                   or be a DefenderGroup.""")
+        if not isinstance(model, torch.nn.Module):
+            raise TypeError('Niteshade only supports PyTorch models (i.e inheriting from torch.nn.Module).')
+        if (not isinstance(X, (np.ndarray, torch.Tensor)) or 
+            not isinstance(y, (np.ndarray, torch.Tensor))):
+            raise TypeError("Niteshade only supports NumPy arrays and PyTorch tensors.") 
         #miscellaneous
         self.X = X
         self.y = y
@@ -242,17 +257,30 @@ class Simulator():
            this argument will be added as a key to attacker_args/defender_args and updated with 
            the new model after each gradient descent step as online learning progresses.
 
+           Metadata: as the simulation progresses; each episodes' original, post-attack, 
+                     and post-defense inputs and labels will be saved in self.results
+                     (a dictionary) in a list under the keys 'original', 'post-attack', 
+                     and 'post-defense', respectively. All the datapoints in an episode 
+                     are saved as values in a dictionary where the keys are labels indicating 
+                     if a point is unperturbed (in which case the label is simply the index 
+                     of the point in the inputted X and y), poisoned (labelled as 'p_n' 
+                     where n is an integer indicating that it is the nth poisoned point), 
+                     or modified by the defender (labelled as 'd_n' where n is an integer
+                     indicating that it is the nth defended point). If the defender rejects 
+                     a point in episode i, it can be inferred by inspecting the points missing
+                     from self.results['post_defense'][i] with respect to self.results['post_attack'][i].
+
         Args:
-            defender_kwargs (dict) : dictionary containing extra arguments (other than the episode inputs
-                                      X and labels y) for defender .defend() method.
-            attacker_kwargs (dict) : dictionary containing extra arguments (other than the episode inputs
-                                      X and labels y) for attacker .attack() method.
+            defender_args (dict) : dictionary containing extra arguments (other than the episode inputs
+                                   X and labels y) for defender .defend() method.
+            attacker_args (dict) : dictionary containing extra arguments (other than the episode inputs
+                                   X and labels y) for attacker .attack() method.
             attacker_requires_model (bool) : specifies if the .attack() method of the attacker requires 
-                                              the updated model at each episode.
+                                             the updated model at each episode.
             defender_requires_model (bool) : specifies if the .defend() method of the defender requires 
-                                              the updated model at each episode.
+                                             the updated model at each episode.
             verbose (bool) : Specifies if loss should be printed for each batch the model is trained on. 
-                              Default = True.
+                             Default = True.
         """
         self.num_poisoned = 0
         generator = DataLoader(self.X, self.y, batch_size = self.episode_size) #initialise data stream
@@ -342,12 +370,10 @@ class ArgNotFoundError(Exception):
     """Exception to be raised if a key-word argument is missing when calling 
        the .attack()/.defend() methods of the attacker/defender."""
 
-
 class ShapeMismatchError(Exception):
     """Exception to be raised when there is a shape mismatch between the 
        original episode datapoints/labels and the perturbed/rejected
        datapoints/labels by the attacker/defender."""
-
 
 # =============================================================================
 #  FUNCTIONS
