@@ -113,10 +113,8 @@ follows:
     === X passed in x.xx seconds ===
 
 
-Contributing and Releases
--------------------------
-
-niteshade is an open-source project and contributions are welcome.
+Releases
+--------
 
 Releases are published to PyPI automatically when a tag is pushed to GitHub.
 
@@ -131,6 +129,12 @@ Releases are published to PyPI automatically when a tag is pushed to GitHub.
 
     # Push
     git push origin --tags
+
+
+Contributing
+------------
+
+niteshade is an open-source project and contributions are welcome.
 
 
 The Team
