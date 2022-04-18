@@ -1,6 +1,6 @@
 # Workflow for building documentation with Sphinx
 
-name: sphinx
+name: build-docs
 
 # Controls when the workflow will run
 on:
