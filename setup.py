@@ -6,7 +6,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 # This call to setup() does all the work
 setup(
     name="niteshade",
-    version="0.1.0",
+    version="0.0.1",
     description="Library for simulating data poisoning attacks against online learning.",
     long_description=long_description,
     long_description_content_type="text/markdown",
