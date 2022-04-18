@@ -1,4 +1,4 @@
-name: dummy
+name: niteshade
 channels:
   - conda-forge
 dependencies:
@@ -6,6 +6,7 @@ dependencies:
   - brotli-bin=1.0.9=h1c322ee_7
   - bzip2=1.0.8=h3422bc3_4
   - ca-certificates=2021.10.8=h4653dfc_0
+  - certifi=2021.10.8=py38h10201cd_2
   - cffi=1.15.0=py38hc67bbb8_0
   - colorama=0.4.4=pyh9f0ad1d_0
   - cycler=0.11.0=pyhd8ed1ab_0
@@ -14,7 +15,7 @@ dependencies:
   - giflib=5.2.1=h27ca646_2
   - jbig=2.1=h3422bc3_2003
   - joblib=1.1.0=pyhd8ed1ab_0
-  - jpeg=9e=h3422bc3_0
+  - jpeg=9e=h1c322ee_1
   - kiwisolver=1.4.2=py38h0f71543_1
   - lcms2=2.12=had6a04f_0
   - lerc=3.0=hbdafb3b_0
@@ -48,6 +49,7 @@ dependencies:
   - openjpeg=2.4.0=h062765e_1
   - openssl=3.0.2=h90dfc92_1
   - packaging=21.3=pyhd8ed1ab_0
+  - pandas=1.4.2=py38h55de146_1
   - pillow=9.1.0=py38h7ff1586_2
   - pip=22.0.4=pyhd8ed1ab_0
   - pthread-stubs=0.4=h27ca646_1001
@@ -67,22 +69,16 @@ dependencies:
   - sqlite=3.38.2=h7e3ccbd_0
   - threadpoolctl=3.1.0=pyh8a188c0_0
   - tk=8.6.12=he1e0b03_0
+  - torchvision=0.9.1=py38h4ddca67_0_cpu
   - tornado=6.1=py38h33210d7_3
   - tqdm=4.64.0=pyhd8ed1ab_0
   - typing_extensions=4.2.0=pyha770c72_0
   - unicodedata2=14.0.0=py38h33210d7_1
+  - versioneer=0.22=pyhd8ed1ab_0
   - wheel=0.37.1=pyhd8ed1ab_0
   - xorg-libxau=1.0.9=h27ca646_0
   - xorg-libxdmcp=1.1.3=h27ca646_0
   - xz=5.2.5=h642e427_1
   - zlib=1.2.11=h90dfc92_1014
   - zstd=1.5.2=h861e0a7_0
-  - pip:
-    - certifi==2021.10.8
-    - charset-normalizer==2.0.12
-    - idna==3.3
-    - pandas==1.4.2
-    - requests==2.27.1
-    - torchvision==0.12.0
-    - urllib3==1.26.9
-prefix: /opt/homebrew/Caskroom/miniforge/base/envs/dummy
+prefix: /opt/homebrew/Caskroom/miniforge/base/envs/niteshade
