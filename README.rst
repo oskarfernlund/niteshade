@@ -16,10 +16,6 @@ Installation
 
    $ pip install niteshade
 
-.. code-block:: console
-
-   $ conda install -c conda-forge niteshade
-
 
 Repository Structure
 --------------------
