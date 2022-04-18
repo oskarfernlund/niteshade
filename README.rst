@@ -1,8 +1,24 @@
 niteshade
 =========
 
+.. image:: https://img.shields.io/pypi/v/niteshade
+    :target: https://pypi.org/project/niteshade/
+    :alt: PyPI
+
 **niteshade** is a Python library for simulating data poisoning attack and 
 defence strategies against online machine learning systems.
+
+
+Installation
+------------
+
+.. code-block:: console
+
+   $ pip install niteshade
+
+.. code-block:: console
+
+   $ conda install -c conda-forge niteshade
 
 
 Repository Structure
@@ -48,6 +64,4 @@ email addresses.
 Licensing
 ---------
 
-niteshade is an open-source project and collaboration is welcome.
-
-email addresses.
+MIT License.
