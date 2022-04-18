@@ -11,7 +11,7 @@ Unit tests for various defender classes.
 # =============================================================================
 
 import unittest
-
+import torch
 import pytest
 import numpy as np
 
@@ -69,15 +69,6 @@ class FeasibleSetDefender_test(unittest.TestCase):
         dist = np.linalg.norm(test_point_1-test_point_2)
         self.assertAlmostEqual(L2_dist, dist)
         
-        """
-        print(dist)
-        L1_dist_obj = Distance_metric("L1")
-        L1_dist = L1_dist_obj.distance(test_point_1, test_point_2)
-        dist = np.linalg.norm((test_point_1-test_point_2), ord = 1)
-        print(dist)
-        print(L1_dist)
-        self.assertAlmostEqual(L1_dist, dist)
-        """
     def test_custom_dist_metric(self):
         class CustomDistanceMetric(Distance_metric):
             def __init__(self, random_counter, type=None) -> None:
@@ -93,7 +84,19 @@ class FeasibleSetDefender_test(unittest.TestCase):
         Custom_dist = customdist_obj.distance(test_point_1, test_point_2)
         dist = np.linalg.norm(test_point_1-test_point_2)
         self.assertAlmostEqual(Custom_dist, 2*dist)
-
+        
+    def test_check_types(self):
+        defender = FeasibleSetDefender(self.x,self.y, 3, False)
+        test_datapoint_np = np.ones((2,3,4,4))
+        test_label_np = np.zeros((2))
+        x, y = defender.defend(test_datapoint_np, test_label_np)
+        self.assertIsInstance(x, np.ndarray)
+        self.assertIsInstance(y, np.ndarray)
+        test_datapoint_torch = torch.ones((2,3,4,4))
+        test_label_torch = torch.zeros((2))
+        x, y = defender.defend(test_datapoint_torch, test_label_torch)
+        self.assertIsInstance(x, torch.Tensor)
+        self.assertIsInstance(y, torch.Tensor)
 
 class GroupDefender_test(unittest.TestCase):
     def setUp(self) -> None:
@@ -196,6 +199,19 @@ class PointModifier_test(unittest.TestCase):
         self.assertNotIn(1, model_labels)
         self.assertEqual(model_datapoints.shape, datapoint.shape)
 
+    def test_check_types(self):
+        defender = KNN_Defender(init_x = self.x, init_y = self.y,
+                                nearest_neighbours = 3 , confidence_threshold = 1.0)
+        datapoint = np.random.rand(2,3,4,4).reshape(2,-1)
+        label = np.array([0, 1]).reshape(2,)
+        model_datapoints, model_labels = defender.defend(datapoint, label)
+        self.assertIsInstance(model_datapoints, np.ndarray)
+        self.assertIsInstance(model_labels, np.ndarray)
+        test_datapoint_torch = torch.ones((2,3,4,4))
+        test_label_torch = torch.zeros((2))
+        model_datapoints, model_labels = defender.defend(test_datapoint_torch, test_label_torch)
+        self.assertIsInstance(model_datapoints, torch.Tensor)
+        self.assertIsInstance(model_labels, torch.Tensor)
 
 # =============================================================================
 #  MAIN ENTRY POINT
