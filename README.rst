@@ -104,7 +104,8 @@ Running Unit and Integration Tests
 ----------------------------------
 
 This project uses ``pytest`` for unit and integration testing (included in the 
-developer dependencies). Running the tests is simple:
+developer dependencies). The tests may be run from the root directory as 
+follows:
 
 .. code-block:: console
 
