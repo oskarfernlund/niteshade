@@ -23,9 +23,7 @@ For further details about the project, including background information,
 example usage and detailed API documentation, visit 
 https://oskarfernlund.github.io/niteshade/.
 
-.. note::
-
-   This project is under active development and may be unstable!
+**Note**: This project is under active development and may be unstable!
 
 
 Installation
