@@ -97,13 +97,13 @@
 <h1>niteshade.defence.FeasibleSetDefender<a class="headerlink" href="#niteshade-defence-feasiblesetdefender" title="Permalink to this headline"></a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="niteshade.defence.FeasibleSetDefender">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">niteshade.defence.</span></span><span class="sig-name descname"><span class="pre">FeasibleSetDefender</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">initial_dataset_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_dataset_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">one_hot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_metric</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Eucleidian'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niteshade.defence.FeasibleSetDefender" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">niteshade.defence.</span></span><span class="sig-name descname"><span class="pre">FeasibleSetDefender</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">initial_dataset_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_dataset_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">one_hot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_metric</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niteshade.defence.FeasibleSetDefender" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="niteshade.defence.OutlierDefender.html#niteshade.defence.OutlierDefender" title="niteshade.defence.OutlierDefender"><code class="xref py py-class docutils literal notranslate"><span class="pre">niteshade.defence.OutlierDefender</span></code></a></p>
 <p>A FeasibleSetDefender class, inheriting from the OutlierDefender, rejects points if the
 distance from the point to the label centroid is too large (if the point is in the feasible set of the label)</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="niteshade.defence.FeasibleSetDefender.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">initial_dataset_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_dataset_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">one_hot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_metric</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Eucleidian'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#niteshade.defence.FeasibleSetDefender.__init__" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">initial_dataset_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_dataset_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">one_hot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_metric</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#niteshade.defence.FeasibleSetDefender.__init__" title="Permalink to this definition"></a></dt>
 <dd><dl class="simple">
 <dt>Constructor method of FeasibleSetDefender class.</dt><dd><p>Within the init, a feasible set is constructed and
 depending on the input a respective distance metric is constructed for calculating point distances from label centroids</p>
@@ -118,8 +118,7 @@ depending on the input a respective distance metric is constructed for calculati
 <li><p><strong>torch.Tensor}</strong> – label data.</p></li>
 <li><p><strong>{float}</strong> (<em>- threshold</em>) – distance threshold to use for decisionmaking</p></li>
 <li><p><strong>{boolean}</strong> (<em>- one_hot</em>) – boolean to indicate if labels are one-hot or not</p></li>
-<li><p><strong>{string</strong> (<em>- dist_metric</em>) – Distance metric to be used for calculating distances from points to centroids</p></li>
-<li><p><strong>Distance_metric}</strong> – Distance metric to be used for calculating distances from points to centroids</p></li>
+<li><p><strong>{Distance_metric}</strong> (<em>- dist_metric</em>) – Distance metric to be used for calculating distances from points to centroids</p></li>
 </ul>
 </dd>
 </dl>
@@ -172,11 +171,11 @@ If one_hot encoded, artificial labels are created</p>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>cleared_datapoints {np.ndarray, torch.Tensor}: point data.
-cleared_labels {np.ndarray, torch.Tensor}: label data.</p>
+<dd class="field-even"><p>output_datapoints {np.ndarray, torch.Tensor}: point data.
+output_labels {np.ndarray, torch.Tensor}: label data.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>tuple (cleared_datapoints, cleared_labels) where</p>
+<dd class="field-odd"><p>tuple (output_datapoints, output_labels) where</p>
 </dd>
 </dl>
 </dd></dl>
