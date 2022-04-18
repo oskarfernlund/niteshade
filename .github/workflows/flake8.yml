@@ -1,6 +1,6 @@
 # Workflow for linting with flake8
 
-name: lint-code
+name: flake8
 
 # Controls when the workflow will run
 on:

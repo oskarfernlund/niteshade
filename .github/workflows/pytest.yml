@@ -1,6 +1,6 @@
 # Workflow for running tests with Pytest
 
-name: run-tests
+name: pytest
 
 # Controls when the workflow will run
 on:
