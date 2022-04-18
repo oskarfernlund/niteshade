@@ -13,6 +13,8 @@ niteshade
     :target: https://pypi.org/project/niteshade/
     :alt: PyPI - License
 
+|
+
 **niteshade** is a Python library for simulating data poisoning attack and 
 defence strategies against online machine learning systems. The library is 
 written in Python 3.8 and is heavily integrated with PyTorch.
@@ -97,21 +99,14 @@ documentation by running ``make <format>`` from the ``docs/`` directory. Run
 .. code-block:: console
 
     $ cd docs/
-    $ make clean && make html
+    $ make clean && make <format>
 
 
 Running Unit and Integration Tests
 ----------------------------------
 
-This project uses ``pytest`` for unit and integration testing.
-
-Install the developer dependencies.
-
-.. code-block:: console
-
-    $ pip install -r env/dev_requirements.txt
-
-Run the tests.
+This project uses ``pytest`` for unit and integration testing (included in the 
+developer dependencies). Running the tests is simple:
 
 .. code-block:: console
 
