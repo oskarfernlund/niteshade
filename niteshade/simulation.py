@@ -224,7 +224,10 @@ class Simulator():
                 self.num_poisoned += 1
             return point_id
         elif checkpoint == 2:
-            point_id = self._attacked_ids.get(hash, 'd')
+            if self.attacker:
+                point_id = self._attacked_ids.get(hash, 'd')
+            else:
+                point_id = self._original_ids.get(hash, 'd')
             if point_id == 'd':
                 point_id = f'd_{self.num_defended}'
                 self.num_defended += 1
@@ -250,31 +253,34 @@ class Simulator():
 
     def run(self, defender_args = {}, attacker_args = {}, attacker_requires_model=False, 
             defender_requires_model=False, verbose = True) -> None:
-        """Runs a simulation of an online learning setting where, if specified, an attacker
-           will 'poison' (i.e. perturb) incoming data points (from an episode) according to an 
-           implemented attack strategy (i.e. .attack() method) and a defender (also, if 
-           specified,) will reject points deemed perturbed by its defence strategy (i.e. 
-           .defend() method). 
+        """
+        Runs a simulation of an online learning setting where, if specified, an attacker
+        will 'poison' (i.e. perturb) incoming data points (from an episode) according to an 
+        implemented attack strategy (i.e. .attack() method) and a defender (also, if 
+        specified,) will reject points deemed perturbed by its defence strategy (i.e. 
+        .defend() method). 
 
-           NOTE: 
-           If the attacker/defender require a model for their attack/defense strategies, 
-           the user should only set attacker_requires_model=True/defender_requires_model=True.
-           The .attack()/.defend() method should then contain the argument 'model'; 
-           this argument will be added as a key to attacker_args/defender_args and updated with 
-           the new model after each gradient descent step as online learning progresses.
+        NOTE: 
+        If the attacker/defender require a model for their attack/defense strategies, 
+        the user should only set attacker_requires_model=True/defender_requires_model=True.
+        The .attack()/.defend() method should then contain the argument 'model'; 
+        this argument will be added as a key to attacker_args/defender_args and updated with 
+        the new model after each gradient descent step as online learning progresses.
 
-           Metadata: as the simulation progresses; each episodes' original, post-attack, 
-                     and post-defense inputs and labels will be saved in self.results
-                     (a dictionary) in a list under the keys 'original', 'post-attack', 
-                     and 'post-defense', respectively. All the datapoints in an episode 
-                     are saved as values in a dictionary where the keys are labels indicating 
-                     if a point is unperturbed (in which case the label is simply the index 
-                     of the point in the inputted X and y), poisoned (labelled as 'p_n' 
-                     where n is an integer indicating that it is the nth poisoned point), 
-                     or modified by the defender (labelled as 'd_n' where n is an integer
-                     indicating that it is the nth defended point). If the defender rejects 
-                     a point in episode i, it can be inferred by inspecting the points missing
-                     from self.results['post_defense'][i] with respect to self.results['post_attack'][i].
+        **Metadata**: 
+        
+        As the simulation progresses; each episodes' original, post-attack, 
+        and post-defense inputs and labels will be saved in self.results
+        (a dictionary) in a list under the keys 'original', 'post-attack', 
+        and 'post-defense', respectively. All the datapoints in an episode 
+        are saved as values in a dictionary where the keys are labels indicating 
+        if a point is unperturbed (in which case the label is simply the index 
+        of the point in the inputted X and y), poisoned (labelled as 'p_n' 
+        where n is an integer indicating that it is the nth poisoned point), 
+        or modified by the defender (labelled as 'd_n' where n is an integer
+        indicating that it is the nth defended point). If the defender rejects 
+        a point in episode i, it can be inferred by inspecting the points missing
+        from self.results['post_defense'][i] with respect to self.results['post_attack'][i].
 
         Args:
             defender_args (dict) : dictionary containing extra arguments (other than the episode inputs
