@@ -100,16 +100,15 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>{str}</strong> (<em>- loss_func</em>) – <p>String specifying optimizer to use in training neural network.
+<li><p><strong>optimizer</strong> (<em>str</em>) – <p>String specifying optimizer to use in training neural network (Default = ‘sgd’).
 Options:</p>
 <blockquote>
 <div><p>’adam’: torch.optim.Adam(),
 ‘adagrad’: torch.optim.Adagrad(),
-‘sgd’: torch.optim.SGD().</p>
+‘sgd’: torch.optim.SGD()</p>
 </div></blockquote>
-<p>Default = ‘adam’</p>
 </p></li>
-<li><p><strong>{str}</strong> – <p>String specifying loss function to use in training neural network.
+<li><p><strong>loss_func</strong> (<em>str</em>) – <p>String specifying loss function to use in training neural network (Default = ‘nll’).
 Options:</p>
 <blockquote>
 <div><p>’mse’: nn.MSELoss(),
@@ -117,9 +116,8 @@ Options:</p>
 ‘bce’: nn.BCELoss(),
 ‘cross_entropy’: nn.CrossEntropyLoss().</p>
 </div></blockquote>
-<p>Default = ‘cross_entropy’</p>
 </p></li>
-<li><p><strong>{float}</strong> (<em>- lr</em>) – Learning rate to use in training neural network (Default = 0.01).</p></li>
+<li><p><strong>lr</strong> (<em>float</em>) – Learning rate to use in training neural network (Default = 0.01).</p></li>
 </ul>
 </dd>
 </dl>
@@ -291,8 +289,8 @@ Options:</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>{np.ndarray}</strong> (<em>y_test</em>) – test input data.</p></li>
-<li><p><strong>{np.ndarray}</strong> – test target data.</p></li>
+<li><p><strong>X_test</strong> (<em>np.ndarray</em>) – test input data.</p></li>
+<li><p><strong>y_test</strong> (<em>np.ndarray</em>) – test target data.</p></li>
 </ul>
 </dd>
 </dl>
