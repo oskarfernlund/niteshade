@@ -169,17 +169,16 @@ class Simulator():
         if is_attacker:
             args, defaults = self._get_func_args(self.attacker.attack)
             valid_args = self._get_valid_args(args, input_args) #get coinciding arguments 
-            if all([arg in self.true_attacker_args for arg in valid_args]):
+            print(all([arg in self.true_attacker_args for arg in valid_args]))
+            if not all([arg in self.true_attacker_args for arg in valid_args]):
                 missing_args = [arg for arg in self.true_attacker_args if arg not in valid_args]
-                raise ArgNotFoundError(f"""Arguments: {missing_args} are missing 
-                                            in attacker_args for .attack() method.""")
+                raise ArgNotFoundError(f"Arguments: {missing_args} are missing in attacker_args for .attack() method.")
         else: 
             args, defaults = self._get_func_args(self.defender.defend)
             valid_args = self._get_valid_args(args, input_args) #get coinciding arguments 
-            if all([arg in self.true_defender_args for arg in valid_args]):
+            if not all([arg in self.true_defender_args for arg in valid_args]):
                 missing_args = [arg for arg in self.true_defender_args if arg not in valid_args]
-                raise ArgNotFoundError(f"""Arguments {missing_args} are missing 
-                                            in defender_args for .defend() method.""")
+                raise ArgNotFoundError(f"Arguments {missing_args} are missing in defender_args for .defend() method.")
         return valid_args
 
     def _shape_check(self, orig_X, orig_y, X, y):
