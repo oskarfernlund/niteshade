@@ -14,6 +14,7 @@ import inspect
 from typing import Type
 from copy import deepcopy
 from abc import ABC, abstractmethod
+from xmlrpc.client import boolean
 
 import numpy as np
 import torch
@@ -41,20 +42,13 @@ class DefenderGroup():
         """
 
         # Input validation
-        if not isinstance(defender_list, list):
-            raise TypeError ("The defender_list is not a list object.")
-        if not isinstance(ensemble_accept_rate, float):
-            raise TypeError ("The ensemble_rate needs to be a float.")
-        for defender in defender_list:
-            if not isinstance(defender, Defender):
-                raise TypeError ("All of the defenders in the defender_list need to be Defender objects.")
         self.defender_list = defender_list
         self.ensemble_accept_rate = ensemble_accept_rate
-        
+        _input_validation(self)
+
     def defend(self, X, y, **input_kwargs):
-        """Group defend method, where each defender in the list will defend input points - 
-           the .defend method of each defender will be called for all points
-           The final decisionmaking which points will be rejected depends on the self.ensemble_accept_rate
+        """ Group defend method, where the defender group will be defending
+            The exact defence depends on whether ensemble decisionmaking has been used
         Args: 
             X {np.ndarray, torch.Tensor}: point data.
             y {np.ndarray, torch.Tensor}: label data.
@@ -65,22 +59,55 @@ class DefenderGroup():
                 output_y {np.ndarray, torch.Tensor}: label data.
         """
         if self.ensemble_accept_rate > 0:
-            input_datapoints = X.copy()
-            input_labels = y.copy()
-            accept_counts = self._initiate_dict(X, y) # Initiate a dictionary with input points, their counts and labels
-            for defender in self.defender_list: # loop through the defenders for defending the points
-                X, y = defender.defend(X, y, **input_kwargs)
-                accept_counts = self._update_dict(accept_counts, X, y) # Update the point dictionary 
-                X = input_datapoints.copy()
-                y = input_labels.copy()
-            output_x, output_y = self._get_final_points(accept_counts) # Get final output points
-            return output_x, output_y
+            output_x, output_y = self._ensemble_defence(X, y, **input_kwargs)
         else:
-            for defender in self.defender_list:
-                if len(X)>0:
-                    output_x, output_y = defender.defend(X, y, **input_kwargs) # Normal defending if ensemble rate =0
+            output_x, output_y = self._sequential_defence(X, y, **input_kwargs)
         return output_x, output_y
     
+
+    def _ensemble_defence(self, X, y, **input_kwargs):
+        """Group defend method, where each defender in the list will defend input points - 
+           the .defend method of each defender will be called for all points and their decisions will be recorded in a dictionary
+           Points will be rejected based on the proportion of defenders rejecting each individual point
+        Args: 
+            X {np.ndarray, torch.Tensor}: point data.
+            y {np.ndarray, torch.Tensor}: label data.
+        
+        Return:
+            tuple (output_x, output_y) where:
+                output_x {np.ndarray, torch.Tensor}: point data.
+                output_y {np.ndarray, torch.Tensor}: label data.
+        """
+        input_datapoints = X.copy()
+        input_labels = y.copy()
+        accept_counts = self._initiate_dict(X, y) # Initiate a dictionary with input points, their counts and labels
+        for defender in self.defender_list: # loop through the defenders for defending the points
+            X, y = defender.defend(X, y, **input_kwargs)
+            accept_counts = self._update_dict(accept_counts, X, y) # Update the point dictionary 
+            X = input_datapoints.copy()
+            y = input_labels.copy()
+        output_x, output_y = self._get_final_points(accept_counts) # Get final output points
+        return output_x, output_y
+
+
+    def _sequential_defence(self, X, y, **input_kwargs):
+        """Group defend method, where each defender in the list will defend input points - 
+           the .defend method of each defender will be called for all points
+           if one defender rejects a point, that point will be rejected and not sent forward
+        Args: 
+            X {np.ndarray, torch.Tensor}: point data.
+            y {np.ndarray, torch.Tensor}: label data.
+        
+        Return:
+            tuple (output_x, output_y) where:
+                output_x {np.ndarray, torch.Tensor}: point data.
+                output_y {np.ndarray, torch.Tensor}: label data.
+        """
+        for defender in self.defender_list:
+            if len(X)>0:
+                output_x, output_y = defender.defend(X, y, **input_kwargs) # Normal defending if ensemble rate =0
+        return output_x, output_y
+
     def _initiate_dict(self,X, y):
         """ Initiate 3 dictionaries for ensemble decisionmaking
             one for original points and labels (value) to indeces (key)
@@ -114,10 +141,10 @@ class DefenderGroup():
             point_dict {dictionary} - A dictionary with updated point indeces (keys) and accept counts (values)
         """
         key_list = list(self.__idx_str_mapping.keys())
-        val_list = list(self.__idx_str_mapping.values())
+        value_list = list(self.__idx_str_mapping.values())
         for index, points in enumerate(X):
             idx_map_value = {"point": str(points), "target": str(y[index])}
-            position = val_list.index(idx_map_value)
+            position = value_list.index(idx_map_value)
             index_point = key_list[position]
             point_dict[index_point] += 1
         return point_dict
@@ -217,18 +244,21 @@ class KNN_Defender(PointModifierDefender):
         """
         super().__init__()
         self._type_check(init_x, init_y) # Check if input data is tensor or ndarray
+        self.nearest_neighbours = nearest_neighbours
+        self.confidence_threshold = confidence_threshold
+        self.one_hot = one_hot
+        _input_validation(self)
         if self._datatype == 0: # If incoming data is tensor, make into ndarray
             init_x = init_x.cpu().detach().numpy()
             init_y = init_y.cpu().detach().numpy()
         nr_of_datapoints = init_x.shape[0]
-        self.one_hot = one_hot
+        
         self.training_dataset_x = init_x.reshape((nr_of_datapoints, -1))
         if self.one_hot: # If one_hot, encode input labels to int-s
-            self.training_dataset_y = label_encoding(init_y)
+            self.training_dataset_y = _label_encoding(init_y)
         else:
             self.training_dataset_y = init_y.reshape((nr_of_datapoints, ))
-        self.nearest_neighbours = nearest_neighbours
-        self.confidence_threshold = confidence_threshold
+
     
     def defend(self, datapoints, input_labels, **kwargs):
         """ The defend method for the KNN_defender
@@ -260,24 +290,33 @@ class KNN_Defender(PointModifierDefender):
         flipped_labels = self._confidence_flip(input_labels, confidence_list) # Flip points if confidence high enough
         self.training_dataset_x = np.append(self.training_dataset_x, datapoints_reshaped, axis = 0)
         self.training_dataset_y = np.append(self.training_dataset_y, flipped_labels.reshape((nr_of_datapoints, )), axis = 0)
-        if self.one_hot: # If onehot, construct onehot output
-            output_labels = np.zeros((nr_of_datapoints, one_hot_length))
-            for id, label in enumerate(flipped_labels):
-                output_labels[id][label] = 1
-            flipped_labels = output_labels
-
+        if self.one_hot: # If onehot inputs, construct onehot output
+            flipped_labels = self._one_hot_decoding(one_hot_length, flipped_labels)
         if self._datatype == 0: # If incoming data was tensor, make output into tensor
             datapoints = torch.tensor(datapoints)
             flipped_labels = torch.tensor(flipped_labels)
 
         return (datapoints, flipped_labels)
 
+    def _one_hot_decoding(self, one_hot_length, flipped_labels):
+        """ Construct one_hot outputs from int inputs
+        Args: 
+            one_hot_length {int}: Dimensionality of one_hot_encoded outputs
+            flipped_labels {np.ndarray}: label data.
+        Return:
+            output_labels {np.ndarray}: one_hot_encoded label data
+        """
+        output_labels = np.zeros((flipped_labels.shape[0], one_hot_length))
+        for id, label in enumerate(flipped_labels):
+            output_labels[id][label] = 1
+        return output_labels
+
     def _get_confidence_labels(self, indeces):
         """ Find the most frequent label from the nearest neighbour indeces
              and get its confidence (label_count / nr_of_nghbs)
         Args: 
             indeces {list}: list of lists, inner list contains indeces for the nearest neighbours for datapoints
-            input_labels {np.ndarray, torch.Tensor}: label data.
+            input_labels {np.ndarray}: label data.
         Return:
             confidence array {np.ndarray}: array of tuples where tuple[0]: most frequent label, tuple[1]: confidence of label
         """
@@ -336,11 +375,9 @@ class SoftmaxDefender(ModelDefender):
             - one_hot {boolean}: boolean to indicate if labels are one-hot or not
         """
         super().__init__()
-        #Input validation
-        if not (isinstance(threshold, float) or isinstance(threshold, int)):
-            raise TypeError ("The threshold input for the SoftmaxDefender needs to be either float or a integer type.")
         self.threshold = threshold
         self.one_hot = one_hot
+        _input_validation(self)
 
     def defend(self, datapoints, labels, model, **input_kwargs):
         """ The defend method for the SoftMaxDefender
@@ -392,27 +429,21 @@ class FeasibleSetDefender(OutlierDefender):
         Args: 
             - initial_dataset_x {np.ndarray, torch.Tensor}: point data.
             - initial_dataset_y {np.ndarray, torch.Tensor}: label data.
-            - threshold {float}: distance threshold to use for decisionmaking
+            - threshold {float, int}: distance threshold to use for decisionmaking
             - one_hot {boolean}: boolean to indicate if labels are one-hot or not
             - dist_metric {Distance_metric}: Distance metric to be used for calculating distances from points to centroids
         """
         super().__init__(initial_dataset_x, initial_dataset_y)
         #Input validation
-        if not (isinstance(threshold, float) or isinstance(threshold, int)):
-            raise TypeError ("The threshold input for the FeasibleSetDefender needs to be either float or a integer type.")
         self.one_hot = one_hot
+        self._threshold = threshold
         if self.one_hot: # Perform encoding of labels into ints if input is onehot
-            self._init_y = label_encoding(initial_dataset_y)
+            self._init_y = _label_encoding(initial_dataset_y)
         else:
             initial_dataset_y = initial_dataset_y.reshape(-1,)        
         self._feasible_set_construction() # Construct the feasible set
-        self._threshold = threshold
-        if isinstance(dist_metric, Distance_metric): # Check if user has inputted a custom defined distance metric object
-            self.distance_metric = dist_metric
-        elif dist_metric == None: 
-            self.distance_metric = Distance_metric()
-        else:
-            raise TypeError ("The Distance metric input for the FeasibleSetDefender needs to be a Distance_metric object.")
+        self.distance_metric = dist_metric
+        _input_validation(self)
     
     @property 
     def distance_metric(self): # Make distance metric into a property
@@ -420,7 +451,12 @@ class FeasibleSetDefender(OutlierDefender):
 
     @distance_metric.setter # Setter function for the distance metric
     def distance_metric(self, new_distance_metric):
-        self.__distance_metric = new_distance_metric
+            if isinstance(new_distance_metric, Distance_metric): # Check if user has inputted a custom defined distance metric object
+                self.__distance_metric = new_distance_metric
+            elif new_distance_metric == None: 
+                self.__distance_metric = Distance_metric(type = "Eucleidian")
+            else:
+                raise TypeError ("The Distance metric input for the FeasibleSetDefender needs to be a Distance_metric object.")
 
     def _feasible_set_construction(self):
         """ Constructs the initial feasible set for the defender
@@ -480,12 +516,12 @@ class FeasibleSetDefender(OutlierDefender):
             datapoints = datapoints.cpu().detach().numpy()
             labels = labels.cpu().detach().numpy()
         
-
         if self.one_hot: #Change labels if onehot
             one_hot_length = len(labels[0])
             labels = np.argmax(labels, axis = 1)
         else:
             labels = labels.reshape(-1,)
+        
         cleared_datapoints = []
         cleared_labels = []
         for id, datapoint in enumerate(datapoints): # loop through datapoints
@@ -554,7 +590,7 @@ class Distance_metric:
 # =============================================================================
 #  FUNCTIONS
 # =============================================================================
-def label_encoding(one_hot_labels):
+def _label_encoding(one_hot_labels):
         """ Constructs artificial 1d labels from incoming array of one_hot encoded label data
             Artificial label of a one_hot encoded label is the dim number where the label had a 1
         Args: 
@@ -564,6 +600,40 @@ def label_encoding(one_hot_labels):
         """
         encoded_labels = np.argmax(one_hot_labels, axis = 1) #encode labels
         return encoded_labels
+
+def _input_validation(defender):
+    """ Input validation for various defenders or Defendergroup
+        Args: 
+            defender {Defender, DefenderGroup}: label data
+        """
+    if isinstance(defender, DefenderGroup):
+        if not isinstance(defender.defender_list, list):
+            raise TypeError ("The defender_list is not a list object.")
+        if not isinstance(defender.ensemble_accept_rate, float):
+            raise TypeError ("The ensemble_rate needs to be a float.")
+        for defender in defender.defender_list:
+            if not isinstance(defender, Defender):
+                raise TypeError ("All of the defenders in the defender_list need to be Defender objects.")
+
+    elif isinstance(defender, KNN_Defender):
+        if not isinstance(defender.confidence_threshold, float):
+            raise TypeError ("The confidence_threshold is not a float")
+        if not isinstance(defender.nearest_neighbours, int):
+            raise TypeError ("The nearest_neighbours is not a float")
+        if not isinstance(defender.one_hot, boolean):
+            raise TypeError ("The one_hot flat is not a boolean")
+    
+    elif isinstance(defender, SoftmaxDefender):
+        if not (isinstance(defender.threshold, float)):
+            raise TypeError ("The threshold input for the SoftmaxDefender needs to be a float")
+        if not isinstance(defender.one_hot, boolean):
+            raise TypeError ("The one_hot flat is not a boolean")
+    
+    elif isinstance(defender, KNN_Defender):
+        if not (isinstance(defender.threshold, float) or isinstance(defender.threshold, int)):
+            raise TypeError ("The threshold input for the FeasibleSetDefender needs to be either float or a integer type.")
+        if not isinstance(defender.one_hot, boolean):
+            raise TypeError ("The one_hot flat is not a boolean")
 # =============================================================================
 #  MAIN ENTRY POINT
 # =============================================================================
