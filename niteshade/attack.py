@@ -264,7 +264,7 @@ class LabelFlipperAttacker(ChangeLabelAttacker):
             
         return x, y
 
-class BrewPoison(ModelAttacker):
+class BrewPoison(PerturbPointsAttacker):
     """Perturb points while minimising detectability.
     
     Given a batch of input data and corresponding labels, the user chooses 
