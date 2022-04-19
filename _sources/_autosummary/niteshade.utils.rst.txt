@@ -16,6 +16,7 @@
    
       check_batch_size
       check_num_of_classes
+      copy
       decode_one_hot
       get_cmap
       get_time_stamp_as_string

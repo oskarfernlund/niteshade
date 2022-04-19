@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>niteshade.utils.rand_cmap &mdash; niteshade 0+unknown documentation</title>
+  <title>niteshade.utils.copy &mdash; niteshade 0+unknown documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -19,8 +19,8 @@
     <link rel="author" title="About these documents" href="../about.html" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="niteshade.utils.save_model" href="niteshade.utils.save_model.html" />
-    <link rel="prev" title="niteshade.utils.one_hot_encoding" href="niteshade.utils.one_hot_encoding.html" /> 
+    <link rel="next" title="niteshade.utils.decode_one_hot" href="niteshade.utils.decode_one_hot.html" />
+    <link rel="prev" title="niteshade.utils.check_num_of_classes" href="niteshade.utils.check_num_of_classes.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -52,13 +52,13 @@
 <li class="toctree-l2 current"><a class="reference internal" href="niteshade.utils.html">niteshade.utils</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="niteshade.utils.check_batch_size.html">niteshade.utils.check_batch_size</a></li>
 <li class="toctree-l3"><a class="reference internal" href="niteshade.utils.check_num_of_classes.html">niteshade.utils.check_num_of_classes</a></li>
-<li class="toctree-l3"><a class="reference internal" href="niteshade.utils.copy.html">niteshade.utils.copy</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">niteshade.utils.copy</a></li>
 <li class="toctree-l3"><a class="reference internal" href="niteshade.utils.decode_one_hot.html">niteshade.utils.decode_one_hot</a></li>
 <li class="toctree-l3"><a class="reference internal" href="niteshade.utils.get_cmap.html">niteshade.utils.get_cmap</a></li>
 <li class="toctree-l3"><a class="reference internal" href="niteshade.utils.get_time_stamp_as_string.html">niteshade.utils.get_time_stamp_as_string</a></li>
 <li class="toctree-l3"><a class="reference internal" href="niteshade.utils.load_model.html">niteshade.utils.load_model</a></li>
 <li class="toctree-l3"><a class="reference internal" href="niteshade.utils.one_hot_encoding.html">niteshade.utils.one_hot_encoding</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">niteshade.utils.rand_cmap</a></li>
+<li class="toctree-l3"><a class="reference internal" href="niteshade.utils.rand_cmap.html">niteshade.utils.rand_cmap</a></li>
 <li class="toctree-l3"><a class="reference internal" href="niteshade.utils.save_model.html">niteshade.utils.save_model</a></li>
 <li class="toctree-l3"><a class="reference internal" href="niteshade.utils.save_pickle.html">niteshade.utils.save_pickle</a></li>
 <li class="toctree-l3"><a class="reference internal" href="niteshade.utils.save_plot.html">niteshade.utils.save_plot</a></li>
@@ -87,9 +87,9 @@
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
           <li><a href="../api.html">API</a> &raquo;</li>
           <li><a href="niteshade.utils.html">niteshade.utils</a> &raquo;</li>
-      <li>niteshade.utils.rand_cmap</li>
+      <li>niteshade.utils.copy</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/_autosummary/niteshade.utils.rand_cmap.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/_autosummary/niteshade.utils.copy.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -97,19 +97,12 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="niteshade-utils-rand-cmap">
-<h1>niteshade.utils.rand_cmap<a class="headerlink" href="#niteshade-utils-rand-cmap" title="Permalink to this headline"></a></h1>
+  <section id="niteshade-utils-copy">
+<h1>niteshade.utils.copy<a class="headerlink" href="#niteshade-utils-copy" title="Permalink to this headline"></a></h1>
 <dl class="py function">
-<dt class="sig sig-object py" id="niteshade.utils.rand_cmap">
-<span class="sig-prename descclassname"><span class="pre">niteshade.utils.</span></span><span class="sig-name descname"><span class="pre">rand_cmap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nlabels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'bright'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">first_color_black</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">last_color_black</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niteshade.utils.rand_cmap" title="Permalink to this definition"></a></dt>
-<dd><p>Creates a random colormap to be used together with matplotlib. Useful for segmentation tasks
-:param nlabels: Number of labels (size of colormap)
-:param type: ‘bright’ for strong colors, ‘soft’ for pastel colors
-:param first_color_black: Option to use first color as black, True or False
-:param last_color_black: Option to use last color as black, True or False
-:param verbose: Prints the number of labels and shows the colormap. True or False
-:return: colormap for matplotlib</p>
-</dd></dl>
+<dt class="sig sig-object py" id="niteshade.utils.copy">
+<span class="sig-prename descclassname"><span class="pre">niteshade.utils.</span></span><span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">array_like</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niteshade.utils.copy" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
 
 </section>
 
@@ -117,8 +110,8 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="niteshade.utils.one_hot_encoding.html" class="btn btn-neutral float-left" title="niteshade.utils.one_hot_encoding" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="niteshade.utils.save_model.html" class="btn btn-neutral float-right" title="niteshade.utils.save_model" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="niteshade.utils.check_num_of_classes.html" class="btn btn-neutral float-left" title="niteshade.utils.check_num_of_classes" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="niteshade.utils.decode_one_hot.html" class="btn btn-neutral float-right" title="niteshade.utils.decode_one_hot" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

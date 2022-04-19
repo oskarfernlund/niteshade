@@ -52,6 +52,7 @@
 <li class="toctree-l2 current"><a class="current reference internal" href="#">niteshade.utils</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="niteshade.utils.check_batch_size.html">niteshade.utils.check_batch_size</a></li>
 <li class="toctree-l3"><a class="reference internal" href="niteshade.utils.check_num_of_classes.html">niteshade.utils.check_num_of_classes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="niteshade.utils.copy.html">niteshade.utils.copy</a></li>
 <li class="toctree-l3"><a class="reference internal" href="niteshade.utils.decode_one_hot.html">niteshade.utils.decode_one_hot</a></li>
 <li class="toctree-l3"><a class="reference internal" href="niteshade.utils.get_cmap.html">niteshade.utils.get_cmap</a></li>
 <li class="toctree-l3"><a class="reference internal" href="niteshade.utils.get_time_stamp_as_string.html">niteshade.utils.get_time_stamp_as_string</a></li>
@@ -111,37 +112,40 @@
 <tr class="row-even"><td><p><a class="reference internal" href="niteshade.utils.check_num_of_classes.html#niteshade.utils.check_num_of_classes" title="niteshade.utils.check_num_of_classes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_num_of_classes</span></code></a>(y)</p></td>
 <td><p>Check the number of classes in one hot encoded data.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="niteshade.utils.decode_one_hot.html#niteshade.utils.decode_one_hot" title="niteshade.utils.decode_one_hot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">decode_one_hot</span></code></a>(y)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="niteshade.utils.copy.html#niteshade.utils.copy" title="niteshade.utils.copy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">copy</span></code></a>(array_like)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="niteshade.utils.decode_one_hot.html#niteshade.utils.decode_one_hot" title="niteshade.utils.decode_one_hot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">decode_one_hot</span></code></a>(y)</p></td>
 <td><p>Decode one hot encoded data.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="niteshade.utils.get_cmap.html#niteshade.utils.get_cmap" title="niteshade.utils.get_cmap"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_cmap</span></code></a>(nlabels)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="niteshade.utils.get_cmap.html#niteshade.utils.get_cmap" title="niteshade.utils.get_cmap"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_cmap</span></code></a>(nlabels)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="niteshade.utils.get_time_stamp_as_string.html#niteshade.utils.get_time_stamp_as_string" title="niteshade.utils.get_time_stamp_as_string"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_time_stamp_as_string</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="niteshade.utils.get_time_stamp_as_string.html#niteshade.utils.get_time_stamp_as_string" title="niteshade.utils.get_time_stamp_as_string"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_time_stamp_as_string</span></code></a>()</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="niteshade.utils.load_model.html#niteshade.utils.load_model" title="niteshade.utils.load_model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_model</span></code></a>(filename)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="niteshade.utils.load_model.html#niteshade.utils.load_model" title="niteshade.utils.load_model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_model</span></code></a>(filename)</p></td>
 <td><p>Load a binary file containing a neural network.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="niteshade.utils.one_hot_encoding.html#niteshade.utils.one_hot_encoding" title="niteshade.utils.one_hot_encoding"><code class="xref py py-obj docutils literal notranslate"><span class="pre">one_hot_encoding</span></code></a>(y, num_classes)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="niteshade.utils.one_hot_encoding.html#niteshade.utils.one_hot_encoding" title="niteshade.utils.one_hot_encoding"><code class="xref py py-obj docutils literal notranslate"><span class="pre">one_hot_encoding</span></code></a>(y, num_classes)</p></td>
 <td><p>Perform one hot encoding of previiously decoded data.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="niteshade.utils.rand_cmap.html#niteshade.utils.rand_cmap" title="niteshade.utils.rand_cmap"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rand_cmap</span></code></a>(nlabels[, type, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="niteshade.utils.rand_cmap.html#niteshade.utils.rand_cmap" title="niteshade.utils.rand_cmap"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rand_cmap</span></code></a>(nlabels[, type, ...])</p></td>
 <td><p>Creates a random colormap to be used together with matplotlib.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="niteshade.utils.save_model.html#niteshade.utils.save_model" title="niteshade.utils.save_model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_model</span></code></a>(model, filename)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="niteshade.utils.save_model.html#niteshade.utils.save_model" title="niteshade.utils.save_model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_model</span></code></a>(model, filename)</p></td>
 <td><p>Save classifier as a binary .pickle file.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="niteshade.utils.save_pickle.html#niteshade.utils.save_pickle" title="niteshade.utils.save_pickle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_pickle</span></code></a>(results[, dir_name, file_name])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="niteshade.utils.save_pickle.html#niteshade.utils.save_pickle" title="niteshade.utils.save_pickle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_pickle</span></code></a>(results[, dir_name, file_name])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="niteshade.utils.save_plot.html#niteshade.utils.save_plot" title="niteshade.utils.save_plot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_plot</span></code></a>(plt[, save_dir, plot_name])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="niteshade.utils.save_plot.html#niteshade.utils.save_plot" title="niteshade.utils.save_plot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_plot</span></code></a>(plt[, save_dir, plot_name])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="niteshade.utils.train_test_MNIST.html#niteshade.utils.train_test_MNIST" title="niteshade.utils.train_test_MNIST"><code class="xref py py-obj docutils literal notranslate"><span class="pre">train_test_MNIST</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="niteshade.utils.train_test_MNIST.html#niteshade.utils.train_test_MNIST" title="niteshade.utils.train_test_MNIST"><code class="xref py py-obj docutils literal notranslate"><span class="pre">train_test_MNIST</span></code></a>()</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="niteshade.utils.train_test_iris.html#niteshade.utils.train_test_iris" title="niteshade.utils.train_test_iris"><code class="xref py py-obj docutils literal notranslate"><span class="pre">train_test_iris</span></code></a>([num_stacks])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="niteshade.utils.train_test_iris.html#niteshade.utils.train_test_iris" title="niteshade.utils.train_test_iris"><code class="xref py py-obj docutils literal notranslate"><span class="pre">train_test_iris</span></code></a>([num_stacks])</p></td>
 <td><p></p></td>
 </tr>
 </tbody>
