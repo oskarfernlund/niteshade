@@ -133,15 +133,15 @@ trained.</p></li>
 <td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#niteshade.simulation.Simulator.run" title="niteshade.simulation.Simulator.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code></a>([defender_args, attacker_args, ...])</p></td>
-<td><p>Runs a simulation of an online learning setting where, if specified, an attacker</p></td>
+<td><p>Runs a simulation of an online learning setting where, if specified, an attacker will 'poison' (i.e.</p></td>
 </tr>
 </tbody>
 </table>
 <dl class="py method">
 <dt class="sig sig-object py" id="niteshade.simulation.Simulator.run">
 <span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">defender_args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attacker_args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attacker_requires_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">defender_requires_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#niteshade.simulation.Simulator.run" title="Permalink to this definition"></a></dt>
-<dd><dl>
-<dt>Runs a simulation of an online learning setting where, if specified, an attacker</dt><dd><p>will ‘poison’ (i.e. perturb) incoming data points (from an episode) according to an
+<dd><p>Runs a simulation of an online learning setting where, if specified, an attacker
+will ‘poison’ (i.e. perturb) incoming data points (from an episode) according to an
 implemented attack strategy (i.e. .attack() method) and a defender (also, if
 specified,) will reject points deemed perturbed by its defence strategy (i.e.
 .defend() method).</p>
@@ -151,8 +151,9 @@ the user should only set attacker_requires_model=True/defender_requires_model=Tr
 The .attack()/.defend() method should then contain the argument ‘model’;
 this argument will be added as a key to attacker_args/defender_args and updated with
 the new model after each gradient descent step as online learning progresses.</p>
-<dl class="simple">
-<dt>Metadata: as the simulation progresses; each episodes’ original, post-attack,</dt><dd><p>and post-defense inputs and labels will be saved in self.results
+<p><strong>Metadata</strong>:</p>
+<p>As the simulation progresses; each episodes’ original, post-attack,
+and post-defense inputs and labels will be saved in self.results
 (a dictionary) in a list under the keys ‘original’, ‘post-attack’,
 and ‘post-defense’, respectively. All the datapoints in an episode
 are saved as values in a dictionary where the keys are labels indicating
@@ -163,10 +164,6 @@ or modified by the defender (labelled as ‘d_n’ where n is an integer
 indicating that it is the nth defended point). If the defender rejects
 a point in episode i, it can be inferred by inspecting the points missing
 from self.results[‘post_defense’][i] with respect to self.results[‘post_attack’][i].</p>
-</dd>
-</dl>
-</dd>
-</dl>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
