@@ -224,7 +224,10 @@ class Simulator():
                 self.num_poisoned += 1
             return point_id
         elif checkpoint == 2:
-            point_id = self._attacked_ids.get(hash, 'd')
+            if self.attacker:
+                point_id = self._attacked_ids.get(hash, 'd')
+            else:
+                point_id = self._original_ids.get(hash, 'd')
             if point_id == 'd':
                 point_id = f'd_{self.num_defended}'
                 self.num_defended += 1
