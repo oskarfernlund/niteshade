@@ -34,28 +34,24 @@ class BaseModel(nn.Module):
     def __init__(self, architecture: list, optimizer: str, loss_func: str, lr: float, seed = None):
         """Constrcutor method of BaseModel class that inherits from nn.Module.
         Args: 
-            - architecture {list}: list or nested list containing sequence of 
-                                 nn.torch.modules objects to be used in the 
-                                 forward pass of the model.
+            architecture (list) : list or nested list containing sequence of 
+                                  nn.torch.modules objects to be used in the 
+                                  forward pass of the model.
             
-            - optimizer {str}: String specifying optimizer to use in training neural network.
-                               Options:
-                                    'adam': torch.optim.Adam(),
-                                    'adagrad': torch.optim.Adagrad(),
-                                    'sgd': torch.optim.SGD().
+            optimizer (str) : String specifying optimizer to use in training neural network.
+                              Options:
+                                'adam': torch.optim.Adam(),
+                                'adagrad': torch.optim.Adagrad(),
+                                'sgd': torch.optim.SGD().
 
-                               Default = 'adam'
-
-            - loss_func {str}: String specifying loss function to use in training neural network.
-                               Options:
-                                    'mse': nn.MSELoss(),
-                                    'nll': nn.NLLLoss(),
-                                    'bce': nn.BCELoss(),
-                                    'cross_entropy': nn.CrossEntropyLoss().
-
-                               Default = 'mse'
+            loss_func (str) : String specifying loss function to use in training neural network.
+                              Options:
+                                'mse': nn.MSELoss(),
+                                'nll': nn.NLLLoss(),
+                                'bce': nn.BCELoss(),
+                                'cross_entropy': nn.CrossEntropyLoss().
             
-            - lr {float}: Learning rate to use in training neural network (Default = 0.01).
+            - lr (float) : Learning rate to use in training neural network.
        
         """
         super().__init__()
@@ -98,9 +94,9 @@ class BaseModel(nn.Module):
         """Perform a step of gradient descent on the passed inputs (X_batch) and labels (y_batch).
 
         Args:
-             X_batch {np.ndarray, torch.Tensor}: input data used in training.
+             X_batch (np.ndarray, torch.Tensor) : input data used in training.
 
-             y_batch {np.ndarray, torch.Tensor}: target data used in training.
+             y_batch (np.ndarray, torch.Tensor) : target data used in training.
         """
         assert ((isinstance(X_batch, torch.Tensor) and isinstance(y_batch, torch.Tensor))
                or (isinstance(X_batch, np.ndarray) and isinstance(X_batch, np.ndarray)))
@@ -139,9 +135,10 @@ class BaseModel(nn.Module):
         """Perform a forward pass through the regressor.
         
         Args:
-            x {torch.Tensor} -- Processed input array of size (batch_size, input_size).
+            x (torch.Tensor) : Processed input array of size (batch_size, input_size).
             
-        Returns: Predictions from current state of the model.
+        Returns: 
+            Predictions from current state of the model.
         """
         raise NotImplementedError
 
@@ -149,7 +146,7 @@ class BaseModel(nn.Module):
         """Predict on a data sample (x).
 
         Args: 
-            x {np.ndarray, pd.DataFrame}: sample to predict from. 
+            x (np.ndarray, torch.Tensor) : sample to predict from. 
         """
         raise NotImplementedError
 
@@ -157,9 +154,9 @@ class BaseModel(nn.Module):
         """Test the accuracy of the iris classifier on a test set.
 
         Args:
-            X_test {np.ndarray}: test input data.
-            y_test {np.ndarray}: test target data.
-            batch_size {int}: size of batches in DataLoader object.
+            X_test (np.ndarray, torch.Tensor) : test input data.
+            y_test (np.ndarray, torch.Tensor) : test target data.
+            batch_size (int) : size of batches in DataLoader object.
         """
         raise NotImplementedError
         
@@ -172,24 +169,20 @@ class IrisClassifier(BaseModel):
         """Construct network as per user specifications.
 
         Args:
-            - optimizer {str}: String specifying optimizer to use in training neural network.
-                               Options:
-                                    'adam': torch.optim.Adam(),
-                                    'adagrad': torch.optim.Adagrad(),
-                                    'sgd': torch.optim.SGD().
+            optimizer (str) : String specifying optimizer to use in training neural network (Default = 'adam').
+                              Options:
+                                'adam': torch.optim.Adam(),
+                                'adagrad': torch.optim.Adagrad(),
+                                'sgd': torch.optim.SGD().
 
-                               Default = 'adam'
-
-            - loss_func {str}: String specifying loss function to use in training neural network.
-                               Options:
-                                    'mse': nn.MSELoss(),
-                                    'nll': nn.NLLLoss(),
-                                    'bce': nn.BCELoss(),
-                                    'cross_entropy': nn.CrossEntropyLoss().
-
-                               Default = 'mse'
+            loss_func (str) : String specifying loss function to use in training neural network (Default = 'cross_entropy').
+                              Options:
+                                'mse': nn.MSELoss(),
+                                'nll': nn.NLLLoss(),
+                                'bce': nn.BCELoss(),
+                                'cross_entropy': nn.CrossEntropyLoss().
             
-            - lr {float}: Learning rate to use in training neural network (Default = 0.01).
+            lr (float) : Learning rate to use in training neural network (Default = 0.001).
         """
         #pre-defined simple architecture for classification on the iris dataset
         architecture = [nn.Linear(4, 50), 
@@ -215,9 +208,9 @@ class IrisClassifier(BaseModel):
         """Test the accuracy of the iris classifier on a test set.
 
         Args:
-            X_test {np.ndarray}: test input data.
-            y_test {np.ndarray}: test target data.
-            batch_size {int}: size of batches in DataLoader object.
+            X_test (np.ndarray) : test input data.
+            y_test (np.ndarray) : test target data.
+            batch_size (int) : size of batches in DataLoader object.
         """
         #create dataloader with test data
         test_loader = DataLoader(X_test, y_test, batch_size=batch_size)
@@ -261,24 +254,20 @@ class MNISTClassifier(BaseModel):
         """Construct network as per user specifications.
 
         Args:
-            - optimizer {str}: String specifying optimizer to use in training neural network.
-                               Options:
-                                    'adam': torch.optim.Adam(),
-                                    'adagrad': torch.optim.Adagrad(),
-                                    'sgd': torch.optim.SGD().
+            optimizer (str) : String specifying optimizer to use in training neural network (Default = 'sgd').
+                              Options:
+                                'adam': torch.optim.Adam(),
+                                'adagrad': torch.optim.Adagrad(),
+                                'sgd': torch.optim.SGD()
 
-                               Default = 'adam'
-
-            - loss_func {str}: String specifying loss function to use in training neural network.
-                               Options:
-                                    'mse': nn.MSELoss(),
-                                    'nll': nn.NLLLoss(),
-                                    'bce': nn.BCELoss(),
-                                    'cross_entropy': nn.CrossEntropyLoss().
-
-                               Default = 'cross_entropy'
+            loss_func (str) : String specifying loss function to use in training neural network (Default = 'nll').
+                              Options:
+                                'mse': nn.MSELoss(),
+                                'nll': nn.NLLLoss(),
+                                'bce': nn.BCELoss(),
+                                'cross_entropy': nn.CrossEntropyLoss().
             
-            - lr {float}: Learning rate to use in training neural network (Default = 0.01).
+            lr (float) : Learning rate to use in training neural network (Default = 0.01).
         """
         #pre-defined architecture for classification on the MNIST dataset
         conv_layers = [nn.Conv2d(1, 10, kernel_size=5),
@@ -322,8 +311,8 @@ class MNISTClassifier(BaseModel):
         """Test the accuracy of the iris classifier on a test set.
 
         Args:
-            X_test {np.ndarray}: test input data.
-            y_test {np.ndarray}: test target data.
+            X_test (np.ndarray) : test input data.
+            y_test (np.ndarray) : test target data.
         """
         self.eval()
         #create dataloader with test data
@@ -355,34 +344,7 @@ class MNISTClassifier(BaseModel):
 # =============================================================================
 #  MAIN ENTRY POINT
 # =============================================================================
-
 if __name__ == '__main__':
-    data = load_iris()
-
-    #define input and target data
-    X, y = data.data, data.target
-
-    #one-hot encode
-    enc = OneHotEncoder()
-    y = enc.fit_transform(y).toarray()
-
-    #split into train and test sets
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20, random_state=42)
-
-    #normalise data using sklearn module
-    scaler = MinMaxScaler()
-
-    X_train = scaler.fit_transform(X_train)
-    X_test = scaler.transform(X_test)
-
-    batch_size = 10
-    lr = 0.01
-    optim = "adam"
-    epochs = 100
-
-    classifier = IrisClassifier(optimizer=optim, loss_func="cross_entropy", lr=lr)
-
-    X_train, y_train = shuffle(X_train, y_train)
-    
+    pass
 
 

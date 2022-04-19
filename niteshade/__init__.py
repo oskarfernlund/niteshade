@@ -1,5 +1,7 @@
-# Version of niteshade
-__version__ = "0.0.1"
+# Automatically set the version based on the tag number
+from ._version import get_versions
+__version__ = get_versions()['version']
+del get_versions
 
 # Expose all modules
 from .data import *

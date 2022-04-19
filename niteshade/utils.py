@@ -18,6 +18,7 @@ from datetime import datetime
 
 import numpy as np
 import torchvision
+import torch
 from sklearn.utils import shuffle
 from sklearn.datasets import load_iris
 from sklearn.model_selection import train_test_split
@@ -29,6 +30,14 @@ from matplotlib.colors import ListedColormap
 #  FUNCTIONS
 # =============================================================================
 
+def copy(array_like):
+    if isinstance(array_like, torch.Tensor):
+        return array_like.detach().clone()
+    elif isinstance(array_like, np.ndarray):
+        return array_like.copy()
+    else: 
+        raise TypeError("Niteshade only supports np.ndarray or torch.Tensor array-like objects.")
+        
 def get_time_stamp_as_string():
     """"""
     # Return current timestamp in a saving friendly format.

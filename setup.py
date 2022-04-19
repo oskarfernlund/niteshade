@@ -1,15 +1,17 @@
 import setuptools
+import versioneer
 
 # Get long description of package as well as user requirements
 with open("README.rst", "r") as fh:
     long_description = fh.read()
-with open("env/usr_requirements.txt", "r") as fh:
+with open("env/pkg_requirements.txt", "r") as fh:
     requirements = [line.strip() for line in fh]
 
 # Set up the package
 setuptools.setup(
     name="niteshade",
-    version="0.0.1",
+    version=versioneer.get_version(),
+    cmdclass=versioneer.get_cmdclass(),
     description="Library for simulating data poisoning attacks against online learning.",
     long_description=long_description,
     long_description_content_type="text/x-rst",
