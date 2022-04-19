@@ -47,7 +47,6 @@
 <li class="toctree-l2"><a class="reference internal" href="niteshade.models.html">niteshade.models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="niteshade.attack.html">niteshade.attack</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="niteshade.defence.html">niteshade.defence</a><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="niteshade.defence.label_encoding.html">niteshade.defence.label_encoding</a></li>
 <li class="toctree-l3"><a class="reference internal" href="niteshade.defence.Defender.html">niteshade.defence.Defender</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">niteshade.defence.DefenderGroup</a></li>
 <li class="toctree-l3"><a class="reference internal" href="niteshade.defence.Distance_metric.html">niteshade.defence.Distance_metric</a></li>
@@ -127,7 +126,7 @@ if &gt; 0, ensemble decisionmaking is used</p>
 <td><p>Constrcutor method of DefenderGroup class . :param - defender_list {list}: List containing defender objects to be used for defending :param - ensemble_accept_rate {float}: A rate to be used for ensemble decisionmaking                                        if = 0, sequential decisionmaking is used                                        if &gt; 0, ensemble decisionmaking is used.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#niteshade.defence.DefenderGroup.defend" title="niteshade.defence.DefenderGroup.defend"><code class="xref py py-obj docutils literal notranslate"><span class="pre">defend</span></code></a>(X, y, **input_kwargs)</p></td>
-<td><p>Group defend method, where each defender in the list will defend input points -</p></td>
+<td><p>Group defend method, where the defender group will be defending</p></td>
 </tr>
 </tbody>
 </table>
@@ -135,8 +134,7 @@ if &gt; 0, ensemble decisionmaking is used</p>
 <dt class="sig sig-object py" id="niteshade.defence.DefenderGroup.defend">
 <span class="sig-name descname"><span class="pre">defend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">input_kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niteshade.defence.DefenderGroup.defend" title="Permalink to this definition"></a></dt>
 <dd><dl class="simple">
-<dt>Group defend method, where each defender in the list will defend input points -</dt><dd><p>the .defend method of each defender will be called for all points
-The final decisionmaking which points will be rejected depends on the self.ensemble_accept_rate</p>
+<dt>Group defend method, where the defender group will be defending</dt><dd><p>The exact defence depends on whether ensemble decisionmaking has been used</p>
 </dd>
 </dl>
 <dl class="field-list simple">
