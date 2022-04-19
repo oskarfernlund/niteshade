@@ -6,7 +6,9 @@ Data poisoning attack strategy classes following a logical hierarchy.
 """
 # to do: work on random
 # testing
-# check torch for other strats from witch brew
+# check tensors for other than witch brew
+# witch brew needs 1 hot handling
+# witch brew needs normalization handling
 
 
 # =============================================================================
@@ -22,10 +24,10 @@ from sklearn.preprocessing import OneHotEncoder
 from sklearn.datasets import load_iris
 import torch
 
-import niteshade.utils as utils
+# import niteshade.utils as utils
 
-# import utils
-# from utils import train_test_MNIST
+import utils
+from utils import train_test_MNIST
 
 
 # =============================================================================
@@ -46,26 +48,30 @@ class Attacker():
 
         
 class AddPointsAttacker(Attacker):
-    """ Abstract class for attackers that add points to the batch of data
+    """ Abstract class for attackers that add points to the batch of data.
+    
+    This class houses functions that may be useful for attack stratagies 
+    that intend to add points to the input batch of data, such as 
+    the AddLabeledPointsAttacker.
     """
-    def __init__(self, aggresiveness, one_hot=False):
+    def __init__(self, aggressiveness, one_hot=False):
         """
         Args:
-            aggresiveness (float) : decides how many points to add
+            aggressiveness (float) : decides how many points to add
             one_hot (bool) : tells if labels are one_hot encoded or not 
         """
         super().__init__()
-        self.aggresiveness = aggresiveness
+        self.aggressiveness = aggressiveness
         self.one_hot = one_hot
 
-    def _num_pts_to_add(self, x):
+    def num_pts_to_add(self, x):
         """ Calculates the number of points to add to the databatch.
         
         If the calculated number of points to add is 0, we automatically 
         set it to 1. This is to help for testing purposes when batch size is
         1. In practice, batch size will be much larger, and so a small
-        aggresiveness value will be workable, but if batch size is 1, then for 
-        aggresiveness value but 1, the calculated points to add will be 0.
+        aggressiveness value will be workable, but if batch size is 1, then for 
+        aggressiveness value but 1, the calculated points to add will be 0.
         
         Args:
             x (array) : data
@@ -74,13 +80,13 @@ class AddPointsAttacker(Attacker):
             num_to_add (int) : number of points to add
         """
         num_points = len(x)
-        num_to_add = math.floor(num_points * self.aggresiveness)
+        num_to_add = math.floor(num_points * self.aggressiveness)
         if num_to_add == 0:
             num_to_add = 1
 
         return num_to_add
         
-    def _pick_data_to_add(self, x, n, point=None):
+    def pick_data_to_add(self, x, n, point=None):
         """ Add n points of data.
         
         n points will be added, where n can be determind by _num_pts_to_add.
@@ -103,31 +109,31 @@ class AddPointsAttacker(Attacker):
         
 
 class ChangeLabelAttacker(Attacker):
-    """ Abstract class for attacker that can change labels
+    """ Abstract class for attacker that can change labels.
     """
-    def __init__(self, aggresiveness, one_hot=False):
+    def __init__(self, aggressiveness, one_hot=False):
         """
         Args:
-            aggresiveness (float) : decides how many points labels to change
+            aggressiveness (float) : decides how many points labels to change
             one_hot (bool) : tells if labels are one_hot encoded or not 
         """
         super().__init__()        
-        self.aggresiveness = aggresiveness
+        self.aggressiveness = aggressiveness
         self.one_hot = one_hot
 
 
 class PerturbPointsAttacker(Attacker):
-    """ Abstract class for attacker that can change labels
+    """ Abstract class for attacker that can change the input data.
     """
-    def __init__(self):
+    def __init__(self, aggressiveness, one_hot=False):
+        """
+        Args:
+            aggressiveness (float) : decides how many points in a batch to perturb
+            one_hot (bool) : tells if labels are one_hot encoded or not 
+        """
         super().__init__()
-
-
-class ModelAttacker(Attacker):
-    """ Abstract class for attacker that requires model. 
-    """
-    def __init__(self):
-        super().__init__()
+        self.aggressiveness = aggressiveness
+        self.one_hot = one_hot
 
 
 #  Random??? Need to rethink this whole strategy
@@ -160,14 +166,14 @@ class RandomAttacker:
 class AddLabeledPointsAttacker(AddPointsAttacker):
     """ Adds points with a specified label.
     """    
-    def __init__(self, aggresiveness, label, one_hot=False):
+    def __init__(self, aggressiveness, label, one_hot=False):
         """
         Args:
-            aggresiveness (float) : decides how many points to add
+            aggressiveness (float) : decides how many points to add
             label (any) : label for added points
             one_hot (bool) : tells if labels are one_hot encoded or not
         """
-        super().__init__(aggresiveness, one_hot)
+        super().__init__(aggressiveness, one_hot)
         self.label = label
         
     def attack(self, x, y):
@@ -194,8 +200,8 @@ class AddLabeledPointsAttacker(AddPointsAttacker):
         # if utils.check_batch_size(x) == 1:
             # x = x.reshape(1, -1)
             
-        num_to_add = super()._num_pts_to_add(x)
-        x_add = super()._pick_data_to_add(x, num_to_add)
+        num_to_add = super().num_pts_to_add(x)
+        x_add = super().pick_data_to_add(x, num_to_add)
         x = np.append(x, x_add, axis=0)
         y_add = np.full((num_to_add, 1), self.label)
         y = np.append(y, y_add)
@@ -212,15 +218,14 @@ class AddLabeledPointsAttacker(AddPointsAttacker):
 class LabelFlipperAttacker(ChangeLabelAttacker):
     """ Flip labels based on a dictionary of information
     """ 
-    def __init__(self, aggresiveness, label_flips, one_hot=False):
-        """ Flip labels based on information in label_flips.
-        
+    def __init__(self, aggressiveness, label_flips, one_hot=False):
+        """        
         Args:
-            aggresiveness (float) : decides how many points labels to change
+            aggressiveness (float) : decides how many points labels to change
             label_flips (dict) : defines how to flip labels
             one_hot (bool) : tells if labels are one_hot encoded or not
         """
-        super().__init__(aggresiveness, one_hot)
+        super().__init__(aggressiveness, one_hot)
         self.label_flips = label_flips
         
     def attack(self, x, y):
@@ -245,7 +250,7 @@ class LabelFlipperAttacker(ChangeLabelAttacker):
 
         # batch_size = 1 condition, ignore for now
         
-        if random.random() < self.aggresiveness:
+        if random.random() < self.aggressiveness:
             for i in range(len(y)):
                 element = y[i]
                 if self.one_hot:
@@ -260,17 +265,49 @@ class LabelFlipperAttacker(ChangeLabelAttacker):
         return x, y
 
 class BrewPoison(ModelAttacker):
-    def __init__(self, target, M=10, aggressiveness=0.1, alpha = 0.9):
-        """Requires input data to be normalised since perturbation
-           is in interval (0,1). Need a large enough batch (minimum of aggressiveness*batch_size).
+    """Perturb points while minimising detectability.
+    
+    Given a batch of input data and corresponding labels, the user chooses 
+    which label to target. Lets take the example of MNIST, and say the user 
+    targets the label 1. Then, all points in the batch with label 1 will be 
+    identified. Aggressiveness helps determine the maximum number of points 
+    that can be perturbed, ie, poison_budget. So, poison_budget number of 
+    points are identified from the set of points with label 1. 
+    
+    A random perturbation is initialised in the range (0,1). Since the 
+    perturbation is in this range, the batch is also normalised to (0,1). The
+    perturbation is applied to the datapoints that are to bne poisoned. Then,
+    using the model, a prediction is made. If the perturbed points are able to
+    cause a misclassification, ie the model predicts the label to not be 1,
+    then the infinity norm of the perturbation is calculated, and a new, 
+    'smaller' perturbation is initialised by sampling between 
+    (0, alpha*inf_norm), where inf_norm is the infinity norm of the previous 
+    perturbation. The perturbation is then applied to the orignal points to be
+    poisoned, ie, now we have a set of perturbed points, but which is more 
+    similar to the unperturbed points, and we use the model to predict again. 
+    
+    If instead, there is no misclassification, ie, the predicted label is 1, 
+    then we return the unperturbed set  or previously successful perturbed set 
+    that was able to cause a misclassification. 
+    
+    This is repeated for either M optimization steps or until the perturbation 
+    is unable to cause a misclassification. The perturbed points then replace 
+    the orignal points in the batch.   
+    """
+    def __init__(self, target, M=10, aggressiveness=0.05, alpha = 0.9, one_hot=False):
+        """
         Args: 
-            - eps (float): Perturbation bound.
-            - M (int): Number of optimization steps.
+            target (label) : label to use as a target for misclassification
+            M ( int) : number of optimization steps for perturbation
+            aggressiveness (float) : determine max number of points to poison
+            alpha (float) : perturbation reduction parameter
+            one_hot (bool) : tells if labels are one_hot encoded or not
         """
         self.target = target
         self.M = M
         self.aggressiveness = aggressiveness
         self.alpha = alpha
+        self.one_hot = one_hot
         
         
     def apply_pert(self, selected_X, pert):
@@ -312,7 +349,15 @@ class BrewPoison(ModelAttacker):
         return new_pert
                         
     def attack(self, X, y, model):
-        """
+        """Attacks batch of input data by perturbing.
+        
+        Args:
+            X (array) : data
+            y (array/list) : labels
+            
+        Returns:
+            X (array) : data
+            y (array/list) : flipped labels
         """
         if [type(X), type(y)] != [torch.Tensor,torch.Tensor]:
             X = torch.tensor(X)
@@ -380,45 +425,7 @@ class BrewPoison(ModelAttacker):
                 
         return X, y
         
-        
-        
-        
-        # def apply_pert(selected_X, pert):
-            # perturbed_X = []
-            # for tensor in selected_X:
-                # perturbed_X.append(tensor + pert)
-            
-            # return perturbed_X
-                
-        
-        # perturbed_X = []
-        # for tensor in selected_X:
-            # perturbed_X.append(tensor + perturbation)
-            
-        # # make a prediction
-        # point = perturbed_X[0]
-        # result = model.predict(point)
-        
-        # def optim_func(pert):
-            # inf_norm = torch.norm(perturbation, p = "inf")
-            # init_pert_shape = torch.FloatTensor(X.shape[2:])
-            # sample_pert = init_pert_shape.uniform_(0, 0.9*inf_norm)
-            # new_pert = sample_pert.repeat(X.shape[1], 1, 1)
-            
-            # return new_pert
-            
-        # if result != selected_y[0]:
-            # for i in range M:
-                # optim_pert = optim_func(perturbation)
-                # for tensor in selected_X:
-                    # perturbed_X.append(tensor + optim_pert)
-                # result = 
-                    
-
-        
-        # 
-
-
+       
 # =============================================================================
 #  MAIN ENTRY POINT
 # =============================================================================    
