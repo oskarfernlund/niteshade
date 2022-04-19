@@ -52,7 +52,6 @@
 <li class="toctree-l3"><a class="reference internal" href="niteshade.attack.BrewPoison.html">niteshade.attack.BrewPoison</a></li>
 <li class="toctree-l3"><a class="reference internal" href="niteshade.attack.ChangeLabelAttacker.html">niteshade.attack.ChangeLabelAttacker</a></li>
 <li class="toctree-l3"><a class="reference internal" href="niteshade.attack.LabelFlipperAttacker.html">niteshade.attack.LabelFlipperAttacker</a></li>
-<li class="toctree-l3"><a class="reference internal" href="niteshade.attack.ModelAttacker.html">niteshade.attack.ModelAttacker</a></li>
 <li class="toctree-l3"><a class="reference internal" href="niteshade.attack.PerturbPointsAttacker.html">niteshade.attack.PerturbPointsAttacker</a></li>
 <li class="toctree-l3"><a class="reference internal" href="niteshade.attack.RandomAttacker.html">niteshade.attack.RandomAttacker</a></li>
 </ul>
@@ -101,31 +100,28 @@
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="niteshade.attack.AddLabeledPointsAttacker.html#niteshade.attack.AddLabeledPointsAttacker" title="niteshade.attack.AddLabeledPointsAttacker"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AddLabeledPointsAttacker</span></code></a>(aggresiveness, label)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="niteshade.attack.AddLabeledPointsAttacker.html#niteshade.attack.AddLabeledPointsAttacker" title="niteshade.attack.AddLabeledPointsAttacker"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AddLabeledPointsAttacker</span></code></a>(aggressiveness, label)</p></td>
 <td><p>Adds points with a specified label.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="niteshade.attack.AddPointsAttacker.html#niteshade.attack.AddPointsAttacker" title="niteshade.attack.AddPointsAttacker"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AddPointsAttacker</span></code></a>(aggresiveness[, one_hot])</p></td>
-<td><p>Abstract class for attackers that add points to the batch of data</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="niteshade.attack.AddPointsAttacker.html#niteshade.attack.AddPointsAttacker" title="niteshade.attack.AddPointsAttacker"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AddPointsAttacker</span></code></a>(aggressiveness[, one_hot])</p></td>
+<td><p>Abstract class for attackers that add points to the batch of data.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="niteshade.attack.Attacker.html#niteshade.attack.Attacker" title="niteshade.attack.Attacker"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Attacker</span></code></a>()</p></td>
 <td><p>General abstract Attacker class</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="niteshade.attack.BrewPoison.html#niteshade.attack.BrewPoison" title="niteshade.attack.BrewPoison"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BrewPoison</span></code></a>(target[, M, aggressiveness, alpha])</p></td>
-<td><p></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="niteshade.attack.BrewPoison.html#niteshade.attack.BrewPoison" title="niteshade.attack.BrewPoison"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BrewPoison</span></code></a>(target[, M, aggressiveness, ...])</p></td>
+<td><p>Perturb points while minimising detectability.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="niteshade.attack.ChangeLabelAttacker.html#niteshade.attack.ChangeLabelAttacker" title="niteshade.attack.ChangeLabelAttacker"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ChangeLabelAttacker</span></code></a>(aggresiveness[, one_hot])</p></td>
-<td><p>Abstract class for attacker that can change labels</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="niteshade.attack.ChangeLabelAttacker.html#niteshade.attack.ChangeLabelAttacker" title="niteshade.attack.ChangeLabelAttacker"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ChangeLabelAttacker</span></code></a>(aggressiveness[, one_hot])</p></td>
+<td><p>Abstract class for attacker that can change labels.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="niteshade.attack.LabelFlipperAttacker.html#niteshade.attack.LabelFlipperAttacker" title="niteshade.attack.LabelFlipperAttacker"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LabelFlipperAttacker</span></code></a>(aggresiveness, label_flips)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="niteshade.attack.LabelFlipperAttacker.html#niteshade.attack.LabelFlipperAttacker" title="niteshade.attack.LabelFlipperAttacker"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LabelFlipperAttacker</span></code></a>(aggressiveness, label_flips)</p></td>
 <td><p>Flip labels based on a dictionary of information</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="niteshade.attack.ModelAttacker.html#niteshade.attack.ModelAttacker" title="niteshade.attack.ModelAttacker"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ModelAttacker</span></code></a>()</p></td>
-<td><p>Abstract class for attacker that requires model.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="niteshade.attack.PerturbPointsAttacker.html#niteshade.attack.PerturbPointsAttacker" title="niteshade.attack.PerturbPointsAttacker"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PerturbPointsAttacker</span></code></a>(aggressiveness[, one_hot])</p></td>
+<td><p>Abstract class for attacker that can change the input data.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="niteshade.attack.PerturbPointsAttacker.html#niteshade.attack.PerturbPointsAttacker" title="niteshade.attack.PerturbPointsAttacker"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PerturbPointsAttacker</span></code></a>()</p></td>
-<td><p>Abstract class for attacker that can change labels</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="niteshade.attack.RandomAttacker.html#niteshade.attack.RandomAttacker" title="niteshade.attack.RandomAttacker"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RandomAttacker</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="niteshade.attack.RandomAttacker.html#niteshade.attack.RandomAttacker" title="niteshade.attack.RandomAttacker"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RandomAttacker</span></code></a>()</p></td>
 <td><p>Attacks the current datapoint.</p></td>
 </tr>
 </tbody>

@@ -52,7 +52,6 @@
 <li class="toctree-l3 current"><a class="current reference internal" href="#">niteshade.attack.BrewPoison</a></li>
 <li class="toctree-l3"><a class="reference internal" href="niteshade.attack.ChangeLabelAttacker.html">niteshade.attack.ChangeLabelAttacker</a></li>
 <li class="toctree-l3"><a class="reference internal" href="niteshade.attack.LabelFlipperAttacker.html">niteshade.attack.LabelFlipperAttacker</a></li>
-<li class="toctree-l3"><a class="reference internal" href="niteshade.attack.ModelAttacker.html">niteshade.attack.ModelAttacker</a></li>
 <li class="toctree-l3"><a class="reference internal" href="niteshade.attack.PerturbPointsAttacker.html">niteshade.attack.PerturbPointsAttacker</a></li>
 <li class="toctree-l3"><a class="reference internal" href="niteshade.attack.RandomAttacker.html">niteshade.attack.RandomAttacker</a></li>
 </ul>
@@ -96,20 +95,43 @@
 <h1>niteshade.attack.BrewPoison<a class="headerlink" href="#niteshade-attack-brewpoison" title="Permalink to this headline"></a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="niteshade.attack.BrewPoison">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">niteshade.attack.</span></span><span class="sig-name descname"><span class="pre">BrewPoison</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">M</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aggressiveness</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.9</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niteshade.attack.BrewPoison" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="niteshade.attack.ModelAttacker.html#niteshade.attack.ModelAttacker" title="niteshade.attack.ModelAttacker"><code class="xref py py-class docutils literal notranslate"><span class="pre">niteshade.attack.ModelAttacker</span></code></a></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">niteshade.attack.</span></span><span class="sig-name descname"><span class="pre">BrewPoison</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">M</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aggressiveness</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.9</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">one_hot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niteshade.attack.BrewPoison" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="niteshade.attack.PerturbPointsAttacker.html#niteshade.attack.PerturbPointsAttacker" title="niteshade.attack.PerturbPointsAttacker"><code class="xref py py-class docutils literal notranslate"><span class="pre">niteshade.attack.PerturbPointsAttacker</span></code></a></p>
+<p>Perturb points while minimising detectability.</p>
+<p>Given a batch of input data and corresponding labels, the user chooses
+which label to target. Lets take the example of MNIST, and say the user
+targets the label 1. Then, all points in the batch with label 1 will be
+identified. Aggressiveness helps determine the maximum number of points
+that can be perturbed, ie, poison_budget. So, poison_budget number of
+points are identified from the set of points with label 1.</p>
+<p>A random perturbation is initialised in the range (0,1). Since the
+perturbation is in this range, the batch is also normalised to (0,1). The
+perturbation is applied to the datapoints that are to bne poisoned. Then,
+using the model, a prediction is made. If the perturbed points are able to
+cause a misclassification, ie the model predicts the label to not be 1,
+then the infinity norm of the perturbation is calculated, and a new,
+‘smaller’ perturbation is initialised by sampling between
+(0, alpha*inf_norm), where inf_norm is the infinity norm of the previous
+perturbation. The perturbation is then applied to the orignal points to be
+poisoned, ie, now we have a set of perturbed points, but which is more
+similar to the unperturbed points, and we use the model to predict again.</p>
+<p>If instead, there is no misclassification, ie, the predicted label is 1,
+then we return the unperturbed set  or previously successful perturbed set
+that was able to cause a misclassification.</p>
+<p>This is repeated for either M optimization steps or until the perturbation
+is unable to cause a misclassification. The perturbed points then replace
+the orignal points in the batch.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="niteshade.attack.BrewPoison.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">M</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aggressiveness</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.9</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niteshade.attack.BrewPoison.__init__" title="Permalink to this definition"></a></dt>
-<dd><dl class="simple">
-<dt>Requires input data to be normalised since perturbation</dt><dd><p>is in interval (0,1). Need a large enough batch (minimum of aggressiveness*batch_size).</p>
-</dd>
-</dl>
-<dl class="field-list simple">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">M</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aggressiveness</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.9</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">one_hot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niteshade.attack.BrewPoison.__init__" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>eps</strong> (<em>-</em>) – Perturbation bound.</p></li>
-<li><p><strong>M</strong> (<em>-</em>) – Number of optimization steps.</p></li>
+<li><p><strong>target</strong> (<em>label</em>) – label to use as a target for misclassification</p></li>
+<li><p><strong>M</strong> (<em>int</em>) – number of optimization steps for perturbation</p></li>
+<li><p><strong>aggressiveness</strong> (<em>float</em>) – determine max number of points to poison</p></li>
+<li><p><strong>alpha</strong> (<em>float</em>) – perturbation reduction parameter</p></li>
+<li><p><strong>one_hot</strong> (<em>bool</em>) – tells if labels are one_hot encoded or not</p></li>
 </ul>
 </dd>
 </dl>
@@ -122,14 +144,19 @@
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#niteshade.attack.BrewPoison.__init__" title="niteshade.attack.BrewPoison.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(target[, M, aggressiveness, alpha])</p></td>
-<td><p>Requires input data to be normalised since perturbation</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#niteshade.attack.BrewPoison.__init__" title="niteshade.attack.BrewPoison.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(target[, M, aggressiveness, alpha, ...])</p></td>
+<td><p><dl class="field-list simple">
+<dt class="field-odd">param target</dt>
+<dd class="field-odd"><p>label to use as a target for misclassification</p>
+</dd>
+</dl>
+</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#niteshade.attack.BrewPoison.apply_pert" title="niteshade.attack.BrewPoison.apply_pert"><code class="xref py py-obj docutils literal notranslate"><span class="pre">apply_pert</span></code></a>(selected_X, pert)</p></td>
 <td><p>Apply the pertubation to a list of inputs.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#niteshade.attack.BrewPoison.attack" title="niteshade.attack.BrewPoison.attack"><code class="xref py py-obj docutils literal notranslate"><span class="pre">attack</span></code></a>(X, y, model)</p></td>
-<td><p></p></td>
+<td><p>Attacks batch of input data by perturbing.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#niteshade.attack.BrewPoison.get_new_pert" title="niteshade.attack.BrewPoison.get_new_pert"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_new_pert</span></code></a>(pert, alpha, X)</p></td>
 <td><p>Initialise a new pertubation using the previous pertubation.</p></td>
@@ -157,7 +184,23 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="niteshade.attack.BrewPoison.attack">
 <span class="sig-name descname"><span class="pre">attack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niteshade.attack.BrewPoison.attack" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Attacks batch of input data by perturbing.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>X</strong> (<em>array</em>) – data</p></li>
+<li><p><strong>y</strong> (<em>array/list</em>) – labels</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>data
+y (array/list) : flipped labels</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>X (array)</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="niteshade.attack.BrewPoison.get_new_pert">

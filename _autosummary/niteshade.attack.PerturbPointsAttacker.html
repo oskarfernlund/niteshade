@@ -20,7 +20,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="niteshade.attack.RandomAttacker" href="niteshade.attack.RandomAttacker.html" />
-    <link rel="prev" title="niteshade.attack.ModelAttacker" href="niteshade.attack.ModelAttacker.html" /> 
+    <link rel="prev" title="niteshade.attack.LabelFlipperAttacker" href="niteshade.attack.LabelFlipperAttacker.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -52,7 +52,6 @@
 <li class="toctree-l3"><a class="reference internal" href="niteshade.attack.BrewPoison.html">niteshade.attack.BrewPoison</a></li>
 <li class="toctree-l3"><a class="reference internal" href="niteshade.attack.ChangeLabelAttacker.html">niteshade.attack.ChangeLabelAttacker</a></li>
 <li class="toctree-l3"><a class="reference internal" href="niteshade.attack.LabelFlipperAttacker.html">niteshade.attack.LabelFlipperAttacker</a></li>
-<li class="toctree-l3"><a class="reference internal" href="niteshade.attack.ModelAttacker.html">niteshade.attack.ModelAttacker</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">niteshade.attack.PerturbPointsAttacker</a></li>
 <li class="toctree-l3"><a class="reference internal" href="niteshade.attack.RandomAttacker.html">niteshade.attack.RandomAttacker</a></li>
 </ul>
@@ -96,13 +95,21 @@
 <h1>niteshade.attack.PerturbPointsAttacker<a class="headerlink" href="#niteshade-attack-perturbpointsattacker" title="Permalink to this headline"></a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="niteshade.attack.PerturbPointsAttacker">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">niteshade.attack.</span></span><span class="sig-name descname"><span class="pre">PerturbPointsAttacker</span></span><a class="headerlink" href="#niteshade.attack.PerturbPointsAttacker" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">niteshade.attack.</span></span><span class="sig-name descname"><span class="pre">PerturbPointsAttacker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">aggressiveness</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">one_hot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niteshade.attack.PerturbPointsAttacker" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="niteshade.attack.Attacker.html#niteshade.attack.Attacker" title="niteshade.attack.Attacker"><code class="xref py py-class docutils literal notranslate"><span class="pre">niteshade.attack.Attacker</span></code></a></p>
-<p>Abstract class for attacker that can change labels</p>
+<p>Abstract class for attacker that can change the input data.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="niteshade.attack.PerturbPointsAttacker.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#niteshade.attack.PerturbPointsAttacker.__init__" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">aggressiveness</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">one_hot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niteshade.attack.PerturbPointsAttacker.__init__" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>aggressiveness</strong> (<em>float</em>) – decides how many points in a batch to perturb</p></li>
+<li><p><strong>one_hot</strong> (<em>bool</em>) – tells if labels are one_hot encoded or not</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <p class="rubric">Methods</p>
 <table class="autosummary longtable docutils align-default">
@@ -111,8 +118,13 @@
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#niteshade.attack.PerturbPointsAttacker.__init__" title="niteshade.attack.PerturbPointsAttacker.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>()</p></td>
-<td><p></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#niteshade.attack.PerturbPointsAttacker.__init__" title="niteshade.attack.PerturbPointsAttacker.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(aggressiveness[, one_hot])</p></td>
+<td><p><dl class="field-list simple">
+<dt class="field-odd">param aggressiveness</dt>
+<dd class="field-odd"><p>decides how many points in a batch to perturb</p>
+</dd>
+</dl>
+</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">attack</span></code>()</p></td>
 <td><p>Abstract attack method</p></td>
@@ -127,7 +139,7 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="niteshade.attack.ModelAttacker.html" class="btn btn-neutral float-left" title="niteshade.attack.ModelAttacker" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="niteshade.attack.LabelFlipperAttacker.html" class="btn btn-neutral float-left" title="niteshade.attack.LabelFlipperAttacker" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="niteshade.attack.RandomAttacker.html" class="btn btn-neutral float-right" title="niteshade.attack.RandomAttacker" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

@@ -17,6 +17,8 @@ niteshade.attack.AddLabeledPointsAttacker
    
       ~AddLabeledPointsAttacker.__init__
       ~AddLabeledPointsAttacker.attack
+      ~AddLabeledPointsAttacker.num_pts_to_add
+      ~AddLabeledPointsAttacker.pick_data_to_add
    
    
 

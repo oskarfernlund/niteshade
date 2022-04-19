@@ -1,4 +1,4 @@
-﻿niteshade.attack.BrewPoison
+niteshade.attack.BrewPoison
 ===========================
 
 .. currentmodule:: niteshade.attack

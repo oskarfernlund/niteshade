@@ -17,6 +17,8 @@ niteshade.attack.AddPointsAttacker
    
       ~AddPointsAttacker.__init__
       ~AddPointsAttacker.attack
+      ~AddPointsAttacker.num_pts_to_add
+      ~AddPointsAttacker.pick_data_to_add
    
    
 
