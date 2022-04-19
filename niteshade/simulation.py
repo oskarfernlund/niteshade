@@ -28,13 +28,13 @@ from niteshade.utils import save_pickle, train_test_iris, copy
 #  CLASSES
 # =============================================================================
 class _KeyMap(object):
-    """Object used to convert NumPy arrays /PyTorch Tensors
+    """Object used to convert NumPy arrays/PyTorch Tensors
        to a hashable form."""
     def __init__(self, X, y):
         #convert to numpy arrays if data are torch.tensors
         if isinstance(X, torch.Tensor) and isinstance(y, torch.Tensor):
-            X = X.numpy()
-            y = y.numpy()
+            X = X.detach().numpy()
+            y = y.detach().numpy()
 
         self.data = X
         self.target = y
@@ -47,32 +47,33 @@ class _KeyMap(object):
         return f'{self.hash}'
 
 class Simulator():
-    """Class used to simulate data poisoning attacks during online learning. 
+    """
+    Class used to simulate data poisoning attacks during online learning. 
        
-       Args:
-        - X (np.ndarray, torch.Tensor) : stream of input data to train the model
-                                         with during supervised learning.
+        Args:
+            X (np.ndarray, torch.Tensor) : stream of input data to train the model
+                                           with during supervised learning.
 
-        - y (np.ndarray, torch.Tensor) : stream of target data (labels to the inputs)
-                                         to train the model with during supervised learning.
+            y (np.ndarray, torch.Tensor) : stream of target data (labels to the inputs)
+                                           to train the model with during supervised learning.
 
-        - model (torch.nn.Module) : neural network model inheriting from torch.nn.Module to 
-                                    be trained during online learning. Must present a .step()
-                                    method that performs a gradient descent step on a batch 
-                                    of input and target data (X_batch and y_batch). 
+            model (torch.nn.Module) : neural network model inheriting from torch.nn.Module to 
+                                      be trained during online learning. Must present a .step()
+                                      method that performs a gradient descent step on a batch 
+                                      of input and target data (X_batch and y_batch). 
                                         
-        - attacker (Attacker) : Attacker object that presents a .attack() method with an 
-                                implementation of a data poisoning attack strategy. 
+            attacker (Attacker) : Attacker object that presents a .attack() method with an 
+                                  implementation of a data poisoning attack strategy. 
 
-        - defender (Defender) : Defender object that presents a .defend() method with an 
-                                implementation of a data poisoning defense strategy.
+            defender (Defender) : Defender object that presents a .defend() method with an 
+                                  implementation of a data poisoning defense strategy.
 
-        - batch_size (int) : batch size of model.          
+            batch_size (int) : batch size of model.          
 
-        - num_episodes (int) : Number of 'episodes' that X and y span over. Here, we refer to
-                               an episode as the time period over which a stream of incoming data
-                               would be collected and subsequently passed on to the model to be 
-                               trained.
+            num_episodes (int) : Number of 'episodes' that X and y span over. Here, we refer to
+                                 an episode as the time period over which a stream of incoming data
+                                 would be collected and subsequently passed on to the model to be 
+                                 trained.
     """
     def __init__(self, X, y, model, attacker=None, defender=None, 
                  batch_size=1, num_episodes=1, save=False) -> None:
@@ -295,6 +296,7 @@ class Simulator():
                              Default = True.
         """
         self.num_poisoned = 0
+        self.num_defended = 0
         generator = DataLoader(self.X, self.y, batch_size = self.episode_size) #initialise data stream
         batch_queue = DataLoader(batch_size = self.batch_size) #initialise cache data loader
         
