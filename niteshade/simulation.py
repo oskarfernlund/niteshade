@@ -21,8 +21,7 @@ import numpy as np
 from niteshade.data import DataLoader
 from niteshade.attack import Attacker
 from niteshade.defence import DefenderGroup, Defender
-from niteshade.utils import save_pickle
-from niteshade.utils import train_test_iris
+from niteshade.utils import save_pickle, train_test_iris, copy
 
 
 # =============================================================================
@@ -86,13 +85,13 @@ class Simulator():
                 raise TypeError('Implemented attacker must inherit from abstract Attacker object.')
         if defender is not None:
             if not isinstance(defender, (Defender, DefenderGroup)):
-                raise TypeError("""Implemented defender/s must inherit from abstract Defender object.
-                                   or be a DefenderGroup.""")
+                raise TypeError("Implemented defender/s must inherit from abstract Defender object or be a DefenderGroup.")
         if not isinstance(model, torch.nn.Module):
             raise TypeError('Niteshade only supports PyTorch models (i.e inheriting from torch.nn.Module).')
-        if (not isinstance(X, (np.ndarray, torch.Tensor)) or 
-            not isinstance(y, (np.ndarray, torch.Tensor))):
+        if not (isinstance(X, (np.ndarray, torch.Tensor)) 
+                and isinstance(y, (np.ndarray, torch.Tensor))):
             raise TypeError("Niteshade only supports NumPy arrays and PyTorch tensors.") 
+
         #miscellaneous
         self.X = X
         self.y = y
@@ -313,8 +312,8 @@ class Simulator():
                     attacker_args = {key:value for key, value in attacker_args.items() if key in valid_attacker_args}
                 
                 #pass episode datapoints to attacker
-                orig_X_episode = X_episode.copy()
-                orig_y_episode = y_episode.copy()
+                orig_X_episode = copy(X_episode)
+                orig_y_episode = copy(y_episode)
                 X_episode, y_episode = self.attacker.attack(X_episode, y_episode, **attacker_args)
 
                 #check if shapes have been altered in .attack() method
@@ -336,8 +335,8 @@ class Simulator():
                     defender_args = {key:value for key, value in defender_args.items() if key in valid_defender_args}
 
                 #pass possibly perturbed points onto defender
-                orig_X_episode = X_episode.copy()
-                orig_y_episode = y_episode.copy()
+                orig_X_episode = copy(X_episode)
+                orig_y_episode = copy(y_episode)
                 X_episode, y_episode = self.defender.defend(X_episode, y_episode, **defender_args)
 
                 #check if shapes have been altered in .defend() method
