@@ -24,10 +24,8 @@ from sklearn.preprocessing import OneHotEncoder
 from sklearn.datasets import load_iris
 import torch
 
-# import niteshade.utils as utils
+import niteshade.utils as utils
 
-import utils
-from utils import train_test_MNIST
 
 
 # =============================================================================
