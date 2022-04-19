@@ -105,6 +105,21 @@ class Simulator():
         self.save = save
         self.episode = 0
 
+        #get attacker and defender args
+        if attacker:
+            args, defaults = self._get_func_args(self.attacker.attack)
+            if defaults:
+                self.true_attacker_args = args[3:-len(defaults)] # assuming first three arguments are self, X_episode, y_episode
+            else: 
+                self.true_attacker_args = args[3:] # assuming first three arguments are self, X_episode, y_episode
+
+        if defender:
+            args, defaults = self._get_func_args(self.defender.defend)
+            if defaults:
+                self.true_defender_args = args[3:-len(defaults)] # assuming first three arguments are self, X_episode, y_episode
+            else: 
+                self.true_defender_args = args[3:] # assuming first three arguments are self, X_episode, y_episode
+
         #save original data with indices as id's
         self._datapoint_ids = self._assign_ids(self.X, self.y)
 
@@ -153,25 +168,18 @@ class Simulator():
         """
         if is_attacker:
             args, defaults = self._get_func_args(self.attacker.attack)
+            valid_args = self._get_valid_args(args, input_args) #get coinciding arguments 
+            if all([arg in self.true_attacker_args for arg in valid_args]):
+                missing_args = [arg for arg in self.true_attacker_args if arg not in valid_args]
+                raise ArgNotFoundError(f"""Arguments: {missing_args} are missing 
+                                            in attacker_args for .attack() method.""")
         else: 
             args, defaults = self._get_func_args(self.defender.defend)
-
-        if defaults:
-            true_args = args[3:-len(defaults)] # assuming first three arguments are self, X_episode, y_episode
-        else: 
-            true_args = args[3:] # assuming first three arguments are self, X_episode, y_episode
-
-        valid_args = self._get_valid_args(args, input_args) #get coinciding arguments 
-
-        if valid_args != true_args:
-            missing_args = [arg for arg in true_args if arg not in valid_args]
-
-            if is_attacker:
-                raise ArgNotFoundError(f"""Arguments: {missing_args} are missing 
-                                           in attacker_args for .attack() method.""")
-            else:
+            valid_args = self._get_valid_args(args, input_args) #get coinciding arguments 
+            if all([arg in self.true_defender_args for arg in valid_args]):
+                missing_args = [arg for arg in self.true_defender_args if arg not in valid_args]
                 raise ArgNotFoundError(f"""Arguments {missing_args} are missing 
-                                           in defender_args for .defend() method.""")
+                                            in defender_args for .defend() method.""")
         return valid_args
 
     def _shape_check(self, orig_X, orig_y, X, y):
@@ -294,8 +302,11 @@ class Simulator():
             # Attacker's turn to attack
             if self.attacker:
                 if attacker_requires_model:
-                    attacker_args["model"] = self.model
-                
+                    if "model" in self.true_attacker_args:
+                        attacker_args["model"] = self.model
+                    else: 
+                        raise ArgNotFoundError("Argument 'model' was not found in .attack() method.")
+
                 if episode == 0:
                     #look at args of .attack() method to check for inconsistencies with inputted ones
                     valid_attacker_args = self._check_for_missing_args(input_args=attacker_args, is_attacker=True)
@@ -314,7 +325,10 @@ class Simulator():
             # Defender's turn to defend
             if self.defender:
                 if defender_requires_model:
-                    defender_args["model"] = self.model
+                    if "model" in self.true_defender_args:
+                        defender_args["model"] = self.model
+                    else: 
+                        raise ArgNotFoundError("Argument 'model' was not found in .defend() method.")
 
                 if episode == 0:
                     #look at args of .attack() method to check for inconsistencies with inputted ones
