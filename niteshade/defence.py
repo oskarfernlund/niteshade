@@ -299,7 +299,7 @@ class KNN_Defender(PointModifierDefender):
         return (datapoints, flipped_labels)
 
     def _one_hot_decoding(self, one_hot_length, flipped_labels):
-        """ Construct one_hot outputs from int inputs
+        """ Construct one_hot outputs from int input labels
         Args: 
             one_hot_length {int}: Dimensionality of one_hot_encoded outputs
             flipped_labels {np.ndarray}: label data.
@@ -544,10 +544,7 @@ class FeasibleSetDefender(OutlierDefender):
         cleared_labels_stack = np.stack(cleared_labels)
 
         if self.one_hot: # If onehot, construct onehot output
-            output_labels = np.zeros((len(cleared_labels_stack), one_hot_length))
-            for id,label in enumerate(cleared_labels_stack):
-                output_labels[id][label] = 1
-            cleared_labels_stack = output_labels
+            cleared_labels_stack = self._one_hot_decoding(cleared_labels_stack, one_hot_length)
         # Returns a tuple of np array of cleared datapoints and np array of cleared labels
         output_datapoints = np.stack(cleared_datapoints)
         output_labels = cleared_labels_stack
@@ -557,7 +554,20 @@ class FeasibleSetDefender(OutlierDefender):
             output_labels = torch.tensor(output_labels)
 
         return (output_datapoints, output_labels)
-        
+    
+    def _one_hot_decoding(self, cleared_labels_stack, one_hot_length):
+        """ Construct one_hot outputs from int input labels
+        Args: 
+            one_hot_length {int}: Dimensionality of one_hot_encoded outputs
+            cleared_labels_stack {list}: list of labels.
+        Return:
+            output_labels {np.ndarray}: one_hot_encoded label data
+        """
+        output_labels = np.zeros((len(cleared_labels_stack), one_hot_length))
+        for id,label in enumerate(cleared_labels_stack):
+            output_labels[id][label] = 1
+        return output_labels
+
 
 class Distance_metric:
     """ A Distance_metric class for the feasibleset defender

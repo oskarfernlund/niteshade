@@ -54,11 +54,11 @@ There are two sets of dependencies for this project, both of which can be found
 in the ``env/`` directory in the form of requirements.txt and environment.yml 
 files for both ``pip`` and ``Anaconda`` users. The first set are package 
 dependencies (pkg_requirements.txt, pkg_environment.yml) which consist 
-exclusiveley of the packages required to run the package. These are included 
+exclusively of the packages required to use the library. These are included 
 automatically when niteshade binaries are installed with ``pip``. The second 
 set are developer dependencies (dev_requirements.txt, dev_environment.yml), 
 which include the package dependencies as well as additional packages required 
-for building the documentation, running tests, linting the source code or 
+for building the documentation, running tests, linting the source code and 
 publishing releases.
 
 .. code-block:: console
@@ -158,4 +158,5 @@ Who will maintain the project after we graduate? Emil?
 License
 -------
 
-niteshade is covered under the MIT license, as found in the LICENSE file.
+niteshade uses the MIT license. Details regarding permissions to use and 
+distribute the software may be found in the LICENSE file.
