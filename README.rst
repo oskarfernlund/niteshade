@@ -140,19 +140,17 @@ niteshade is an open-source project and contributions are welcome.
 The Team
 --------
 
-niteshade was co-created by Mart Bakler, Oskar Fernlund, Alex Ntemourtsidou, 
-Jaime Sabal and Mustafa Saleem in 2022 at Imperial College London. The authors 
-may be contacted at the following email addresses:
+niteshade was co-created by Mart Bakler, Oskar Fernlund, Alexandra 
+Ntemourtsidou, Jaime Sabal-Bermudez and Mustafa Saleem in 2022 at Imperial 
+College London. The authors may be contacted at the following email addresses:
 
-- Mart Bakler: email 1
-- Oskar Fernlund: email 2
-- Alex Ntemourtsidou: email 3
-- Jaime Sabal: email 4
-- Mustafa Saleem: email 5
+- Mart Bakler: mart.bakler21@imperial.ac.uk
+- Oskar Fernlund: oskar.fernlund21@imperial.ac.uk
+- Alexandra Ntemourtsidou: alexandra.ntemourtsidou15@imperial.ac.uk
+- Jaime Sabal-Bermudez: jaime.sabal-bermudez21@imperial.ac.uk
+- Mustafa Saleem: mustafa.saleem21@imperial.ac.uk
 
-Big thanks to Dr. Emil C. Lupu for all his feedback and support.
-
-Who will maintain the project after we graduate? Emil?
+Thanks to Dr. Emil C. Lupu for all his insightful feedback and support.
 
 
 License
