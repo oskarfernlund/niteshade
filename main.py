@@ -17,7 +17,7 @@ import torch
 from niteshade.attack import AddLabeledPointsAttacker, RandomAttacker, LabelFlipperAttacker
 from niteshade.defence import FeasibleSetDefender, DefenderGroup, SoftmaxDefender
 from niteshade.models import IrisClassifier, MNISTClassifier
-from niteshade.postprocessing import PostProcessor
+from niteshade.postprocessing import PostProcessor, PDF
 from niteshade.simulation import Simulator, wrap_results
 from niteshade.utils import train_test_iris, train_test_MNIST
 
@@ -81,8 +81,23 @@ def test_iris_simulations():
 
     wrapped_data, wrapped_models =  wrap_results(simulators)
 
-    postprocessor = PostProcessor(wrapped_models, BATCH_SIZE, NUM_EPISODES, model)
-    postprocessor.plot_online_learning_accuracies(X_test, y_test, save=False)
+    postprocessor = PostProcessor(wrapped_data, wrapped_models, BATCH_SIZE, NUM_EPISODES, model)
+
+
+    # Get point counts for each simulation
+    data_modifications = postprocessor.track_data_modifications()
+
+    # Save the accruacy plot
+    postprocessor.plot_online_learning_accuracies(X_test, y_test, show_plot=False, save=True, 
+                                                  plotname='test_accuracies', set_plot_title=False)
+    
+    # Generate a PDF
+    header_title = 'Example Simulation Report'
+    pdf = PDF()
+    pdf.set_title(header_title)
+    pdf.add_table(data_modifications, 'Point Summary')
+    pdf.add_chart('output/test_accuracies.png', chart_title='Test Accuracy', new_page=False)
+    pdf.output('summary_report.pdf', 'F')
 
 
 def test_iris_regular():
@@ -169,7 +184,7 @@ def test_MNIST_simulations():
     print(list(wrapped_data['attacker_and_defense']['post_attack'][0].keys()))
     print(list(wrapped_data['attacker_and_defense']['post_defense'][0].keys()))
 
-    #postprocessor = PostProcessor(wrapped_models, BATCH_SIZE, NUM_EPISODES, model)
+    #postprocessor = PostProcessor(wrapped_data, wrapped_models, BATCH_SIZE, NUM_EPISODES, model)
     #postprocessor.plot_online_learning_accuracies(X_test, y_test, save=False)
 
 
@@ -219,7 +234,7 @@ def test_decision_boundaries_MNIST(saved_models=None, baseline=None):
         wrapped_models = torch.load(saved_models)
         baseline_model = torch.load(baseline)
 
-    postprocessor = PostProcessor(wrapped_models, BATCH_SIZE, NUM_EPISODES, baseline_model)
+    postprocessor = PostProcessor(wrapped_data, wrapped_models, BATCH_SIZE, NUM_EPISODES, baseline_model)
     postprocessor.plot_decision_boundaries(X_test, y_test, num_points = 2000, perplexity=100, 
                                            n_iter=2000, fontsize=13, markersize=20, figsize=(10,10), 
                                            resolution=0.2, save=True)
@@ -278,7 +293,7 @@ def test_decision_boundaries_iris(saved_models=None, baseline=None):
         wrapped_models = torch.load(saved_models)
         baseline_model = torch.load(baseline)
 
-    postprocessor = PostProcessor(wrapped_models, BATCH_SIZE, NUM_EPISODES, baseline_model)
+    postprocessor = PostProcessor(wrapped_data, wrapped_models, BATCH_SIZE, NUM_EPISODES, baseline_model)
     postprocessor.plot_decision_boundaries(X_test, y_test, num_points = 200, perplexity=100, 
                                            n_iter=2000, fontsize=13, markersize=20, figsize=(10,10), 
                                            resolution=0.2, save=True)
@@ -289,8 +304,8 @@ def test_decision_boundaries_iris(saved_models=None, baseline=None):
 
 if __name__ == "__main__":
     #-----------IRIS TRIALS------------
-    #test_iris_simulations()
-    test_iris_regular()
+    test_iris_simulations()
+    #test_iris_regular()
 
     #-----------MNIST TRIALS-----------
     #test_MNIST_regular()

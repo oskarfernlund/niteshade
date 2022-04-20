@@ -37,38 +37,55 @@ def copy(array_like):
         return array_like.copy()
     else: 
         raise TypeError("Niteshade only supports np.ndarray or torch.Tensor array-like objects.")
-        
+
+
 def get_time_stamp_as_string():
-    """"""
+    """
+    Returns:
+        date_time_str (str) : current timestemp
+    """
     # Return current timestamp in a saving friendly format.
     date_time = datetime.now()
     date_time_str = date_time.strftime("%d_%b_%Y_(%H_%M_%S.%f)")
     return date_time_str
 
 
-def save_plot(plt, save_dir='output', plot_name='default'):
+def save_plot(plt, dirname='output', plotname='default'):
+    """
+    Args:
+        dirname {str} : name of the directory to save the plot to. 
+                        If the directory doesn't exist, it is created.
+        plotname {str}: plot name, if plotname is set to default, 
+                        the plot name is set to timestemp.
+    """
     # Check if dirrectory exists, if not make one
-    if not os.path.isdir(save_dir):
-        os.mkdir(save_dir)
+    if not os.path.isdir(dirname):
+        os.mkdir(dirname)
 
     # Generate plot name, if needed
-    if plot_name == 'default':
-        plot_name = f'{get_time_stamp_as_string()}.png'
+    if plotname == 'default':
+        plotname = f'{get_time_stamp_as_string()}.png'
 
-    plt.savefig(f'{save_dir}/{plot_name}')
+    plt.savefig(f'{dirname}/{plotname}')
 
 
-def save_pickle(results, dir_name='output', file_name='default'):
-    """"""
+def save_pickle(results, dirname='output', filename='default'):
+    """
+    Args:
+        dirname {str} : name of the directory to save the pickle to. 
+                        If the directory doesn't exist, it is created.
+        filename {str}: file name, if filename is set to default, 
+                        the file name is set to timestemp.
+    """
     # Check if dirrectory exists, if not make one
-    if not os.path.isdir(dir_name):
-        os.mkdir(dir_name)
+    if not os.path.isdir(dirname):
+        os.mkdir(dirname)
 
     # Generate plot name, if needed
-    if file_name == 'default':
-        file_name = f'{get_time_stamp_as_string()}'
+    if filename == 'default':
+        filename = f'{get_time_stamp_as_string()}'
 
-    pickle.dump(results, open(f"{dir_name}/{file_name}", "wb"))
+    pickle.dump(results, open(f"{dirname}/{filename}", "wb"))
 
 
 def load_model(filename):
