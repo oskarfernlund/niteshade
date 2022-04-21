@@ -38,7 +38,6 @@ def copy(array_like):
     else: 
         raise TypeError("Niteshade only supports np.ndarray or torch.Tensor array-like objects.")
 
-
 def get_time_stamp_as_string():
     """
     Returns:
@@ -192,7 +191,7 @@ def decode_one_hot(y):
     return new_y
 
 
-def train_test_iris(num_stacks = 10):
+def train_test_iris(test_size=0.2, num_stacks = 10, rand_state=42):
     #define input and target data
     data = load_iris()
 
@@ -208,7 +207,7 @@ def train_test_iris(num_stacks = 10):
     y = np.repeat(y, num_stacks, axis=0)
 
     #split into train and test sets
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20, random_state=42)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=rand_state)
 
     #normalise data using sklearn module
     scaler = MinMaxScaler()
@@ -221,24 +220,22 @@ def train_test_iris(num_stacks = 10):
     return X_train, y_train, X_test, y_test
 
 
-def train_test_MNIST():
-    MNIST_train = torchvision.datasets.MNIST('datasets/', train=True, download=True,
-                             transform=torchvision.transforms.Compose([
+def train_test_MNIST(dir="datasets/", transform=None):
+    if transform == None:
+        transform = torchvision.transforms.Compose([
                                torchvision.transforms.ToTensor(),
                                torchvision.transforms.Normalize(
-                                 (0.1307,), (0.3081,))
-                             ]))
+                                 (0.1307,), (0.3081,))])
+
+    MNIST_train = torchvision.datasets.MNIST(root=dir, train=True, download=True,
+                                             transform=transform)
 
     #get inputs and labels and convert to numpy arrays
     X_train = MNIST_train.data.numpy().reshape(-1, 1, 28, 28)
     y_train = MNIST_train.targets.numpy()
 
-    MNIST_test = torchvision.datasets.MNIST('datasets/', train=False, download=True,
-                             transform=torchvision.transforms.Compose([
-                               torchvision.transforms.ToTensor(),
-                               torchvision.transforms.Normalize(
-                                 (0.1307,), (0.3081,))
-                             ]))
+    MNIST_test = torchvision.datasets.MNIST(root=dir, train=False, download=True,
+                                            transform=transform)
     
     X_test = MNIST_test.data.numpy().reshape(-1, 1, 28, 28)
     y_test = MNIST_test.targets.numpy()
@@ -246,51 +243,28 @@ def train_test_MNIST():
     return X_train, y_train, X_test, y_test
 
 
-def rand_cmap(nlabels, type='bright', first_color_black=True, last_color_black=False, verbose=True):
+def rand_cmap(nlabels):
     """
-    Creates a random colormap to be used together with matplotlib. Useful for segmentation tasks
-    :param nlabels: Number of labels (size of colormap)
-    :param type: 'bright' for strong colors, 'soft' for pastel colors
-    :param first_color_black: Option to use first color as black, True or False
-    :param last_color_black: Option to use last color as black, True or False
-    :param verbose: Prints the number of labels and shows the colormap. True or False
-    :return: colormap for matplotlib
+    Creates a random colormap to be used together with matplotlib. Useful for segmentation tasks.
+
+    Args:
+        nlabels (int) : Number of labels (size of colormap)
+
+    Returns:
+         random_colormap (ListedColormap) : colormap filled with nlabels random colors.
     """
-    if type not in ('bright', 'soft'):
-        print ('Please choose "bright" or "soft" for type')
-        return
 
     # Generate color map for bright colors, based on hsv
-    if type == 'bright':
-        randHSVcolors = [(np.random.uniform(low=0.0, high=1),
-                          np.random.uniform(low=0.2, high=1),
-                          np.random.uniform(low=0.9, high=1)) for i in range(nlabels)]
+    randHSVcolors = [(np.random.uniform(low=0.0, high=1),
+                        np.random.uniform(low=0.2, high=1),
+                        np.random.uniform(low=0.9, high=1)) for _ in range(nlabels)]
 
-        # Convert HSV list to RGB
-        randRGBcolors = []
-        for HSVcolor in randHSVcolors:
-            randRGBcolors.append(colorsys.hsv_to_rgb(HSVcolor[0], HSVcolor[1], HSVcolor[2]))
+    # Convert HSV list to RGB
+    randRGBcolors = []
+    for HSVcolor in randHSVcolors:
+        randRGBcolors.append(colorsys.hsv_to_rgb(HSVcolor[0], HSVcolor[1], HSVcolor[2]))
 
-        if first_color_black:
-            randRGBcolors[0] = [0, 0, 0]
-
-        if last_color_black:
-            randRGBcolors[-1] = [0, 0, 0]
-
-        random_colormap = ListedColormap(randRGBcolors, N=nlabels)
-
-    # Generate soft pastel colors, by limiting the RGB spectrum
-    if type == 'soft':
-        low = 0.6
-        high = 0.95
-        randRGBcolors = [(np.random.uniform(low=low, high=high),
-                          np.random.uniform(low=low, high=high),
-                          np.random.uniform(low=low, high=high)) for i in range(nlabels)]
-
-        if first_color_black:
-            randRGBcolors[0] = [0, 0, 0]
-
-        random_colormap = ListedColormap(randRGBcolors, N=nlabels)
+    random_colormap = ListedColormap(randRGBcolors, N=nlabels)
 
     return random_colormap
 
