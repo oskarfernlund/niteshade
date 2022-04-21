@@ -17,7 +17,7 @@ niteshade
 
 **niteshade** is a Python library for simulating data poisoning attack and 
 defence strategies against online machine learning systems. The library is 
-written in Python 3.8 and is heavily integrated with PyTorch.
+written in Python 3.10 and is heavily integrated with PyTorch.
 
 For further details about the project, including background information, 
 example usage and detailed API documentation, visit 
@@ -34,7 +34,8 @@ https://pypi.org/project/niteshade/.
 
 .. code-block:: console
 
-   $ pip install niteshade
+    <kbd class="command">brew install package</kbd>
+    $ pip install niteshade
 
 
 Usage
