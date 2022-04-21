@@ -13,9 +13,6 @@ import numpy as np
 import torch
 import torch.nn as nn
 from sklearn.preprocessing import MinMaxScaler, OneHotEncoder
-from sklearn.model_selection import train_test_split
-from sklearn.utils import shuffle
-from sklearn.datasets import load_iris
 
 from niteshade.data import DataLoader
 
@@ -31,7 +28,8 @@ class BaseModel(nn.Module):
        sequence of torch.nn.modules objects needed to perform a forward 
        pass. 
     """
-    def __init__(self, architecture: list, optimizer: str, loss_func: str, lr: float, seed = None):
+    def __init__(self, architecture: list, optimizer: str, 
+                 loss_func: str, lr: float, seed = None):
         """Constrcutor method of BaseModel class that inherits from nn.Module.
         Args: 
             architecture (list) : list or nested list containing sequence of 
@@ -58,6 +56,7 @@ class BaseModel(nn.Module):
         #initialise attributes to store training hyperparameters
         self.lr = lr
         self.loss_func_str = loss_func
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
         #retrieve user-defined sequences of layers
         if any(isinstance(el, list) for el in architecture):
@@ -115,6 +114,11 @@ class BaseModel(nn.Module):
                     y_batch = torch.tensor(y_batch, dtype=torch.long)
 
         self.train() #set model in training mode
+
+        #send data to device
+        X_batch = X_batch.to(self.device)
+        y_batch = y_batch.to(self.device)
+
         #zero gradients so they are not accumulated across batches
         self.optimizer.zero_grad()
 
