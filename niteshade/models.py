@@ -13,9 +13,6 @@ import numpy as np
 import torch
 import torch.nn as nn
 from sklearn.preprocessing import MinMaxScaler, OneHotEncoder
-from sklearn.model_selection import train_test_split
-from sklearn.utils import shuffle
-from sklearn.datasets import load_iris
 
 from niteshade.data import DataLoader
 
@@ -31,8 +28,11 @@ class BaseModel(nn.Module):
        sequence of torch.nn.modules objects needed to perform a forward 
        pass. 
     """
-    def __init__(self, architecture: list, optimizer: str, loss_func: str, lr: float, seed = None):
-        """Constrcutor method of BaseModel class that inherits from nn.Module.
+    def __init__(self, architecture: list, optimizer: str, 
+                 loss_func: str, lr: float, optim_kwargs = {}, 
+                 loss_kwargs = {}, seed = None):
+        """
+        Constrcutor method of BaseModel class that inherits from nn.Module.
         Args: 
             architecture (list) : list or nested list containing sequence of 
                                   nn.torch.modules objects to be used in the 
@@ -42,6 +42,7 @@ class BaseModel(nn.Module):
                               Options:
                                 'adam': torch.optim.Adam(),
                                 'adagrad': torch.optim.Adagrad(),
+                                'adamax': torch.optim.Adamax(),
                                 'sgd': torch.optim.SGD().
 
             loss_func (str) : String specifying loss function to use in training neural network.
@@ -51,13 +52,21 @@ class BaseModel(nn.Module):
                                 'bce': nn.BCELoss(),
                                 'cross_entropy': nn.CrossEntropyLoss().
             
-            - lr (float) : Learning rate to use in training neural network.
+            lr (float) : Learning rate to use in training neural network.
+
+            optim_kwargs (dict) : dictionary containing additional optimizer key-word 
+                                  arguments (Default = {}).
+            
+            loss_kwargs (dict) : dictionary containing additional key-word arguments 
+                                 for the loss function (Default = {}).
+
        
         """
         super().__init__()
         #initialise attributes to store training hyperparameters
         self.lr = lr
         self.loss_func_str = loss_func
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
         #retrieve user-defined sequences of layers
         if any(isinstance(el, list) for el in architecture):
@@ -69,26 +78,47 @@ class BaseModel(nn.Module):
         if seed: 
             torch.manual_seed(seed)
 
-        self.optimizer_mapping = {"adam": torch.optim.Adam(self.parameters(), lr=self.lr),
-                                  "sgd": torch.optim.SGD(self.parameters(), lr=self.lr),
-                                  "adagrad": torch.optim.Adagrad(self.parameters(), lr=self.lr)
-                                 }
-        
-        self.loss_func_mapping = {"mse":  nn.MSELoss(), "cross_entropy":  nn.CrossEntropyLoss(),
-                                  "nll":  nn.NLLLoss(), "bce": nn.BCELoss
-                                 }
-            
-        #string input to torch loss function and optimizer
-        try:
-            self.loss_func = self.loss_func_mapping[loss_func.lower()]
-        except KeyError:
-            raise NotImplementedError(f"The loss function {loss_func} has not been implemented.")
-        try:
-            self.optimizer = self.optimizer_mapping[optimizer.lower()]
-        except KeyError:
+        if optimizer.lower() == 'adam':
+            self.optimizer = torch.optim.Adam(self.parameters(), lr=self.lr, **optim_kwargs)
+        elif optimizer == "sgd":
+            self.optimizer = torch.optim.SGD(self.parameters(), lr=self.lr, **optim_kwargs)
+        elif optimizer == "adagrad": 
+            self.optimizer = torch.optim.Adagrad(self.parameters(), lr=self.lr, **optim_kwargs)
+        elif optimizer == "adamax":
+            self.optimizer = torch.optim.Adamax(self.parameters(), lr=self.lr, **optim_kwargs)
+        else: 
             raise NotImplementedError(f"The optimizer {optimizer} has not been implemented.")
+        
+        if loss_func.lower() == "mse":
+            self.loss_func = nn.MSELoss(**loss_kwargs)
+        elif loss_func.lower() == "cross_entropy":
+            self.loss_func = nn.CrossEntropyLoss(**loss_kwargs)
+        elif loss_func.lower() == "nll":
+            self.loss_func = nn.NLLLoss(**loss_kwargs)  
+        elif loss_func.lower() == "bce":
+            self.loss_func = nn.BCELoss(**loss_kwargs)      
+        else: 
+            raise NotImplementedError(f"The loss function {loss_func} has not been implemented.")
 
         self.losses = []
+    
+    def _check_inputs(self, X, y):
+        assert (isinstance(X, (np.ndarray, torch.Tensor)) 
+                and isinstance(y, (np.ndarray, torch.Tensor)))
+
+        #convert np.ndarray /pd.Dataframe to tensor for the NN
+        if (isinstance(X, np.ndarray) and isinstance(X, np.ndarray)):
+            if self.loss_func_str in ['mse']:
+                X = torch.tensor(X, dtype=torch.float64)
+                y = torch.tensor(y, dtype=torch.float64)
+            if self.loss_func_str in ['nll', 'bce', 'cross_entropy']:
+                X = torch.tensor(X, dtype=torch.float64)
+                #check if one-hot encoded
+                if len(y.shape) > 1: 
+                    y = torch.tensor(y).argmax(dim=1)
+                else: 
+                    y = torch.tensor(y, dtype=torch.long)
+        return X, y
     
     def step(self, X_batch, y_batch):
         """Perform a step of gradient descent on the passed inputs (X_batch) and labels (y_batch).
@@ -98,23 +128,14 @@ class BaseModel(nn.Module):
 
              y_batch (np.ndarray, torch.Tensor) : target data used in training.
         """
-        assert ((isinstance(X_batch, torch.Tensor) and isinstance(y_batch, torch.Tensor))
-               or (isinstance(X_batch, np.ndarray) and isinstance(X_batch, np.ndarray)))
-
-        #convert np.ndarray /pd.Dataframe to tensor for the NN
-        if (isinstance(X_batch, np.ndarray) and isinstance(X_batch, np.ndarray)):
-            if self.loss_func_str in ['mse']:
-                X_batch = torch.tensor(X_batch, dtype=torch.float64)
-                y_batch = torch.tensor(y_batch, dtype=torch.float64)
-            if self.loss_func_str in ['nll', 'bce', 'cross_entropy']:
-                X_batch = torch.tensor(X_batch, dtype=torch.float64)
-                #check if one-hot encoded
-                if len(y_batch.shape) > 1: 
-                    y_batch = torch.tensor(y_batch).argmax(dim=1)
-                else: 
-                    y_batch = torch.tensor(y_batch, dtype=torch.long)
+        X_batch, y_batch = self._check_inputs(X_batch, y_batch)
 
         self.train() #set model in training mode
+
+        #send data to device
+        X_batch = X_batch.to(self.device)
+        y_batch = y_batch.to(self.device)
+
         #zero gradients so they are not accumulated across batches
         self.optimizer.zero_grad()
 
@@ -212,6 +233,8 @@ class IrisClassifier(BaseModel):
             y_test (np.ndarray) : test target data.
             batch_size (int) : size of batches in DataLoader object.
         """
+        X_test, y_test = self._check_inputs(X_test, y_test)
+
         #create dataloader with test data
         test_loader = DataLoader(X_test, y_test, batch_size=batch_size)
         num_batches = len(test_loader)
@@ -223,20 +246,13 @@ class IrisClassifier(BaseModel):
             correct = 0
 
             for inputs, targets in test_loader:
-                #convert np.ndarray to tensor for the NN
-                inputs = torch.tensor(inputs)
-                targets = torch.tensor(targets)
-                
                 outputs = self.forward(inputs.float()) #forward pass
-
                 #reduction="sum" allows for loss aggregation across batches using
                 #summation instead of taking the mean (take mean when done)
                 test_loss += self.loss_func(outputs, targets).item()
 
-                pred = outputs.argmax(dim=1, keepdim=True)
-                true = targets.argmax(dim=1, keepdim=True)
-                
-                correct += pred.eq(true).sum().item()
+                pred = outputs.data.max(1, keepdim=True)[1]
+                correct += pred.eq(targets.view_as(pred)).sum()
 
         num_points = batch_size * num_batches
 
@@ -281,7 +297,7 @@ class MNISTClassifier(BaseModel):
         dense_layers = [nn.Linear(320, 50), 
                         nn.ReLU(), 
                         nn.Linear(50, 10), 
-                        nn.LogSoftmax()
+                        nn.LogSoftmax(dim=-1)
                         ]
 
         architecture = [conv_layers, dense_layers]
@@ -314,7 +330,12 @@ class MNISTClassifier(BaseModel):
             X_test (np.ndarray) : test input data.
             y_test (np.ndarray) : test target data.
         """
+        X_test, y_test = self._check_inputs(X_test, y_test)
+
         self.eval()
+        X_test = X_test.to(self.device)
+        y_test = y_test.to(self.device)
+
         #create dataloader with test data
         test_loader = DataLoader(X_test, y_test, batch_size=batch_size)
         num_batches = len(test_loader)
@@ -325,10 +346,6 @@ class MNISTClassifier(BaseModel):
         correct = 0
         with torch.no_grad():
             for inputs, targets in test_loader:
-                #convert data to torch.Tensor
-                inputs = torch.tensor(inputs)
-                targets = torch.tensor(targets)
-
                 output = self.forward(inputs.float())
                 test_loss += self.loss_func(output, targets).item()
                 pred = output.data.max(1, keepdim=True)[1]

@@ -13,15 +13,18 @@ by defences.
 
 import random
 
+import os
 import numpy as np
+import pandas as pd
 import torch
 import matplotlib.pyplot as plt 
 from sklearn.metrics import accuracy_score
 from sklearn.svm import SVC
 from sklearn.manifold import TSNE
 from tqdm import tqdm
+from fpdf import FPDF
 
-from niteshade.utils import save_plot, get_cmap
+from niteshade.utils import save_plot, get_cmap, get_time_stamp_as_string
 
 
 # =============================================================================
@@ -29,16 +32,70 @@ from niteshade.utils import save_plot, get_cmap
 # =============================================================================
 
 class PostProcessor:
-    def __init__(self, wrapped_models, batch_size, num_episodes, base_model):
+    def __init__(self, wrapped_data, wrapped_models, batch_size, num_episodes, base_model):
         
+        self.wrapped_data = wrapped_data
         self.wrapped_models = wrapped_models
         self.batch_size = batch_size
         self.num_episodes = num_episodes
         self.base_model = base_model
+
+    def track_data_modifications(self):
+        """Computes for each simulation the following:
+            a) the number of points removed by the attacker
+            b) the number of points modified by the attacker
+            c) the number of points removed by the defender
+            d) the number of points modified by the defender
+
+        Returns:
+            - results {pd.core.frame.DataFrame}: Dictionary with keys corresponding to simulator names, 
+                              values corresponding to dictionaroes with keys a, b, c, d 
+                              per above.
+        """
+        results = {}
+        for simulator in self.wrapped_data.keys():
+            s = self.wrapped_data[simulator]
+            
+            original_point_set = set(k for list_item in s['original'] for (k,v) in list_item.items())
+            post_attack_point_set = set(k for list_item in s['post_attack'] for (k,v) in list_item.items())
+            post_defense_point_set = set(k for list_item in s['post_defense'] for (k,v) in list_item.items())
+            
+            removed_by_attacker = len(original_point_set-post_attack_point_set)
+            poisoned_by_attacker = len(post_attack_point_set-original_point_set)
+            removed_by_defender = len(post_attack_point_set-post_defense_point_set)
+            modified_by_defender = len(post_defense_point_set-post_attack_point_set)
+
+            if len(post_attack_point_set) == 0:
+                removed_by_attacker, poisoned_by_attacker = 0, 0
+                removed_by_defender = len(original_point_set-post_defense_point_set)
+                modified_by_defender = len(post_defense_point_set-original_point_set)
+
+            if len(post_defense_point_set) == 0:
+                removed_by_defender, modified_by_defender = 0, 0
+            
+            simulator_result = {
+                'removed_by_attacker': removed_by_attacker,
+                'poisoned_by_attacker': poisoned_by_attacker,
+                'removed_by_defender': removed_by_defender,
+                'modified_by_defender': modified_by_defender
+            }
+    
+            results[simulator] = simulator_result
+
+        return pd.DataFrame(results)
     
     def compute_accuracies(self, X_test, y_test):
-        """
-        # Returns a dictionary of lists with accuracies
+        """Returns a dictionary of lists with accuracies
+
+        Args:
+            - X_test {np.ndarray}: NumPy array containing features.
+            - y_test {np.ndarray}: NumPy array containing labels.
+
+        Returns:
+            - accuracies {dict}: Dictionary where each key is a simulator 
+                                 and each value is a list of coresponding accuracies
+                                 throughout the simulation (each value corresponds to a single
+                                 timestep of a simulation).
         """
         accuracies = {}
         
@@ -53,26 +110,34 @@ class PostProcessor:
                     accuracies[model_name] = [test_accuracy]
         return accuracies
 
-    def plot_online_learning_accuracies(self, X_test, y_test, save=True):
-        """
-        # Prints a plot into a console
+    def plot_online_learning_accuracies(self, X_test, y_test, show_plot=True, save=True, plotname=None, set_plot_title=True):
+        """Prints a plot into a console. Supports supervised learning only.
+        
+        Args:
+            - X_test {np.ndarray}: test features.
+            - y_test {np.ndarray}: test labels.
+            - save {bool} : enable saving. 
+            - plotname {str} : if set to None, file name is set to a current timestamp.
         """
         accuracies = self.compute_accuracies(X_test, y_test)
         
-        x = [e for e in range(len(accuracies['regular']))]
+        for _,v in accuracies.items(): l = len(v)
+        x = [e for e in range(l)]
+        #x = [e for e in range((self.num_episodes))]
 
         fig, ax = plt.subplots(1, figsize=(15,10))
         for model_name, accuracy in accuracies.items():
             ax.plot(x, accuracy, label=model_name)
             ax.legend()
 
-        ax.set_title('Test Accuracy Online Learing')
+        if set_plot_title: ax.set_title('Test Accuracy Online Learing')
         ax.set_xlabel('Episodes')
         ax.set_ylabel('Accuracy')
-        plt.show()
+        if show_plot: plt.show()
         
         if save: 
-            save_plot(fig, plot_name='test_accuracies')
+            if plotname is None: plotname = get_time_stamp_as_string()
+            save_plot(fig, plotname='test_accuracies')
     
     def extract_z(self, dataset, perplexity=50, n_iter=2000):
         """Extract embedded x,y positions for every datapoint in the dataset.
@@ -92,7 +157,6 @@ class PostProcessor:
             - tsne_results: embedded x,y positions for every datapoint in the dataset.
         """
         tsne = TSNE(n_components=2, perplexity=perplexity, n_iter=n_iter)
-        
         tsne_results = tsne.fit_transform(dataset.reshape(dataset.shape[0], -1))
 
         return tsne_results
@@ -150,7 +214,7 @@ class PostProcessor:
     def plot_decision_boundaries(self, X_test, y_test, num_points = 500, perplexity=50, 
                                  n_iter=2000, C=10, kernel='poly', degree=3, figsize=(20,20), 
                                  fontsize=10, markersize=20, resolution = 0.1, 
-                                 save=False): 
+                                 save=False, show_plot=True): 
         """Plot the decision boundaries of the final models inside all the ran Simulator 
            objects passed in the constructor method of the PostProcessor. This method uses 
            sklearn.manifold.TSNE to reduce the dimensionality of X_test to 2D for visualisation
@@ -251,10 +315,98 @@ class PostProcessor:
             plt.ylabel("Embedded Y", fontsize=fontsize)
             plt.xlabel("Embedded X", fontsize=fontsize)
             plt.legend(*scatter.legend_elements(),loc="best", title="Classes", fontsize=fontsize)
-            plt.show()
+            if show_plot: plt.show()
 
             if save: 
-                save_plot(fig, plot_name=f'{sim_label}')
+                save_plot(fig, plotname=f'{sim_label}')
+
+
+class PDF(FPDF):
+    def header(self):
+        self.set_font('Arial', '', 15)
+        w = self.get_string_width(self.title) + 6
+        self.set_x((self.w - w) / 2)
+        self.set_draw_color(255, 255, 255)
+        self.set_fill_color(255, 255, 255)
+        self.set_text_color(128)
+        self.cell(w, 9, self.title, 1, 1, 'C', 1)
+        self.set_line_width(0.25)
+        self.set_draw_color(128)
+        #self.line(10, 22, self.w-10, 22)
+        self.line(10, 23, self.w-10, 23)
+        self.ln(20)
+
+    def footer(self):
+        self.set_y(-15)
+        self.set_font('Arial', 'I', 8)
+        self.set_text_color(128)
+        self.cell(0, 10, 'Page ' + str(self.page_no()), 0, 0, 'C')
+
+    def add_table(self, df, table_title=None, new_page=True):
+        """Add a table to the pdf.
+
+        Args:
+            - df {pd.core.frame.DataFrame} : pandas data frame.
+            - table_title {string} : title as necessary.
+            - new_page {bool} : print table on a new page.
+        """
+        assert type(df) == pd.core.frame.DataFrame
+        
+        # Prepare the df to be parsed row by row
+        df.reset_index(inplace=True)
+        data = [list(df.columns)]
+        data.extend(df.values.tolist())
+        
+        # Add to PDF
+        if new_page: self.add_page()
+        
+        effective_page_width = self.w - 2*self.l_margin
+        col_width = effective_page_width/len(df.columns)
+        cell_thickness = self.font_size
+        
+        # Title
+        self.set_font('Arial','B', 10) 
+        if table_title: self.cell(effective_page_width, 0, table_title, align='C')
+        
+        # Table 
+        self.set_font('Arial','',8) 
+        self.ln(6)
+
+        for row in data:
+            for datum in row:
+                self.cell(col_width, 1.5*cell_thickness, str(datum), border=1)
+            self.ln(1.5*cell_thickness) 
+
+        self.ln()
+
+    def add_chart(self, file_path, chart_title=None, new_page=True):
+        """Add a jpg / png / jpeg to a pdf.
+
+        Args:
+            - file_path {string} : file path.
+            - chart_title {string} : title as necessary.
+            - new_page {bool} : print table on a new page.
+        """
+        if new_page: self.add_page()
+        self.set_font('Arial','B', 10)
+        effective_page_width = self.w - 2*self.l_margin
+        if chart_title: 
+            self.cell(effective_page_width, 0, chart_title, align='C')
+            self.ln(2)
+        self.image(file_path, x = 0, y = None, w = 200, h = 0, type = '', link = '')
+        self.ln()
+
+    def add_all_charts_from_directory(self, dir_path, new_page=True):
+        """Add all jpg / png / jpeg to a pdf from a directory.
+
+        Args:
+            - dir_path {string} : directory path.
+            - new_page {bool} : print table on a new page.
+        """
+        contents = os.listdir(dir_path)
+        for chart in contents: 
+            if chart.split('.')[-1] in ['jpeg', 'jpg', 'png']:
+                self.add_chart(f'{dir_path}/{chart}', chart_title=chart.split('.')[0], new_page=True)
 
 
 # =============================================================================
