@@ -17,6 +17,7 @@ niteshade.postprocessing.PDF
    
       ~PDF.__init__
       ~PDF.accept_page_break
+      ~PDF.add_all_charts_from_directory
       ~PDF.add_chart
       ~PDF.add_font
       ~PDF.add_link
