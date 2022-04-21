@@ -64,25 +64,21 @@ tests, linting the source code and publishing releases.
 
     $ cd env/
 
-Package dependencies (``pip`` users):
+Package dependencies (``pip`` and ``Anaconda`` instructions):
 
 .. code-block:: console
 
     $ pip install -r pkg_requirements.txt
 
-Package dependencies (``Anaconda`` users):
-
 .. code-block:: console
 
     $ conda env create -f pkg_environment.yml
 
-Developer dependencies (``pip`` users):
+Developer dependencies (``pip`` and ``Anaconda`` instructions):
 
 .. code-block:: console
 
     $ pip install -r dev_requirements.txt
-
-Developer dependencies (``Anaconda`` users):
 
 .. code-block:: console
 
@@ -114,7 +110,7 @@ follows:
 
     $ pytest
     ...
-    ===== X passed, X warnings in X.XX seconds =====
+    ===== x passed, x warnings in x.xx seconds =====
 
 
 Releases
@@ -124,10 +120,10 @@ Releases are published to PyPI automatically when a tag is pushed to GitHub.
 
 .. code-block:: console
 
-    $ export RELEASE=x.x.x # set next version number
-    $ git commit --allow-empty -m "Release $RELEASE" # commit
-    $ git tag -a $RELEASE -m "Version $RELEASE" # create tag
-    $ git push origin --tags # push
+    $ export RELEASE=x.x.x
+    $ git commit --allow-empty -m "Release $RELEASE"
+    $ git tag -a $RELEASE -m "Version $RELEASE"
+    $ git push origin --tags
 
 
 Contributing
