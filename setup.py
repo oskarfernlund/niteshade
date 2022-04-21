@@ -24,7 +24,7 @@ setuptools.setup(
     license="MIT",
     classifiers=[
         "License :: OSI Approved :: MIT License",
-        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.10",
         "Operating System :: OS Independent",
     ],
     packages=setuptools.find_packages(exclude=("tests",)),
