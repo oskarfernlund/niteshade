@@ -251,10 +251,8 @@ class IrisClassifier(BaseModel):
                 #summation instead of taking the mean (take mean when done)
                 test_loss += self.loss_func(outputs, targets).item()
 
-                pred = outputs.argmax(dim=1, keepdim=True)
-                true = targets.argmax(dim=1, keepdim=True)
-                
-                correct += pred.eq(true).sum().item()
+                pred = outputs.data.max(1, keepdim=True)[1]
+                correct += pred.eq(targets.view_as(pred)).sum()
 
         num_points = batch_size * num_batches
 
