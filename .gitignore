@@ -12,3 +12,5 @@
 **/dist
 **.egg-info
 **/datasets
+**/output
+**.pdf

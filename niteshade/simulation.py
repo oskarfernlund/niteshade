@@ -17,6 +17,7 @@ from collections import defaultdict
 
 import torch
 import numpy as np
+from tqdm import tqdm
 
 from niteshade.data import DataLoader
 from niteshade.attack import Attacker
@@ -169,7 +170,6 @@ class Simulator():
         if is_attacker:
             args, defaults = self._get_func_args(self.attacker.attack)
             valid_args = self._get_valid_args(args, input_args) #get coinciding arguments 
-            print(all([arg in self.true_attacker_args for arg in valid_args]))
             if not all([arg in self.true_attacker_args for arg in valid_args]):
                 missing_args = [arg for arg in self.true_attacker_args if arg not in valid_args]
                 raise ArgNotFoundError(f"Arguments: {missing_args} are missing in attacker_args for .attack() method.")
@@ -253,7 +253,7 @@ class Simulator():
         self.results[self._cp_labels[checkpoint]].append(data)
 
     def run(self, defender_args = {}, attacker_args = {}, attacker_requires_model=False, 
-            defender_requires_model=False, verbose = True) -> None:
+            defender_requires_model=False) -> None:
         """
         Runs a simulation of an online learning setting where, if specified, an attacker
         will 'poison' (i.e. perturb) incoming data points (from an episode) according to an 
@@ -292,8 +292,6 @@ class Simulator():
                                              the updated model at each episode.
             defender_requires_model (bool) : specifies if the .defend() method of the defender requires 
                                              the updated model at each episode.
-            verbose (bool) : Specifies if loss should be printed for each batch the model is trained on. 
-                             Default = True.
         """
         self.num_poisoned = 0
         self.num_defended = 0
@@ -301,85 +299,82 @@ class Simulator():
         batch_queue = DataLoader(batch_size = self.batch_size) #initialise cache data loader
         
         batch_num = 0
-        for episode, (X_episode, y_episode) in enumerate(generator):
-            #save ids of true points
-            self._log(X_episode, y_episode, checkpoint=0) #log results
+        with tqdm(generator, desc="Running simulation", unit="episode") as tepoch: 
+            for episode, (X_episode, y_episode) in enumerate(tepoch):
+                #save ids of true points
+                self._log(X_episode, y_episode, checkpoint=0) #log results
 
-            # Attacker's turn to attack
-            if self.attacker:
-                if attacker_requires_model:
-                    if "model" in self.true_attacker_args:
-                        attacker_args["model"] = self.model
-                    else: 
-                        raise ArgNotFoundError("Argument 'model' was not found in .attack() method.")
+                # Attacker's turn to attack
+                if self.attacker:
+                    if attacker_requires_model:
+                        if "model" in self.true_attacker_args:
+                            attacker_args["model"] = self.model
+                        else: 
+                            raise ArgNotFoundError("Argument 'model' was not found in .attack() method.")
 
-                if episode == 0:
-                    #look at args of .attack() method to check for inconsistencies with inputted ones
-                    valid_attacker_args = self._check_for_missing_args(input_args=attacker_args, is_attacker=True)
-                    #use only arguments that are actually in method
-                    attacker_args = {key:value for key, value in attacker_args.items() if key in valid_attacker_args}
+                    if episode == 0:
+                        #look at args of .attack() method to check for inconsistencies with inputted ones
+                        valid_attacker_args = self._check_for_missing_args(input_args=attacker_args, is_attacker=True)
+                        #use only arguments that are actually in method
+                        attacker_args = {key:value for key, value in attacker_args.items() if key in valid_attacker_args}
+                    
+                    #pass episode datapoints to attacker
+                    orig_X_episode = copy(X_episode)
+                    orig_y_episode = copy(y_episode)
+                    X_episode, y_episode = self.attacker.attack(X_episode, y_episode, **attacker_args)
+
+                    #check if shapes have been altered in .attack() method
+                    self._shape_check(orig_X_episode, orig_y_episode, X_episode, y_episode)
+                    self._log(X_episode, y_episode, checkpoint=1) #log results
+
+                # Defender's turn to defend
+                if self.defender:
+                    if defender_requires_model:
+                        if "model" in self.true_defender_args:
+                            defender_args["model"] = self.model
+                        else: 
+                            raise ArgNotFoundError("Argument 'model' was not found in .defend() method.")
+
+                    if episode == 0:
+                        #look at args of .attack() method to check for inconsistencies with inputted ones
+                        valid_defender_args = self._check_for_missing_args(input_args=defender_args, is_attacker=False)
+                        #use only arguments that are actually in method
+                        defender_args = {key:value for key, value in defender_args.items() if key in valid_defender_args}
+
+                    #pass possibly perturbed points onto defender
+                    orig_X_episode = copy(X_episode)
+                    orig_y_episode = copy(y_episode)
+                    X_episode, y_episode = self.defender.defend(X_episode, y_episode, **defender_args)
+
+                    #check if shapes have been altered in .defend() method
+                    self._shape_check(orig_X_episode, orig_y_episode, X_episode, y_episode)
+                    self._log(X_episode, y_episode, checkpoint=2) #log results
+
+                batch_queue.add_to_cache(X_episode, y_episode) #add perturbed / filtered points to batch queue
                 
-                #pass episode datapoints to attacker
-                orig_X_episode = copy(X_episode)
-                orig_y_episode = copy(y_episode)
-                X_episode, y_episode = self.attacker.attack(X_episode, y_episode, **attacker_args)
+                # Online learning loop
+                for (X_batch, y_batch) in batch_queue:
+                    
+                    #take a gradient descent step
+                    self.model.step(X_batch, y_batch) 
 
-                #check if shapes have been altered in .attack() method
-                self._shape_check(orig_X_episode, orig_y_episode, X_episode, y_episode)
-                self._log(X_episode, y_episode, checkpoint=1) #log results
+                    if hasattr(self.model, 'losses'):
+                        loss = self.model.losses[-1]
+                        tepoch.set_postfix(loss=loss.item()/len(X_episode))
 
-            # Defender's turn to defend
-            if self.defender:
-                if defender_requires_model:
-                    if "model" in self.true_defender_args:
-                        defender_args["model"] = self.model
                     else: 
-                        raise ArgNotFoundError("Argument 'model' was not found in .defend() method.")
+                        loss = 'n/a'
+                        tepoch.set_postfix(loss="n/a")
 
-                if episode == 0:
-                    #look at args of .attack() method to check for inconsistencies with inputted ones
-                    valid_defender_args = self._check_for_missing_args(input_args=defender_args, is_attacker=False)
-                    #use only arguments that are actually in method
-                    defender_args = {key:value for key, value in defender_args.items() if key in valid_defender_args}
+                #save model state dictionary
+                state_dict = deepcopy(self.model.state_dict())
+                self.results['models'].append(state_dict)
+                self.episode += 1
 
-                #pass possibly perturbed points onto defender
-                orig_X_episode = copy(X_episode)
-                orig_y_episode = copy(y_episode)
-                X_episode, y_episode = self.defender.defend(X_episode, y_episode, **defender_args)
-
-                #check if shapes have been altered in .defend() method
-                self._shape_check(orig_X_episode, orig_y_episode, X_episode, y_episode)
-                self._log(X_episode, y_episode, checkpoint=2) #log results
-
-            batch_queue.add_to_cache(X_episode, y_episode) #add perturbed / filtered points to batch queue
-            
-            # Online learning loop
-            for (X_batch, y_batch) in batch_queue:
-                
-                #take a gradient descent step
-                self.model.step(X_batch, y_batch) 
-
-                if hasattr(self.model, 'losses'):
-                    loss = self.model.losses[-1]
-                else: 
-                    loss = None
-
-                if verbose:
-                    print("Batch: {:03d} -- Loss: {:.4f}".format(
-                        batch_num,
-                        loss,
-                        ))
-                batch_num += 1
-
-            #save model state dictionary
-            state_dict = deepcopy(self.model.state_dict())
-            self.results['models'].append(state_dict)
-            self.episode += 1
-
-            #reinitialize episode id lists for different checkpoints
-            self._original_ids = {}
-            self._attacked_ids = {}
-            self._defended_ids = {}
+                #reinitialize episode id lists for different checkpoints
+                self._original_ids = {}
+                self._attacked_ids = {}
+                self._defended_ids = {}
 
         # Save the results to the results directory
         if self.save:

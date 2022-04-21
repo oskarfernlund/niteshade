@@ -173,18 +173,15 @@ def test_MNIST_simulations():
                         defender=None, batch_size=BATCH_SIZE, num_episodes=NUM_EPISODES)
 
     #simulate attack and defense separately using class method
-    simulator1.run(defender_requires_model=True)
-    #simulator2.run(defender_requires_model=True)
-    #simulator3.run(defender_requires_model=True)
-    #simulator4.run(defender_requires_model=True)
+    simulator1.run()
+    #simulator2.run()
+    #simulator3.run()
+    #simulator4.run()
 
     simulators = {'attacker_and_defense': simulator1}#, 'only_defender':simulator2,
                 #'only_attacker': simulator3, 'regular': simulator4}
 
     wrapped_data, wrapped_models =  wrap_results(simulators)
-    print('Done')
-    print(list(wrapped_data['attacker_and_defense']['post_attack'][0].keys()))
-    print(list(wrapped_data['attacker_and_defense']['post_defense'][0].keys()))
 
     #postprocessor = PostProcessor(wrapped_data, wrapped_models, BATCH_SIZE, NUM_EPISODES, model)
     #postprocessor.plot_online_learning_accuracies(X_test, y_test, save=False)
@@ -324,12 +321,12 @@ def test_decision_boundaries_iris(saved_models=None, baseline=None):
 
 if __name__ == "__main__":
     #-----------IRIS TRIALS------------
-    test_iris_simulations()
+    #test_iris_simulations()
     #test_iris_regular()
 
     #-----------MNIST TRIALS-----------
     #test_MNIST_regular()
-    #test_MNIST_simulations()
+    test_MNIST_simulations()
 
     #----------POSTPROCESSOR TRIALS----
     #saved_models='wrapped_models.pickle'
