@@ -34,7 +34,7 @@ https://pypi.org/project/niteshade/.
 
 .. code-block:: console
 
-    pip install niteshade
+    $ pip install niteshade
 
 
 Usage
@@ -62,27 +62,31 @@ tests, linting the source code and publishing releases.
 
 .. code-block:: console
 
-    cd env/
+    $ cd env/
 
-Package dependencies:
-
-.. code-block:: console
-
-    pip install -r pkg_requirements.txt
+Package dependencies (``pip`` users):
 
 .. code-block:: console
 
-    conda env create -f pkg_environment.yml
+    $ pip install -r pkg_requirements.txt
 
-Developer dependencies:
-
-.. code-block:: console
-
-    pip install -r dev_requirements.txt
+Package dependencies (``Anaconda`` users):
 
 .. code-block:: console
 
-    conda env create -f dev_environment.yml
+    $ conda env create -f pkg_environment.yml
+
+Developer dependencies (``pip`` users):
+
+.. code-block:: console
+
+    $ pip install -r dev_requirements.txt
+
+Developer dependencies (``Anaconda`` users):
+
+.. code-block:: console
+
+    $ conda env create -f dev_environment.yml
 
 
 Building the Documentation
@@ -95,8 +99,8 @@ documentation by running ``make <format>`` from the ``docs/`` directory. Run
 
 .. code-block:: console
 
-    cd docs/
-    make clean && make <format>
+    $ cd docs/
+    $ make clean && make <format>
 
 
 Running Unit and Integration Tests
@@ -108,8 +112,9 @@ follows:
 
 .. code-block:: console
 
-    pytest
-    === X passed in x.xx seconds ===
+    $ pytest
+    ...
+    ===== X passed, X warnings in X.XX seconds =====
 
 
 Releases
@@ -117,24 +122,12 @@ Releases
 
 Releases are published to PyPI automatically when a tag is pushed to GitHub.
 
-Set next version number
-
 .. code-block:: console
 
-    export RELEASE=x.x.x
-
-Create tags
-
-.. code-block:: console
-
-    git commit --allow-empty -m "Release $RELEASE"
-    git tag -a $RELEASE -m "Version $RELEASE"
-
-Push
-
-.. code-block:: console
-
-    git push origin --tags
+    $ export RELEASE=x.x.x # set next version number
+    $ git commit --allow-empty -m "Release $RELEASE" # commit
+    $ git tag -a $RELEASE -m "Version $RELEASE" # create tag
+    $ git push origin --tags # push
 
 
 Contributing
