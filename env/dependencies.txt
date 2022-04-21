@@ -29,8 +29,10 @@ Testing
 -------
 pytest
 
+Reporting
+---------
+fpdf
+
 Other
 -----
 jupyter
-
-
