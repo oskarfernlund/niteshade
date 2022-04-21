@@ -122,7 +122,12 @@
 <td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="niteshade.utils.get_time_stamp_as_string.html#niteshade.utils.get_time_stamp_as_string" title="niteshade.utils.get_time_stamp_as_string"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_time_stamp_as_string</span></code></a>()</p></td>
-<td><p></p></td>
+<td><p><dl class="field-list simple">
+<dt class="field-odd">returns</dt>
+<dd class="field-odd"><p>current timestemp</p>
+</dd>
+</dl>
+</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="niteshade.utils.load_model.html#niteshade.utils.load_model" title="niteshade.utils.load_model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_model</span></code></a>(filename)</p></td>
 <td><p>Load a binary file containing a neural network.</p></td>
@@ -130,22 +135,32 @@
 <tr class="row-even"><td><p><a class="reference internal" href="niteshade.utils.one_hot_encoding.html#niteshade.utils.one_hot_encoding" title="niteshade.utils.one_hot_encoding"><code class="xref py py-obj docutils literal notranslate"><span class="pre">one_hot_encoding</span></code></a>(y, num_classes)</p></td>
 <td><p>Perform one hot encoding of previiously decoded data.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="niteshade.utils.rand_cmap.html#niteshade.utils.rand_cmap" title="niteshade.utils.rand_cmap"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rand_cmap</span></code></a>(nlabels[, type, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="niteshade.utils.rand_cmap.html#niteshade.utils.rand_cmap" title="niteshade.utils.rand_cmap"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rand_cmap</span></code></a>(nlabels)</p></td>
 <td><p>Creates a random colormap to be used together with matplotlib.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="niteshade.utils.save_model.html#niteshade.utils.save_model" title="niteshade.utils.save_model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_model</span></code></a>(model, filename)</p></td>
 <td><p>Save classifier as a binary .pickle file.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="niteshade.utils.save_pickle.html#niteshade.utils.save_pickle" title="niteshade.utils.save_pickle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_pickle</span></code></a>(results[, dir_name, file_name])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="niteshade.utils.save_pickle.html#niteshade.utils.save_pickle" title="niteshade.utils.save_pickle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_pickle</span></code></a>(results[, dirname, filename])</p></td>
+<td><p><dl class="field-list simple">
+<dt class="field-odd">param dirname {str}</dt>
+<dd class="field-odd"><p>name of the directory to save the pickle to.</p>
+</dd>
+</dl>
+</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="niteshade.utils.save_plot.html#niteshade.utils.save_plot" title="niteshade.utils.save_plot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_plot</span></code></a>(plt[, dirname, plotname])</p></td>
+<td><p><dl class="field-list simple">
+<dt class="field-odd">param dirname {str}</dt>
+<dd class="field-odd"><p>name of the directory to save the plot to.</p>
+</dd>
+</dl>
+</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="niteshade.utils.train_test_MNIST.html#niteshade.utils.train_test_MNIST" title="niteshade.utils.train_test_MNIST"><code class="xref py py-obj docutils literal notranslate"><span class="pre">train_test_MNIST</span></code></a>([dir, transform])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="niteshade.utils.save_plot.html#niteshade.utils.save_plot" title="niteshade.utils.save_plot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_plot</span></code></a>(plt[, save_dir, plot_name])</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="niteshade.utils.train_test_MNIST.html#niteshade.utils.train_test_MNIST" title="niteshade.utils.train_test_MNIST"><code class="xref py py-obj docutils literal notranslate"><span class="pre">train_test_MNIST</span></code></a>()</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="niteshade.utils.train_test_iris.html#niteshade.utils.train_test_iris" title="niteshade.utils.train_test_iris"><code class="xref py py-obj docutils literal notranslate"><span class="pre">train_test_iris</span></code></a>([num_stacks])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="niteshade.utils.train_test_iris.html#niteshade.utils.train_test_iris" title="niteshade.utils.train_test_iris"><code class="xref py py-obj docutils literal notranslate"><span class="pre">train_test_iris</span></code></a>([test_size, num_stacks, ...])</p></td>
 <td><p></p></td>
 </tr>
 </tbody>

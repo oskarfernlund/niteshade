@@ -94,32 +94,29 @@
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">niteshade.simulation.</span></span><span class="sig-name descname"><span class="pre">Simulator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attacker</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">defender</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_episodes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niteshade.simulation.Simulator" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Class used to simulate data poisoning attacks during online learning.</p>
-<blockquote>
-<div><dl>
-<dt>Args:</dt><dd><dl class="simple">
-<dt>X (np.ndarray, torch.Tensor)<span class="classifier">stream of input data to train the model</span></dt><dd><p>with during supervised learning.</p>
-</dd>
-<dt>y (np.ndarray, torch.Tensor)<span class="classifier">stream of target data (labels to the inputs)</span></dt><dd><p>to train the model with during supervised learning.</p>
-</dd>
-<dt>model (torch.nn.Module)<span class="classifier">neural network model inheriting from torch.nn.Module to</span></dt><dd><p>be trained during online learning. Must present a .step()
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>X</strong> (<em>np.ndarray</em><em>, </em><em>torch.Tensor</em>) – stream of input data to train the model
+with during supervised learning.</p></li>
+<li><p><strong>y</strong> (<em>np.ndarray</em><em>, </em><em>torch.Tensor</em>) – stream of target data (labels to the inputs)
+to train the model with during supervised learning.</p></li>
+<li><p><strong>model</strong> (<em>torch.nn.Module</em>) – neural network model inheriting from torch.nn.Module to
+be trained during online learning. Must present a .step()
 method that performs a gradient descent step on a batch
-of input and target data (X_batch and y_batch).</p>
-</dd>
-<dt>attacker (Attacker)<span class="classifier">Attacker object that presents a .attack() method with an</span></dt><dd><p>implementation of a data poisoning attack strategy.</p>
-</dd>
-<dt>defender (Defender)<span class="classifier">Defender object that presents a .defend() method with an</span></dt><dd><p>implementation of a data poisoning defense strategy.</p>
-</dd>
-</dl>
-<p>batch_size (int) : batch size of model.</p>
-<dl class="simple">
-<dt>num_episodes (int)<span class="classifier">Number of ‘episodes’ that X and y span over. Here, we refer to</span></dt><dd><p>an episode as the time period over which a stream of incoming data
+of input and target data (X_batch and y_batch).</p></li>
+<li><p><strong>attacker</strong> (<a class="reference internal" href="niteshade.attack.Attacker.html#niteshade.attack.Attacker" title="niteshade.attack.Attacker"><em>Attacker</em></a>) – Attacker object that presents a .attack() method with an
+implementation of a data poisoning attack strategy.</p></li>
+<li><p><strong>defender</strong> (<a class="reference internal" href="niteshade.defence.Defender.html#niteshade.defence.Defender" title="niteshade.defence.Defender"><em>Defender</em></a>) – Defender object that presents a .defend() method with an
+implementation of a data poisoning defense strategy.</p></li>
+<li><p><strong>batch_size</strong> (<em>int</em>) – batch size of model.</p></li>
+<li><p><strong>num_episodes</strong> (<em>int</em>) – Number of ‘episodes’ that X and y span over. Here, we refer to
+an episode as the time period over which a stream of incoming data
 would be collected and subsequently passed on to the model to be
-trained.</p>
+trained.</p></li>
+</ul>
 </dd>
 </dl>
-</dd>
-</dl>
-</div></blockquote>
 <dl class="py method">
 <dt class="sig sig-object py" id="niteshade.simulation.Simulator.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attacker</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">defender</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_episodes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#niteshade.simulation.Simulator.__init__" title="Permalink to this definition"></a></dt>
@@ -142,7 +139,7 @@ trained.</p>
 </table>
 <dl class="py method">
 <dt class="sig sig-object py" id="niteshade.simulation.Simulator.run">
-<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">defender_args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attacker_args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attacker_requires_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">defender_requires_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#niteshade.simulation.Simulator.run" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">defender_args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attacker_args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attacker_requires_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">defender_requires_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#niteshade.simulation.Simulator.run" title="Permalink to this definition"></a></dt>
 <dd><p>Runs a simulation of an online learning setting where, if specified, an attacker
 will ‘poison’ (i.e. perturb) incoming data points (from an episode) according to an
 implemented attack strategy (i.e. .attack() method) and a defender (also, if
@@ -178,8 +175,6 @@ X and labels y) for attacker .attack() method.</p></li>
 the updated model at each episode.</p></li>
 <li><p><strong>defender_requires_model</strong> (<em>bool</em>) – specifies if the .defend() method of the defender requires
 the updated model at each episode.</p></li>
-<li><p><strong>verbose</strong> (<em>bool</em>) – Specifies if loss should be printed for each batch the model is trained on.
-Default = True.</p></li>
 </ul>
 </dd>
 </dl>

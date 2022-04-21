@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>niteshade.postprocessing.PDF &mdash; niteshade 0+unknown documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="author" title="About these documents" href="../about.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="niteshade.postprocessing.PostProcessor" href="niteshade.postprocessing.PostProcessor.html" />
+    <link rel="prev" title="niteshade.postprocessing" href="niteshade.postprocessing.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> niteshade
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../about.html">About</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../api.html">API</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="niteshade.data.html">niteshade.data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="niteshade.models.html">niteshade.models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="niteshade.attack.html">niteshade.attack</a></li>
+<li class="toctree-l2"><a class="reference internal" href="niteshade.defence.html">niteshade.defence</a></li>
+<li class="toctree-l2"><a class="reference internal" href="niteshade.simulation.html">niteshade.simulation</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="niteshade.postprocessing.html">niteshade.postprocessing</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">niteshade.postprocessing.PDF</a></li>
+<li class="toctree-l3"><a class="reference internal" href="niteshade.postprocessing.PostProcessor.html">niteshade.postprocessing.PostProcessor</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="niteshade.utils.html">niteshade.utils</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">niteshade</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../api.html">API</a> &raquo;</li>
+          <li><a href="niteshade.postprocessing.html">niteshade.postprocessing</a> &raquo;</li>
+      <li>niteshade.postprocessing.PDF</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/_autosummary/niteshade.postprocessing.PDF.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="niteshade-postprocessing-pdf">
+<h1>niteshade.postprocessing.PDF<a class="headerlink" href="#niteshade-postprocessing-pdf" title="Permalink to this headline"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="niteshade.postprocessing.PDF">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">niteshade.postprocessing.</span></span><span class="sig-name descname"><span class="pre">PDF</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">orientation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'P'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mm'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'A4'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niteshade.postprocessing.PDF" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">fpdf.fpdf.FPDF</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="niteshade.postprocessing.PDF.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">orientation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'P'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mm'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'A4'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niteshade.postprocessing.PDF.__init__" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#niteshade.postprocessing.PDF.__init__" title="niteshade.postprocessing.PDF.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>([orientation, unit, format])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">accept_page_break</span></code>()</p></td>
+<td><p>Accept automatic page break or not</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#niteshade.postprocessing.PDF.add_chart" title="niteshade.postprocessing.PDF.add_chart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_chart</span></code></a>(file_path[, chart_title, new_page])</p></td>
+<td><p>Add a jpg / png / jpeg to a pdf.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_font</span></code>(family[, style, fname, uni])</p></td>
+<td><p>Add a TrueType or Type1 font</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_link</span></code>()</p></td>
+<td><p>Create a new internal link</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_page</span></code>([orientation])</p></td>
+<td><p>Start a new page</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#niteshade.postprocessing.PDF.add_table" title="niteshade.postprocessing.PDF.add_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_table</span></code></a>(df[, table_title, new_page])</p></td>
+<td><p>Add a table to the pdf.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">alias_nb_pages</span></code>([alias])</p></td>
+<td><p>Define an alias for total number of pages</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">cell</span></code>(w[, h, txt, border, ln, align, fill, link])</p></td>
+<td><p>Output a cell</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_page</span></code>()</p></td>
+<td><p>Decorator to protect drawing methods</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">close</span></code>()</p></td>
+<td><p>Terminate document</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">code39</span></code>(txt, x, y[, w, h])</p></td>
+<td><p>Barcode 3of9</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">dashed_line</span></code>(x1, y1, x2, y2[, dash_length, ...])</p></td>
+<td><p>Draw a dashed line.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ellipse</span></code>(x, y, w, h[, style])</p></td>
+<td><p>Draw a ellipse</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">error</span></code>(msg)</p></td>
+<td><p>Fatal error</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#niteshade.postprocessing.PDF.footer" title="niteshade.postprocessing.PDF.footer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">footer</span></code></a>()</p></td>
+<td><p>Footer to be implemented in your own inherited class</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_string_width</span></code>(s)</p></td>
+<td><p>Get width of a string in the current font</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_x</span></code>()</p></td>
+<td><p>Get x position</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_y</span></code>()</p></td>
+<td><p>Get y position</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#niteshade.postprocessing.PDF.header" title="niteshade.postprocessing.PDF.header"><code class="xref py py-obj docutils literal notranslate"><span class="pre">header</span></code></a>()</p></td>
+<td><p>Header to be implemented in your own inherited class</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">image</span></code>(name[, x, y, w, h, type, link])</p></td>
+<td><p>Put an image on the page</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">interleaved2of5</span></code>(txt, x, y[, w, h])</p></td>
+<td><p>Barcode I2of5 (numeric), adds a 0 if odd lenght</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">line</span></code>(x1, y1, x2, y2)</p></td>
+<td><p>Draw a line</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">link</span></code>(x, y, w, h, link)</p></td>
+<td><p>Put a link on the page</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ln</span></code>([h])</p></td>
+<td><p>Line Feed; default value is last cell height</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">multi_cell</span></code>(w, h[, txt, border, align, fill, ...])</p></td>
+<td><p>Output text with automatic or explicit line breaks</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">normalize_text</span></code>(txt)</p></td>
+<td><p>Check that text input is in the correct format/encoding</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">open</span></code>()</p></td>
+<td><p>Begin document</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">output</span></code>([name, dest])</p></td>
+<td><p>Output PDF to some destination</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">page_no</span></code>()</p></td>
+<td><p>Get current page number</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">rect</span></code>(x, y, w, h[, style])</p></td>
+<td><p>Draw a rectangle</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">rotate</span></code>(angle[, x, y])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_author</span></code>(author)</p></td>
+<td><p>Author of document</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_auto_page_break</span></code>(auto[, margin])</p></td>
+<td><p>Set auto page break mode and triggering margin</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_compression</span></code>(compress)</p></td>
+<td><p>Set page compression</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_creator</span></code>(creator)</p></td>
+<td><p>Creator of document</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_display_mode</span></code>(zoom[, layout])</p></td>
+<td><p>Set display mode in viewer</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_draw_color</span></code>(r[, g, b])</p></td>
+<td><p>Set color for all stroking operations</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_fill_color</span></code>(r[, g, b])</p></td>
+<td><p>Set color for all filling operations</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_font</span></code>(family[, style, size])</p></td>
+<td><p>Select a font; size given in points</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_font_size</span></code>(size)</p></td>
+<td><p>Set font size in points</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_keywords</span></code>(keywords)</p></td>
+<td><p>Keywords of document</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_left_margin</span></code>(margin)</p></td>
+<td><p>Set left margin</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_line_width</span></code>(width)</p></td>
+<td><p>Set line width</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_link</span></code>(link[, y, page])</p></td>
+<td><p>Set destination of internal link</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_margins</span></code>(left, top[, right])</p></td>
+<td><p>Set left, top and right margins</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_right_margin</span></code>(margin)</p></td>
+<td><p>Set right margin</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_subject</span></code>(subject)</p></td>
+<td><p>Subject of document</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_text_color</span></code>(r[, g, b])</p></td>
+<td><p>Set color for text</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_title</span></code>(title)</p></td>
+<td><p>Title of document</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_top_margin</span></code>(margin)</p></td>
+<td><p>Set top margin</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_x</span></code>(x)</p></td>
+<td><p>Set x position</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_xy</span></code>(x, y)</p></td>
+<td><p>Set x and y positions</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_y</span></code>(y)</p></td>
+<td><p>Set y position and reset x</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">text</span></code>(x, y[, txt])</p></td>
+<td><p>Output a string</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">write</span></code>(h[, txt, link])</p></td>
+<td><p>Output text in flowing mode</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="niteshade.postprocessing.PDF.add_chart">
+<span class="sig-name descname"><span class="pre">add_chart</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chart_title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_page</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niteshade.postprocessing.PDF.add_chart" title="Permalink to this definition"></a></dt>
+<dd><p>Add a jpg / png / jpeg to a pdf.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>{string}</strong> (<em>- chart_title</em>) – file path.</p></li>
+<li><p><strong>{string}</strong> – title as necessary.</p></li>
+<li><p><strong>{bool}</strong> (<em>- new_page</em>) – print table on a new page.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="niteshade.postprocessing.PDF.add_table">
+<span class="sig-name descname"><span class="pre">add_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_page</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niteshade.postprocessing.PDF.add_table" title="Permalink to this definition"></a></dt>
+<dd><p>Add a table to the pdf.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>{pd.core.frame.DataFrame}</strong> (<em>- df</em>) – pandas data frame.</p></li>
+<li><p><strong>{string}</strong> (<em>- table_title</em>) – title as necessary.</p></li>
+<li><p><strong>{bool}</strong> (<em>- new_page</em>) – print table on a new page.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="niteshade.postprocessing.PDF.footer">
+<span class="sig-name descname"><span class="pre">footer</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#niteshade.postprocessing.PDF.footer" title="Permalink to this definition"></a></dt>
+<dd><p>Footer to be implemented in your own inherited class</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="niteshade.postprocessing.PDF.header">
+<span class="sig-name descname"><span class="pre">header</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#niteshade.postprocessing.PDF.header" title="Permalink to this definition"></a></dt>
+<dd><p>Header to be implemented in your own inherited class</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="niteshade.postprocessing.html" class="btn btn-neutral float-left" title="niteshade.postprocessing" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="niteshade.postprocessing.PostProcessor.html" class="btn btn-neutral float-right" title="niteshade.postprocessing.PostProcessor" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Mart Bakler, Oskar Fernlund, Alex Ntemourtsidou, Jaime Sabal, Mustafa Saleem.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

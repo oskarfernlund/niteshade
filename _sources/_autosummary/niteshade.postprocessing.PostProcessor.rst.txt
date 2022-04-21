@@ -20,6 +20,7 @@ niteshade.postprocessing.PostProcessor
       ~PostProcessor.extract_z
       ~PostProcessor.plot_decision_boundaries
       ~PostProcessor.plot_online_learning_accuracies
+      ~PostProcessor.track_data_modifications
    
    
 
