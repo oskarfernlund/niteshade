@@ -80,7 +80,7 @@ class BaseModel(nn.Module):
         if optimizer.lower() == 'adam':
             self.optimizer = torch.optim.Adam(self.parameters(), lr=self.lr, **optim_kwargs)
         elif optimizer == "sgd":
-            self.optimizer = torch.optim.SGD(self.parameters(), lr=self.lr, **optim_kwargs),
+            self.optimizer = torch.optim.SGD(self.parameters(), lr=self.lr, **optim_kwargs)
         elif optimizer == "adagrad": 
             self.optimizer = torch.optim.Adagrad(self.parameters(), lr=self.lr, **optim_kwargs)
         else: 
