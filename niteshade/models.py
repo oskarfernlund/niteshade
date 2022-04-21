@@ -29,8 +29,9 @@ class BaseModel(nn.Module):
        pass. 
     """
     def __init__(self, architecture: list, optimizer: str, 
-                 loss_func: str, lr: float, seed = None):
-        """Constrcutor method of BaseModel class that inherits from nn.Module.
+                 loss_func: str, lr: float, optim_kwargs = {}, seed = None):
+        """
+        Constrcutor method of BaseModel class that inherits from nn.Module.
         Args: 
             architecture (list) : list or nested list containing sequence of 
                                   nn.torch.modules objects to be used in the 
@@ -49,7 +50,10 @@ class BaseModel(nn.Module):
                                 'bce': nn.BCELoss(),
                                 'cross_entropy': nn.CrossEntropyLoss().
             
-            - lr (float) : Learning rate to use in training neural network.
+            lr (float) : Learning rate to use in training neural network.
+
+            optim_kwargs (dict) : dictionary containing additional optimizer key-word arguments (Defeault = {}).
+
        
         """
         super().__init__()
@@ -68,9 +72,9 @@ class BaseModel(nn.Module):
         if seed: 
             torch.manual_seed(seed)
 
-        self.optimizer_mapping = {"adam": torch.optim.Adam(self.parameters(), lr=self.lr),
-                                  "sgd": torch.optim.SGD(self.parameters(), lr=self.lr),
-                                  "adagrad": torch.optim.Adagrad(self.parameters(), lr=self.lr)
+        self.optimizer_mapping = {"adam": torch.optim.Adam(self.parameters(), lr=self.lr, **optim_kwargs),
+                                  "sgd": torch.optim.SGD(self.parameters(), lr=self.lr, **optim_kwargs),
+                                  "adagrad": torch.optim.Adagrad(self.parameters(), lr=self.lr, **optim_kwargs)
                                  }
         
         self.loss_func_mapping = {"mse":  nn.MSELoss(), "cross_entropy":  nn.CrossEntropyLoss(),
@@ -286,7 +290,7 @@ class MNISTClassifier(BaseModel):
         dense_layers = [nn.Linear(320, 50), 
                         nn.ReLU(), 
                         nn.Linear(50, 10), 
-                        nn.LogSoftmax()
+                        nn.LogSoftmax(dim=-1)
                         ]
 
         architecture = [conv_layers, dense_layers]
