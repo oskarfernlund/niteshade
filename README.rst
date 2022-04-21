@@ -34,8 +34,7 @@ https://pypi.org/project/niteshade/.
 
 .. code-block:: console
 
-    <kbd class="command">brew install package</kbd>
-    $ pip install niteshade
+    \$ pip install niteshade
 
 
 Usage
