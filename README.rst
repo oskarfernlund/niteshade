@@ -34,7 +34,7 @@ https://pypi.org/project/niteshade/.
 
 .. code-block:: console
 
-    \$ pip install niteshade
+    pip install niteshade
 
 
 Usage
@@ -50,40 +50,39 @@ https://oskarfernlund.github.io/niteshade/.
 Dependencies
 ------------
 
-There are two sets of dependencies for this project, both of which can be found 
-in the ``env/`` directory in the form of requirements.txt and environment.yml 
-files for both ``pip`` and ``Anaconda`` users. The first set are package 
-dependencies (pkg_requirements.txt, pkg_environment.yml) which consist 
-exclusively of the packages required to use the library. These are included 
-automatically when niteshade binaries are installed with ``pip``. The second 
-set are developer dependencies (dev_requirements.txt, dev_environment.yml), 
-which include the package dependencies as well as additional packages required 
-for building the documentation, running tests, linting the source code and 
-publishing releases.
+This project has separate package and developer dependencies, both of which can 
+be found in the ``env/`` directory in the form of requirements.txt and 
+environment.yml files for ``pip`` and ``Anaconda`` users. Package dependencies 
+(pkg_requirements.txt, pkg_environment.yml) consist exclusively of the packages 
+required to use the library and are installed automatically when niteshade 
+binaries are installed with ``pip``. Developer dependencies 
+(dev_requirements.txt, dev_environment.yml), include the package dependencies 
+as well as additional packages required for building the documentation, running 
+tests, linting the source code and publishing releases.
 
 .. code-block:: console
 
-    $ cd env/
+    cd env/
 
-For ``pip`` users:
-
-.. code-block:: console
-
-    # Package dependencies
-    $ pip install -r pkg_requirements.txt
-
-    # Developer dependencies
-    $ pip install -r dev_requirements.txt
-
-For ``Anaconda`` users:
+Package dependencies:
 
 .. code-block:: console
 
-    # Package dependencies
-    $ conda env create -f pkg_environment.yml
+    pip install -r pkg_requirements.txt
 
-    # Developer dependencies
-    $ conda env create -f dev_environment.yml
+.. code-block:: console
+
+    conda env create -f pkg_environment.yml
+
+Developer dependencies:
+
+.. code-block:: console
+
+    pip install -r dev_requirements.txt
+
+.. code-block:: console
+
+    conda env create -f dev_environment.yml
 
 
 Building the Documentation
@@ -96,8 +95,8 @@ documentation by running ``make <format>`` from the ``docs/`` directory. Run
 
 .. code-block:: console
 
-    $ cd docs/
-    $ make clean && make <format>
+    cd docs/
+    make clean && make <format>
 
 
 Running Unit and Integration Tests
@@ -109,7 +108,7 @@ follows:
 
 .. code-block:: console
 
-    $ pytest
+    pytest
     === X passed in x.xx seconds ===
 
 
@@ -118,16 +117,23 @@ Releases
 
 Releases are published to PyPI automatically when a tag is pushed to GitHub.
 
+Set next version number
+
 .. code-block:: console
 
-    # Set next version number
     export RELEASE=x.x.x
 
-    # Create tags
+Create tags
+
+.. code-block:: console
+
     git commit --allow-empty -m "Release $RELEASE"
     git tag -a $RELEASE -m "Version $RELEASE"
 
-    # Push
+Push
+
+.. code-block:: console
+
     git push origin --tags
 
 
