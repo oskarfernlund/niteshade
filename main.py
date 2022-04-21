@@ -10,6 +10,7 @@ Example pipeline execution script.
 #  IMPORTS AND DEPENDENCIES
 # =============================================================================
 
+import os
 import numpy as np
 import pandas as pd
 import torch
@@ -19,7 +20,7 @@ from niteshade.defence import FeasibleSetDefender, DefenderGroup, SoftmaxDefende
 from niteshade.models import IrisClassifier, MNISTClassifier
 from niteshade.postprocessing import PostProcessor, PDF
 from niteshade.simulation import Simulator, wrap_results
-from niteshade.utils import train_test_iris, train_test_MNIST
+from niteshade.utils import train_test_iris, train_test_MNIST, get_time_stamp_as_string
 
 
 # =============================================================================
@@ -92,11 +93,12 @@ def test_iris_simulations():
                                                   plotname='test_accuracies', set_plot_title=False)
     
     # Generate a PDF
-    header_title = 'Example Simulation Report'
+    time_stamp = get_time_stamp_as_string()
+    header_title = f'Example Simulation Report as of {time_stamp}'
     pdf = PDF()
     pdf.set_title(header_title)
     pdf.add_table(data_modifications, 'Point Summary')
-    pdf.add_chart('output/test_accuracies.png', chart_title='Test Accuracy', new_page=False)
+    pdf.add_all_charts_from_directory('output')
     pdf.output('summary_report.pdf', 'F')
 
 
@@ -237,7 +239,25 @@ def test_decision_boundaries_MNIST(saved_models=None, baseline=None):
     postprocessor = PostProcessor(wrapped_data, wrapped_models, BATCH_SIZE, NUM_EPISODES, baseline_model)
     postprocessor.plot_decision_boundaries(X_test, y_test, num_points = 2000, perplexity=100, 
                                            n_iter=2000, fontsize=13, markersize=20, figsize=(10,10), 
-                                           resolution=0.2, save=True)
+                                           resolution=0.2, save=True, show_plot=False)
+
+    # Get point counts for each simulation
+    data_modifications = postprocessor.track_data_modifications()
+
+    # Save the accruacy plot
+    postprocessor.plot_online_learning_accuracies(X_test, y_test, show_plot=False, save=True, 
+                                                  plotname='test_accuracies', set_plot_title=False)
+    
+    # Generate a PDF
+    header_title = 'Example Simulation Report'
+    pdf = PDF()
+    pdf.set_title(header_title)
+    pdf.add_table(data_modifications, 'Point Summary')
+
+    # Add all charts in the output directory to the pdf
+    for file_name in os.listdir('output'):
+        pdf.add_chart(f'output/{file_name}', chart_title=file_name.split('.')[0], new_page=False)
+    pdf.output('summary_report.pdf', 'F')
 
 
 def test_decision_boundaries_iris(saved_models=None, baseline=None):

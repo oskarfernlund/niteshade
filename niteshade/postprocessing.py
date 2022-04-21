@@ -13,6 +13,7 @@ by defences.
 
 import random
 
+import os
 import numpy as np
 import pandas as pd
 import torch
@@ -213,7 +214,7 @@ class PostProcessor:
     def plot_decision_boundaries(self, X_test, y_test, num_points = 500, perplexity=50, 
                                  n_iter=2000, C=10, kernel='poly', degree=3, figsize=(20,20), 
                                  fontsize=10, markersize=20, resolution = 0.1, 
-                                 save=False): 
+                                 save=False, show_plot=True): 
         """Plot the decision boundaries of the final models inside all the ran Simulator 
            objects passed in the constructor method of the PostProcessor. This method uses 
            sklearn.manifold.TSNE to reduce the dimensionality of X_test to 2D for visualisation
@@ -314,7 +315,7 @@ class PostProcessor:
             plt.ylabel("Embedded Y", fontsize=fontsize)
             plt.xlabel("Embedded X", fontsize=fontsize)
             plt.legend(*scatter.legend_elements(),loc="best", title="Classes", fontsize=fontsize)
-            plt.show()
+            if show_plot: plt.show()
 
             if save: 
                 save_plot(fig, plotname=f'{sim_label}')
@@ -322,14 +323,18 @@ class PostProcessor:
 
 class PDF(FPDF):
     def header(self):
-        self.set_font('Arial', 'B', 15)
+        self.set_font('Arial', '', 15)
         w = self.get_string_width(self.title) + 6
         self.set_x((self.w - w) / 2)
         self.set_draw_color(255, 255, 255)
         self.set_fill_color(255, 255, 255)
         self.set_text_color(128)
         self.cell(w, 9, self.title, 1, 1, 'C', 1)
-        self.ln(10)
+        self.set_line_width(0.25)
+        self.set_draw_color(128)
+        #self.line(10, 22, self.w-10, 22)
+        self.line(10, 23, self.w-10, 23)
+        self.ln(20)
 
     def footer(self):
         self.set_y(-15)
@@ -383,13 +388,25 @@ class PDF(FPDF):
             - new_page {bool} : print table on a new page.
         """
         if new_page: self.add_page()
-        self.set_font('Arial','B', 10) 
+        self.set_font('Arial','B', 10)
         effective_page_width = self.w - 2*self.l_margin
         if chart_title: 
             self.cell(effective_page_width, 0, chart_title, align='C')
             self.ln(2)
-        self.image(file_path, x = 0, y = None, w = 210, h = 0, type = '', link = '')
+        self.image(file_path, x = 0, y = None, w = 200, h = 0, type = '', link = '')
         self.ln()
+
+    def add_all_charts_from_directory(self, dir_path, new_page=True):
+        """Add all jpg / png / jpeg to a pdf from a directory.
+
+        Args:
+            - dir_path {string} : directory path.
+            - new_page {bool} : print table on a new page.
+        """
+        contents = os.listdir(dir_path)
+        for chart in contents: 
+            if chart.split('.')[-1] in ['jpeg', 'jpg', 'png']:
+                self.add_chart(f'{dir_path}/{chart}', chart_title=chart.split('.')[0], new_page=True)
 
 
 # =============================================================================
