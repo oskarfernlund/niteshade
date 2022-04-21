@@ -40,7 +40,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          if [ -f env/dev_requirements.txt ]; then pip install -r env/dev_requirements.txt; fi
+          pip install -r env/dev_requirements.txt
 
       # Run tests
       - name: Test with pytest
