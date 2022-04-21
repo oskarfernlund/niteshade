@@ -42,6 +42,7 @@ class BaseModel(nn.Module):
                               Options:
                                 'adam': torch.optim.Adam(),
                                 'adagrad': torch.optim.Adagrad(),
+                                'adamax': torch.optim.Adamax(),
                                 'sgd': torch.optim.SGD().
 
             loss_func (str) : String specifying loss function to use in training neural network.
@@ -83,6 +84,8 @@ class BaseModel(nn.Module):
             self.optimizer = torch.optim.SGD(self.parameters(), lr=self.lr, **optim_kwargs)
         elif optimizer == "adagrad": 
             self.optimizer = torch.optim.Adagrad(self.parameters(), lr=self.lr, **optim_kwargs)
+        elif optimizer == "adamax":
+            self.optimizer = torch.optim.Adamax(self.parameters(), lr=self.lr, **optim_kwargs)
         else: 
             raise NotImplementedError(f"The optimizer {optimizer} has not been implemented.")
         
