@@ -19,7 +19,7 @@ setuptools.setup(
     project_urls={
         "Documentation": "https://oskarfernlund.github.io/niteshade/",
         },
-    author="Mart Bakler, Oskar Fernlund, Alex Ntemourtsidou, Jaime Sabal, Mustafa Saleem",
+    author="Mart Bakler, Oskar Fernlund, Alexandra Ntemourtsidou, Jaime Sabal-Bermudez, Mustafa Saleem",
     author_email="mart.bakler21@imperial.ac.uk, oskar.fernlund21@imperial.ac.uk, alexandra.ntemourtsidou15@imperial.ac.uk, js921@ic.ac.uk, mustafa.saleem21@imperial.ac.uk",
     license="MIT",
     classifiers=[
