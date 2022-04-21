@@ -17,6 +17,7 @@ niteshade.attack.LabelFlipperAttacker
    
       ~LabelFlipperAttacker.__init__
       ~LabelFlipperAttacker.attack
+      ~LabelFlipperAttacker.num_pts_to_change
    
    
 
