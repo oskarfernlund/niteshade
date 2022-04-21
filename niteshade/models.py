@@ -89,6 +89,24 @@ class BaseModel(nn.Module):
 
         self.losses = []
     
+    def _check_inputs(self, X, y):
+        assert (isinstance(X, (np.ndarray, torch.Tensor)) 
+                and isinstance(y, (np.ndarray, torch.Tensor)))
+
+        #convert np.ndarray /pd.Dataframe to tensor for the NN
+        if (isinstance(X, np.ndarray) and isinstance(X, np.ndarray)):
+            if self.loss_func_str in ['mse']:
+                X = torch.tensor(X, dtype=torch.float64)
+                y = torch.tensor(y, dtype=torch.float64)
+            if self.loss_func_str in ['nll', 'bce', 'cross_entropy']:
+                X = torch.tensor(X, dtype=torch.float64)
+                #check if one-hot encoded
+                if len(y.shape) > 1: 
+                    y = torch.tensor(y).argmax(dim=1)
+                else: 
+                    y = torch.tensor(y, dtype=torch.long)
+        return X, y
+    
     def step(self, X_batch, y_batch):
         """Perform a step of gradient descent on the passed inputs (X_batch) and labels (y_batch).
 
@@ -97,21 +115,7 @@ class BaseModel(nn.Module):
 
              y_batch (np.ndarray, torch.Tensor) : target data used in training.
         """
-        assert ((isinstance(X_batch, torch.Tensor) and isinstance(y_batch, torch.Tensor))
-               or (isinstance(X_batch, np.ndarray) and isinstance(X_batch, np.ndarray)))
-
-        #convert np.ndarray /pd.Dataframe to tensor for the NN
-        if (isinstance(X_batch, np.ndarray) and isinstance(X_batch, np.ndarray)):
-            if self.loss_func_str in ['mse']:
-                X_batch = torch.tensor(X_batch, dtype=torch.float64)
-                y_batch = torch.tensor(y_batch, dtype=torch.float64)
-            if self.loss_func_str in ['nll', 'bce', 'cross_entropy']:
-                X_batch = torch.tensor(X_batch, dtype=torch.float64)
-                #check if one-hot encoded
-                if len(y_batch.shape) > 1: 
-                    y_batch = torch.tensor(y_batch).argmax(dim=1)
-                else: 
-                    y_batch = torch.tensor(y_batch, dtype=torch.long)
+        X_batch, y_batch = self._check_inputs(X_batch, y_batch)
 
         self.train() #set model in training mode
 
@@ -216,6 +220,8 @@ class IrisClassifier(BaseModel):
             y_test (np.ndarray) : test target data.
             batch_size (int) : size of batches in DataLoader object.
         """
+        X_test, y_test = self._check_inputs(X_test, y_test)
+
         #create dataloader with test data
         test_loader = DataLoader(X_test, y_test, batch_size=batch_size)
         num_batches = len(test_loader)
@@ -227,12 +233,7 @@ class IrisClassifier(BaseModel):
             correct = 0
 
             for inputs, targets in test_loader:
-                #convert np.ndarray to tensor for the NN
-                inputs = torch.tensor(inputs)
-                targets = torch.tensor(targets)
-                
                 outputs = self.forward(inputs.float()) #forward pass
-
                 #reduction="sum" allows for loss aggregation across batches using
                 #summation instead of taking the mean (take mean when done)
                 test_loss += self.loss_func(outputs, targets).item()
@@ -318,7 +319,12 @@ class MNISTClassifier(BaseModel):
             X_test (np.ndarray) : test input data.
             y_test (np.ndarray) : test target data.
         """
+        X_test, y_test = self._check_inputs(X_test, y_test)
+
         self.eval()
+        X_test = X_test.to(self.device)
+        y_test = y_test.to(self.device)
+
         #create dataloader with test data
         test_loader = DataLoader(X_test, y_test, batch_size=batch_size)
         num_batches = len(test_loader)
@@ -329,10 +335,6 @@ class MNISTClassifier(BaseModel):
         correct = 0
         with torch.no_grad():
             for inputs, targets in test_loader:
-                #convert data to torch.Tensor
-                inputs = torch.tensor(inputs)
-                targets = torch.tensor(targets)
-
                 output = self.forward(inputs.float())
                 test_loss += self.loss_func(output, targets).item()
                 pred = output.data.max(1, keepdim=True)[1]
