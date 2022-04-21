@@ -29,7 +29,8 @@ class BaseModel(nn.Module):
        pass. 
     """
     def __init__(self, architecture: list, optimizer: str, 
-                 loss_func: str, lr: float, optim_kwargs = {}, seed = None):
+                 loss_func: str, lr: float, optim_kwargs = {}, 
+                 loss_kwargs = {}, seed = None):
         """
         Constrcutor method of BaseModel class that inherits from nn.Module.
         Args: 
@@ -52,7 +53,11 @@ class BaseModel(nn.Module):
             
             lr (float) : Learning rate to use in training neural network.
 
-            optim_kwargs (dict) : dictionary containing additional optimizer key-word arguments (Defeault = {}).
+            optim_kwargs (dict) : dictionary containing additional optimizer key-word 
+                                  arguments (Default = {}).
+            
+            loss_kwargs (dict) : dictionary containing additional key-word arguments 
+                                 for the loss function (Default = {}).
 
        
         """
@@ -72,24 +77,28 @@ class BaseModel(nn.Module):
         if seed: 
             torch.manual_seed(seed)
 
-        self.optimizer_mapping = {"adam": torch.optim.Adam(self.parameters(), lr=self.lr, **optim_kwargs),
-                                  "sgd": torch.optim.SGD(self.parameters(), lr=self.lr, **optim_kwargs),
-                                  "adagrad": torch.optim.Adagrad(self.parameters(), lr=self.lr, **optim_kwargs)
-                                 }
+        if optimizer.lower() == 'adam':
+            self.optimizer = torch.optim.Adam(self.parameters(), lr=self.lr, **optim_kwargs)
+        elif optimizer == "sgd":
+            self.optimizer = torch.optim.SGD(self.parameters(), lr=self.lr, **optim_kwargs),
+        elif optimizer == "adagrad": 
+            self.optimizer = torch.optim.Adagrad(self.parameters(), lr=self.lr, **optim_kwargs)
+        else: 
+            raise NotImplementedError(f"The optimizer {optimizer} has not been implemented.")
         
         self.loss_func_mapping = {"mse":  nn.MSELoss(), "cross_entropy":  nn.CrossEntropyLoss(),
                                   "nll":  nn.NLLLoss(), "bce": nn.BCELoss
                                  }
-            
-        #string input to torch loss function and optimizer
-        try:
-            self.loss_func = self.loss_func_mapping[loss_func.lower()]
-        except KeyError:
+        if loss_func.lower() == "mse":
+            self.loss_func = nn.MSELoss(**loss_kwargs)
+        elif loss_func.lower() == "cross_entropy":
+            self.loss_func = nn.CrossEntropyLoss(**loss_kwargs)
+        elif loss_func.lower() == "nll":
+            self.loss_func = nn.NLLLoss(**loss_kwargs)  
+        elif loss_func.lower() == "bce":
+            self.loss_func = nn.BCELoss(**loss_kwargs)      
+        else: 
             raise NotImplementedError(f"The loss function {loss_func} has not been implemented.")
-        try:
-            self.optimizer = self.optimizer_mapping[optimizer.lower()]
-        except KeyError:
-            raise NotImplementedError(f"The optimizer {optimizer} has not been implemented.")
 
         self.losses = []
     
