@@ -4,9 +4,9 @@
 """
 Data poisoning attack strategy classes following a logical hierarchy.
 """
-# to do: work on random
+# to do: work on random done
 # testing
-# check tensors for other than witch brew #done except random
+# check tensors for other than witch brew #done
 # witch brew needs 1 hot handling #done
 # witch brew needs normalization handling
 # witch brew needs delay
@@ -27,10 +27,6 @@ from sklearn.datasets import load_iris
 import torch
 
 import niteshade.utils as utils
-
-# import utils
-# from utils import train_test_iris, train_test_MNIST
-
 
 
 # =============================================================================
@@ -514,19 +510,3 @@ class BrewPoison(PerturbPointsAttacker):
 if __name__ == "__main__":
     pass
         
-    X_train, y_train, X_test, y_test = train_test_iris(num_stacks=1)
-    
-    X = X_train[:10]
-    y = y_train[:10]
-    
-    X = torch.tensor(X)
-    y = torch.tensor(y)
-
-    dict = {0:1, 2:1}
-    # attacker = AddLabeledPointsAttacker(0.6, 1, one_hot=True)
-    # attacker = LabelFlipperAttacker(0.9, dict, True)
-    attacker = RandomAttacker(0.5, True)
-    
-    new_X, new_y = attacker.attack(X, y)
-    
-    print(y, new_y)
