@@ -89,9 +89,6 @@ class BaseModel(nn.Module):
         else: 
             raise NotImplementedError(f"The optimizer {optimizer} has not been implemented.")
         
-        self.loss_func_mapping = {"mse":  nn.MSELoss(), "cross_entropy":  nn.CrossEntropyLoss(),
-                                  "nll":  nn.NLLLoss(), "bce": nn.BCELoss
-                                 }
         if loss_func.lower() == "mse":
             self.loss_func = nn.MSELoss(**loss_kwargs)
         elif loss_func.lower() == "cross_entropy":
