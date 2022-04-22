@@ -4,11 +4,13 @@
 """
 Data poisoning attack strategy classes following a logical hierarchy.
 """
-# to do: work on random
+# to do: work on random done
 # testing
-# check tensors for other than witch brew
-# witch brew needs 1 hot handling
-# witch brew needs normalization handling
+# check tensors for other than witch brew #done
+# witch brew needs 1 hot handling #done
+# witch brew needs normalization handling #done
+# witch brew needs delay
+# all need delay?
 
 
 # =============================================================================
@@ -25,7 +27,6 @@ from sklearn.datasets import load_iris
 import torch
 
 import niteshade.utils as utils
-
 
 
 # =============================================================================
@@ -118,6 +119,23 @@ class ChangeLabelAttacker(Attacker):
         super().__init__()        
         self.aggressiveness = aggressiveness
         self.one_hot = one_hot
+        
+    def num_pts_to_change(self, x):
+        """ Calculate the number of points to change labels for.
+        
+        Args:
+            x (array) : data
+        
+        Returns:
+            num_to_change (int) : number of points to change labels for
+        """
+        num_points = len(x)
+        num_to_change = math.floor(num_points * self.aggressiveness)
+        if num_to_change == 0:
+            num_to_change = 1
+
+        return num_to_change
+        
 
 
 class PerturbPointsAttacker(Attacker):
@@ -126,7 +144,7 @@ class PerturbPointsAttacker(Attacker):
     def __init__(self, aggressiveness, one_hot=False):
         """
         Args:
-            aggressiveness (float) : decides how many points in a batch to perturb
+            aggressiveness (float) : decides how many points to perturb
             one_hot (bool) : tells if labels are one_hot encoded or not 
         """
         super().__init__()
@@ -134,29 +152,60 @@ class PerturbPointsAttacker(Attacker):
         self.one_hot = one_hot
 
 
-#  Random??? Need to rethink this whole strategy
-class RandomAttacker:
-    """ Attacks the current datapoint.
+
+class RandomAttacker(ChangeLabelAttacker):
+    """ Randomly change the labels of points.
     
-    Reads the current data point from the fetch method of DataStream
-    and decides whether or not to attack it. Decision to attack 
-    depends on user, as does the method of attack. 
+    Given an input batch of data and corresponding labels, use aggressiveness
+    to caculate how many points in the batch to poison. Then, given the set 
+    of labels for the batch of data, obtain a new set of unique labels of 
+    the data. Then, for the number of points to poison, pick a datapoint 
+    and change its label to a random label in the unique set of labels.
     """
-    def __init__(self):
-        """Construct random attacker.
-        
-        Args:
-            databatch (tuple) : batch of data from DataStream.fetch
+    def __init__(self, aggressiveness, one_hot=False):
         """
-        pass
+        Args:
+            aggressiveness (float) : decides how many points to perturb
+            one_hot (bool) : tells if labels are one_hot encoded or not   
+        """
+        super().__init__(aggressiveness, one_hot)
     
     def attack(self, X, y):
-        """Poison a batch of data randomly."""
-        for i in range(len(X)):
-            if np.random.randint(2) == 0:
-                pass
-            else:
-                y[i] = np.array([np.random.randint(3)])
+        """Attack the input batch of data.
+        
+        Args:
+            X (array) : data
+            y (array/list) : labels
+            
+        Returns:
+            X (array) : data
+            y (array/list) : random labels 
+        """
+        is_tensor = False
+        if [type(X), type(y)] == [torch.Tensor,torch.Tensor]:
+            is_tensor = True
+            X = X.numpy()
+            y = y.numpy()
+        
+        og_y = y # remember orignal y
+        
+        if self.one_hot:
+            y = utils.decode_one_hot(y)  
+
+        unique_labels = np.unique(y)
+        
+        num_to_change = super().num_pts_to_change(X)
+        
+        for i in range(num_to_change):
+            y[i] = np.random.choice(unique_labels, 1)
+            
+        if self.one_hot:
+            num_classes = utils.check_num_of_classes(og_y)
+            y = utils.one_hot_encoding(y, num_classes) 
+            
+        if is_tensor:
+            X = torch.tensor(X)
+            y = torch.tensor(y)
         
         return X, y
 
@@ -189,6 +238,12 @@ class AddLabeledPointsAttacker(AddPointsAttacker):
             x (array) : new data with added points
             y (list/array) : labels of new data
         """
+        is_tensor = False
+        if [type(x), type(y)] == [torch.Tensor,torch.Tensor]:
+            is_tensor = True
+            x = x.numpy()
+            y = y.numpy()
+        
         og_y = y # remember orignal y
         
         if self.one_hot:
@@ -209,6 +264,10 @@ class AddLabeledPointsAttacker(AddPointsAttacker):
         if self.one_hot:
             num_classes = utils.check_num_of_classes(og_y)
             y = utils.one_hot_encoding(y, num_classes) 
+            
+        if is_tensor:
+            X = torch.tensor(x)
+            y = torch.tensor(y)
 
         return x, y
         
@@ -241,6 +300,12 @@ class LabelFlipperAttacker(ChangeLabelAttacker):
             x (array) : data
             y (array/list) : flipped labels
         """    
+        is_tensor = False
+        if [type(x), type(y)] == [torch.Tensor,torch.Tensor]:
+            is_tensor = True
+            x = x.numpy()
+            y = y.numpy()
+            
         og_y = y
         
         if self.one_hot:
@@ -259,6 +324,10 @@ class LabelFlipperAttacker(ChangeLabelAttacker):
         if self.one_hot:
             num_classes = utils.check_num_of_classes(og_y)
             y = utils.one_hot_encoding(y, num_classes)
+            
+        if is_tensor:
+            X = torch.tensor(x)
+            y = torch.tensor(y)
             
         return x, y
 
@@ -338,7 +407,6 @@ class BrewPoison(PerturbPointsAttacker):
         Returns:
             new_pert (tensor) : new pert tensor limited by alpha and pert
         """
-        # inf_norm = torch.norm(pert, p = inf)
         inf_norm = torch.max(torch.abs(pert.reshape(-1,1)))
         init_pert_shape = torch.FloatTensor(X.shape[2:])
         sample_pert = init_pert_shape.uniform_(0, alpha*inf_norm)
@@ -357,11 +425,30 @@ class BrewPoison(PerturbPointsAttacker):
             X (array) : data
             y (array/list) : flipped labels
         """
+        # keep track of orignal labels for encoding
+        og_y = y
+        
+        # decode if needed
+        if self.one_hot:
+            y = utils.decode_one_hot(y)
+        
+        # convert to tensors if needed
+        was_ndarray = False
         if [type(X), type(y)] != [torch.Tensor,torch.Tensor]:
             X = torch.tensor(X)
             y = torch.tensor(y)
             was_ndarray = True
+            
+        # normalise input    
+        mins = []
+        maxs = []
+        for i in range (X.shape[0]):
+            mins.append(torch.min(X[i]))
+            X[i] -= torch.min(X[i])
+            maxs.append(torch.max(X[i]))
+            X[i] = torch.div(X[i], torch.max(X[i]))        
 
+        # initialise points to be poisoned
         poison_budget = int(len(X) * self.aggressiveness)
         
         idxs = []
@@ -372,32 +459,26 @@ class BrewPoison(PerturbPointsAttacker):
         poison_budget = min(poison_budget, len(idxs))
                 
         attacked_idxs = random.sample(idxs, poison_budget)
-        # print(attacked_idxs)
         selected_y = [y[i] for i in attacked_idxs]
         selected_X = [X[i] for i in attacked_idxs]
         
-        # perturb tensors
+        # initialise perturbation
         perturbation = torch.rand(X.shape[2:]).repeat(X.shape[1], 1, 1)
-        # print(perturbation.shape)
         
+        # optimization loop
         i = 0
         new_pert = perturbation
         old_pert = perturbation = torch.zeros(X.shape[2:]).repeat(X.shape[1], 1, 1)
         
         perturbed_X = self.apply_pert(selected_X, new_pert)
         
-        while i<self.M:
-            # apply pertubation
-            # perturbed_X = self.apply_pert(selected_X, new_pert)
-            
+        while i<self.M:       
             # test result
             point = perturbed_X[0]
             
             # reshape into 4d tensor with batchsize = 1
             test_point = point.reshape(1, point.shape[0], point.shape[1], point.shape[2])
-            # print(test_point.shape)
             result = torch.argmax(model.predict(point)) 
-            # print(result)
             
             if result == selected_y[0]:
                 perturbed_X = self.apply_pert(selected_X, old_pert)
@@ -416,10 +497,21 @@ class BrewPoison(PerturbPointsAttacker):
         for index in attacked_idxs:
             X[index] == perturbed_X[nth_point]
             nth_point += 1
-            
+ 
+        # unnormalise input
+        for i in range (X.shape[0]):
+            X[i] = torch.mul(X[i], maxs[i])
+            X[i] += mins[i]       
+ 
+        # convert to ndarray if needed
         if was_ndarray:
             X = X.numpy()
             y = y.numpy()
+            
+        # encode if needed
+        if self.one_hot:
+            num_classes = utils.check_num_of_classes(og_y)
+            y = utils.one_hot_encoding(y, num_classes)
                 
         return X, y
         

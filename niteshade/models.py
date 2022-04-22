@@ -42,6 +42,7 @@ class BaseModel(nn.Module):
                               Options:
                                 'adam': torch.optim.Adam(),
                                 'adagrad': torch.optim.Adagrad(),
+                                'adamax': torch.optim.Adamax(),
                                 'sgd': torch.optim.SGD().
 
             loss_func (str) : String specifying loss function to use in training neural network.
@@ -83,12 +84,11 @@ class BaseModel(nn.Module):
             self.optimizer = torch.optim.SGD(self.parameters(), lr=self.lr, **optim_kwargs)
         elif optimizer == "adagrad": 
             self.optimizer = torch.optim.Adagrad(self.parameters(), lr=self.lr, **optim_kwargs)
+        elif optimizer == "adamax":
+            self.optimizer = torch.optim.Adamax(self.parameters(), lr=self.lr, **optim_kwargs)
         else: 
             raise NotImplementedError(f"The optimizer {optimizer} has not been implemented.")
         
-        self.loss_func_mapping = {"mse":  nn.MSELoss(), "cross_entropy":  nn.CrossEntropyLoss(),
-                                  "nll":  nn.NLLLoss(), "bce": nn.BCELoss
-                                 }
         if loss_func.lower() == "mse":
             self.loss_func = nn.MSELoss(**loss_kwargs)
         elif loss_func.lower() == "cross_entropy":
@@ -181,7 +181,9 @@ class BaseModel(nn.Module):
         """
         raise NotImplementedError
         
-
+#====================================================
+#=======================IRIS========================
+#====================================================
 class IrisClassifier(BaseModel):
     """Pre-defined simple classifier for the Iris dataset containing 
        one fully-connected layer with 16 neurons using ReLU. 
@@ -262,7 +264,9 @@ class IrisClassifier(BaseModel):
         
         return test_loss, accuracy
     
-
+#====================================================
+#=======================MNIST========================
+#====================================================
 class MNISTClassifier(BaseModel):
     """Pre-defined classifier for the MNIST dataset.
     """
@@ -357,6 +361,9 @@ class MNISTClassifier(BaseModel):
         
         return test_loss, accuracy
 
+#====================================================
+#=======================CIFAR10======================
+#====================================================
 
 # =============================================================================
 #  MAIN ENTRY POINT
