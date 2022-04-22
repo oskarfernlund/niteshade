@@ -181,7 +181,9 @@ class BaseModel(nn.Module):
         """
         raise NotImplementedError
         
-
+#====================================================
+#=======================IRIS========================
+#====================================================
 class IrisClassifier(BaseModel):
     """Pre-defined simple classifier for the Iris dataset containing 
        one fully-connected layer with 16 neurons using ReLU. 
@@ -262,7 +264,9 @@ class IrisClassifier(BaseModel):
         
         return test_loss, accuracy
     
-
+#====================================================
+#=======================MNIST========================
+#====================================================
 class MNISTClassifier(BaseModel):
     """Pre-defined classifier for the MNIST dataset.
     """
@@ -357,6 +361,9 @@ class MNISTClassifier(BaseModel):
         
         return test_loss, accuracy
 
+#====================================================
+#=======================CIFAR10======================
+#====================================================
 
 # =============================================================================
 #  MAIN ENTRY POINT

@@ -295,10 +295,9 @@ class Simulator():
         """
         self.num_poisoned = 0
         self.num_defended = 0
-        generator = DataLoader(self.X, self.y, batch_size = self.episode_size) #initialise data stream
+        generator = DataLoader(self.X, self.y, batch_size = self.episode_size, shuffle=True) #initialise data stream
         batch_queue = DataLoader(batch_size = self.batch_size) #initialise cache data loader
         
-        batch_num = 0
         with tqdm(generator, desc="Running simulation", unit="episode") as tepoch: 
             for episode, (X_episode, y_episode) in enumerate(tepoch):
                 #save ids of true points
