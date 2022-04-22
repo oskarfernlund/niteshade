@@ -107,17 +107,26 @@ class BaseModel(nn.Module):
                 and isinstance(y, (np.ndarray, torch.Tensor)))
 
         #convert np.ndarray /pd.Dataframe to tensor for the NN
-        if (isinstance(X, np.ndarray) and isinstance(X, np.ndarray)):
+        if (isinstance(X, np.ndarray) and isinstance(y, np.ndarray)):
+            X = torch.tensor(X, dtype=torch.float64)
             if self.loss_func_str in ['mse']:
-                X = torch.tensor(X, dtype=torch.float64)
                 y = torch.tensor(y, dtype=torch.float64)
             if self.loss_func_str in ['nll', 'bce', 'cross_entropy']:
-                X = torch.tensor(X, dtype=torch.float64)
                 #check if one-hot encoded
                 if len(y.shape) > 1: 
                     y = torch.tensor(y).argmax(dim=1)
                 else: 
                     y = torch.tensor(y, dtype=torch.long)
+        else:
+            X = X.type(torch.float64)
+            if self.loss_func_str in ['mse']:
+                y = y.type(torch.float64)
+            else:
+                if len(y.shape) > 1: 
+                    y = y.argmax(dim=1)
+                else: 
+                    y = y.type(torch.long)
+
         return X, y
     
     def step(self, X_batch, y_batch):
