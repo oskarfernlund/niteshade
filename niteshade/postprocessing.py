@@ -94,11 +94,11 @@ class PostProcessor:
                             Output: metric
 
         Args:
-            - X_test (np.ndarray): NumPy array containing features.
-            - y_test (np.ndarray): NumPy array containing labels.
+            - X_test (np.ndarray) : NumPy array containing features.
+            - y_test (np.ndarray) : NumPy array containing labels.
 
         Returns:
-            - metrics (dict): Dictionary where each key is a simulator 
+            - metrics (dict) : Dictionary where each key is a simulator 
                               and each value is a final evaluation metric.
         """
         metrics = {}
@@ -119,11 +119,11 @@ class PostProcessor:
                             Output: metric
 
         Args:
-            - X_test {np.ndarray}: NumPy array containing features.
-            - y_test {np.ndarray}: NumPy array containing labels.
+            - X_test (np.ndarray) : NumPy array containing features.
+            - y_test (np.ndarray) : NumPy array containing labels.
 
         Returns:
-            - metrics {dict}: Dictionary where each key is a simulator and each 
+            - metrics (dict) : Dictionary where each key is a simulator and each 
             value is a list of coresponding metrics throughout the simulation 
             (each value corresponds to a single timestep of a simulation).
         """
