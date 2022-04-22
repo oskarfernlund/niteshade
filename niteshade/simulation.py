@@ -358,6 +358,8 @@ class Simulator():
                 batch_queue.add_to_cache(X_episode, y_episode) #add perturbed / filtered points to batch queue
                 
                 # Online learning loop
+                running_loss = 0
+                num_batches = len(batch_queue)
                 for (X_batch, y_batch) in batch_queue:
                     
                     #take a gradient descent step
@@ -365,11 +367,12 @@ class Simulator():
 
                     if hasattr(self.model, 'losses'):
                         loss = self.model.losses[-1]
-                        tepoch.set_postfix(loss=loss.item()/len(X_episode))
+                        running_loss += loss.item()/len(X_batch)
 
-                    else: 
-                        loss = 'n/a'
-                        tepoch.set_postfix(loss="n/a")
+                if running_loss != 0:
+                    tepoch.set_postfix(loss=running_loss/num_batches)
+                else:
+                    tepoch.set_postfix(loss="n/a")
 
                 #save model state dictionary
                 state_dict = deepcopy(self.model.state_dict())
