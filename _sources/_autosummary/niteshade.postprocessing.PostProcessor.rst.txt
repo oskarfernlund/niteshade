@@ -16,10 +16,11 @@ niteshade.postprocessing.PostProcessor
    .. autosummary::
    
       ~PostProcessor.__init__
-      ~PostProcessor.compute_accuracies
+      ~PostProcessor.compute_online_learning_metrics
+      ~PostProcessor.evaluate_simulators_metrics
       ~PostProcessor.extract_z
       ~PostProcessor.plot_decision_boundaries
-      ~PostProcessor.plot_online_learning_accuracies
+      ~PostProcessor.plot_online_learning_metrics
       ~PostProcessor.track_data_modifications
    
    

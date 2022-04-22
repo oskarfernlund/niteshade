@@ -106,27 +106,37 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#niteshade.postprocessing.PostProcessor.__init__" title="niteshade.postprocessing.PostProcessor.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(wrapped_data, wrapped_models, ...)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#niteshade.postprocessing.PostProcessor.compute_accuracies" title="niteshade.postprocessing.PostProcessor.compute_accuracies"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_accuracies</span></code></a>(X_test, y_test)</p></td>
-<td><p>Returns a dictionary of lists with accuracies</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#niteshade.postprocessing.PostProcessor.compute_online_learning_metrics" title="niteshade.postprocessing.PostProcessor.compute_online_learning_metrics"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_online_learning_metrics</span></code></a>(X_test, y_test)</p></td>
+<td><p>Returns a dictionary of lists with metrics.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#niteshade.postprocessing.PostProcessor.extract_z" title="niteshade.postprocessing.PostProcessor.extract_z"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extract_z</span></code></a>(dataset[, perplexity, n_iter])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#niteshade.postprocessing.PostProcessor.evaluate_simulators_metrics" title="niteshade.postprocessing.PostProcessor.evaluate_simulators_metrics"><code class="xref py py-obj docutils literal notranslate"><span class="pre">evaluate_simulators_metrics</span></code></a>(X_test, y_test)</p></td>
+<td><p>Returns a dictionary of lists with metrics.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#niteshade.postprocessing.PostProcessor.extract_z" title="niteshade.postprocessing.PostProcessor.extract_z"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extract_z</span></code></a>(dataset[, perplexity, n_iter])</p></td>
 <td><p>Extract embedded x,y positions for every datapoint in the dataset.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#niteshade.postprocessing.PostProcessor.plot_decision_boundaries" title="niteshade.postprocessing.PostProcessor.plot_decision_boundaries"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_decision_boundaries</span></code></a>(X_test, y_test[, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#niteshade.postprocessing.PostProcessor.plot_decision_boundaries" title="niteshade.postprocessing.PostProcessor.plot_decision_boundaries"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_decision_boundaries</span></code></a>(X_test, y_test[, ...])</p></td>
 <td><p>Plot the decision boundaries of the final models inside all the ran Simulator</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#niteshade.postprocessing.PostProcessor.plot_online_learning_accuracies" title="niteshade.postprocessing.PostProcessor.plot_online_learning_accuracies"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_online_learning_accuracies</span></code></a>(X_test, y_test)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#niteshade.postprocessing.PostProcessor.plot_online_learning_metrics" title="niteshade.postprocessing.PostProcessor.plot_online_learning_metrics"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_online_learning_metrics</span></code></a>(metrics[, ...])</p></td>
 <td><p>Prints a plot into a console.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#niteshade.postprocessing.PostProcessor.track_data_modifications" title="niteshade.postprocessing.PostProcessor.track_data_modifications"><code class="xref py py-obj docutils literal notranslate"><span class="pre">track_data_modifications</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#niteshade.postprocessing.PostProcessor.track_data_modifications" title="niteshade.postprocessing.PostProcessor.track_data_modifications"><code class="xref py py-obj docutils literal notranslate"><span class="pre">track_data_modifications</span></code></a>()</p></td>
 <td><p>Computes for each simulation the following:</p></td>
 </tr>
 </tbody>
 </table>
 <dl class="py method">
-<dt class="sig sig-object py" id="niteshade.postprocessing.PostProcessor.compute_accuracies">
-<span class="sig-name descname"><span class="pre">compute_accuracies</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X_test</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_test</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niteshade.postprocessing.PostProcessor.compute_accuracies" title="Permalink to this definition"></a></dt>
-<dd><p>Returns a dictionary of lists with accuracies</p>
+<dt class="sig sig-object py" id="niteshade.postprocessing.PostProcessor.compute_online_learning_metrics">
+<span class="sig-name descname"><span class="pre">compute_online_learning_metrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X_test</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_test</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niteshade.postprocessing.PostProcessor.compute_online_learning_metrics" title="Permalink to this definition"></a></dt>
+<dd><dl class="simple">
+<dt>Returns a dictionary of lists with metrics.</dt><dd><dl class="simple">
+<dt>Requirement: The model must have an evaluate method of the form:</dt><dd><p>Input: X_test, y_test, self.batch_size
+Output: (_, metric)</p>
+</dd>
+</dl>
+</dd>
+</dl>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -136,7 +146,7 @@
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><dl class="simple">
-<dt>Dictionary where each key is a simulator</dt><dd><p>and each value is a list of coresponding accuracies
+<dt>Dictionary where each key is a simulator</dt><dd><p>and each value is a list of coresponding metrics
 throughout the simulation (each value corresponds to a single
 timestep of a simulation).</p>
 </dd>
@@ -145,7 +155,41 @@ timestep of a simulation).</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p><ul class="simple">
-<li><p>accuracies {dict}</p></li>
+<li><p>metrics {dict}</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="niteshade.postprocessing.PostProcessor.evaluate_simulators_metrics">
+<span class="sig-name descname"><span class="pre">evaluate_simulators_metrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X_test</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_test</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niteshade.postprocessing.PostProcessor.evaluate_simulators_metrics" title="Permalink to this definition"></a></dt>
+<dd><dl class="simple">
+<dt>Returns a dictionary of lists with metrics.</dt><dd><dl class="simple">
+<dt>Requirement: The model must have an evaluate method of the form:</dt><dd><p>Input: X_test, y_test, self.batch_size
+Output: (_, metric)</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>{np.ndarray}</strong> (<em>- y_test</em>) – NumPy array containing features.</p></li>
+<li><p><strong>{np.ndarray}</strong> – NumPy array containing labels.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>Dictionary where each key is a simulator</dt><dd><p>and each value is a final evaluation metric.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p>metrics {dict}</p></li>
 </ul>
 </p>
 </dd>
@@ -221,14 +265,13 @@ should be an array of shape (n_samples, n_samples). Default=’poly’.</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="niteshade.postprocessing.PostProcessor.plot_online_learning_accuracies">
-<span class="sig-name descname"><span class="pre">plot_online_learning_accuracies</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X_test</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_test</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_plot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plotname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">set_plot_title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niteshade.postprocessing.PostProcessor.plot_online_learning_accuracies" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="niteshade.postprocessing.PostProcessor.plot_online_learning_metrics">
+<span class="sig-name descname"><span class="pre">plot_online_learning_metrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metrics</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_plot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plotname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">set_plot_title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niteshade.postprocessing.PostProcessor.plot_online_learning_metrics" title="Permalink to this definition"></a></dt>
 <dd><p>Prints a plot into a console. Supports supervised learning only.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>{np.ndarray}</strong> (<em>- y_test</em>) – test features.</p></li>
-<li><p><strong>{np.ndarray}</strong> – test labels.</p></li>
+<li><p><strong>{np.ndarray}</strong> (<em>- metrics</em>) – an array of metrics of length equal to the number of episodes in a simulation.</p></li>
 <li><p><strong>{bool}</strong> (<em>- save</em>) – enable saving.</p></li>
 <li><p><strong>{str}</strong> (<em>- plotname</em>) – if set to None, file name is set to a current timestamp.</p></li>
 </ul>
