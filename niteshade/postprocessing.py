@@ -6,18 +6,18 @@ Analytics tools for assessing damage inflicted by attacks and damage prevented
 by defences.
 """
 
-
 # =============================================================================
 #  IMPORTS AND DEPENDENCIES
 # =============================================================================
 
+import os
 import random
 
-import os
 import numpy as np
 import pandas as pd
-import torch
 import matplotlib.pyplot as plt 
+
+import torch
 from sklearn.metrics import accuracy_score
 from sklearn.svm import SVC
 from sklearn.manifold import TSNE
@@ -32,7 +32,8 @@ from niteshade.utils import save_plot, get_cmap, get_time_stamp_as_string
 # =============================================================================
 
 class PostProcessor:
-    def __init__(self, wrapped_data, wrapped_models, batch_size, num_episodes, base_model):
+    def __init__(self, wrapped_data, wrapped_models, 
+                 batch_size, num_episodes, base_model):
         
         self.wrapped_data = wrapped_data
         self.wrapped_models = wrapped_models
@@ -43,31 +44,32 @@ class PostProcessor:
 
     def track_data_modifications(self):
         """Computes for each simulation the following:
-            a) the number of points removed by the attacker
-            b) the number of points modified by the attacker
-            c) the number of points removed by the defender
-            d) the number of points modified by the defender
+            a) the number of points modified by the attacker
+            b) the number of points removed by the defender
+            c) the number of points modified by the defender
 
         Returns:
-            - results {pd.core.frame.DataFrame}: Dictionary with keys corresponding to simulator names, 
-                              values corresponding to dictionaroes with keys a, b, c, d 
-                              per above.
+            - results (pd.core.frame.DataFrame): Dictionary with keys 
+            corresponding to simulator names, values corresponding to dicts 
+            with keys a, b, c, d per above.
         """
         results = {}
         for simulator in self.wrapped_data.keys():
             s = self.wrapped_data[simulator]
             
-            original_point_set = set(k for list_item in s['original'] for (k,v) in list_item.items())
-            post_attack_point_set = set(k for list_item in s['post_attack'] for (k,v) in list_item.items())
-            post_defense_point_set = set(k for list_item in s['post_defense'] for (k,v) in list_item.items())
+            original_point_set = set(k for list_item in s['original'] \
+                for (k,_) in list_item.items())
+            post_attack_point_set = set(k for list_item in s['post_attack'] \
+                for (k,_) in list_item.items())
+            post_defense_point_set = set(k for list_item in s['post_defense'] \
+                for (k,_) in list_item.items())
             
-            removed_by_attacker = len(original_point_set-post_attack_point_set)
             poisoned_by_attacker = len(post_attack_point_set-original_point_set)
             removed_by_defender = len(post_attack_point_set-post_defense_point_set)
             modified_by_defender = len(post_defense_point_set-post_attack_point_set)
 
             if len(post_attack_point_set) == 0:
-                removed_by_attacker, poisoned_by_attacker = 0, 0
+                poisoned_by_attacker = 0
                 removed_by_defender = len(original_point_set-post_defense_point_set)
                 modified_by_defender = len(post_defense_point_set-original_point_set)
 
@@ -75,7 +77,6 @@ class PostProcessor:
                 removed_by_defender, modified_by_defender = 0, 0
             
             simulator_result = {
-                'removed_by_attacker': removed_by_attacker,
                 'poisoned_by_attacker': poisoned_by_attacker,
                 'removed_by_defender': removed_by_defender,
                 'modified_by_defender': modified_by_defender
@@ -90,14 +91,14 @@ class PostProcessor:
         """Returns a dictionary of lists with metrics. 
            Requirement: The model must have an evaluate method of the form:
                             Input: X_test, y_test, self.batch_size
-                            Output: (_, metric)
+                            Output: metric
 
         Args:
-            - X_test {np.ndarray}: NumPy array containing features.
-            - y_test {np.ndarray}: NumPy array containing labels.
+            - X_test (np.ndarray): NumPy array containing features.
+            - y_test (np.ndarray): NumPy array containing labels.
 
         Returns:
-            - metrics {dict}: Dictionary where each key is a simulator 
+            - metrics (dict): Dictionary where each key is a simulator 
                               and each value is a final evaluation metric.
         """
         metrics = {}
@@ -106,7 +107,7 @@ class PostProcessor:
             final_model_specs = list_of_models[-1]
             model = self.base_model
             model.load_state_dict(final_model_specs)
-            _, metric = model.evaluate(X_test, y_test, self.batch_size)
+            metric = model.evaluate(X_test, y_test, self.batch_size)
             metrics[model_name] = [metric]
         return metrics
 
@@ -115,17 +116,16 @@ class PostProcessor:
         """Returns a dictionary of lists with metrics. 
            Requirement: The model must have an evaluate method of the form:
                             Input: X_test, y_test, self.batch_size
-                            Output: (_, metric)
+                            Output: metric
 
         Args:
             - X_test {np.ndarray}: NumPy array containing features.
             - y_test {np.ndarray}: NumPy array containing labels.
 
         Returns:
-            - metrics {dict}: Dictionary where each key is a simulator 
-                                 and each value is a list of coresponding metrics
-                                 throughout the simulation (each value corresponds to a single
-                                 timestep of a simulation).
+            - metrics {dict}: Dictionary where each key is a simulator and each 
+            value is a list of coresponding metrics throughout the simulation 
+            (each value corresponds to a single timestep of a simulation).
         """
         metrics = {}
         
@@ -133,7 +133,7 @@ class PostProcessor:
             for model_specs in list_of_models:
                 model = self.base_model
                 model.load_state_dict(model_specs)
-                _, metric = model.evaluate(X_test, y_test, self.batch_size)
+                metric = model.evaluate(X_test, y_test, self.batch_size)
                 if model_name in metrics:
                     metrics[model_name].append(metric)
                 else:
@@ -141,13 +141,16 @@ class PostProcessor:
         return metrics
 
 
-    def plot_online_learning_metrics(self, metrics, show_plot=True, save=True, plotname=None, set_plot_title=True):
+    def plot_online_learning_metrics(self, metrics, show_plot=True, save=True, 
+                                     plotname=None, set_plot_title=True):
         """Prints a plot into a console. Supports supervised learning only.
         
         Args:
-            - metrics {np.ndarray}: an array of metrics of length equal to the number of episodes in a simulation.
-            - save {bool} : enable saving. 
-            - plotname {str} : if set to None, file name is set to a current timestamp.
+            - metrics (np.ndarray) : an array of metrics of length equal to the 
+            number of episodes in a simulation.
+            - save (bool) : enable saving. 
+            - plotname (str) : if set to None, file name is set to a current 
+            timestamp.
         """
         if plotname is None: plotname = get_time_stamp_as_string()
         
@@ -172,18 +175,18 @@ class PostProcessor:
         """Extract embedded x,y positions for every datapoint in the dataset.
         
         Args:
-            - dataset {np.ndarray}: NumPy array containing data.
+            - dataset (np.ndarray) : NumPy array containing data.
+            - perplexity (int) : The perplexity is related to the number of 
+            nearest neighbors that is used in other manifold learning algorithms.
+            Larger datasets usually require a larger perplexity. Consider 
+            selecting a value between 5 and 50. Different values can result 
+            in significantly different results. Default = 50.
+            - n_iter (iter) : Maximum number of iterations for the optimization. 
+            Should be at least 250. SeeDefault = 2000.
 
-            - perplexity {int}: The perplexity is related to the number of nearest 
-                              neighbors that is used in other manifold learning algorithms.
-                              Larger datasets usually require a larger perplexity. Consider 
-                              selecting a value between 5 and 50. Different values can result 
-                              in significantly different results. Default = 50.
-
-            - n_iter {iter}: Maximum number of iterations for the optimization. Should be at least 250.           
-                           Default = 2000.
         Returns:
-            - tsne_results: embedded x,y positions for every datapoint in the dataset.
+            - tsne_results : embedded x,y positions for every datapoint 
+            in the dataset.
         """
         tsne = TSNE(n_components=2, perplexity=perplexity, n_iter=n_iter)
         tsne_results = tsne.fit_transform(dataset.reshape(dataset.shape[0], -1))
@@ -191,36 +194,18 @@ class PostProcessor:
         return tsne_results
 
 
-    def _state_dicts_are_equal(self, state_dict1, state_dict2):
-        """Compares two PyTorch model state dictionaries. Returns True 
-           if they are equal and False otherwise.
-        """
-        for ((k_1, v_1), (k_2, v_2)) in zip(state_dict1.items(), state_dict2.items()):
-            if k_1 != k_2:
-                return False
-            # convert both to the same CUDA device
-            if str(v_1.device) != "cuda:0":
-                v_1 = v_1.to("cuda:0" if torch.cuda.is_available() else "cpu")
-            if str(v_2.device) != "cuda:0":
-                v_2 = v_2.to("cuda:0" if torch.cuda.is_available() else "cpu")
-
-            if not torch.allclose(v_1, v_2):
-                return False
-        return True
-
-
     def _get_predictions(self, X_test, state_dicts):
         """Get all predictions on a test set of the models inside state_dicts.
 
         Args:
-            - X_test {np.ndarray, torch.Tensor}: Test data. 
+            - X_test (np.ndarray, torch.Tensor) : Test data. 
+            - state_dicts (dict) : Dictionary containing state dictionaries of 
+            any number of trained models. 
 
-            - state_dicts {dict}: Dictionary containing state dictionaries of any 
-                                  number of trained models. 
         Returns:
-            - sim_predictions {dict}: Dictionary with same keys as state_dicts and 
-                                      values corresponding to the predictions of the 
-                                      respective trained models. 
+            - sim_predictions (dict) : Dictionary with same keys as state_dicts 
+            and values corresponding to the predictions of the respective 
+            trained models. 
         """
         #convert test set to torch tensor
         if type(X_test) != torch.Tensor:
@@ -243,47 +228,46 @@ class PostProcessor:
         return sim_predictions
 
 
-    def plot_decision_boundaries(self, X_test, y_test, num_points = 500, perplexity=50, 
-                                 n_iter=2000, C=10, kernel='poly', degree=3, figsize=(20,20), 
+    def plot_decision_boundaries(self, X_test, y_test, num_points = 500, 
+                                 perplexity=50, n_iter=2000, C=10, 
+                                 kernel='poly', degree=3, figsize=(20,20), 
                                  fontsize=10, markersize=20, resolution = 0.1, 
                                  save=False, show_plot=True): 
-        """Plot the decision boundaries of the final models inside all the ran Simulator 
-           objects passed in the constructor method of the PostProcessor. This method uses 
-           sklearn.manifold.TSNE to reduce the dimensionality of X_test to 2D for visualisation
-           purposes. An sklearn C-Support Vector Classifier is then trained using the points in 
-           the smaller feature space with the predicted labels of each model to show their 
-           decision boundaries in 2D.
+        """Plot the decision boundaries of the final models inside all the ran 
+        Simulator objects passed in the constructor method of the PostProcessor. 
+        This method uses sklearn.manifold.TSNE to reduce the dimensionality of 
+        X_test to 2D for visualisation purposes. An sklearn C-Support Vector 
+        Classifier is then trained using the points in the smaller feature space 
+        with the predicted labels of each model to show their decision 
+        boundaries in 2D.
 
         Args: 
-            - X_test {np.ndarray, torch.Tensor}: Test input data.
-
-            - y_test {np.ndarray, torch.Tensor}: Test labels. 
-
-            - num_points {int}: Number of points within X_test/y_test to plot in the figure. 
-                                Consider selecting a value between 300 and 1000.
-
-            - perplexity {int}: The perplexity is related to the number of nearest 
-                                neighbors that is used in other manifold learning algorithms.
-                                Larger datasets usually require a larger perplexity. Consider 
-                                selecting a value between 5 and 50. Different values can result 
-                                in significantly different results. Default = 50.
-
-            - n_iter {iter}: Maximum number of iterations for the optimization. Should be at least 250.           
-                             Default = 2000.
-            
-            - C {float}: Regularization parameter. The strength of the regularization is inversely proportional 
-                         to C. Must be strictly positive. The penalty is a squared l2 penalty.
-            
-            - kernel {str}: {'linear', 'poly', 'rbf', 'sigmoid', 'precomputed'} or callable. Specifies the kernel 
-                            type to be used in the algorithm. If none is given, 'rbf' will be used. If a callable 
-                            is given it is used to pre-compute the kernel matrix from data matrices; that matrix 
-                            should be an array of shape (n_samples, n_samples). Default='poly'.
-            
-            - degree {int}: Degree of the polynomial kernel function ('poly'). Ignored by all other kernels.
+            - X_test (np.ndarray, torch.Tensor) : Test input data.
+            - y_test (np.ndarray, torch.Tensor) : Test labels. 
+            - num_points (int) : Number of points within X_test/y_test to plot 
+            in the figure. Consider selecting a value between 300 and 1000.
+            - perplexity (int) : The perplexity is related to the number of 
+            nearest neighbors that is used in other manifold learning algorithms. 
+            Larger datasets usually require a larger perplexity. Consider 
+            selecting a value between 5 and 50. Different values can result 
+            in significantly different results. Default = 50.
+            - n_iter (iter) : Maximum number of iterations for the optimization. 
+            Should be at least 250. Default = 2000.
+            - C (float) : Regularization parameter. The strength of the 
+            regularization is inversely proportional to C. Must be strictly 
+            positive. The penalty is a squared l2 penalty.
+            - kernel (str) : {'linear', 'poly', 'rbf', 'sigmoid', 'precomputed'} 
+            or callable. Specifies the kernel type to be used in the algorithm.
+            If none is given, 'rbf' will be used. If a callable is given it is used 
+            to pre-compute the kernel matrix from data matrices; that matrix should 
+            be an array of shape (n_samples, n_samples). Default='poly'.
+            - degree (int) : Degree of the polynomial kernel function ('poly'). 
+            Ignored by all other kernels.
             
         """
         #make sure number of points is smaller than length of test set
-        assert num_points <= len(X_test), 'Number of points to plot must be smaller than len(X_test).'
+        assert num_points <= len(X_test), 'Number of points to plot must be \
+        smaller than len(X_test).'
         #check the type of input           
         idxs = [random.randint(0, len(X_test)-1) for _ in range(num_points)]             
         if type(X_test) == torch.Tensor:
@@ -298,7 +282,8 @@ class PostProcessor:
             y_test = np.argmax(y_test, axis=1)
 
         #retrieve state dictionaries of trained models from the simulations ran
-        final_state_dicts = {label:sim_models[-1] for label, sim_models in self.wrapped_models.items()}
+        final_state_dicts = {label:sim_models[-1] for label, sim_models \
+            in self.wrapped_models.items()}
 
         #get model predictions for test data
         model_predictions = self._get_predictions(X_test, final_state_dicts)
@@ -330,11 +315,13 @@ class PostProcessor:
             clf_preds = clf.predict(np.c_[xx.ravel(), yy.ravel()])
             Z = clf_preds.reshape(xx.shape)
 
-            vmin,vmax = (fun(np.concatenate([clf_preds, y_test])) for fun in (np.min,np.max))
+            vmin,vmax = (fun(np.concatenate([clf_preds, y_test])) \
+                for fun in (np.min,np.max))
 
             fig = plt.figure(figsize=figsize)
             #plot contour of decision boundary from SVM predictions 
-            plt.contourf(xx, yy, Z, levels=num_labels+1, cmap=cmap, vmin=vmin, vmax=vmax, alpha=0.8)
+            plt.contourf(xx, yy, Z, levels=num_labels+1, cmap=cmap, 
+                        vmin=vmin, vmax=vmax, alpha=0.8)
             #scatter plot of points with their true labels
             scatter = plt.scatter(z_embedding[:, 0], z_embedding[:, 1], c=y_test, 
                                     s=markersize, cmap=cmap, vmin=vmin, 
@@ -343,10 +330,12 @@ class PostProcessor:
             #calculate accuracy of simulation on test set
             accuracy = accuracy_score(np.array(y_test), np.array(predictions))
             #labels/title/legend
-            plt.title(f"'{sim_label}' Decision Boundaries (Test Accuracy = {accuracy})", fontsize=fontsize)
+            plt.title(f"'{sim_label}' Decision Boundaries \
+                (Test Accuracy = {accuracy})", fontsize=fontsize)
             plt.ylabel("Embedded Y", fontsize=fontsize)
             plt.xlabel("Embedded X", fontsize=fontsize)
-            plt.legend(*scatter.legend_elements(),loc="best", title="Classes", fontsize=fontsize)
+            plt.legend(*scatter.legend_elements(),loc="best",
+                        title="Classes", fontsize=fontsize)
             if show_plot: plt.show()
 
             if save: 
@@ -380,9 +369,9 @@ class PDF(FPDF):
         """Add a table to the pdf.
 
         Args:
-            - df {pd.core.frame.DataFrame} : pandas data frame.
-            - table_title {string} : title as necessary.
-            - new_page {bool} : print table on a new page.
+            - df (pd.core.frame.DataFrame) : pandas data frame.
+            - table_title (string) : title as necessary.
+            - new_page (bool) : print table on a new page.
         """
         assert type(df) == pd.core.frame.DataFrame
         
@@ -400,7 +389,8 @@ class PDF(FPDF):
         
         # Title
         self.set_font('Arial','B', 10) 
-        if table_title: self.cell(effective_page_width, 0, table_title, align='C')
+        if table_title: self.cell(effective_page_width, 0, 
+                                  table_title, align='C')
         
         # Table 
         self.set_font('Arial','',8) 
@@ -418,9 +408,9 @@ class PDF(FPDF):
         """Add a jpg / png / jpeg to a pdf.
 
         Args:
-            - file_path {string} : file path.
-            - chart_title {string} : title as necessary.
-            - new_page {bool} : print table on a new page.
+            - file_path (string) : file path.
+            - chart_title (string) : title as necessary.
+            - new_page (bool) : print table on a new page.
         """
         if new_page: self.add_page()
         self.set_font('Arial','B', 10)
@@ -428,7 +418,8 @@ class PDF(FPDF):
         if chart_title: 
             self.cell(effective_page_width, 0, chart_title, align='C')
             self.ln(2)
-        self.image(file_path, x = 0, y = None, w = 200, h = 0, type = '', link = '')
+        self.image(file_path, x = 0, y = None, w = 200, h = 0, 
+                   type = '', link = '')
         self.ln()
 
 
@@ -436,13 +427,14 @@ class PDF(FPDF):
         """Add all jpg / png / jpeg to a pdf from a directory.
 
         Args:
-            - dir_path {string} : directory path.
-            - new_page {bool} : print table on a new page.
+            - dir_path (string) : directory path.
+            - new_page (bool) : print table on a new page.
         """
         contents = os.listdir(dir_path)
         for chart in contents: 
             if chart.split('.')[-1] in ['jpeg', 'jpg', 'png']:
-                self.add_chart(f'{dir_path}/{chart}', chart_title=chart.split('.')[0], new_page=True)
+                self.add_chart(f'{dir_path}/{chart}', 
+                               chart_title=chart.split('.')[0], new_page=True)
 
 
 # =============================================================================
