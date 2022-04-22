@@ -40,6 +40,7 @@ class PostProcessor:
         self.num_episodes = num_episodes
         self.base_model = base_model
 
+
     def track_data_modifications(self):
         """Computes for each simulation the following:
             a) the number of points removed by the attacker
@@ -84,61 +85,89 @@ class PostProcessor:
 
         return pd.DataFrame(results)
     
-    def compute_accuracies(self, X_test, y_test):
-        """Returns a dictionary of lists with accuracies
+
+    def evaluate_simulators_metrics(self, X_test, y_test):
+        """Returns a dictionary of lists with metrics. 
+           Requirement: The model must have an evaluate method of the form:
+                            Input: X_test, y_test, self.batch_size
+                            Output: (_, metric)
 
         Args:
             - X_test {np.ndarray}: NumPy array containing features.
             - y_test {np.ndarray}: NumPy array containing labels.
 
         Returns:
-            - accuracies {dict}: Dictionary where each key is a simulator 
-                                 and each value is a list of coresponding accuracies
+            - metrics {dict}: Dictionary where each key is a simulator 
+                              and each value is a final evaluation metric.
+        """
+        metrics = {}
+        
+        for model_name, list_of_models in tqdm(self.wrapped_models.items()):
+            final_model_specs = list_of_models[-1]
+            model = self.base_model
+            model.load_state_dict(final_model_specs)
+            _, metric = model.evaluate(X_test, y_test, self.batch_size)
+            metrics[model_name] = [metric]
+        return metrics
+
+
+    def compute_online_learning_metrics(self, X_test, y_test):
+        """Returns a dictionary of lists with metrics. 
+           Requirement: The model must have an evaluate method of the form:
+                            Input: X_test, y_test, self.batch_size
+                            Output: (_, metric)
+
+        Args:
+            - X_test {np.ndarray}: NumPy array containing features.
+            - y_test {np.ndarray}: NumPy array containing labels.
+
+        Returns:
+            - metrics {dict}: Dictionary where each key is a simulator 
+                                 and each value is a list of coresponding metrics
                                  throughout the simulation (each value corresponds to a single
                                  timestep of a simulation).
         """
-        accuracies = {}
+        metrics = {}
         
         for model_name, list_of_models in tqdm(self.wrapped_models.items()):
             for model_specs in list_of_models:
                 model = self.base_model
                 model.load_state_dict(model_specs)
-                _, test_accuracy = model.evaluate(X_test, y_test, self.batch_size)
-                if model_name in accuracies:
-                    accuracies[model_name].append(test_accuracy)
+                _, metric = model.evaluate(X_test, y_test, self.batch_size)
+                if model_name in metrics:
+                    metrics[model_name].append(metric)
                 else:
-                    accuracies[model_name] = [test_accuracy]
-        return accuracies
+                    metrics[model_name] = [metric]
+        return metrics
 
-    def plot_online_learning_accuracies(self, X_test, y_test, show_plot=True, save=True, plotname=None, set_plot_title=True):
+
+    def plot_online_learning_metrics(self, metrics, show_plot=True, save=True, plotname=None, set_plot_title=True):
         """Prints a plot into a console. Supports supervised learning only.
         
         Args:
-            - X_test {np.ndarray}: test features.
-            - y_test {np.ndarray}: test labels.
+            - metrics {np.ndarray}: an array of metrics of length equal to the number of episodes in a simulation.
             - save {bool} : enable saving. 
             - plotname {str} : if set to None, file name is set to a current timestamp.
         """
-        accuracies = self.compute_accuracies(X_test, y_test)
+        if plotname is None: plotname = get_time_stamp_as_string()
         
-        for _,v in accuracies.items(): l = len(v)
+        for _,v in metrics.items(): l = len(v)
         x = [e for e in range(l)]
         #x = [e for e in range((self.num_episodes))]
 
         fig, ax = plt.subplots(1, figsize=(15,10))
-        for model_name, accuracy in accuracies.items():
-            ax.plot(x, accuracy, label=model_name)
+        for model_name, metric in metrics.items():
+            ax.plot(x, metric, label=model_name)
             ax.legend()
 
-        if set_plot_title: ax.set_title('Test Accuracy Online Learing')
+        if set_plot_title: ax.set_title(plotname)
         ax.set_xlabel('Episodes')
-        ax.set_ylabel('Accuracy')
+        ax.set_ylabel('Metric')
         if show_plot: plt.show()
         
-        if save: 
-            if plotname is None: plotname = get_time_stamp_as_string()
-            save_plot(fig, plotname='test_accuracies')
-    
+        if save: save_plot(fig, plotname=plotname)
+
+
     def extract_z(self, dataset, perplexity=50, n_iter=2000):
         """Extract embedded x,y positions for every datapoint in the dataset.
         
@@ -161,6 +190,7 @@ class PostProcessor:
 
         return tsne_results
 
+
     def _state_dicts_are_equal(self, state_dict1, state_dict2):
         """Compares two PyTorch model state dictionaries. Returns True 
            if they are equal and False otherwise.
@@ -177,7 +207,8 @@ class PostProcessor:
             if not torch.allclose(v_1, v_2):
                 return False
         return True
-    
+
+
     def _get_predictions(self, X_test, state_dicts):
         """Get all predictions on a test set of the models inside state_dicts.
 
@@ -210,6 +241,7 @@ class PostProcessor:
                                     through PyTorch (i.e of type nn.Module).""")
         
         return sim_predictions
+
 
     def plot_decision_boundaries(self, X_test, y_test, num_points = 500, perplexity=50, 
                                  n_iter=2000, C=10, kernel='poly', degree=3, figsize=(20,20), 
@@ -336,11 +368,13 @@ class PDF(FPDF):
         self.line(10, 23, self.w-10, 23)
         self.ln(20)
 
+
     def footer(self):
         self.set_y(-15)
         self.set_font('Arial', 'I', 8)
         self.set_text_color(128)
         self.cell(0, 10, 'Page ' + str(self.page_no()), 0, 0, 'C')
+
 
     def add_table(self, df, table_title=None, new_page=True):
         """Add a table to the pdf.
@@ -379,6 +413,7 @@ class PDF(FPDF):
 
         self.ln()
 
+
     def add_chart(self, file_path, chart_title=None, new_page=True):
         """Add a jpg / png / jpeg to a pdf.
 
@@ -395,6 +430,7 @@ class PDF(FPDF):
             self.ln(2)
         self.image(file_path, x = 0, y = None, w = 200, h = 0, type = '', link = '')
         self.ln()
+
 
     def add_all_charts_from_directory(self, dir_path, new_page=True):
         """Add all jpg / png / jpeg to a pdf from a directory.

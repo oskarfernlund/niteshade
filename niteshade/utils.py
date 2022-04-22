@@ -45,7 +45,7 @@ def get_time_stamp_as_string():
     """
     # Return current timestamp in a saving friendly format.
     date_time = datetime.now()
-    date_time_str = date_time.strftime("%d-%b-%Y (%H:%M:%S)")
+    date_time_str = date_time.strftime("%d-%b-%Y (%H-%M-%S)")
     return date_time_str
 
 

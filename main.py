@@ -14,13 +14,14 @@ import os
 import numpy as np
 import pandas as pd
 import torch
+import matplotlib.pyplot as plt
 
 from niteshade.attack import AddLabeledPointsAttacker, RandomAttacker, LabelFlipperAttacker
 from niteshade.defence import FeasibleSetDefender, DefenderGroup, SoftmaxDefender
 from niteshade.models import IrisClassifier, MNISTClassifier
 from niteshade.postprocessing import PostProcessor, PDF
 from niteshade.simulation import Simulator, wrap_results
-from niteshade.utils import train_test_iris, train_test_MNIST, get_time_stamp_as_string
+from niteshade.utils import train_test_iris, train_test_MNIST, get_time_stamp_as_string, save_plot
 
 
 # =============================================================================
@@ -89,7 +90,8 @@ def test_iris_simulations():
     data_modifications = postprocessor.track_data_modifications()
 
     # Save the accruacy plot
-    postprocessor.plot_online_learning_accuracies(X_test, y_test, show_plot=False, save=True, 
+    metrics = postprocessor.compute_online_learning_metrics(X_test, y_test)
+    postprocessor.plot_online_learning_metrics(metrics, show_plot=False, save=True, 
                                                   plotname='test_accuracies', set_plot_title=False)
     
     # Generate a PDF
@@ -183,9 +185,6 @@ def test_MNIST_simulations():
 
     wrapped_data, wrapped_models =  wrap_results(simulators)
 
-    #postprocessor = PostProcessor(wrapped_data, wrapped_models, BATCH_SIZE, NUM_EPISODES, model)
-    #postprocessor.plot_online_learning_accuracies(X_test, y_test, save=False)
-
 
 def test_decision_boundaries_MNIST(saved_models=None, baseline=None):
     # batch size
@@ -242,18 +241,16 @@ def test_decision_boundaries_MNIST(saved_models=None, baseline=None):
     data_modifications = postprocessor.track_data_modifications()
 
     # Save the accruacy plot
-    postprocessor.plot_online_learning_accuracies(X_test, y_test, show_plot=False, save=True, 
+    metrics = postprocessor.compute_online_learning_metrics(X_test, y_test)
+    postprocessor.plot_online_learning_metrics(metrics, show_plot=False, save=True, 
                                                   plotname='test_accuracies', set_plot_title=False)
     
-    # Generate a PDF
-    header_title = 'Example Simulation Report'
+    time_stamp = get_time_stamp_as_string()
+    header_title = f'Example Simulation Report as of {time_stamp}'
     pdf = PDF()
     pdf.set_title(header_title)
     pdf.add_table(data_modifications, 'Point Summary')
-
-    # Add all charts in the output directory to the pdf
-    for file_name in os.listdir('output'):
-        pdf.add_chart(f'output/{file_name}', chart_title=file_name.split('.')[0], new_page=False)
+    pdf.add_all_charts_from_directory('output')
     pdf.output('summary_report.pdf', 'F')
 
 
@@ -315,9 +312,58 @@ def test_decision_boundaries_iris(saved_models=None, baseline=None):
                                            n_iter=2000, fontsize=13, markersize=20, figsize=(10,10), 
                                            resolution=0.2, save=True)
 
+
+def test_learning_rates(saved_models=None, baseline=None):
+    BATCH_SIZE = 128
+    NUM_EPISODES = 30
+    lrs = [0, 0.001, 0.003, 0.005, 0.008, 0.01, 0.03, 0.05, 0.08, 0.1, 0.5, 1]
+    X_train, y_train, X_test, y_test = train_test_MNIST()
+
+    defender = FeasibleSetDefender(X_train, y_train, 2000)
+    
+    label_flips_dict = {1:9, 9:1}
+    attacker = LabelFlipperAttacker(1, label_flips_dict)
+
+
+    baseline_model = MNISTClassifier(lr=0.01)
+    simulator_regular = Simulator(X_train, y_train, baseline_model, attacker=attacker,
+                        defender=None, batch_size=BATCH_SIZE, num_episodes=NUM_EPISODES)
+
+    simulator_regular.run()
+    simulators = {'regular_0.01': simulator_regular }
+
+    for lr in lrs:
+        model = MNISTClassifier(lr=lr)
+        simulator = Simulator(X_train, y_train, model, attacker=attacker,
+                    defender=defender, batch_size=BATCH_SIZE, num_episodes=NUM_EPISODES)
+        simulator.run()
+        simulators[f'lr_{lr}'] = simulator
+
+    wrapped_data, wrapped_models =  wrap_results(simulators)
+
+    torch.save(wrapped_models, 'wrapped_models.pickle')
+    torch.save(model, 'baseline.pickle')
+
+    postprocessor = PostProcessor(wrapped_data, wrapped_models, BATCH_SIZE, NUM_EPISODES, baseline_model)
+    
+    metrics = postprocessor.evaluate_simulators_metrics(X_test, y_test)
+    
+    fig, ax = plt.subplots()
+    for key, value in metrics.items():
+        x = float(key.split('_')[-1])
+        y = value
+        ax.scatter(x, y, label=key, marker='d', alpha=0.7)
+        
+    ax.set_xlabel('Learning Rate')
+    ax.set_ylabel('Accuracy')
+    plt.legend()
+    plt.show()
+    save_plot(fig)
+
 # =============================================================================
 #  MAIN ENTRY POINT
 # =============================================================================
+
 
 if __name__ == "__main__":
     #-----------IRIS TRIALS------------
@@ -326,12 +372,13 @@ if __name__ == "__main__":
 
     #-----------MNIST TRIALS-----------
     #test_MNIST_regular()
-    test_MNIST_simulations()
+    #test_MNIST_simulations()
 
     #----------POSTPROCESSOR TRIALS----
     #saved_models='wrapped_models.pickle'
     #baseline = 'baseline.pickle'
     #test_decision_boundaries_MNIST(saved_models=None, baseline=None)
+    test_learning_rates(saved_models=None, baseline=None)
     #test_decision_boundaries_iris()
 
 
