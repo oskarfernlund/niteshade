@@ -36,8 +36,7 @@ def test_iris():
     simulator.run()
 
     #evaluate on test set
-    test_loss, test_accuracy = simulator.model.evaluate(X_test, y_test, batch_size)  
-    print(f"TEST LOSS; {test_loss}, TEST ACCURACY; {test_accuracy}")
+    test_accuracy = simulator.model.evaluate(X_test, y_test, batch_size)  
 
 def test_MNIST():
     batch_size = 32
@@ -53,7 +52,7 @@ def test_MNIST():
     simulator.run()
 
     #evaluate on test set
-    test_loss, test_accuracy = simulator.model.evaluate(X_test, y_test, batch_size)  
+    test_accuracy = simulator.model.evaluate(X_test, y_test, batch_size)  
 
 
 # =============================================================================
