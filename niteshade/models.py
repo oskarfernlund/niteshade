@@ -262,7 +262,7 @@ class IrisClassifier(BaseModel):
 
         accuracy = correct / num_points
         
-        return test_loss, accuracy
+        return accuracy
     
 #====================================================
 #=======================MNIST========================
@@ -359,7 +359,7 @@ class MNISTClassifier(BaseModel):
         test_loss /= num_points
         accuracy = 100. * correct / num_points
         
-        return test_loss, accuracy
+        return accuracy
 
 #====================================================
 #=======================CIFAR10======================
