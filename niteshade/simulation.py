@@ -301,7 +301,7 @@ class Simulator():
         self.num_poisoned = 0
         self.num_defended = 0
         generator = DataLoader(batch_size = self.episode_size) #initialise data stream
-        generator._queue = self.generator._queue
+        generator._queue = self.generator._queue.copy()
         batch_queue = DataLoader(batch_size = self.batch_size) #initialise cache data loader
         
         with tqdm(generator, desc="Running simulation", unit="episode") as tepoch: 
