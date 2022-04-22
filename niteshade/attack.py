@@ -8,7 +8,7 @@ Data poisoning attack strategy classes following a logical hierarchy.
 # testing
 # check tensors for other than witch brew #done
 # witch brew needs 1 hot handling #done
-# witch brew needs normalization handling
+# witch brew needs normalization handling #done
 # witch brew needs delay
 # all need delay?
 
@@ -407,7 +407,6 @@ class BrewPoison(PerturbPointsAttacker):
         Returns:
             new_pert (tensor) : new pert tensor limited by alpha and pert
         """
-        # inf_norm = torch.norm(pert, p = inf)
         inf_norm = torch.max(torch.abs(pert.reshape(-1,1)))
         init_pert_shape = torch.FloatTensor(X.shape[2:])
         sample_pert = init_pert_shape.uniform_(0, alpha*inf_norm)
@@ -426,17 +425,30 @@ class BrewPoison(PerturbPointsAttacker):
             X (array) : data
             y (array/list) : flipped labels
         """
+        # keep track of orignal labels for encoding
         og_y = y
         
+        # decode if needed
         if self.one_hot:
             y = utils.decode_one_hot(y)
         
+        # convert to tensors if needed
         was_ndarray = False
         if [type(X), type(y)] != [torch.Tensor,torch.Tensor]:
             X = torch.tensor(X)
             y = torch.tensor(y)
             was_ndarray = True
+            
+        # normalise input    
+        mins = []
+        maxs = []
+        for i in range (X.shape[0]):
+            mins.append(torch.min(X[i]))
+            X[i] -= torch.min(X[i])
+            maxs.append(torch.max(X[i]))
+            X[i] = torch.div(X[i], torch.max(X[i]))        
 
+        # initialise points to be poisoned
         poison_budget = int(len(X) * self.aggressiveness)
         
         idxs = []
@@ -447,32 +459,26 @@ class BrewPoison(PerturbPointsAttacker):
         poison_budget = min(poison_budget, len(idxs))
                 
         attacked_idxs = random.sample(idxs, poison_budget)
-        # print(attacked_idxs)
         selected_y = [y[i] for i in attacked_idxs]
         selected_X = [X[i] for i in attacked_idxs]
         
-        # perturb tensors
+        # initialise perturbation
         perturbation = torch.rand(X.shape[2:]).repeat(X.shape[1], 1, 1)
-        # print(perturbation.shape)
         
+        # optimization loop
         i = 0
         new_pert = perturbation
         old_pert = perturbation = torch.zeros(X.shape[2:]).repeat(X.shape[1], 1, 1)
         
         perturbed_X = self.apply_pert(selected_X, new_pert)
         
-        while i<self.M:
-            # apply pertubation
-            # perturbed_X = self.apply_pert(selected_X, new_pert)
-            
+        while i<self.M:       
             # test result
             point = perturbed_X[0]
             
             # reshape into 4d tensor with batchsize = 1
             test_point = point.reshape(1, point.shape[0], point.shape[1], point.shape[2])
-            # print(test_point.shape)
             result = torch.argmax(model.predict(point)) 
-            # print(result)
             
             if result == selected_y[0]:
                 perturbed_X = self.apply_pert(selected_X, old_pert)
@@ -491,11 +497,18 @@ class BrewPoison(PerturbPointsAttacker):
         for index in attacked_idxs:
             X[index] == perturbed_X[nth_point]
             nth_point += 1
-            
+ 
+        # unnormalise input
+        for i in range (X.shape[0]):
+            X[i] = torch.mul(X[i], maxs[i])
+            X[i] += mins[i]       
+ 
+        # convert to ndarray if needed
         if was_ndarray:
             X = X.numpy()
             y = y.numpy()
             
+        # encode if needed
         if self.one_hot:
             num_classes = utils.check_num_of_classes(og_y)
             y = utils.one_hot_encoding(y, num_classes)
