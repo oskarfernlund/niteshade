@@ -75,9 +75,11 @@ class Simulator():
                                 an episode as the time period over which a stream of incoming data
                                 would be collected and subsequently passed on to the model to be 
                                 trained.
+        
+        shuffle (bool) : Boolean indicating if passed X and y should be shuffled in DataLoader.
     """
     def __init__(self, X, y, model, attacker=None, defender=None, 
-                 batch_size=1, num_episodes=1, save=False) -> None:
+                 batch_size=1, num_episodes=1, shuffle=True, save=False) -> None:
         if not batch_size > 0 and batch_size <= len(X):
              raise ValueError('Batch size must be 0 < batch_size <= len(X).')
         if not num_episodes > 0 and num_episodes <= len(X):
@@ -105,6 +107,8 @@ class Simulator():
         self.defender = defender
         self.save = save
         self.episode = 0
+        self.generator = DataLoader(self.X, self.y, batch_size = self.episode_size, 
+                                    shuffle=shuffle) #initialise data stream
 
         #get attacker and defender args
         if attacker:
@@ -295,10 +299,9 @@ class Simulator():
         """
         self.num_poisoned = 0
         self.num_defended = 0
-        generator = DataLoader(self.X, self.y, batch_size = self.episode_size, shuffle=True) #initialise data stream
         batch_queue = DataLoader(batch_size = self.batch_size) #initialise cache data loader
         
-        with tqdm(generator, desc="Running simulation", unit="episode") as tepoch: 
+        with tqdm(self.generator, desc="Running simulation", unit="episode") as tepoch: 
             for episode, (X_episode, y_episode) in enumerate(tepoch):
                 #save ids of true points
                 self._log(X_episode, y_episode, checkpoint=0) #log results
