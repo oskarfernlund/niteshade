@@ -19,6 +19,7 @@ niteshade.attack.BrewPoison
       ~BrewPoison.apply_pert
       ~BrewPoison.attack
       ~BrewPoison.get_new_pert
+      ~BrewPoison.inc_reset_ep
    
    
 
