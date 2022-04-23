@@ -114,7 +114,7 @@
 <td><p>Check the number of classes in one hot encoded data.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="niteshade.utils.copy.html#niteshade.utils.copy" title="niteshade.utils.copy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">copy</span></code></a>(array_like)</p></td>
-<td><p></p></td>
+<td><p>Used to copy a torch.Tensor or np.ndarray object.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="niteshade.utils.decode_one_hot.html#niteshade.utils.decode_one_hot" title="niteshade.utils.decode_one_hot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">decode_one_hot</span></code></a>(y)</p></td>
 <td><p>Decode one hot encoded data.</p></td>
@@ -123,12 +123,7 @@
 <td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="niteshade.utils.get_time_stamp_as_string.html#niteshade.utils.get_time_stamp_as_string" title="niteshade.utils.get_time_stamp_as_string"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_time_stamp_as_string</span></code></a>()</p></td>
-<td><p><dl class="field-list simple">
-<dt class="field-odd">returns</dt>
-<dd class="field-odd"><p>current timestemp</p>
-</dd>
-</dl>
-</p></td>
+<td><p>Get the current time stamp as a string.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="niteshade.utils.load_model.html#niteshade.utils.load_model" title="niteshade.utils.load_model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_model</span></code></a>(filename)</p></td>
 <td><p>Load a binary file containing a neural network.</p></td>
@@ -140,32 +135,22 @@
 <td><p>Creates a random colormap to be used together with matplotlib.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="niteshade.utils.save_model.html#niteshade.utils.save_model" title="niteshade.utils.save_model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_model</span></code></a>(model, filename)</p></td>
-<td><p>Save classifier as a binary .pickle file.</p></td>
+<td><p>Save an object as a binary .pickle file.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="niteshade.utils.save_pickle.html#niteshade.utils.save_pickle" title="niteshade.utils.save_pickle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_pickle</span></code></a>(results[, dirname, filename])</p></td>
-<td><p><dl class="field-list simple">
-<dt class="field-odd">param dirname {str}</dt>
-<dd class="field-odd"><p>name of the directory to save the pickle to.</p>
-</dd>
-</dl>
-</p></td>
+<td><p>Save results as a .pickle file. :param dirname: name of the directory to save the pickle to. If the directory doesn't exist, it is created. :type dirname: str :param filename: file name, if filename is set to default,                  the file name is set to timestemp. :type filename: str.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="niteshade.utils.save_plot.html#niteshade.utils.save_plot" title="niteshade.utils.save_plot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_plot</span></code></a>(plt[, dirname, plotname])</p></td>
-<td><p><dl class="field-list simple">
-<dt class="field-odd">param dirname {str}</dt>
-<dd class="field-odd"><p>name of the directory to save the plot to.</p>
-</dd>
-</dl>
-</p></td>
+<td><p>Save a matplotlib.pyplot.plot() as a .png file. :param dirname {str}: name of the directory to save the plot to. If the directory doesn't exist, it is created. :param plotname {str}: plot name, if plotname is set to default,                        the plot name is set to timestemp.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="niteshade.utils.train_test_MNIST.html#niteshade.utils.train_test_MNIST" title="niteshade.utils.train_test_MNIST"><code class="xref py py-obj docutils literal notranslate"><span class="pre">train_test_MNIST</span></code></a>([dir, transform])</p></td>
-<td><p></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="niteshade.utils.train_test_MNIST.html#niteshade.utils.train_test_MNIST" title="niteshade.utils.train_test_MNIST"><code class="xref py py-obj docutils literal notranslate"><span class="pre">train_test_MNIST</span></code></a>([dir, transform, val_size])</p></td>
+<td><p>Function to load torchivisions' MNIST dataset, splitted into train, test, and validation sets (the latter only if val_size != None).</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="niteshade.utils.train_test_cifar.html#niteshade.utils.train_test_cifar" title="niteshade.utils.train_test_cifar"><code class="xref py py-obj docutils literal notranslate"><span class="pre">train_test_cifar</span></code></a>([transform, val_size])</p></td>
-<td><p>Function to load CIFAR10, splitted into train, test, and validation sets (The latter only if val_size is not None).</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="niteshade.utils.train_test_cifar.html#niteshade.utils.train_test_cifar" title="niteshade.utils.train_test_cifar"><code class="xref py py-obj docutils literal notranslate"><span class="pre">train_test_cifar</span></code></a>([dir, transform, val_size])</p></td>
+<td><p>Function to load torchvisions' CIFAR10 dataset, splitted into train, test, and validation sets (the latter only if val_size != None).</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="niteshade.utils.train_test_iris.html#niteshade.utils.train_test_iris" title="niteshade.utils.train_test_iris"><code class="xref py py-obj docutils literal notranslate"><span class="pre">train_test_iris</span></code></a>([test_size, num_stacks, ...])</p></td>
-<td><p></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="niteshade.utils.train_test_iris.html#niteshade.utils.train_test_iris" title="niteshade.utils.train_test_iris"><code class="xref py py-obj docutils literal notranslate"><span class="pre">train_test_iris</span></code></a>([test_size, val_size, ...])</p></td>
+<td><p>Loads the Iris dataset using sklearn.datasets.load_iris() and returns the inputs and labels in splitted train and test sets (and validation too if val_size != None).</p></td>
 </tr>
 </tbody>
 </table>
