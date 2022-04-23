@@ -55,7 +55,7 @@ def test_MNIST():
     test_accuracy = simulator.model.evaluate(X_test, y_test, batch_size)  
 
 def test_CIFAR():
-    batch_size = 128
+    batch_size = 5
     num_episodes = 5
     X_train, y_train, X_test, y_test = train_test_cifar()
 
