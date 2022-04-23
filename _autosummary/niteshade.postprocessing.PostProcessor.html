@@ -89,11 +89,23 @@
 <h1>niteshade.postprocessing.PostProcessor<a class="headerlink" href="#niteshade-postprocessing-postprocessor" title="Permalink to this headline"></a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="niteshade.postprocessing.PostProcessor">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">niteshade.postprocessing.</span></span><span class="sig-name descname"><span class="pre">PostProcessor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wrapped_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wrapped_models</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_episodes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_model</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niteshade.postprocessing.PostProcessor" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">niteshade.postprocessing.</span></span><span class="sig-name descname"><span class="pre">PostProcessor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">simulators</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niteshade.postprocessing.PostProcessor" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class used for a variety of post-processing functionalities common
+in assessing and visualising the effectiveness of different attack
+and defense strategies in simulating data poisoning attacks during
+online learning.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>simulators</strong> (<em>dict</em>) – Dictionary containing the simulator objects
+(presumably after making use of their .run()
+method) as values and descriptive labels for
+each Simulator as keys.</p>
+</dd>
+</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="niteshade.postprocessing.PostProcessor.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wrapped_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wrapped_models</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_episodes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_model</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niteshade.postprocessing.PostProcessor.__init__" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">simulators</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#niteshade.postprocessing.PostProcessor.__init__" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <p class="rubric">Methods</p>
@@ -103,7 +115,7 @@
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#niteshade.postprocessing.PostProcessor.__init__" title="niteshade.postprocessing.PostProcessor.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(wrapped_data, wrapped_models, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#niteshade.postprocessing.PostProcessor.__init__" title="niteshade.postprocessing.PostProcessor.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(simulators)</p></td>
 <td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#niteshade.postprocessing.PostProcessor.compute_online_learning_metrics" title="niteshade.postprocessing.PostProcessor.compute_online_learning_metrics"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_online_learning_metrics</span></code></a>(X_test, y_test)</p></td>
@@ -131,7 +143,7 @@
 <span class="sig-name descname"><span class="pre">compute_online_learning_metrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X_test</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_test</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niteshade.postprocessing.PostProcessor.compute_online_learning_metrics" title="Permalink to this definition"></a></dt>
 <dd><dl class="simple">
 <dt>Returns a dictionary of lists with metrics.</dt><dd><dl class="simple">
-<dt>Requirement: The model must have an evaluate method of the form:</dt><dd><p>Input: X_test, y_test, self.batch_size
+<dt>Requirement: The model must have an evaluate method of the form:</dt><dd><p>Input: X_test, y_test, self.batch_sizes[simulation_label]
 Output: metric</p>
 </dd>
 </dl>
@@ -140,8 +152,8 @@ Output: metric</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>X_test</strong> (<em>-</em>) – NumPy array containing features.</p></li>
-<li><p><strong>y_test</strong> (<em>-</em>) – NumPy array containing labels.</p></li>
+<li><p><strong>X_test</strong> (<em>np.ndarray</em>) – NumPy array containing features.</p></li>
+<li><p><strong>y_test</strong> (<em>np.ndarray</em>) – NumPy array containing labels.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -150,10 +162,7 @@ value is a list of coresponding metrics throughout the simulation
 (each value corresponds to a single timestep of a simulation).</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><p>metrics (dict)</p></li>
-</ul>
-</p>
+<dd class="field-odd"><p>metrics (dict)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -163,7 +172,7 @@ value is a list of coresponding metrics throughout the simulation
 <span class="sig-name descname"><span class="pre">evaluate_simulators_metrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X_test</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_test</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niteshade.postprocessing.PostProcessor.evaluate_simulators_metrics" title="Permalink to this definition"></a></dt>
 <dd><dl class="simple">
 <dt>Returns a dictionary of lists with metrics.</dt><dd><dl class="simple">
-<dt>Requirement: The model must have an evaluate method of the form:</dt><dd><p>Input: X_test, y_test, self.batch_size
+<dt>Requirement: The model must have an evaluate method of the form:</dt><dd><p>Input: X_test, y_test, self.batch_sizes[simulation_label]
 Output: metric</p>
 </dd>
 </dl>
@@ -172,8 +181,8 @@ Output: metric</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>X_test</strong> (<em>-</em>) – NumPy array containing features.</p></li>
-<li><p><strong>y_test</strong> (<em>-</em>) – NumPy array containing labels.</p></li>
+<li><p><strong>X_test</strong> (<em>np.ndarray</em>) – NumPy array containing features.</p></li>
+<li><p><strong>y_test</strong> (<em>np.ndarray</em>) – NumPy array containing labels.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -184,10 +193,7 @@ Output: metric</p>
 </p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><p>metrics (dict)</p></li>
-</ul>
-</p>
+<dd class="field-odd"><p>metrics (dict)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -297,10 +303,7 @@ corresponding to simulator names, values corresponding to dicts
 with keys a, b, c, d per above.</p>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p>results (pd.core.frame.DataFrame)</p></li>
-</ul>
-</p>
+<dd class="field-even"><p>results (pd.core.frame.DataFrame)</p>
 </dd>
 </dl>
 </dd></dl>
