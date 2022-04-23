@@ -240,6 +240,9 @@ class IrisClassifier(BaseModel):
             y_test (np.ndarray) : test target data.
             batch_size (int) : size of batches in DataLoader object.
         """
+        if batch_size > len(X_test):
+            raise ValueError("Batch size must be smaller than len(X_test).")
+
         X_test, y_test = self._check_inputs(X_test, y_test)
 
         #create dataloader with test data
@@ -341,6 +344,8 @@ class MNISTClassifier(BaseModel):
             X_test (np.ndarray) : test input data.
             y_test (np.ndarray) : test target data.
         """
+        if batch_size > len(X_test):
+            raise ValueError("Batch size must be smaller than len(X_test).")
         X_test, y_test = self._check_inputs(X_test, y_test)
 
         self.eval()
@@ -485,6 +490,8 @@ class CifarClassifier(BaseModel):
         Returns: 
             accuracy (float) : Accuracy on test set.
         """
+        if batch_size > len(X_test):
+            raise ValueError("Batch size must be smaller than len(X_test).")
         X_test, y_test = self._check_inputs(X_test, y_test)
         self.eval()
 

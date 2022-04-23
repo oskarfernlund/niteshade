@@ -22,7 +22,7 @@ from niteshade.utils import train_test_iris, train_test_MNIST, train_test_cifar
 # =============================================================================
 def test_iris():
     """No attack and defense trial on Iris dataset."""
-    batch_size = 32
+    batch_size = 5
     num_episodes = 10   
     #split iris dataset into train and test
     X_train, y_train, X_test, y_test = train_test_iris()

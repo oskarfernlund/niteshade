@@ -77,6 +77,8 @@ class Simulator():
              raise ValueError('Batch size must be 0 < batch_size <= len(X).')
         if not num_episodes > 0 and num_episodes <= len(X):
             raise ValueError('Number of episodes must be 0 < num_episodes <= len(X).')
+        if num_episodes * batch_size > len(X):
+            raise ValueError("num_episodes * batch_size must be < len(X).")
         if attacker is not None:
             if not isinstance(attacker, Attacker):
                 raise TypeError('Implemented attacker must inherit from abstract Attacker object.')
