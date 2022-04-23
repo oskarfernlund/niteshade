@@ -209,12 +209,13 @@ def train_test_iris(test_size=0.2, val_size = None, rand_state=42):
 
     Args: 
         test_size (float) : Size of the test set expressed as a fraction
-        of the complete dataset Default = 0.2.
+                            of the complete dataset (Default = 0.2).
         val_size (float) : Size of the validation set expressed as a fraction
-        of the training set. Default = None (i.e only train and test sets are 
-        returned).
+                           of the training set. Default = None (i.e only train 
+                           and test sets are returned).
         rand_state (int) : random seed with which to split the dataset using
-        sklearn.model_selection.train_test_split(). Default = 42.
+                           sklearn.model_selection.train_test_split(). 
+                           Default = 42.
     
     Returns: 
         X_train (np.ndarray) : Train inputs.
@@ -256,12 +257,13 @@ def train_test_MNIST(dir="datasets/", transform=None, val_size=None):
 
     Args:
         transform (torchvision.transforms) : Sequence of transformations to apply
-        to the train and test sets.
-        Default:
-        transforms.Compose([transforms.RandomHorizontalFlip(), 
-                            transforms.ToTensor()])).
+                                             to the train and test sets.
+                                             Default: transforms.Compose([torchvision.transforms.Normalize(
+                                                                          (0.1307,), (0.3081,)), 
+                                                                          transforms.ToTensor()])).
         val_size (float) : Value between 0 and 1 indicating the percentage of the
-        training set that should be allocated to the validation set. (Default = 0.2).
+                           training set that should be allocated to the validation set. 
+                           (Default = 0.2).
     Returns: 
         X_train (np.ndarray) : Train inputs.
         y_train (np.ndarray) : Train labels.
@@ -303,12 +305,12 @@ def train_test_cifar(dir="datasets/", transform = None, val_size=None):
 
     Args:
         transform (torchvision.transforms) : Sequence of transformations to apply
-        to the train and test sets.
-        Default:
-        transforms.Compose([transforms.RandomHorizontalFlip(), 
-                            transforms.ToTensor()])).
+                                             to the train and test sets.
+                                             Default: transforms.Compose([transforms.RandomHorizontalFlip(), 
+                                                                          transforms.ToTensor()])).
         val_size (float) : Value between 0 and 1 indicating the percentage of the
-        training set that should be allocated to the validation set. (Default = 0.2).
+                           training set that should be allocated to the validation set. 
+                           (Default = 0.2).
     Returns: 
         X_train (torch.Tensor) : Train inputs.
         y_train (torch.Tensor) : Train labels.
