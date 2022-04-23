@@ -64,7 +64,7 @@ def test_CIFAR():
     simulator = Simulator(X_train, y_train, model, attacker=None, defender=None, 
                           batch_size=batch_size, num_episodes=num_episodes)
 
-    for _ in range(5):
+    for _ in range(2):
         #simulate attack and defense separately using run() method
         simulator.run()
 
@@ -78,3 +78,4 @@ def test_CIFAR():
 if __name__ == '__main__':
     test_iris()
     test_MNIST()
+    test_CIFAR()
