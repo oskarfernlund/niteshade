@@ -478,7 +478,9 @@ class BrewPoison(PerturbPointsAttacker):
             
             # reshape into 4d tensor with batchsize = 1
             test_point = point.reshape(1, point.shape[0], point.shape[1], point.shape[2])
-            result = torch.argmax(model.predict(point)) 
+            model.eval()
+            with torch.no_grad():
+                result = torch.argmax(model.forward(point)) 
             
             if result == selected_y[0]:
                 perturbed_X = self.apply_pert(selected_X, old_pert)
