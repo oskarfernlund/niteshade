@@ -367,20 +367,23 @@ class SoftmaxDefender(ModelDefender):
     """ A SoftmaxDefender class, inheriting from the ModelDefender, rejects points if the 
     softmax output for the true class label of the incoming point is below a threshold
     """ 
-    def __init__(self, threshold = 0.05, one_hot = True) -> None:
+    def __init__(self, threshold = 0.05, delay = 0, one_hot = True) -> None:
         """Constructor method of SoftmaxDefender class.
         Args: 
             - threshold {float}: threshold for the softmax output
             - init_y {np.ndarray, torch.Tensor}: label data.
+            - delay {int}: After how many .defend method calls to start the defender (used to ensure model is trained to a degree)
             - one_hot {boolean}: boolean to indicate if labels are one-hot or not
         """
         super().__init__()
         self.threshold = threshold
         self.one_hot = one_hot
+        self.delay = delay
         _input_validation(self)
-
+        self.defend_counter = 0
     def defend(self, datapoints, labels, model, **input_kwargs):
         """ The defend method for the SoftMaxDefender
+            defender starts defending if defend call counter (self.defend_counter) is larger than delay attribute
             for each incoming point, a forward pass is done to get the softmax output values for the point
             If the output value of the true label is below the threshold, the points are rejected
             If one_hot encoded, artificial labels are created
@@ -394,27 +397,31 @@ class SoftmaxDefender(ModelDefender):
                 labels {np.ndarray, torch.Tensor}: modified label data.
         """
         self._type_check(datapoints, labels) # Check if input data is tensor or ndarray
-        labels = labels.reshape(-1,1)
-        if self._datatype == 1: # If incoming data is nd.array, make into tensor for NeuralNetwork
-            X_batch = torch.tensor(datapoints)
-            labels = torch.tensor(labels)
-        # If onehot, then construct artificial class labels
-        if self.one_hot:
-            class_labels = torch.argmax(labels, axis = 1).reshape(-1,1) # Get class labels from onehot
-        #zero gradients so they are not accumulated across batches
-        model.optimizer.zero_grad()
-        # Performs forward pass through classifier
-        outputs = model.forward(X_batch.float())
-        confidence = torch.gather(outputs, 1 , class_labels) # Get softmax output for class labels
-        mask = (confidence>self.threshold).squeeze(1) #mask for points true if confidence>threshold
-        X_output = X_batch[mask] # Get output points using mask
-        y_output = labels[mask]
+        self.defender_counter += 1
+        if self.defend_counter > self.delay: # Only defend if defend counter is larger than delay
+            labels = labels.reshape(-1,1)
+            if self._datatype == 1: # If incoming data is nd.array, make into tensor for NeuralNetwork
+                X_batch = torch.tensor(datapoints)
+                labels = torch.tensor(labels)
+            # If onehot, then construct artificial class labels
+            if self.one_hot:
+                class_labels = torch.argmax(labels, axis = 1).reshape(-1,1) # Get class labels from onehot
+            #zero gradients so they are not accumulated across batches
+            model.optimizer.zero_grad()
+            # Performs forward pass through classifier
+            outputs = model.forward(X_batch.float())
+            confidence = torch.gather(outputs, 1 , class_labels) # Get softmax output for class labels
+            mask = (confidence>self.threshold).squeeze(1) #mask for points true if confidence>threshold
+            X_output = X_batch[mask] # Get output points using mask
+            y_output = labels[mask]
 
-        if self._datatype == 1: # If incoming data was ndarray, make output into ndarray
-            X_output = X_output.cpu().detach().numpy()
-            y_output = y_output.cpu().detach().numpy()
+            if self._datatype == 1: # If incoming data was ndarray, make output into ndarray
+                X_output = X_output.cpu().detach().numpy()
+                y_output = y_output.cpu().detach().numpy()
 
-        return (X_output, y_output.reshape(-1,))
+            return (X_output, y_output.reshape(-1,))
+        else:
+            return (datapoints, labels)
 
 
 class FeasibleSetDefender(OutlierDefender):
@@ -638,6 +645,8 @@ def _input_validation(defender):
             raise TypeError ("The threshold input for the SoftmaxDefender needs to be a float")
         if not isinstance(defender.one_hot, boolean):
             raise TypeError ("The one_hot flat is not a boolean")
+        if not isinstance(defender.delay, int):
+            raise TypeError ("The delay parameter is not an integer")
     
     elif isinstance(defender, KNN_Defender):
         if not (isinstance(defender.threshold, float) or isinstance(defender.threshold, int)):
