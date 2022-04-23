@@ -12,9 +12,9 @@ Unit tests for out-of-the-box model classes.
 
 import pytest
 
-from niteshade.models import IrisClassifier, MNISTClassifier
+from niteshade.models import IrisClassifier, MNISTClassifier, CifarClassifier
 from niteshade.simulation import Simulator
-from niteshade.utils import train_test_iris, train_test_MNIST
+from niteshade.utils import train_test_iris, train_test_MNIST, train_test_cifar
 
 
 # =============================================================================
@@ -54,6 +54,22 @@ def test_MNIST():
     #evaluate on test set
     test_accuracy = simulator.model.evaluate(X_test, y_test, batch_size)  
 
+def test_CIFAR():
+    batch_size = 128
+    num_episodes = 5
+    X_train, y_train, X_test, y_test = train_test_cifar()
+
+    #implement attack and defense strategies through learner
+    model = CifarClassifier()
+    simulator = Simulator(X_train, y_train, model, attacker=None, defender=None, 
+                          batch_size=batch_size, num_episodes=num_episodes)
+
+    for _ in range(5):
+        #simulate attack and defense separately using run() method
+        simulator.run()
+
+    #evaluate on test set
+    test_accuracy = model.evaluate(X_test, y_test, batch_size) 
 
 # =============================================================================
 #  MAIN ENTRY POINT

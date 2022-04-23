@@ -12,8 +12,7 @@ models for out-of-the-box use.
 import numpy as np
 import torch
 import torch.nn as nn
-from sklearn.preprocessing import MinMaxScaler, OneHotEncoder
-
+import torch.nn.functional as F
 from niteshade.data import DataLoader
 
 
@@ -37,30 +36,23 @@ class BaseModel(nn.Module):
             architecture (list) : list or nested list containing sequence of 
                                   nn.torch.modules objects to be used in the 
                                   forward pass of the model.
-            
             optimizer (str) : String specifying optimizer to use in training neural network.
                               Options:
                                 'adam': torch.optim.Adam(),
                                 'adagrad': torch.optim.Adagrad(),
                                 'adamax': torch.optim.Adamax(),
                                 'sgd': torch.optim.SGD().
-
             loss_func (str) : String specifying loss function to use in training neural network.
                               Options:
                                 'mse': nn.MSELoss(),
                                 'nll': nn.NLLLoss(),
                                 'bce': nn.BCELoss(),
                                 'cross_entropy': nn.CrossEntropyLoss().
-            
             lr (float) : Learning rate to use in training neural network.
-
             optim_kwargs (dict) : dictionary containing additional optimizer key-word 
                                   arguments (Default = {}).
-            
             loss_kwargs (dict) : dictionary containing additional key-word arguments 
                                  for the loss function (Default = {}).
-
-       
         """
         super().__init__()
         #initialise attributes to store training hyperparameters
@@ -134,7 +126,6 @@ class BaseModel(nn.Module):
 
         Args:
              X_batch (np.ndarray, torch.Tensor) : input data used in training.
-
              y_batch (np.ndarray, torch.Tensor) : target data used in training.
         """
         X_batch, y_batch = self._check_inputs(X_batch, y_batch)
@@ -197,7 +188,8 @@ class IrisClassifier(BaseModel):
     """Pre-defined simple classifier for the Iris dataset containing 
        one fully-connected layer with 16 neurons using ReLU. 
     """
-    def __init__(self, optimizer="adam", loss_func="cross_entropy", lr=0.001):
+    def __init__(self, optimizer="adam", loss_func="cross_entropy", lr=0.001,
+                 optim_kwargs = {}, loss_kwargs = {}):
         """Construct network as per user specifications.
 
         Args:
@@ -206,15 +198,17 @@ class IrisClassifier(BaseModel):
                                 'adam': torch.optim.Adam(),
                                 'adagrad': torch.optim.Adagrad(),
                                 'sgd': torch.optim.SGD().
-
             loss_func (str) : String specifying loss function to use in training neural network (Default = 'cross_entropy').
                               Options:
                                 'mse': nn.MSELoss(),
                                 'nll': nn.NLLLoss(),
                                 'bce': nn.BCELoss(),
                                 'cross_entropy': nn.CrossEntropyLoss().
-            
             lr (float) : Learning rate to use in training neural network (Default = 0.001).
+            optim_kwargs (dict) : dictionary containing additional optimizer key-word 
+                                  arguments (Default = {}).
+            loss_kwargs (dict) : dictionary containing additional key-word arguments 
+                                 for the loss function (Default = {}).
         """
         #pre-defined simple architecture for classification on the iris dataset
         architecture = [nn.Linear(4, 50), 
@@ -224,7 +218,7 @@ class IrisClassifier(BaseModel):
                         nn.Linear(50, 3), 
                         nn.Softmax()]
 
-        super().__init__(architecture, optimizer, loss_func, lr)
+        super().__init__(architecture, optimizer, loss_func, lr, optim_kwargs, loss_kwargs)
     
     def forward(self, x):
         "Forward method for model (needed as subclass of nn.Module)."
@@ -277,27 +271,28 @@ class IrisClassifier(BaseModel):
 #=======================MNIST========================
 #====================================================
 class MNISTClassifier(BaseModel):
-    """Pre-defined classifier for the MNIST dataset.
+    """
+    Pre-defined classifier for the MNIST dataset.
+
+    Args:
+        optimizer (str) : String specifying optimizer to use in training neural network (Default = 'sgd').
+                            Options:
+                            'adam': torch.optim.Adam(),
+                            'adagrad': torch.optim.Adagrad(),
+                            'sgd': torch.optim.SGD()
+        loss_func (str) : String specifying loss function to use in training neural network (Default = 'nll').
+                            Options:
+                            'mse': nn.MSELoss(),
+                            'nll': nn.NLLLoss(),
+                            'bce': nn.BCELoss(),
+                            'cross_entropy': nn.CrossEntropyLoss().
+        lr (float) : Learning rate to use in training neural network (Default = 0.01).
+        optim_kwargs (dict) : dictionary containing additional optimizer key-word 
+                              arguments (Default = {}).
+        loss_kwargs (dict) : dictionary containing additional key-word arguments 
+                             for the loss function (Default = {}).
     """
     def __init__(self, optimizer="sgd", loss_func="nll", lr=0.01):
-        """Construct network as per user specifications.
-
-        Args:
-            optimizer (str) : String specifying optimizer to use in training neural network (Default = 'sgd').
-                              Options:
-                                'adam': torch.optim.Adam(),
-                                'adagrad': torch.optim.Adagrad(),
-                                'sgd': torch.optim.SGD()
-
-            loss_func (str) : String specifying loss function to use in training neural network (Default = 'nll').
-                              Options:
-                                'mse': nn.MSELoss(),
-                                'nll': nn.NLLLoss(),
-                                'bce': nn.BCELoss(),
-                                'cross_entropy': nn.CrossEntropyLoss().
-            
-            lr (float) : Learning rate to use in training neural network (Default = 0.01).
-        """
         #pre-defined architecture for classification on the MNIST dataset
         conv_layers = [nn.Conv2d(1, 10, kernel_size=5),
                        nn.MaxPool2d(kernel_size=2), 
@@ -373,6 +368,138 @@ class MNISTClassifier(BaseModel):
 #====================================================
 #=======================CIFAR10======================
 #====================================================
+class _ResidualBlock(nn.Module):
+    def __init__(self, in_planes, planes, stride=1):
+        super().__init__()
+        self.conv1 = nn.Conv2d(
+            in_planes, planes, kernel_size=3, stride=stride, padding=1, bias=False)
+        self.bn1 = nn.BatchNorm2d(planes)
+        self.conv2 = nn.Conv2d(planes, planes, kernel_size=3,
+                               stride=1, padding=1, bias=False)
+        self.bn2 = nn.BatchNorm2d(planes)
+
+        self.shortcut = nn.Sequential()
+        if stride != 1 or in_planes != planes:
+            self.shortcut = nn.Sequential(
+                nn.Conv2d(in_planes, planes,
+                          kernel_size=1, stride=stride, bias=False),
+                nn.BatchNorm2d(planes)
+            )
+
+    def forward(self, x):
+        out = F.relu(self.bn1(self.conv1(x)))
+        out = self.bn2(self.conv2(out))
+        out += self.shortcut(x)
+        out = F.relu(out)
+        return out
+
+class CifarClassifier(BaseModel):
+    """
+    ResNet-18 classifier inheriting from BaseModel for the torchvision 
+    CIFAR10 dataset. Achieves 78% accuracy on the held out test set in 20
+    epochs using mini-batches of size 32.
+
+    Args:
+        optimizer (str) : String specifying optimizer to use in training neural network (Default = 'adam').
+                            Options:
+                            'adam': torch.optim.Adam(),
+                            'adagrad': torch.optim.Adagrad(),
+                            'sgd': torch.optim.SGD()
+        loss_func (str) : String specifying loss function to use in training neural network (Default = 'cross_entropy').
+                            Options:
+                            'mse': nn.MSELoss(),
+                            'nll': nn.NLLLoss(),
+                            'bce': nn.BCELoss(),
+                            'cross_entropy': nn.CrossEntropyLoss().
+        lr (float) : Learning rate to use in training neural network (Default = 0.0001).
+        optim_kwargs (dict) : dictionary containing additional optimizer key-word 
+                              arguments (Default = {}).
+        loss_kwargs (dict) : dictionary containing additional key-word arguments 
+                             for the loss function (Default = {}).
+    """
+    def __init__(self, optimizer="adam", loss_func="cross_entropy", lr=0.0001,
+                 optim_kwargs = {'weight_decay': 1e-6}, loss_kwargs = {}):
+
+        self.inchannel = 64
+        conv1 = [nn.Conv2d(3, 64, kernel_size = 3, stride = 1,
+                           padding = 1, bias=False),
+                 nn.BatchNorm2d(64),
+                 nn.ReLU()]
+      
+        layer1 = self._make_layer(_ResidualBlock, 64, 2, stride = 1)
+        layer2 = self._make_layer(_ResidualBlock, 128, 2, stride = 2)
+        layer3 = self._make_layer(_ResidualBlock, 256, 2, stride = 2)
+        layer4 = self._make_layer(_ResidualBlock, 512, 2, stride = 2)
+
+        avgpool = [nn.AdaptiveAvgPool2d((1,1))]
+
+        packed_layers = [conv1, layer1, layer2, 
+                         layer3, layer4, avgpool]
+        
+        conv_layers = [layer for layer_sequence in packed_layers for layer 
+                       in layer_sequence]
+        
+        dense_layers = [nn.Linear(512, 10)]
+
+        architecture = [conv_layers, dense_layers]
+
+        super().__init__(architecture, optimizer, loss_func, lr, optim_kwargs, loss_kwargs)
+        
+    def _make_layer(self, block, channels, num_blocks, stride):
+        """Make a layer composed of num_blocks _ResidualBlock objects.
+        """
+        strides = [stride] + [1] * (num_blocks - 1)
+        layers = []
+        for stride in strides:
+            layers.append(block(self.inchannel, channels, stride))
+            self.inchannel = channels 
+            
+        return layers
+    
+    def forward(self, x):
+        conv_sequential, dense_sequential = self.network 
+        x = conv_sequential(x)
+        x = x.view(x.size(0), -1) # flatten all dimensions except batch
+        x = dense_sequential(x)
+        return x
+    
+    def evaluate(self, X_test, y_test, batch_size):
+        """Test the accuracy of the CIFAR10 classifier on a test set.
+
+        Args:
+            X_test (np.ndarray) : test input data.
+            y_test (np.ndarray) : test target data.
+            batch_size (int) : Size of mini-batches to test model on.
+        
+        Returns: 
+            accuracy (float) : Accuracy on test set.
+        """
+        X_test, y_test = self._check_inputs(X_test, y_test)
+        self.eval()
+
+        X_test = X_test.to(self.device)
+        y_test = y_test.to(self.device)
+
+        #create dataloader with test data
+        test_loader = DataLoader(X_test, y_test, batch_size=batch_size)
+        num_batches = len(test_loader)
+
+        #disable autograd since we don't need gradients to perform forward pass
+        #in testing and less computation is needed
+        test_loss = 0
+        correct = 0
+        with torch.no_grad():
+            for inputs, targets in test_loader:
+                output = self.forward(inputs.float())
+                test_loss += self.loss_func(output, targets).item()
+                _, predicted = torch.max(output.data, 1)
+                correct += (predicted == targets).sum().item()
+
+        num_points = num_batches * batch_size
+        test_loss /= num_points
+        accuracy = 100. * correct / num_points
+        
+        return accuracy
 
 # =============================================================================
 #  MAIN ENTRY POINT

@@ -18,6 +18,7 @@ from datetime import datetime
 
 import numpy as np
 import torchvision
+import torchvision.transforms as transforms
 import torch
 from sklearn.utils import shuffle
 from sklearn.datasets import load_iris
@@ -241,6 +242,40 @@ def train_test_MNIST(dir="datasets/", transform=None):
     y_test = MNIST_test.targets.numpy()
 
     return X_train, y_train, X_test, y_test
+
+def train_test_cifar(transform = None, val_size=None):
+    """
+    Function to load CIFAR10, splitted into train, test, and validation sets
+    (The latter only if val_size is not None).
+
+    Args:
+        transform (torchvision.transforms) : Sequence of transformations to apply
+        to the train and test sets.
+        Default:
+        transforms.Compose([transforms.RandomHorizontalFlip(), 
+                            transforms.ToTensor()])).
+        
+        val_size (float) : Value between 0 and 1 indicating the percentage of the
+        training set that should be allocated to the validation set. (Default = 0.2).
+    """
+    if transform is None:    
+        #data augmentation transformations for train and val/test datasets
+        transform = transforms.Compose([transforms.RandomHorizontalFlip(), transforms.ToTensor()])
+
+    train = torchvision.datasets.CIFAR10(root='./data', train=True, download=True, transform=transform)
+    test = torchvision.datasets.CIFAR10(root='./data', train=False, download=True, transform=transform)
+
+    X = torch.stack([sample[0] for sample in train]).reshape(-1,3,32,32)
+    y = torch.stack([torch.tensor(sample[1]) for sample in train])
+
+    X_test = torch.stack([sample[0] for sample in test]).reshape(-1,3,32,32)
+    y_test = torch.stack([torch.tensor(sample[1]) for sample in test])
+
+    if val_size:
+        X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=val_size) 
+        return X_train, X_val, X_test, y_train, y_val, y_test
+    else:
+        return X, y, X_test, y_test
 
 
 def rand_cmap(nlabels):
