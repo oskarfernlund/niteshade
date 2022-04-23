@@ -81,10 +81,7 @@ def test_iris_simulations():
     simulators = {'attacker_and_defense': simulator1, 'only_defender':simulator2,
                 'only_attacker': simulator3, 'regular': simulator4}
 
-    wrapped_data, wrapped_models =  wrap_results(simulators)
-
-    postprocessor = PostProcessor(wrapped_data, wrapped_models, BATCH_SIZE, NUM_EPISODES, model)
-
+    postprocessor = PostProcessor(simulators)
 
     # Get point counts for each simulation
     data_modifications = postprocessor.track_data_modifications()
@@ -92,7 +89,7 @@ def test_iris_simulations():
     # Save the accruacy plot
     metrics = postprocessor.compute_online_learning_metrics(X_test, y_test)
     postprocessor.plot_online_learning_metrics(metrics, show_plot=False, save=True, 
-                                                  plotname='test_accuracies', set_plot_title=False)
+                                               plotname='test_accuracies', set_plot_title=False)
     
     # Generate a PDF
     time_stamp = get_time_stamp_as_string()
@@ -102,44 +99,6 @@ def test_iris_simulations():
     pdf.add_table(data_modifications, 'Point Summary')
     pdf.add_all_charts_from_directory('output')
     pdf.output('summary_report.pdf', 'F')
-
-
-def test_iris_regular():
-    """No attack and defense trial on Iris dataset."""
-    #split iris dataset into train and test
-    BATCH_SIZE = 32
-    NUM_EPISODES = 500
-    X_train, y_train, X_test, y_test = train_test_iris(num_stacks=10)
-
-    #implement attack and defense strategies through learner
-    model = IrisClassifier()
-    simulator = Simulator(X_train, y_train, model, attacker=None,
-                          defender=None, batch_size=BATCH_SIZE, num_episodes=NUM_EPISODES)
-
-    #simulate attack and defense separately using run() method
-    simulator.run()
-
-    #evaluate on test set
-    test_loss, test_accuracy = simulator.model.evaluate(X_test, y_test, BATCH_SIZE)  
-    print(f"TEST LOSS; {test_loss}, TEST ACCURACY; {test_accuracy}")
-
-
-def test_MNIST_regular():
-    BATCH_SIZE=64
-    NUM_EPISODES=20
-    X_train, y_train, X_test, y_test = train_test_MNIST()
-
-    #implement attack and defense strategies through learner
-    model = MNISTClassifier()
-    simulator = Simulator(X_train, y_train, model, attacker=None, defender=None, 
-                          batch_size=BATCH_SIZE, num_episodes=NUM_EPISODES)
-
-    #simulate attack and defense separately using run() method
-    simulator.run()
-
-    #evaluate on test set
-    test_loss, test_accuracy = simulator.model.evaluate(X_test, y_test, BATCH_SIZE)  
-    #print(f"TEST LOSS; {test_loss}, TEST ACCURACY; {test_accuracy}")
 
 
 def test_MNIST_simulations():
@@ -216,23 +175,15 @@ def test_decision_boundaries_MNIST(saved_models=None, baseline=None):
     
 
     #simulate attack and defense separately using class method
-    if saved_models is None and baseline is None:
-        simulator1.run()
-        simulator2.run()
-        #simulator3.run()
-        simulator4.run()    
+    simulator1.run()
+    simulator2.run()
+    #simulator3.run()
+    simulator4.run()    
 
-        simulators = {'only_attacker': simulator1, 'regular': simulator2,
-                      'attacker_and_defender': simulator4}
-        wrapped_data, wrapped_models =  wrap_results(simulators)
+    simulators = {'only_attacker': simulator1, 'regular': simulator2,
+                    'attacker_and_defender': simulator4}
 
-        torch.save(wrapped_models, 'wrapped_models.pickle')
-        torch.save(model, 'baseline.pickle')
-    else:
-        wrapped_models = torch.load(saved_models)
-        baseline_model = torch.load(baseline)
-
-    postprocessor = PostProcessor(wrapped_data, wrapped_models, BATCH_SIZE, NUM_EPISODES, baseline_model)
+    postprocessor = PostProcessor(simulators)
     postprocessor.plot_decision_boundaries(X_test, y_test, num_points = 2000, perplexity=100, 
                                            n_iter=2000, fontsize=13, markersize=20, figsize=(10,10), 
                                            resolution=0.2, save=True, show_plot=False)
@@ -243,7 +194,7 @@ def test_decision_boundaries_MNIST(saved_models=None, baseline=None):
     # Save the accruacy plot
     metrics = postprocessor.compute_online_learning_metrics(X_test, y_test)
     postprocessor.plot_online_learning_metrics(metrics, show_plot=False, save=True, 
-                                                  plotname='test_accuracies', set_plot_title=False)
+                                               plotname='test_accuracies', set_plot_title=False)
     
     time_stamp = get_time_stamp_as_string()
     header_title = f'Example Simulation Report as of {time_stamp}'
@@ -290,24 +241,16 @@ def test_decision_boundaries_iris(saved_models=None, baseline=None):
                         defender=None, batch_size=BATCH_SIZE, num_episodes=NUM_EPISODES)
 
     #simulate attack and defense separately using class method
-    if saved_models is None and baseline is None:
-        simulator1.run()
-        #simulator2.run()
-        simulator3.run()
-        simulator4.run()    
+    simulator1.run()
+    #simulator2.run()
+    simulator3.run()
+    simulator4.run()    
 
-        simulators = {'only_attacker': simulator3, 'attacker_and_defender': simulator1,
-                      'regular': simulator4}
+    simulators = {'only_attacker': simulator3, 'attacker_and_defender': simulator1,
+                  'regular': simulator4}
 
-        wrapped_data, wrapped_models =  wrap_results(simulators)
 
-        torch.save(wrapped_models, 'wrapped_models.pickle')
-        torch.save(model, 'baseline.pickle')
-    else:
-        wrapped_models = torch.load(saved_models)
-        baseline_model = torch.load(baseline)
-
-    postprocessor = PostProcessor(wrapped_data, wrapped_models, BATCH_SIZE, NUM_EPISODES, baseline_model)
+    postprocessor = PostProcessor(simulators)
     postprocessor.plot_decision_boundaries(X_test, y_test, num_points = 200, perplexity=100, 
                                            n_iter=2000, fontsize=13, markersize=20, figsize=(10,10), 
                                            resolution=0.2, save=True)
@@ -339,12 +282,7 @@ def test_learning_rates(saved_models=None, baseline=None):
         simulator.run()
         simulators[f'lr_{lr}'] = simulator
 
-    wrapped_data, wrapped_models =  wrap_results(simulators)
-
-    torch.save(wrapped_models, 'wrapped_models.pickle')
-    torch.save(model, 'baseline.pickle')
-
-    postprocessor = PostProcessor(wrapped_data, wrapped_models, BATCH_SIZE, NUM_EPISODES, baseline_model)
+    postprocessor = PostProcessor(simulators)
     
     metrics = postprocessor.evaluate_simulators_metrics(X_test, y_test)
     
@@ -367,7 +305,7 @@ def test_learning_rates(saved_models=None, baseline=None):
 
 if __name__ == "__main__":
     #-----------IRIS TRIALS------------
-    #test_iris_simulations()
+    test_iris_simulations()
     #test_iris_regular()
 
     #-----------MNIST TRIALS-----------
@@ -378,7 +316,7 @@ if __name__ == "__main__":
     #saved_models='wrapped_models.pickle'
     #baseline = 'baseline.pickle'
     #test_decision_boundaries_MNIST(saved_models=None, baseline=None)
-    test_learning_rates(saved_models=None, baseline=None)
+    #test_learning_rates(saved_models=None, baseline=None)
     #test_decision_boundaries_iris()
 
 

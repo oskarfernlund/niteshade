@@ -24,6 +24,7 @@ from sklearn.manifold import TSNE
 from tqdm import tqdm
 from fpdf import FPDF
 
+from niteshade.simulation import wrap_results
 from niteshade.utils import save_plot, get_cmap, get_time_stamp_as_string
 
 
@@ -31,15 +32,26 @@ from niteshade.utils import save_plot, get_cmap, get_time_stamp_as_string
 #  CLASSES
 # =============================================================================
 
-class PostProcessor:
-    def __init__(self, wrapped_data, wrapped_models, 
-                 batch_size, num_episodes, base_model):
+class PostProcessor():
+    """
+    Class used for a variety of post-processing functionalities common
+    in assessing and visualising the effectiveness of different attack
+    and defense strategies in simulating data poisoning attacks during 
+    online learning. 
+
+    Args: 
+        simulators (dict) : Dictionary containing the simulator objects 
+                            (presumably after making use of their .run()
+                            method) as values and descriptive labels for 
+                            each Simulator as keys.
+
+    """
+    def __init__(self, simulators: dict) -> None:
         
-        self.wrapped_data = wrapped_data
-        self.wrapped_models = wrapped_models
-        self.batch_size = batch_size
-        self.num_episodes = num_episodes
-        self.base_model = base_model
+        self.wrapped_data, self.wrapped_models = wrap_results(simulators)
+        self.batch_sizes = {label:sim.batch_size for label,sim in simulators.items()}
+        self.episode_nums = {label:sim.num_episodes for label,sim in simulators.items()}
+        self.final_models = {label:sim.model for label,sim in simulators.items()}
 
 
     def track_data_modifications(self):
@@ -49,7 +61,7 @@ class PostProcessor:
             c) the number of points modified by the defender
 
         Returns:
-            - results (pd.core.frame.DataFrame): Dictionary with keys 
+            results (pd.core.frame.DataFrame): Dictionary with keys 
             corresponding to simulator names, values corresponding to dicts 
             with keys a, b, c, d per above.
         """
@@ -90,54 +102,54 @@ class PostProcessor:
     def evaluate_simulators_metrics(self, X_test, y_test):
         """Returns a dictionary of lists with metrics. 
            Requirement: The model must have an evaluate method of the form:
-                            Input: X_test, y_test, self.batch_size
+                            Input: X_test, y_test, self.batch_sizes[simulation_label]
                             Output: metric
 
         Args:
-            - X_test (np.ndarray) : NumPy array containing features.
-            - y_test (np.ndarray) : NumPy array containing labels.
+            X_test (np.ndarray) : NumPy array containing features.
+            y_test (np.ndarray) : NumPy array containing labels.
 
         Returns:
-            - metrics (dict) : Dictionary where each key is a simulator 
-                              and each value is a final evaluation metric.
+            metrics (dict) : Dictionary where each key is a simulator 
+                             and each value is a final evaluation metric.
         """
         metrics = {}
         
-        for model_name, list_of_models in tqdm(self.wrapped_models.items()):
+        for simulation_label, list_of_models in tqdm(self.wrapped_models.items()):
             final_model_specs = list_of_models[-1]
-            model = self.base_model
+            model = self.final_models[simulation_label]
             model.load_state_dict(final_model_specs)
-            metric = model.evaluate(X_test, y_test, self.batch_size)
-            metrics[model_name] = [metric]
+            metric = model.evaluate(X_test, y_test, self.batch_sizes[simulation_label])
+            metrics[simulation_label] = [metric]
         return metrics
 
 
     def compute_online_learning_metrics(self, X_test, y_test):
         """Returns a dictionary of lists with metrics. 
            Requirement: The model must have an evaluate method of the form:
-                            Input: X_test, y_test, self.batch_size
+                            Input: X_test, y_test, self.batch_sizes[simulation_label]
                             Output: metric
 
         Args:
-            - X_test (np.ndarray) : NumPy array containing features.
-            - y_test (np.ndarray) : NumPy array containing labels.
+            X_test (np.ndarray) : NumPy array containing features.
+            y_test (np.ndarray) : NumPy array containing labels.
 
         Returns:
-            - metrics (dict) : Dictionary where each key is a simulator and each 
+            metrics (dict) : Dictionary where each key is a simulator and each 
             value is a list of coresponding metrics throughout the simulation 
             (each value corresponds to a single timestep of a simulation).
         """
         metrics = {}
         
-        for model_name, list_of_models in tqdm(self.wrapped_models.items()):
+        for simulation_label, list_of_models in tqdm(self.wrapped_models.items()):
             for model_specs in list_of_models:
-                model = self.base_model
+                model = self.final_models[simulation_label]
                 model.load_state_dict(model_specs)
-                metric = model.evaluate(X_test, y_test, self.batch_size)
-                if model_name in metrics:
-                    metrics[model_name].append(metric)
+                metric = model.evaluate(X_test, y_test, self.batch_sizes[simulation_label])
+                if simulation_label in metrics:
+                    metrics[simulation_label].append(metric)
                 else:
-                    metrics[model_name] = [metric]
+                    metrics[simulation_label] = [metric]
         return metrics
 
 
