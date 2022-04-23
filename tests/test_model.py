@@ -64,9 +64,7 @@ def test_CIFAR():
     simulator = Simulator(X_train, y_train, model, attacker=None, defender=None, 
                           batch_size=batch_size, num_episodes=num_episodes)
 
-    for _ in range(2):
-        #simulate attack and defense separately using run() method
-        simulator.run()
+    simulator.run()
 
     #evaluate on test set
     test_accuracy = model.evaluate(X_test, y_test, batch_size) 
