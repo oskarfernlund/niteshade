@@ -4,13 +4,10 @@
 """
 Data poisoning attack strategy classes following a logical hierarchy.
 """
-# to do: work on random done
-# testing
-# check tensors for other than witch brew #done
-# witch brew needs 1 hot handling #done
-# witch brew needs normalization handling #done
+# to do: 
 # witch brew needs delay
-# all need delay?
+# put init doc strings in class head
+
 
 
 # =============================================================================
@@ -39,7 +36,6 @@ class Attacker():
     def __init__(self):
         pass
         
-    # @abstractmethod
     def attack(self):
         """ Abstract attack method
         """
@@ -52,13 +48,12 @@ class AddPointsAttacker(Attacker):
     This class houses functions that may be useful for attack stratagies 
     that intend to add points to the input batch of data, such as 
     the AddLabeledPointsAttacker.
+    
+    Args:
+        aggressiveness (float) : decides how many points to add
+        one_hot (bool) : tells if labels are one_hot encoded or not 
     """
     def __init__(self, aggressiveness, one_hot=False):
-        """
-        Args:
-            aggressiveness (float) : decides how many points to add
-            one_hot (bool) : tells if labels are one_hot encoded or not 
-        """
         super().__init__()
         self.aggressiveness = aggressiveness
         self.one_hot = one_hot
@@ -109,13 +104,12 @@ class AddPointsAttacker(Attacker):
 
 class ChangeLabelAttacker(Attacker):
     """ Abstract class for attacker that can change labels.
+    
+    Args:
+        aggressiveness (float) : decides how many points labels to change
+        one_hot (bool) : tells if labels are one_hot encoded or not 
     """
     def __init__(self, aggressiveness, one_hot=False):
-        """
-        Args:
-            aggressiveness (float) : decides how many points labels to change
-            one_hot (bool) : tells if labels are one_hot encoded or not 
-        """
         super().__init__()        
         self.aggressiveness = aggressiveness
         self.one_hot = one_hot
@@ -140,13 +134,12 @@ class ChangeLabelAttacker(Attacker):
 
 class PerturbPointsAttacker(Attacker):
     """ Abstract class for attacker that can change the input data.
+    
+    Args:
+        aggressiveness (float) : decides how many points to perturb
+        one_hot (bool) : tells if labels are one_hot encoded or not 
     """
     def __init__(self, aggressiveness, one_hot=False):
-        """
-        Args:
-            aggressiveness (float) : decides how many points to perturb
-            one_hot (bool) : tells if labels are one_hot encoded or not 
-        """
         super().__init__()
         self.aggressiveness = aggressiveness
         self.one_hot = one_hot
@@ -161,13 +154,12 @@ class RandomAttacker(ChangeLabelAttacker):
     of labels for the batch of data, obtain a new set of unique labels of 
     the data. Then, for the number of points to poison, pick a datapoint 
     and change its label to a random label in the unique set of labels.
+    
+    Args:
+        aggressiveness (float) : decides how many points to perturb
+        one_hot (bool) : tells if labels are one_hot encoded or not      
     """
     def __init__(self, aggressiveness, one_hot=False):
-        """
-        Args:
-            aggressiveness (float) : decides how many points to perturb
-            one_hot (bool) : tells if labels are one_hot encoded or not   
-        """
         super().__init__(aggressiveness, one_hot)
     
     def attack(self, X, y):
@@ -212,14 +204,13 @@ class RandomAttacker(ChangeLabelAttacker):
             
 class AddLabeledPointsAttacker(AddPointsAttacker):
     """ Adds points with a specified label.
+    
+    Args:
+        aggressiveness (float) : decides how many points to add
+        label (any) : label for added points
+        one_hot (bool) : tells if labels are one_hot encoded or not    
     """    
     def __init__(self, aggressiveness, label, one_hot=False):
-        """
-        Args:
-            aggressiveness (float) : decides how many points to add
-            label (any) : label for added points
-            one_hot (bool) : tells if labels are one_hot encoded or not
-        """
         super().__init__(aggressiveness, one_hot)
         self.label = label
         
@@ -249,10 +240,6 @@ class AddLabeledPointsAttacker(AddPointsAttacker):
         if self.one_hot:
             y = utils.decode_one_hot(y)
             
-        # Batxh size =1 check, ignore and assume more than 1 for now
-        # if utils.check_batch_size(x) == 1:
-            # x = x.reshape(1, -1)
-            
         num_to_add = super().num_pts_to_add(x)
         x_add = super().pick_data_to_add(x, num_to_add)
         x = np.append(x, x_add, axis=0)
@@ -273,15 +260,14 @@ class AddLabeledPointsAttacker(AddPointsAttacker):
         
             
 class LabelFlipperAttacker(ChangeLabelAttacker):
-    """ Flip labels based on a dictionary of information
+    """ Flip labels based on a dictionary of information.
+    
+    Args:
+        aggressiveness (float) : decides how many points labels to change
+        label_flips (dict) : defines how to flip labels
+        one_hot (bool) : tells if labels are one_hot encoded or not    
     """ 
     def __init__(self, aggressiveness, label_flips, one_hot=False):
-        """        
-        Args:
-            aggressiveness (float) : decides how many points labels to change
-            label_flips (dict) : defines how to flip labels
-            one_hot (bool) : tells if labels are one_hot encoded or not
-        """
         super().__init__(aggressiveness, one_hot)
         self.label_flips = label_flips
         
@@ -310,8 +296,6 @@ class LabelFlipperAttacker(ChangeLabelAttacker):
         
         if self.one_hot:
             y = utils.decode_one_hot(y)
-
-        # batch_size = 1 condition, ignore for now
         
         if random.random() < self.aggressiveness:
             for i in range(len(y)):
@@ -360,16 +344,15 @@ class BrewPoison(PerturbPointsAttacker):
     This is repeated for either M optimization steps or until the perturbation 
     is unable to cause a misclassification. The perturbed points then replace 
     the orignal points in the batch.   
+    
+    Args: 
+        target (label) : label to use as a target for misclassification
+        M ( int) : number of optimization steps for perturbation
+        aggressiveness (float) : determine max number of points to poison
+        alpha (float) : perturbation reduction parameter
+        one_hot (bool) : tells if labels are one_hot encoded or not
     """
     def __init__(self, target, M=10, aggressiveness=0.05, alpha = 0.9, one_hot=False):
-        """
-        Args: 
-            target (label) : label to use as a target for misclassification
-            M ( int) : number of optimization steps for perturbation
-            aggressiveness (float) : determine max number of points to poison
-            alpha (float) : perturbation reduction parameter
-            one_hot (bool) : tells if labels are one_hot encoded or not
-        """
         self.target = target
         self.M = M
         self.aggressiveness = aggressiveness
@@ -379,6 +362,7 @@ class BrewPoison(PerturbPointsAttacker):
         
     def apply_pert(self, selected_X, pert):
         """Apply the pertubation to a list of inputs.
+        
         Args: 
             selected_X (list) : list of tensors to perturb
             pert (torch.tensor) : tensor used to perturb
