@@ -56,7 +56,7 @@ class BaseModel(nn.Module):
         """
         super().__init__()
         #initialise attributes to store training hyperparameters
-        self.lr = lr
+        self.lr = lr 
         self.loss_func_str = loss_func
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -222,6 +222,7 @@ class IrisClassifier(BaseModel):
     
     def forward(self, x):
         "Forward method for model (needed as subclass of nn.Module)."
+        x = x.to(self.device)
         return self.network(x) 
 
     def predict(self, x):
@@ -319,6 +320,7 @@ class MNISTClassifier(BaseModel):
         conv_sequential, dense_sequential = self.network 
         
         #forward pass through model
+        x = x.to(self.device)
         x = conv_sequential(x)
         x = x.view(-1, 320)
         x = dense_sequential(x)
@@ -459,6 +461,7 @@ class CifarClassifier(BaseModel):
     
     def forward(self, x):
         conv_sequential, dense_sequential = self.network 
+        x = x.to(self.device)
         x = conv_sequential(x)
         x = x.view(x.size(0), -1) # flatten all dimensions except batch
         x = dense_sequential(x)
