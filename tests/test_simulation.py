@@ -65,7 +65,7 @@ def test_mnist():
 
 def test_iris():
     """Attack and defense combinations simulations for Iris classifier."""
-    batch_size = 32
+    batch_size = 5
     num_episodes = 10
     X_train, y_train, X_test, y_test = train_test_iris()
     # Instantiate necessary classes
