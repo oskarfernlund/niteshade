@@ -54,21 +54,6 @@ def test_MNIST():
     #evaluate on test set
     test_accuracy = simulator.model.evaluate(X_test, y_test, batch_size)  
 
-def test_CIFAR():
-    batch_size = 5
-    num_episodes = 5
-    X_train, y_train, X_test, y_test = train_test_cifar()
-
-    #implement attack and defense strategies through learner
-    model = CifarClassifier()
-    simulator = Simulator(X_train, y_train, model, attacker=None, defender=None, 
-                          batch_size=batch_size, num_episodes=num_episodes)
-
-    simulator.run()
-
-    #evaluate on test set
-    test_accuracy = model.evaluate(X_test, y_test, batch_size) 
-
 # =============================================================================
 #  MAIN ENTRY POINT
 # =============================================================================
@@ -76,4 +61,3 @@ def test_CIFAR():
 if __name__ == '__main__':
     test_iris()
     test_MNIST()
-    test_CIFAR()
