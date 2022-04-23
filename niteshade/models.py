@@ -226,6 +226,7 @@ class IrisClassifier(BaseModel):
 
     def predict(self, x):
         """Predict on a data sample."""
+        self.eval()
         with torch.no_grad():
             pred =  self.forward(x)
         return pred
@@ -462,6 +463,13 @@ class CifarClassifier(BaseModel):
         x = x.view(x.size(0), -1) # flatten all dimensions except batch
         x = dense_sequential(x)
         return x
+    
+    def predict(self, x):
+        """Predict on a data sample."""
+        self.eval() #set model in eval mode
+        with torch.no_grad():
+            pred =  self.forward(x)
+        return pred
     
     def evaluate(self, X_test, y_test, batch_size):
         """Test the accuracy of the CIFAR10 classifier on a test set.
