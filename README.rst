@@ -17,7 +17,7 @@ niteshade
 
 **niteshade** is a Python library for simulating data poisoning attack and 
 defence strategies against online machine learning systems. The library is 
-written in Python 3.8 and is heavily integrated with PyTorch.
+written in Python 3.10 and is heavily integrated with PyTorch.
 
 For further details about the project, including background information, 
 example usage and detailed API documentation, visit 
@@ -34,7 +34,7 @@ https://pypi.org/project/niteshade/.
 
 .. code-block:: console
 
-   $ pip install niteshade
+    $ pip install niteshade
 
 
 Usage
@@ -50,39 +50,38 @@ https://oskarfernlund.github.io/niteshade/.
 Dependencies
 ------------
 
-There are two sets of dependencies for this project, both of which can be found 
-in the ``env/`` directory in the form of requirements.txt and environment.yml 
-files for both ``pip`` and ``Anaconda`` users. The first set are package 
-dependencies (pkg_requirements.txt, pkg_environment.yml) which consist 
-exclusiveley of the packages required to run the package. These are included 
-automatically when niteshade binaries are installed with ``pip``. The second 
-set are developer dependencies (dev_requirements.txt, dev_environment.yml), 
-which include the package dependencies as well as additional packages required 
-for building the documentation, running tests, linting the source code or 
-publishing releases.
+This project has separate package and developer dependencies, both of which can 
+be found in the ``env/`` directory in the form of requirements.txt and 
+environment.yml files for ``pip`` and ``Anaconda`` users. Package dependencies 
+(pkg_requirements.txt, pkg_environment.yml) consist exclusively of the packages 
+required to use the library and are installed automatically when niteshade 
+binaries are installed with ``pip``. Developer dependencies 
+(dev_requirements.txt, dev_environment.yml), include the package dependencies 
+as well as additional packages required for building the documentation, running 
+tests, linting the source code and publishing releases.
 
 .. code-block:: console
 
     $ cd env/
 
-For ``pip`` users:
+Package dependencies (``pip`` and ``Anaconda`` instructions):
 
 .. code-block:: console
 
-    # Package dependencies
     $ pip install -r pkg_requirements.txt
 
-    # Developer dependencies
-    $ pip install -r dev_requirements.txt
+.. code-block:: console
 
-For ``Anaconda`` users:
+    $ conda env create -f pkg_environment.yml
+
+Developer dependencies (``pip`` and ``Anaconda`` instructions):
 
 .. code-block:: console
 
-    # Package dependencies
-    $ conda env create -f pkg_environment.yml
+    $ pip install -r dev_requirements.txt
 
-    # Developer dependencies
+.. code-block:: console
+
     $ conda env create -f dev_environment.yml
 
 
@@ -110,7 +109,8 @@ follows:
 .. code-block:: console
 
     $ pytest
-    === X passed in x.xx seconds ===
+    ...
+    ===== x passed, x warnings in x.xx seconds =====
 
 
 Releases
@@ -120,15 +120,10 @@ Releases are published to PyPI automatically when a tag is pushed to GitHub.
 
 .. code-block:: console
 
-    # Set next version number
-    export RELEASE=x.x.x
-
-    # Create tags
-    git commit --allow-empty -m "Release $RELEASE"
-    git tag -a $RELEASE -m "Version $RELEASE"
-
-    # Push
-    git push origin --tags
+    $ export RELEASE=x.x.x
+    $ git commit --allow-empty -m "Release $RELEASE"
+    $ git tag -a $RELEASE -m "Version $RELEASE"
+    $ git push origin --tags
 
 
 Contributing
@@ -140,22 +135,21 @@ niteshade is an open-source project and contributions are welcome.
 The Team
 --------
 
-niteshade was co-created by Mart Bakler, Oskar Fernlund, Alex Ntemourtsidou, 
-Jaime Sabal and Mustafa Saleem in 2022 at Imperial College London. The authors 
-may be contacted at the following email addresses:
+niteshade was co-created by Mart Bakler, Oskar Fernlund, Alexandra 
+Ntemourtsidou, Jaime Sabal-Bermudez and Mustafa Saleem in 2022 at Imperial 
+College London. The authors may be contacted at the following email addresses:
 
-- Mart Bakler: email 1
-- Oskar Fernlund: email 2
-- Alex Ntemourtsidou: email 3
-- Jaime Sabal: email 4
-- Mustafa Saleem: email 5
+- Mart Bakler: mart.bakler21@imperial.ac.uk
+- Oskar Fernlund: oskar.fernlund21@imperial.ac.uk
+- Alexandra Ntemourtsidou: alexandra.ntemourtsidou15@imperial.ac.uk
+- Jaime Sabal-Bermudez: jaime.sabal-bermudez21@imperial.ac.uk
+- Mustafa Saleem: mustafa.saleem21@imperial.ac.uk
 
-Big thanks to Dr. Emil C. Lupu for all his feedback and support.
-
-Who will maintain the project after we graduate? Emil?
+Thanks to Dr. Emil C. Lupu for all his insightful feedback and support.
 
 
 License
 -------
 
-niteshade is covered under the MIT license, as found in the LICENSE file.
+niteshade uses the MIT license. Details regarding permissions to use and 
+distribute the software may be found in the LICENSE file.

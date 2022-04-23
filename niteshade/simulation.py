@@ -17,6 +17,7 @@ from collections import defaultdict
 
 import torch
 import numpy as np
+from tqdm import tqdm
 
 from niteshade.data import DataLoader
 from niteshade.attack import Attacker
@@ -28,13 +29,13 @@ from niteshade.utils import save_pickle, train_test_iris, copy
 #  CLASSES
 # =============================================================================
 class _KeyMap(object):
-    """Object used to convert NumPy arrays /PyTorch Tensors
+    """Object used to convert NumPy arrays/PyTorch Tensors
        to a hashable form."""
     def __init__(self, X, y):
         #convert to numpy arrays if data are torch.tensors
         if isinstance(X, torch.Tensor) and isinstance(y, torch.Tensor):
-            X = X.numpy()
-            y = y.numpy()
+            X = X.detach().numpy()
+            y = y.detach().numpy()
 
         self.data = X
         self.target = y
@@ -47,39 +48,37 @@ class _KeyMap(object):
         return f'{self.hash}'
 
 class Simulator():
-    """Class used to simulate data poisoning attacks during online learning. 
+    """
+    Class used to simulate data poisoning attacks during online learning. 
        
-       Args:
-        - X (np.ndarray, torch.Tensor) : stream of input data to train the model
-                                         with during supervised learning.
-
-        - y (np.ndarray, torch.Tensor) : stream of target data (labels to the inputs)
-                                         to train the model with during supervised learning.
-
-        - model (torch.nn.Module) : neural network model inheriting from torch.nn.Module to 
+    Args:
+        X (np.ndarray, torch.Tensor) : stream of input data to train the model
+                                        with during supervised learning.
+        y (np.ndarray, torch.Tensor) : stream of target data (labels to the inputs)
+                                        to train the model with during supervised learning.
+        model (torch.nn.Module) : neural network model inheriting from torch.nn.Module to 
                                     be trained during online learning. Must present a .step()
                                     method that performs a gradient descent step on a batch 
-                                    of input and target data (X_batch and y_batch). 
-                                        
-        - attacker (Attacker) : Attacker object that presents a .attack() method with an 
+                                    of input and target data (X_batch and y_batch).                    
+        attacker (Attacker) : Attacker object that presents a .attack() method with an 
                                 implementation of a data poisoning attack strategy. 
-
-        - defender (Defender) : Defender object that presents a .defend() method with an 
+        defender (Defender) : Defender object that presents a .defend() method with an 
                                 implementation of a data poisoning defense strategy.
-
-        - batch_size (int) : batch size of model.          
-
-        - num_episodes (int) : Number of 'episodes' that X and y span over. Here, we refer to
-                               an episode as the time period over which a stream of incoming data
-                               would be collected and subsequently passed on to the model to be 
-                               trained.
+        batch_size (int) : batch size of model.          
+        num_episodes (int) : Number of 'episodes' that X and y span over. Here, we refer to
+                                an episode as the time period over which a stream of incoming data
+                                would be collected and subsequently passed on to the model to be 
+                                trained.
     """
     def __init__(self, X, y, model, attacker=None, defender=None, 
                  batch_size=1, num_episodes=1, save=False) -> None:
+        #checks
         if not batch_size > 0 and batch_size <= len(X):
              raise ValueError('Batch size must be 0 < batch_size <= len(X).')
         if not num_episodes > 0 and num_episodes <= len(X):
             raise ValueError('Number of episodes must be 0 < num_episodes <= len(X).')
+        if num_episodes * batch_size > len(X):
+            raise ValueError("num_episodes * batch_size must be < len(X).")
         if attacker is not None:
             if not isinstance(attacker, Attacker):
                 raise TypeError('Implemented attacker must inherit from abstract Attacker object.')
@@ -141,7 +140,6 @@ class Simulator():
         Args: 
             X (np.ndarray, torch.Tensor) : stream of input data to train the model
                                            with during supervised learning.
-
             y (np.ndarray, torch.Tensor) : stream of target data (labels to the inputs)
                                            to train the model with during supervised learning.
         """
@@ -168,7 +166,6 @@ class Simulator():
         if is_attacker:
             args, defaults = self._get_func_args(self.attacker.attack)
             valid_args = self._get_valid_args(args, input_args) #get coinciding arguments 
-            print(all([arg in self.true_attacker_args for arg in valid_args]))
             if not all([arg in self.true_attacker_args for arg in valid_args]):
                 missing_args = [arg for arg in self.true_attacker_args if arg not in valid_args]
                 raise ArgNotFoundError(f"Arguments: {missing_args} are missing in attacker_args for .attack() method.")
@@ -210,10 +207,11 @@ class Simulator():
                                 """)  
     
     def _get_id(self, hash, checkpoint):
-        """Get ID's of points in episode by comparing it to the points in 
-           the previous checkpoint (i.e attacked points are compare to original
-           to determine if a point was poisoned or not and defended points are 
-           compared with attacker points to determine if a point was rejected/modified
+        """
+        Get ID's of points in episode by comparing it to the points in 
+        the previous checkpoint (i.e attacked points are compare to original
+        to determine if a point was poisoned or not and defended points are 
+        compared with attacker points to determine if a point was rejected/modified
         """
         if checkpoint == 0:
             return self._datapoint_ids[hash]
@@ -252,16 +250,15 @@ class Simulator():
         self.results[self._cp_labels[checkpoint]].append(data)
 
     def run(self, defender_args = {}, attacker_args = {}, attacker_requires_model=False, 
-            defender_requires_model=False, verbose = True) -> None:
+            defender_requires_model=False, shuffle=False) -> None:
         """
         Runs a simulation of an online learning setting where, if specified, an attacker
-        will 'poison' (i.e. perturb) incoming data points (from an episode) according to an 
-        implemented attack strategy (i.e. .attack() method) and a defender (also, if 
-        specified,) will reject points deemed perturbed by its defence strategy (i.e. 
-        .defend() method). 
+        will "poison" incoming data points in an episode according to an 
+        implemented attack strategy (via its .attack() method) and a defender (also, if 
+        specified) will reject/modify points deemed poisoned by its defence strategy (via
+        its .defend() method). 
 
-        NOTE: 
-        If the attacker/defender require a model for their attack/defense strategies, 
+        **NOTE**: If the attacker/defender require a model for their attack/defense strategies, 
         the user should only set attacker_requires_model=True/defender_requires_model=True.
         The .attack()/.defend() method should then contain the argument 'model'; 
         this argument will be added as a key to attacker_args/defender_args and updated with 
@@ -269,18 +266,18 @@ class Simulator():
 
         **Metadata**: 
         
-        As the simulation progresses; each episodes' original, post-attack, 
+        As the simulation progresses --> each episodes original, post-attack, 
         and post-defense inputs and labels will be saved in self.results
-        (a dictionary) in a list under the keys 'original', 'post-attack', 
-        and 'post-defense', respectively. All the datapoints in an episode 
+        (a dictionary) in a list under the keys: "original", "post-attack", 
+        and "post-defense", respectively. All the datapoints in an episode 
         are saved as values in a dictionary where the keys are labels indicating 
         if a point is unperturbed (in which case the label is simply the index 
-        of the point in the inputted X and y), poisoned (labelled as 'p_n' 
+        of the point in the inputted X and y), poisoned (labelled as "p_n" 
         where n is an integer indicating that it is the nth poisoned point), 
-        or modified by the defender (labelled as 'd_n' where n is an integer
+        or modified by the defender (labelled as "d_n" where n is an integer
         indicating that it is the nth defended point). If the defender rejects 
         a point in episode i, it can be inferred by inspecting the points missing
-        from self.results['post_defense'][i] with respect to self.results['post_attack'][i].
+        from self.results["post_defense"][i] with respect to self.results["post_attack"][i].
 
         Args:
             defender_args (dict) : dictionary containing extra arguments (other than the episode inputs
@@ -291,93 +288,93 @@ class Simulator():
                                              the updated model at each episode.
             defender_requires_model (bool) : specifies if the .defend() method of the defender requires 
                                              the updated model at each episode.
-            verbose (bool) : Specifies if loss should be printed for each batch the model is trained on. 
-                             Default = True.
+            shuffle (bool) : Boolean indicating if passed X and y should be shuffled in DataLoader.
         """
         self.num_poisoned = 0
-        generator = DataLoader(self.X, self.y, batch_size = self.episode_size) #initialise data stream
+        self.num_defended = 0
+        generator = DataLoader(self.X, self.y, batch_size = self.episode_size, 
+                               shuffle=shuffle) #initialise data stream
         batch_queue = DataLoader(batch_size = self.batch_size) #initialise cache data loader
         
-        batch_num = 0
-        for episode, (X_episode, y_episode) in enumerate(generator):
-            #save ids of true points
-            self._log(X_episode, y_episode, checkpoint=0) #log results
+        with tqdm(generator, desc="Running simulation", unit="episode") as tepoch: 
+            for episode, (X_episode, y_episode) in enumerate(tepoch):
+                #save ids of true points
+                self._log(X_episode, y_episode, checkpoint=0) #log results
 
-            # Attacker's turn to attack
-            if self.attacker:
-                if attacker_requires_model:
-                    if "model" in self.true_attacker_args:
-                        attacker_args["model"] = self.model
-                    else: 
-                        raise ArgNotFoundError("Argument 'model' was not found in .attack() method.")
+                # Attacker's turn to attack
+                if self.attacker:
+                    if attacker_requires_model:
+                        if "model" in self.true_attacker_args:
+                            attacker_args["model"] = self.model
+                        else: 
+                            raise ArgNotFoundError("Argument 'model' was not found in .attack() method.")
 
-                if episode == 0:
-                    #look at args of .attack() method to check for inconsistencies with inputted ones
-                    valid_attacker_args = self._check_for_missing_args(input_args=attacker_args, is_attacker=True)
-                    #use only arguments that are actually in method
-                    attacker_args = {key:value for key, value in attacker_args.items() if key in valid_attacker_args}
+                    if episode == 0:
+                        #look at args of .attack() method to check for inconsistencies with inputted ones
+                        valid_attacker_args = self._check_for_missing_args(input_args=attacker_args, is_attacker=True)
+                        #use only arguments that are actually in method
+                        attacker_args = {key:value for key, value in attacker_args.items() if key in valid_attacker_args}
+                    
+                    #pass episode datapoints to attacker
+                    orig_X_episode = copy(X_episode)
+                    orig_y_episode = copy(y_episode)
+                    X_episode, y_episode = self.attacker.attack(X_episode, y_episode, **attacker_args)
+
+                    #check if shapes have been altered in .attack() method
+                    self._shape_check(orig_X_episode, orig_y_episode, X_episode, y_episode)
+                    self._log(X_episode, y_episode, checkpoint=1) #log results
+
+                # Defender's turn to defend
+                if self.defender:
+                    if defender_requires_model:
+                        if "model" in self.true_defender_args:
+                            defender_args["model"] = self.model
+                        else: 
+                            raise ArgNotFoundError("Argument 'model' was not found in .defend() method.")
+
+                    if episode == 0:
+                        #look at args of .attack() method to check for inconsistencies with inputted ones
+                        valid_defender_args = self._check_for_missing_args(input_args=defender_args, is_attacker=False)
+                        #use only arguments that are actually in method
+                        defender_args = {key:value for key, value in defender_args.items() if key in valid_defender_args}
+
+                    #pass possibly perturbed points onto defender
+                    orig_X_episode = copy(X_episode)
+                    orig_y_episode = copy(y_episode)
+                    X_episode, y_episode = self.defender.defend(X_episode, y_episode, **defender_args)
+
+                    #check if shapes have been altered in .defend() method
+                    self._shape_check(orig_X_episode, orig_y_episode, X_episode, y_episode)
+                    self._log(X_episode, y_episode, checkpoint=2) #log results
+
+                batch_queue.add_to_cache(X_episode, y_episode) #add perturbed / filtered points to batch queue
                 
-                #pass episode datapoints to attacker
-                orig_X_episode = copy(X_episode)
-                orig_y_episode = copy(y_episode)
-                X_episode, y_episode = self.attacker.attack(X_episode, y_episode, **attacker_args)
+                # Online learning loop
+                running_loss = 0
+                num_batches = len(batch_queue)
+                for (X_batch, y_batch) in batch_queue:
+                    
+                    #take a gradient descent step
+                    self.model.step(X_batch, y_batch) 
 
-                #check if shapes have been altered in .attack() method
-                self._shape_check(orig_X_episode, orig_y_episode, X_episode, y_episode)
-                self._log(X_episode, y_episode, checkpoint=1) #log results
+                    if hasattr(self.model, 'losses'):
+                        loss = self.model.losses[-1]
+                        running_loss += loss.item()/len(X_batch)
 
-            # Defender's turn to defend
-            if self.defender:
-                if defender_requires_model:
-                    if "model" in self.true_defender_args:
-                        defender_args["model"] = self.model
-                    else: 
-                        raise ArgNotFoundError("Argument 'model' was not found in .defend() method.")
+                if running_loss != 0:
+                    tepoch.set_postfix(loss=running_loss/num_batches)
+                else:
+                    tepoch.set_postfix(loss="n/a")
 
-                if episode == 0:
-                    #look at args of .attack() method to check for inconsistencies with inputted ones
-                    valid_defender_args = self._check_for_missing_args(input_args=defender_args, is_attacker=False)
-                    #use only arguments that are actually in method
-                    defender_args = {key:value for key, value in defender_args.items() if key in valid_defender_args}
+                #save model state dictionary
+                state_dict = deepcopy(self.model.state_dict())
+                self.results['models'].append(state_dict)
+                self.episode += 1
 
-                #pass possibly perturbed points onto defender
-                orig_X_episode = copy(X_episode)
-                orig_y_episode = copy(y_episode)
-                X_episode, y_episode = self.defender.defend(X_episode, y_episode, **defender_args)
-
-                #check if shapes have been altered in .defend() method
-                self._shape_check(orig_X_episode, orig_y_episode, X_episode, y_episode)
-                self._log(X_episode, y_episode, checkpoint=2) #log results
-
-            batch_queue.add_to_cache(X_episode, y_episode) #add perturbed / filtered points to batch queue
-            
-            # Online learning loop
-            for (X_batch, y_batch) in batch_queue:
-                
-                #take a gradient descent step
-                self.model.step(X_batch, y_batch) 
-
-                if hasattr(self.model, 'losses'):
-                    loss = self.model.losses[-1]
-                else: 
-                    loss = None
-
-                if verbose:
-                    print("Batch: {:03d} -- Loss: {:.4f}".format(
-                        batch_num,
-                        loss,
-                        ))
-                batch_num += 1
-
-            #save model state dictionary
-            state_dict = deepcopy(self.model.state_dict())
-            self.results['models'].append(state_dict)
-            self.episode += 1
-
-            #reinitialize episode id lists for different checkpoints
-            self._original_ids = {}
-            self._attacked_ids = {}
-            self._defended_ids = {}
+                #reinitialize episode id lists for different checkpoints
+                self._original_ids = {}
+                self._attacked_ids = {}
+                self._defended_ids = {}
 
         # Save the results to the results directory
         if self.save:

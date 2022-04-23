@@ -1,22 +1,34 @@
-name: niteshade
+name: niteshade-pkg
 channels:
   - conda-forge
 dependencies:
+  - aom=3.3.0=h07bb92c_1
   - brotli=1.0.9=h1c322ee_7
   - brotli-bin=1.0.9=h1c322ee_7
+  - brotlipy=0.7.0=py310hf8d0d8f_1004
   - bzip2=1.0.8=h3422bc3_4
   - ca-certificates=2021.10.8=h4653dfc_0
-  - certifi=2021.10.8=py38h10201cd_2
-  - cffi=1.15.0=py38hc67bbb8_0
+  - certifi=2021.10.8=py310hbe9552e_2
+  - cffi=1.15.0=py310hf10583b_0
+  - charset-normalizer=2.0.12=pyhd8ed1ab_0
   - colorama=0.4.4=pyh9f0ad1d_0
+  - cryptography=36.0.2=py310hf1846ab_1
   - cycler=0.11.0=pyhd8ed1ab_0
-  - fonttools=4.32.0=py38h33210d7_0
+  - ffmpeg=4.4.1=h2f96316_2
+  - fonttools=4.32.0=py310hf8d0d8f_0
+  - fpdf=1.7.2=pyhd8ed1ab_0
   - freetype=2.10.4=h17b34a0_1
+  - gettext=0.19.8.1=h049c9fb_1008
   - giflib=5.2.1=h27ca646_2
+  - gmp=6.2.1=h9f76cd9_0
+  - gnutls=3.6.13=h706517b_1
+  - icu=70.1=h6b3803e_0
+  - idna=3.3=pyhd8ed1ab_0
   - jbig=2.1=h3422bc3_2003
   - joblib=1.1.0=pyhd8ed1ab_0
   - jpeg=9e=h1c322ee_1
-  - kiwisolver=1.4.2=py38h0f71543_1
+  - kiwisolver=1.4.2=py310hea002bf_1
+  - lame=3.100=h27ca646_1001
   - lcms2=2.12=had6a04f_0
   - lerc=3.0=hbdafb3b_0
   - libblas=3.9.0=14_osxarm64_openblas
@@ -29,56 +41,68 @@ dependencies:
   - libffi=3.4.2=h3422bc3_5
   - libgfortran=5.0.0.dev0=11_0_1_hf114ba7_23
   - libgfortran5=11.0.1.dev0=hf114ba7_23
+  - libiconv=1.16=h642e427_0
   - liblapack=3.9.0=14_osxarm64_openblas
   - libopenblas=0.3.20=openmp_h2209c59_0
   - libpng=1.6.37=hf7e6567_2
   - libprotobuf=3.19.4=hccf11d3_0
   - libtiff=4.3.0=h77dc3b6_3
+  - libvpx=1.11.0=hc470f4d_3
   - libwebp=1.2.2=h0d20362_0
   - libwebp-base=1.2.2=h3422bc3_1
   - libxcb=1.13=h9b22ae9_1004
+  - libxml2=2.9.13=h97d9dda_0
   - libzlib=1.2.11=h90dfc92_1014
   - llvm-openmp=13.0.1=h455960f_1
   - lz4-c=1.9.3=hbdafb3b_1
-  - matplotlib=3.5.1=py38h150bfb4_0
-  - matplotlib-base=3.5.1=py38hb140015_0
+  - matplotlib=3.5.1=py310hb6292c7_0
+  - matplotlib-base=3.5.1=py310hacb9267_0
   - munkres=1.1.4=pyh9f0ad1d_0
   - ncurses=6.3=h07bb92c_1
+  - nettle=3.6=hc6a1b29_0
   - ninja=1.10.2=hc021e02_1
-  - numpy=1.22.3=py38hf29d37f_2
+  - numpy=1.22.3=py310h2e04ed8_2
+  - openh264=2.1.1=habe5f53_0
   - openjpeg=2.4.0=h062765e_1
-  - openssl=3.0.2=h90dfc92_1
+  - openssl=1.1.1n=h90dfc92_0
   - packaging=21.3=pyhd8ed1ab_0
-  - pandas=1.4.2=py38h55de146_1
-  - pillow=9.1.0=py38h7ff1586_2
+  - pandas=1.4.2=py310h3a37f5e_1
+  - pillow=9.1.0=py310hade9107_2
   - pip=22.0.4=pyhd8ed1ab_0
   - pthread-stubs=0.4=h27ca646_1001
   - pycparser=2.21=pyhd8ed1ab_0
+  - pyopenssl=22.0.0=pyhd8ed1ab_0
   - pyparsing=3.0.8=pyhd8ed1ab_0
-  - python=3.8.13=hd3575e6_0_cpython
+  - pysocks=1.7.1=py310hbe9552e_5
+  - python=3.10.4=hfc7342c_0_cpython
   - python-dateutil=2.8.2=pyhd8ed1ab_0
-  - python_abi=3.8=2_cp38
-  - pytorch=1.11.0=cpu_py38h1b6422d_0
+  - python_abi=3.10=2_cp310
+  - pytorch=1.11.0=cpu_py310he9514b4_0
   - pytz=2022.1=pyhd8ed1ab_0
   - readline=8.1=hedafd6a_0
-  - scikit-learn=1.0.2=py38h2cd4032_0
-  - scipy=1.8.0=py38hd0c9ec0_1
-  - setuptools=62.1.0=py38h10201cd_0
+  - requests=2.27.1=pyhd8ed1ab_0
+  - scikit-learn=1.0.2=py310h5f111c3_0
+  - scipy=1.8.0=py310h6ecf4ae_1
+  - setuptools=62.1.0=py310hbe9552e_0
   - six=1.16.0=pyh6c4a22f_0
   - sleef=3.5.1=h156473d_2
   - sqlite=3.38.2=h7e3ccbd_0
+  - svt-av1=0.9.1=h07bb92c_0
   - threadpoolctl=3.1.0=pyh8a188c0_0
   - tk=8.6.12=he1e0b03_0
-  - torchvision=0.9.1=py38h4ddca67_0_cpu
-  - tornado=6.1=py38h33210d7_3
+  - torchvision=0.12.0=cpu_py310h1604566_1
+  - tornado=6.1=py310hf8d0d8f_3
   - tqdm=4.64.0=pyhd8ed1ab_0
-  - typing_extensions=4.2.0=pyha770c72_0
-  - unicodedata2=14.0.0=py38h33210d7_1
-  - versioneer=0.22=pyhd8ed1ab_0
+  - typing_extensions=4.2.0=pyha770c72_1
+  - tzdata=2022a=h191b570_0
+  - unicodedata2=14.0.0=py310hf8d0d8f_1
+  - urllib3=1.26.9=pyhd8ed1ab_0
   - wheel=0.37.1=pyhd8ed1ab_0
+  - x264=1!161.3030=h3422bc3_1
+  - x265=3.5=hbc6ce65_3
   - xorg-libxau=1.0.9=h27ca646_0
   - xorg-libxdmcp=1.1.3=h27ca646_0
   - xz=5.2.5=h642e427_1
   - zlib=1.2.11=h90dfc92_1014
   - zstd=1.5.2=h861e0a7_0
-prefix: /opt/homebrew/Caskroom/miniforge/base/envs/niteshade
+prefix: /opt/homebrew/Caskroom/miniforge/base/envs/niteshade-pkg

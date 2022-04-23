@@ -12,9 +12,9 @@ Unit tests for out-of-the-box model classes.
 
 import pytest
 
-from niteshade.models import IrisClassifier, MNISTClassifier
+from niteshade.models import IrisClassifier, MNISTClassifier, CifarClassifier
 from niteshade.simulation import Simulator
-from niteshade.utils import train_test_iris, train_test_MNIST
+from niteshade.utils import train_test_iris, train_test_MNIST, train_test_cifar
 
 
 # =============================================================================
@@ -22,10 +22,10 @@ from niteshade.utils import train_test_iris, train_test_MNIST
 # =============================================================================
 def test_iris():
     """No attack and defense trial on Iris dataset."""
-    batch_size = 32
+    batch_size = 5
     num_episodes = 10   
     #split iris dataset into train and test
-    X_train, y_train, X_test, y_test = train_test_iris(num_stacks=10)
+    X_train, y_train, X_test, y_test = train_test_iris()
 
     #implement attack and defense strategies through learner
     model = IrisClassifier()
@@ -36,8 +36,7 @@ def test_iris():
     simulator.run()
 
     #evaluate on test set
-    test_loss, test_accuracy = simulator.model.evaluate(X_test, y_test, batch_size)  
-    print(f"TEST LOSS; {test_loss}, TEST ACCURACY; {test_accuracy}")
+    test_accuracy = simulator.model.evaluate(X_test, y_test, batch_size)  
 
 def test_MNIST():
     batch_size = 32
@@ -53,8 +52,7 @@ def test_MNIST():
     simulator.run()
 
     #evaluate on test set
-    test_loss, test_accuracy = simulator.model.evaluate(X_test, y_test, batch_size)  
-
+    test_accuracy = simulator.model.evaluate(X_test, y_test, batch_size)  
 
 # =============================================================================
 #  MAIN ENTRY POINT
