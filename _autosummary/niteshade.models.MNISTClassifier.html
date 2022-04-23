@@ -46,6 +46,7 @@
 <li class="toctree-l2"><a class="reference internal" href="niteshade.data.html">niteshade.data</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="niteshade.models.html">niteshade.models</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="niteshade.models.BaseModel.html">niteshade.models.BaseModel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="niteshade.models.CifarClassifier.html">niteshade.models.CifarClassifier</a></li>
 <li class="toctree-l3"><a class="reference internal" href="niteshade.models.IrisClassifier.html">niteshade.models.IrisClassifier</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">niteshade.models.MNISTClassifier</a></li>
 </ul>
@@ -93,22 +94,50 @@
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">niteshade.models.</span></span><span class="sig-name descname"><span class="pre">MNISTClassifier</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">optimizer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'sgd'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_func</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'nll'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niteshade.models.MNISTClassifier" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="niteshade.models.BaseModel.html#niteshade.models.BaseModel" title="niteshade.models.BaseModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">niteshade.models.BaseModel</span></code></a></p>
 <p>Pre-defined classifier for the MNIST dataset.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="niteshade.models.MNISTClassifier.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">optimizer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'sgd'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_func</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'nll'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niteshade.models.MNISTClassifier.__init__" title="Permalink to this definition"></a></dt>
-<dd><p>Construct network as per user specifications.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>optimizer</strong> (<em>str</em>) – <p>String specifying optimizer to use in training neural network (Default = ‘sgd’).
+<li><p><strong>optimizer</strong> (<em>str</em>) – String specifying optimizer to use in training neural network (Default = ‘sgd’).
+Options:
+‘adam’: torch.optim.Adam(),
+‘adagrad’: torch.optim.Adagrad(),
+‘sgd’: torch.optim.SGD()</p></li>
+<li><p><strong>loss_func</strong> (<em>str</em>) – String specifying loss function to use in training neural network (Default = ‘nll’).
+Options:
+‘mse’: nn.MSELoss(),
+‘nll’: nn.NLLLoss(),
+‘bce’: nn.BCELoss(),
+‘cross_entropy’: nn.CrossEntropyLoss().</p></li>
+<li><p><strong>lr</strong> (<em>float</em>) – Learning rate to use in training neural network (Default = 0.01).</p></li>
+<li><p><strong>optim_kwargs</strong> (<em>dict</em>) – dictionary containing additional optimizer key-word
+arguments (Default = {}).</p></li>
+<li><p><strong>loss_kwargs</strong> (<em>dict</em>) – dictionary containing additional key-word arguments
+for the loss function (Default = {}).</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="niteshade.models.MNISTClassifier.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">optimizer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'sgd'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_func</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'nll'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niteshade.models.MNISTClassifier.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Constrcutor method of BaseModel class that inherits from nn.Module.
+:param architecture: list or nested list containing sequence of</p>
+<blockquote>
+<div><p>nn.torch.modules objects to be used in the
+forward pass of the model.</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>optimizer</strong> (<em>str</em>) – <p>String specifying optimizer to use in training neural network.
 Options:</p>
 <blockquote>
 <div><p>’adam’: torch.optim.Adam(),
 ‘adagrad’: torch.optim.Adagrad(),
-‘sgd’: torch.optim.SGD()</p>
+‘adamax’: torch.optim.Adamax(),
+‘sgd’: torch.optim.SGD().</p>
 </div></blockquote>
 </p></li>
-<li><p><strong>loss_func</strong> (<em>str</em>) – <p>String specifying loss function to use in training neural network (Default = ‘nll’).
+<li><p><strong>loss_func</strong> (<em>str</em>) – <p>String specifying loss function to use in training neural network.
 Options:</p>
 <blockquote>
 <div><p>’mse’: nn.MSELoss(),
@@ -117,7 +146,11 @@ Options:</p>
 ‘cross_entropy’: nn.CrossEntropyLoss().</p>
 </div></blockquote>
 </p></li>
-<li><p><strong>lr</strong> (<em>float</em>) – Learning rate to use in training neural network (Default = 0.01).</p></li>
+<li><p><strong>lr</strong> (<em>float</em>) – Learning rate to use in training neural network.</p></li>
+<li><p><strong>optim_kwargs</strong> (<em>dict</em>) – dictionary containing additional optimizer key-word
+arguments (Default = {}).</p></li>
+<li><p><strong>loss_kwargs</strong> (<em>dict</em>) – dictionary containing additional key-word arguments
+for the loss function (Default = {}).</p></li>
 </ul>
 </dd>
 </dl>
@@ -131,7 +164,7 @@ Options:</p>
 </colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#niteshade.models.MNISTClassifier.__init__" title="niteshade.models.MNISTClassifier.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>([optimizer, loss_func, lr])</p></td>
-<td><p>Construct network as per user specifications.</p></td>
+<td><p>Constrcutor method of BaseModel class that inherits from nn.Module. :param architecture: list or nested list containing sequence of                      nn.torch.modules objects to be used in the                      forward pass of the model. :type architecture: list :param optimizer: String specifying optimizer to use in training neural network. Options:                     'adam': torch.optim.Adam(),                     'adagrad': torch.optim.Adagrad(),                     'adamax': torch.optim.Adamax(),                     'sgd': torch.optim.SGD(). :type optimizer: str :param loss_func: String specifying loss function to use in training neural network. Options:                     'mse': nn.MSELoss(),                     'nll': nn.NLLLoss(),                     'bce': nn.BCELoss(),                     'cross_entropy': nn.CrossEntropyLoss(). :type loss_func: str :param lr: Learning rate to use in training neural network. :type lr: float :param optim_kwargs: dictionary containing additional optimizer key-word                      arguments (Default = {}). :type optim_kwargs: dict :param loss_kwargs: dictionary containing additional key-word arguments                     for the loss function (Default = {}). :type loss_kwargs: dict.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_module</span></code>(name, module)</p></td>
 <td><p>Adds a child module to the current module.</p></td>

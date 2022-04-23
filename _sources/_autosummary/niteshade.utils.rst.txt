@@ -27,6 +27,7 @@
       save_pickle
       save_plot
       train_test_MNIST
+      train_test_cifar
       train_test_iris
    
    

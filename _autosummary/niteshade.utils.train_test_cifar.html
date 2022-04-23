@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>niteshade.utils.train_test_iris &mdash; niteshade 0+unknown documentation</title>
+  <title>niteshade.utils.train_test_cifar &mdash; niteshade 0+unknown documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -19,8 +19,8 @@
     <link rel="author" title="About these documents" href="../about.html" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Contributing" href="../contributing.html" />
-    <link rel="prev" title="niteshade.utils.train_test_cifar" href="niteshade.utils.train_test_cifar.html" /> 
+    <link rel="next" title="niteshade.utils.train_test_iris" href="niteshade.utils.train_test_iris.html" />
+    <link rel="prev" title="niteshade.utils.train_test_MNIST" href="niteshade.utils.train_test_MNIST.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -63,8 +63,8 @@
 <li class="toctree-l3"><a class="reference internal" href="niteshade.utils.save_pickle.html">niteshade.utils.save_pickle</a></li>
 <li class="toctree-l3"><a class="reference internal" href="niteshade.utils.save_plot.html">niteshade.utils.save_plot</a></li>
 <li class="toctree-l3"><a class="reference internal" href="niteshade.utils.train_test_MNIST.html">niteshade.utils.train_test_MNIST</a></li>
-<li class="toctree-l3"><a class="reference internal" href="niteshade.utils.train_test_cifar.html">niteshade.utils.train_test_cifar</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">niteshade.utils.train_test_iris</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">niteshade.utils.train_test_cifar</a></li>
+<li class="toctree-l3"><a class="reference internal" href="niteshade.utils.train_test_iris.html">niteshade.utils.train_test_iris</a></li>
 </ul>
 </li>
 </ul>
@@ -88,9 +88,9 @@
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
           <li><a href="../api.html">API</a> &raquo;</li>
           <li><a href="niteshade.utils.html">niteshade.utils</a> &raquo;</li>
-      <li>niteshade.utils.train_test_iris</li>
+      <li>niteshade.utils.train_test_cifar</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/_autosummary/niteshade.utils.train_test_iris.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/_autosummary/niteshade.utils.train_test_cifar.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -98,12 +98,26 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="niteshade-utils-train-test-iris">
-<h1>niteshade.utils.train_test_iris<a class="headerlink" href="#niteshade-utils-train-test-iris" title="Permalink to this headline"></a></h1>
+  <section id="niteshade-utils-train-test-cifar">
+<h1>niteshade.utils.train_test_cifar<a class="headerlink" href="#niteshade-utils-train-test-cifar" title="Permalink to this headline"></a></h1>
 <dl class="py function">
-<dt class="sig sig-object py" id="niteshade.utils.train_test_iris">
-<span class="sig-prename descclassname"><span class="pre">niteshade.utils.</span></span><span class="sig-name descname"><span class="pre">train_test_iris</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">test_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_stacks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rand_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">42</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niteshade.utils.train_test_iris" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dt class="sig sig-object py" id="niteshade.utils.train_test_cifar">
+<span class="sig-prename descclassname"><span class="pre">niteshade.utils.</span></span><span class="sig-name descname"><span class="pre">train_test_cifar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transform</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niteshade.utils.train_test_cifar" title="Permalink to this definition"></a></dt>
+<dd><p>Function to load CIFAR10, splitted into train, test, and validation sets
+(The latter only if val_size is not None).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>transform</strong> (<em>torchvision.transforms</em>) – Sequence of transformations to apply</p></li>
+<li><p><strong>sets.</strong> (<em>to the train and test</em>) – </p></li>
+<li><p><strong>Default</strong> – </p></li>
+<li><p><strong>transforms.Compose</strong> (<em>[</em><em>transforms.RandomHorizontalFlip</em><em>(</em>) – transforms.ToTensor()])).</p></li>
+<li><p><strong>val_size</strong> (<em>float</em>) – Value between 0 and 1 indicating the percentage of the</p></li>
+<li><p><strong>set.</strong> (<em>training set that should be allocated to the validation</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 </section>
 
@@ -111,8 +125,8 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="niteshade.utils.train_test_cifar.html" class="btn btn-neutral float-left" title="niteshade.utils.train_test_cifar" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="../contributing.html" class="btn btn-neutral float-right" title="Contributing" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="niteshade.utils.train_test_MNIST.html" class="btn btn-neutral float-left" title="niteshade.utils.train_test_MNIST" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="niteshade.utils.train_test_iris.html" class="btn btn-neutral float-right" title="niteshade.utils.train_test_iris" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

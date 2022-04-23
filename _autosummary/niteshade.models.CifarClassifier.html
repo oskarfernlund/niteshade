@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>niteshade.models.IrisClassifier &mdash; niteshade 0+unknown documentation</title>
+  <title>niteshade.models.CifarClassifier &mdash; niteshade 0+unknown documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -19,8 +19,8 @@
     <link rel="author" title="About these documents" href="../about.html" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="niteshade.models.MNISTClassifier" href="niteshade.models.MNISTClassifier.html" />
-    <link rel="prev" title="niteshade.models.CifarClassifier" href="niteshade.models.CifarClassifier.html" /> 
+    <link rel="next" title="niteshade.models.IrisClassifier" href="niteshade.models.IrisClassifier.html" />
+    <link rel="prev" title="niteshade.models.BaseModel" href="niteshade.models.BaseModel.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -46,8 +46,8 @@
 <li class="toctree-l2"><a class="reference internal" href="niteshade.data.html">niteshade.data</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="niteshade.models.html">niteshade.models</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="niteshade.models.BaseModel.html">niteshade.models.BaseModel</a></li>
-<li class="toctree-l3"><a class="reference internal" href="niteshade.models.CifarClassifier.html">niteshade.models.CifarClassifier</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">niteshade.models.IrisClassifier</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">niteshade.models.CifarClassifier</a></li>
+<li class="toctree-l3"><a class="reference internal" href="niteshade.models.IrisClassifier.html">niteshade.models.IrisClassifier</a></li>
 <li class="toctree-l3"><a class="reference internal" href="niteshade.models.MNISTClassifier.html">niteshade.models.MNISTClassifier</a></li>
 </ul>
 </li>
@@ -77,9 +77,9 @@
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
           <li><a href="../api.html">API</a> &raquo;</li>
           <li><a href="niteshade.models.html">niteshade.models</a> &raquo;</li>
-      <li>niteshade.models.IrisClassifier</li>
+      <li>niteshade.models.CifarClassifier</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/_autosummary/niteshade.models.IrisClassifier.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/_autosummary/niteshade.models.CifarClassifier.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -87,30 +87,59 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="niteshade-models-irisclassifier">
-<h1>niteshade.models.IrisClassifier<a class="headerlink" href="#niteshade-models-irisclassifier" title="Permalink to this headline"></a></h1>
+  <section id="niteshade-models-cifarclassifier">
+<h1>niteshade.models.CifarClassifier<a class="headerlink" href="#niteshade-models-cifarclassifier" title="Permalink to this headline"></a></h1>
 <dl class="py class">
-<dt class="sig sig-object py" id="niteshade.models.IrisClassifier">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">niteshade.models.</span></span><span class="sig-name descname"><span class="pre">IrisClassifier</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">optimizer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'adam'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_func</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cross_entropy'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optim_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niteshade.models.IrisClassifier" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="niteshade.models.CifarClassifier">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">niteshade.models.</span></span><span class="sig-name descname"><span class="pre">CifarClassifier</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">optimizer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'adam'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_func</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cross_entropy'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optim_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'weight_decay':</span> <span class="pre">1e-06}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niteshade.models.CifarClassifier" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="niteshade.models.BaseModel.html#niteshade.models.BaseModel" title="niteshade.models.BaseModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">niteshade.models.BaseModel</span></code></a></p>
-<p>Pre-defined simple classifier for the Iris dataset containing
-one fully-connected layer with 16 neurons using ReLU.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="niteshade.models.IrisClassifier.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">optimizer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'adam'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_func</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cross_entropy'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optim_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niteshade.models.IrisClassifier.__init__" title="Permalink to this definition"></a></dt>
-<dd><p>Construct network as per user specifications.</p>
+<p>ResNet-18 classifier inheriting from BaseModel for the torchvision
+CIFAR10 dataset. Achieves 78% accuracy on the held out test set in 20
+epochs using mini-batches of size 32.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>optimizer</strong> (<em>str</em>) – <p>String specifying optimizer to use in training neural network (Default = ‘adam’).
+<li><p><strong>optimizer</strong> (<em>str</em>) – String specifying optimizer to use in training neural network (Default = ‘adam’).
+Options:
+‘adam’: torch.optim.Adam(),
+‘adagrad’: torch.optim.Adagrad(),
+‘sgd’: torch.optim.SGD()</p></li>
+<li><p><strong>loss_func</strong> (<em>str</em>) – String specifying loss function to use in training neural network (Default = ‘cross_entropy’).
+Options:
+‘mse’: nn.MSELoss(),
+‘nll’: nn.NLLLoss(),
+‘bce’: nn.BCELoss(),
+‘cross_entropy’: nn.CrossEntropyLoss().</p></li>
+<li><p><strong>lr</strong> (<em>float</em>) – Learning rate to use in training neural network (Default = 0.0001).</p></li>
+<li><p><strong>optim_kwargs</strong> (<em>dict</em>) – dictionary containing additional optimizer key-word
+arguments (Default = {}).</p></li>
+<li><p><strong>loss_kwargs</strong> (<em>dict</em>) – dictionary containing additional key-word arguments
+for the loss function (Default = {}).</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="niteshade.models.CifarClassifier.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">optimizer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'adam'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_func</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cross_entropy'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optim_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'weight_decay':</span> <span class="pre">1e-06}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niteshade.models.CifarClassifier.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Constrcutor method of BaseModel class that inherits from nn.Module.
+:param architecture: list or nested list containing sequence of</p>
+<blockquote>
+<div><p>nn.torch.modules objects to be used in the
+forward pass of the model.</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>optimizer</strong> (<em>str</em>) – <p>String specifying optimizer to use in training neural network.
 Options:</p>
 <blockquote>
 <div><p>’adam’: torch.optim.Adam(),
 ‘adagrad’: torch.optim.Adagrad(),
+‘adamax’: torch.optim.Adamax(),
 ‘sgd’: torch.optim.SGD().</p>
 </div></blockquote>
 </p></li>
-<li><p><strong>loss_func</strong> (<em>str</em>) – <p>String specifying loss function to use in training neural network (Default = ‘cross_entropy’).
+<li><p><strong>loss_func</strong> (<em>str</em>) – <p>String specifying loss function to use in training neural network.
 Options:</p>
 <blockquote>
 <div><p>’mse’: nn.MSELoss(),
@@ -119,7 +148,7 @@ Options:</p>
 ‘cross_entropy’: nn.CrossEntropyLoss().</p>
 </div></blockquote>
 </p></li>
-<li><p><strong>lr</strong> (<em>float</em>) – Learning rate to use in training neural network (Default = 0.001).</p></li>
+<li><p><strong>lr</strong> (<em>float</em>) – Learning rate to use in training neural network.</p></li>
 <li><p><strong>optim_kwargs</strong> (<em>dict</em>) – dictionary containing additional optimizer key-word
 arguments (Default = {}).</p></li>
 <li><p><strong>loss_kwargs</strong> (<em>dict</em>) – dictionary containing additional key-word arguments
@@ -136,8 +165,8 @@ for the loss function (Default = {}).</p></li>
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#niteshade.models.IrisClassifier.__init__" title="niteshade.models.IrisClassifier.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>([optimizer, loss_func, lr, ...])</p></td>
-<td><p>Construct network as per user specifications.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#niteshade.models.CifarClassifier.__init__" title="niteshade.models.CifarClassifier.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>([optimizer, loss_func, lr, ...])</p></td>
+<td><p>Constrcutor method of BaseModel class that inherits from nn.Module. :param architecture: list or nested list containing sequence of                      nn.torch.modules objects to be used in the                      forward pass of the model. :type architecture: list :param optimizer: String specifying optimizer to use in training neural network. Options:                     'adam': torch.optim.Adam(),                     'adagrad': torch.optim.Adagrad(),                     'adamax': torch.optim.Adamax(),                     'sgd': torch.optim.SGD(). :type optimizer: str :param loss_func: String specifying loss function to use in training neural network. Options:                     'mse': nn.MSELoss(),                     'nll': nn.NLLLoss(),                     'bce': nn.BCELoss(),                     'cross_entropy': nn.CrossEntropyLoss(). :type loss_func: str :param lr: Learning rate to use in training neural network. :type lr: float :param optim_kwargs: dictionary containing additional optimizer key-word                      arguments (Default = {}). :type optim_kwargs: dict :param loss_kwargs: dictionary containing additional key-word arguments                     for the loss function (Default = {}). :type loss_kwargs: dict.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_module</span></code>(name, module)</p></td>
 <td><p>Adds a child module to the current module.</p></td>
@@ -166,8 +195,8 @@ for the loss function (Default = {}).</p></li>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">eval</span></code>()</p></td>
 <td><p>Sets the module in evaluation mode.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#niteshade.models.IrisClassifier.evaluate" title="niteshade.models.IrisClassifier.evaluate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">evaluate</span></code></a>(X_test, y_test, batch_size)</p></td>
-<td><p>Test the accuracy of the iris classifier on a test set.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#niteshade.models.CifarClassifier.evaluate" title="niteshade.models.CifarClassifier.evaluate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">evaluate</span></code></a>(X_test, y_test, batch_size)</p></td>
+<td><p>Test the accuracy of the CIFAR10 classifier on a test set.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">extra_repr</span></code>()</p></td>
 <td><p>Set the extra representation of the module</p></td>
@@ -175,8 +204,8 @@ for the loss function (Default = {}).</p></li>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">float</span></code>()</p></td>
 <td><p>Casts all floating point parameters and buffers to <code class="docutils literal notranslate"><span class="pre">float</span></code> datatype.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#niteshade.models.IrisClassifier.forward" title="niteshade.models.IrisClassifier.forward"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward</span></code></a>(x)</p></td>
-<td><p>Forward method for model (needed as subclass of nn.Module).</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#niteshade.models.CifarClassifier.forward" title="niteshade.models.CifarClassifier.forward"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward</span></code></a>(x)</p></td>
+<td><p>Perform a forward pass through the regressor.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_buffer</span></code>(target)</p></td>
 <td><p>Returns the buffer given by <code class="docutils literal notranslate"><span class="pre">target</span></code> if it exists, otherwise throws an error.</p></td>
@@ -214,8 +243,8 @@ for the loss function (Default = {}).</p></li>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">parameters</span></code>([recurse])</p></td>
 <td><p>Returns an iterator over module parameters.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#niteshade.models.IrisClassifier.predict" title="niteshade.models.IrisClassifier.predict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict</span></code></a>(x)</p></td>
-<td><p>Predict on a data sample.</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict</span></code>(x)</p></td>
+<td><p>Predict on a data sample (x).</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">register_backward_hook</span></code>(hook)</p></td>
 <td><p>Registers a backward hook on the module.</p></td>
@@ -289,30 +318,38 @@ for the loss function (Default = {}).</p></li>
 </tbody>
 </table>
 <dl class="py method">
-<dt class="sig sig-object py" id="niteshade.models.IrisClassifier.evaluate">
-<span class="sig-name descname"><span class="pre">evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X_test</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_test</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niteshade.models.IrisClassifier.evaluate" title="Permalink to this definition"></a></dt>
-<dd><p>Test the accuracy of the iris classifier on a test set.</p>
+<dt class="sig sig-object py" id="niteshade.models.CifarClassifier.evaluate">
+<span class="sig-name descname"><span class="pre">evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X_test</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_test</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niteshade.models.CifarClassifier.evaluate" title="Permalink to this definition"></a></dt>
+<dd><p>Test the accuracy of the CIFAR10 classifier on a test set.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>X_test</strong> (<em>np.ndarray</em>) – test input data.</p></li>
 <li><p><strong>y_test</strong> (<em>np.ndarray</em>) – test target data.</p></li>
-<li><p><strong>batch_size</strong> (<em>int</em>) – size of batches in DataLoader object.</p></li>
+<li><p><strong>batch_size</strong> (<em>int</em>) – Size of mini-batches to test model on.</p></li>
 </ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Accuracy on test set.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>accuracy (float)</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="niteshade.models.IrisClassifier.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niteshade.models.IrisClassifier.forward" title="Permalink to this definition"></a></dt>
-<dd><p>Forward method for model (needed as subclass of nn.Module).</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="niteshade.models.IrisClassifier.predict">
-<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niteshade.models.IrisClassifier.predict" title="Permalink to this definition"></a></dt>
-<dd><p>Predict on a data sample.</p>
+<dt class="sig sig-object py" id="niteshade.models.CifarClassifier.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niteshade.models.CifarClassifier.forward" title="Permalink to this definition"></a></dt>
+<dd><p>Perform a forward pass through the regressor.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>torch.Tensor</em>) – Processed input array of size (batch_size, input_size).</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Predictions from current state of the model.</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -323,8 +360,8 @@ for the loss function (Default = {}).</p></li>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="niteshade.models.CifarClassifier.html" class="btn btn-neutral float-left" title="niteshade.models.CifarClassifier" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="niteshade.models.MNISTClassifier.html" class="btn btn-neutral float-right" title="niteshade.models.MNISTClassifier" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="niteshade.models.BaseModel.html" class="btn btn-neutral float-left" title="niteshade.models.BaseModel" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="niteshade.models.IrisClassifier.html" class="btn btn-neutral float-right" title="niteshade.models.IrisClassifier" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

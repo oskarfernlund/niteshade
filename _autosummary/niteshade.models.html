@@ -46,6 +46,7 @@
 <li class="toctree-l2"><a class="reference internal" href="niteshade.data.html">niteshade.data</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">niteshade.models</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="niteshade.models.BaseModel.html">niteshade.models.BaseModel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="niteshade.models.CifarClassifier.html">niteshade.models.CifarClassifier</a></li>
 <li class="toctree-l3"><a class="reference internal" href="niteshade.models.IrisClassifier.html">niteshade.models.IrisClassifier</a></li>
 <li class="toctree-l3"><a class="reference internal" href="niteshade.models.MNISTClassifier.html">niteshade.models.MNISTClassifier</a></li>
 </ul>
@@ -99,10 +100,13 @@ models for out-of-the-box use.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="niteshade.models.BaseModel.html#niteshade.models.BaseModel" title="niteshade.models.BaseModel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BaseModel</span></code></a>(architecture, optimizer, loss_func, lr)</p></td>
 <td><p>Abstract model class intended for ease of implementation in designing neural networks for data poisining attacks.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="niteshade.models.IrisClassifier.html#niteshade.models.IrisClassifier" title="niteshade.models.IrisClassifier"><code class="xref py py-obj docutils literal notranslate"><span class="pre">IrisClassifier</span></code></a>([optimizer, loss_func, lr])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="niteshade.models.CifarClassifier.html#niteshade.models.CifarClassifier" title="niteshade.models.CifarClassifier"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CifarClassifier</span></code></a>([optimizer, loss_func, lr, ...])</p></td>
+<td><p>ResNet-18 classifier inheriting from BaseModel for the torchvision CIFAR10 dataset.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="niteshade.models.IrisClassifier.html#niteshade.models.IrisClassifier" title="niteshade.models.IrisClassifier"><code class="xref py py-obj docutils literal notranslate"><span class="pre">IrisClassifier</span></code></a>([optimizer, loss_func, lr, ...])</p></td>
 <td><p>Pre-defined simple classifier for the Iris dataset containing one fully-connected layer with 16 neurons using ReLU.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="niteshade.models.MNISTClassifier.html#niteshade.models.MNISTClassifier" title="niteshade.models.MNISTClassifier"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MNISTClassifier</span></code></a>([optimizer, loss_func, lr])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="niteshade.models.MNISTClassifier.html#niteshade.models.MNISTClassifier" title="niteshade.models.MNISTClassifier"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MNISTClassifier</span></code></a>([optimizer, loss_func, lr])</p></td>
 <td><p>Pre-defined classifier for the MNIST dataset.</p></td>
 </tr>
 </tbody>

@@ -20,6 +20,7 @@
       :template: custom-class-template.rst             
    
       BaseModel
+      CifarClassifier
       IrisClassifier
       MNISTClassifier
    
