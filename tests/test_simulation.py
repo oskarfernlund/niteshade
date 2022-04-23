@@ -67,7 +67,7 @@ def test_iris():
     """Attack and defense combinations simulations for Iris classifier."""
     batch_size = 32
     num_episodes = 10
-    X_train, y_train, X_test, y_test = train_test_iris(num_stacks=1)
+    X_train, y_train, X_test, y_test = train_test_iris()
     # Instantiate necessary classes
     # Instantiate necessary classes
     defender = FeasibleSetDefender(X_train, y_train, 0.5, one_hot=True)
