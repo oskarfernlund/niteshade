@@ -343,22 +343,34 @@ class BrewPoison(PerturbPointsAttacker):
     
     This is repeated for either M optimization steps or until the perturbation 
     is unable to cause a misclassification. The perturbed points then replace 
-    the orignal points in the batch.   
+    the orignal points in the batch.
+
+    For such an attacker which makes use of a model and its predictions to
+    poison, it would make sense to be using a model that has already been 
+    pre-trained. Suppose the model if untrained. It is very likely that the 
+    first prediction will indeed be a misclassification since the model has 
+    no proper training. Compare this COMPLETE THISSSSSSSSS
     
     Args: 
         target (label) : label to use as a target for misclassification
-        M ( int) : number of optimization steps for perturbation
+        M (int) : number of optimization steps for perturbation
         aggressiveness (float) : determine max number of points to poison
         alpha (float) : perturbation reduction parameter
+        start_ep (int) : number of episode after which attacker will poison
+        total_eps (int) : total number of eps in the simulation
         one_hot (bool) : tells if labels are one_hot encoded or not
     """
-    def __init__(self, target, M=10, aggressiveness=0.05, alpha = 0.9, one_hot=False):
+    def __init__(self, target, M=10, aggressiveness=0.01, alpha = 0.8,
+                 start_ep=10, total_eps=20, one_hot=False):
         self.target = target
         self.M = M
         self.aggressiveness = aggressiveness
         self.alpha = alpha
+        self.start_ep = start_ep
+        self.total_eps = total_eps
         self.one_hot = one_hot
         
+        self.curr_ep = 0
         
     def apply_pert(self, selected_X, pert):
         """Apply the pertubation to a list of inputs.
@@ -397,7 +409,31 @@ class BrewPoison(PerturbPointsAttacker):
         new_pert = sample_pert.repeat(X.shape[1], 1, 1)
         
         return new_pert
-                        
+        
+    def inc_reset_ep(self, curr_ep, total_eps):
+        """Increase or reset the current episode number back to 0.
+        
+        Increase the current episode number by 1 or reset it.
+        
+        Reset needed since the attacker is initialised only once, and 
+        so when we add to the attribute curr_ep, it carries ahead 
+        through simulations. So, when running two simulations, this function
+        will reset the attribute to 0 before the next simulation starts.
+        
+        Args:
+            curr_ep (int) : current episode number
+            total_eps (int) : total number of episodes
+            
+        Returns:
+            curr_ep (int) : current episode number
+        """
+        curr_ep += 1
+        
+        if curr_ep == total_eps:
+            curr_ep = 0
+        
+        return curr_ep
+        
     def attack(self, X, y, model):
         """Attacks batch of input data by perturbing.
         
@@ -409,97 +445,109 @@ class BrewPoison(PerturbPointsAttacker):
             X (array) : data
             y (array/list) : flipped labels
         """
-        # keep track of orignal labels for encoding
-        og_y = y
-        
-        # decode if needed
-        if self.one_hot:
-            y = utils.decode_one_hot(y)
-        
-        # convert to tensors if needed
-        was_ndarray = False
-        if [type(X), type(y)] != [torch.Tensor,torch.Tensor]:
-            X = torch.tensor(X)
-            y = torch.tensor(y)
-            was_ndarray = True
+        if self.curr_ep < self.start_ep:  
             
-        # normalise input    
-        mins = []
-        maxs = []
-        for i in range (X.shape[0]):
-            mins.append(torch.min(X[i]))
-            X[i] -= torch.min(X[i])
-            maxs.append(torch.max(X[i]))
-            X[i] = torch.div(X[i], torch.max(X[i]))        
+            # increase current episode
+            self.curr_ep = self.inc_reset_ep(self.curr_ep, self.total_eps)
 
-        # initialise points to be poisoned
-        poison_budget = int(len(X) * self.aggressiveness)
+            return X, y
         
-        idxs = []
-        for i in range(len(y)):
-            if y[i] == self.target:
-                idxs.append(i)
-        
-        poison_budget = min(poison_budget, len(idxs))
+        else:    
+            # keep track of orignal labels for encoding
+            og_y = y
+            
+            # decode if needed
+            if self.one_hot:
+                y = utils.decode_one_hot(y)
+            
+            # convert to tensors if needed
+            was_ndarray = False
+            if [type(X), type(y)] != [torch.Tensor,torch.Tensor]:
+                X = torch.tensor(X)
+                y = torch.tensor(y)
+                was_ndarray = True
                 
-        attacked_idxs = random.sample(idxs, poison_budget)
-        selected_y = [y[i] for i in attacked_idxs]
-        selected_X = [X[i] for i in attacked_idxs]
-        
-        # initialise perturbation
-        perturbation = torch.rand(X.shape[2:]).repeat(X.shape[1], 1, 1)
-        
-        # optimization loop
-        i = 0
-        new_pert = perturbation
-        old_pert = perturbation = torch.zeros(X.shape[2:]).repeat(X.shape[1], 1, 1)
-        
-        perturbed_X = self.apply_pert(selected_X, new_pert)
-        
-        while i<self.M:       
-            # test result
-            point = perturbed_X[0]
+            # normalise input    
+            mins = []
+            maxs = []
+            for i in range (X.shape[0]):
+                mins.append(torch.min(X[i]))
+                X[i] -= torch.min(X[i])
+                maxs.append(torch.max(X[i]))
+                X[i] = torch.div(X[i], torch.max(X[i]))        
+
+            # initialise points to be poisoned
+            poison_budget = int(len(X) * self.aggressiveness)
             
-            # reshape into 4d tensor with batchsize = 1
-            test_point = point.reshape(1, point.shape[0], point.shape[1], point.shape[2])
-            model.eval()
-            with torch.no_grad():
-                result = torch.argmax(model.forward(test_point)) 
+            idxs = []
+            for i in range(len(y)):
+                if y[i] == self.target:
+                    idxs.append(i)
             
-            if result == selected_y[0]:
-                perturbed_X = self.apply_pert(selected_X, old_pert)
-                break
+            poison_budget = min(poison_budget, len(idxs))
+                    
+            attacked_idxs = random.sample(idxs, poison_budget)
+            selected_y = [y[i] for i in attacked_idxs]
+            selected_X = [X[i] for i in attacked_idxs]
             
-            else:
-                old_pert = new_pert
-                new_pert = self.get_new_pert(old_pert, self.alpha, X)
+            # initialise perturbation
+            perturbation = torch.rand(X.shape[2:]).repeat(X.shape[1], 1, 1)
+            
+            # optimization loop
+            i = 0
+            new_pert = perturbation
+            old_pert = perturbation = torch.zeros(X.shape[2:]).repeat(X.shape[1], 1, 1)
+            
+            perturbed_X = self.apply_pert(selected_X, new_pert)
+            
+            while i<self.M:       
+                # test result
+                point = perturbed_X[0]
                 
-                i += 1
+                # reshape into 4d tensor with batchsize = 1
+                test_point = point.reshape(1, point.shape[0], point.shape[1], point.shape[2])
+                model.eval()
+                with torch.no_grad():
+                    result = torch.argmax(model.forward(test_point)) 
                 
-                perturbed_X = self.apply_pert(selected_X, new_pert)
-            
-        # replace points in X with points in perturbed_X
-        nth_point = 0
-        for index in attacked_idxs:
-            X[index] == perturbed_X[nth_point]
-            nth_point += 1
- 
-        # unnormalise input
-        for i in range (X.shape[0]):
-            X[i] = torch.mul(X[i], maxs[i])
-            X[i] += mins[i]       
- 
-        # convert to ndarray if needed
-        if was_ndarray:
-            X = X.numpy()
-            y = y.numpy()
-            
-        # encode if needed
-        if self.one_hot:
-            num_classes = utils.check_num_of_classes(og_y)
-            y = utils.one_hot_encoding(y, num_classes)
+                if result == selected_y[0]:
+                    perturbed_X = self.apply_pert(selected_X, old_pert)
+                    break
                 
-        return X, y
+                else:
+                    old_pert = new_pert
+                    new_pert = self.get_new_pert(old_pert, self.alpha, X)
+                    
+                    i += 1
+                    
+                    perturbed_X = self.apply_pert(selected_X, new_pert)
+                
+            # replace points in X with points in perturbed_X
+            nth_point = 0
+            for index in attacked_idxs:
+                X[index] == perturbed_X[nth_point]
+                nth_point += 1
+     
+            # unnormalise input
+            for i in range (X.shape[0]):
+                X[i] = torch.mul(X[i], maxs[i])
+                X[i] += mins[i]       
+     
+            # convert to ndarray if needed
+            if was_ndarray:
+                X = X.numpy()
+                y = y.numpy()
+                
+            # encode if needed
+            if self.one_hot:
+                num_classes = utils.check_num_of_classes(og_y)
+                y = utils.one_hot_encoding(y, num_classes)
+            
+            # increase current episode
+            self.curr_ep = self.inc_reset_ep(self.curr_ep, self.total_eps)
+            
+            return X, y
+
         
        
 # =============================================================================
