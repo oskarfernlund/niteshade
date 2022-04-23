@@ -110,13 +110,14 @@ that the returned labels are one-hot encoded.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>test_size</strong> (<em>float</em>) – Size of the test set expressed as a fraction</p></li>
-<li><p><strong>0.2.</strong> (<em>of the complete dataset Default =</em>) – </p></li>
-<li><p><strong>val_size</strong> (<em>float</em>) – Size of the validation set expressed as a fraction</p></li>
-<li><p><strong>are</strong> (<em>of the training set. Default = None</em><em> (</em><em>i.e only train and test sets</em>) – </p></li>
-<li><p><strong>returned</strong><strong>)</strong><strong>.</strong> – </p></li>
-<li><p><strong>rand_state</strong> (<em>int</em>) – random seed with which to split the dataset using</p></li>
-<li><p><strong>42.</strong> (<em>sklearn.model_selection.train_test_split</em><em>(</em><em>)</em><em>. Default =</em>) – </p></li>
+<li><p><strong>test_size</strong> (<em>float</em>) – Size of the test set expressed as a fraction
+of the complete dataset (Default = 0.2).</p></li>
+<li><p><strong>val_size</strong> (<em>float</em>) – Size of the validation set expressed as a fraction
+of the training set. Default = None (i.e only train
+and test sets are returned).</p></li>
+<li><p><strong>rand_state</strong> (<em>int</em>) – random seed with which to split the dataset using
+sklearn.model_selection.train_test_split().
+Default = 42.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>

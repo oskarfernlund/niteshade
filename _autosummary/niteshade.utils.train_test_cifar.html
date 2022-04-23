@@ -108,12 +108,16 @@ train, test, and validation sets (the latter only if val_size != None).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>transform</strong> (<em>torchvision.transforms</em>) – Sequence of transformations to apply</p></li>
-<li><p><strong>sets.</strong> (<em>to the train and test</em>) – </p></li>
-<li><p><strong>Default</strong> – </p></li>
-<li><p><strong>transforms.Compose</strong> (<em>[</em><em>transforms.RandomHorizontalFlip</em><em>(</em>) – transforms.ToTensor()])).</p></li>
-<li><p><strong>val_size</strong> (<em>float</em>) – Value between 0 and 1 indicating the percentage of the</p></li>
-<li><p><strong>set.</strong> (<em>training set that should be allocated to the validation</em>) – </p></li>
+<li><p><strong>transform</strong> (<em>torchvision.transforms</em>) – <p>Sequence of transformations to apply
+to the train and test sets.
+Default: transforms.Compose([transforms.RandomHorizontalFlip(),</p>
+<blockquote>
+<div><p>transforms.ToTensor()])).</p>
+</div></blockquote>
+</p></li>
+<li><p><strong>val_size</strong> (<em>float</em>) – Value between 0 and 1 indicating the percentage of the
+training set that should be allocated to the validation set.
+(Default = 0.2).</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
