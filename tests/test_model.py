@@ -25,7 +25,7 @@ def test_iris():
     batch_size = 32
     num_episodes = 10   
     #split iris dataset into train and test
-    X_train, y_train, X_test, y_test = train_test_iris(num_stacks=10)
+    X_train, y_train, X_test, y_test = train_test_iris()
 
     #implement attack and defense strategies through learner
     model = IrisClassifier()

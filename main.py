@@ -177,7 +177,7 @@ def test_decision_boundaries_MNIST(saved_models=None, baseline=None):
     #simulate attack and defense separately using class method
     simulator1.run()
     simulator2.run()
-    #simulator3.run()
+    simulator3.run()
     simulator4.run()    
 
     simulators = {'only_attacker': simulator1, 'regular': simulator2,
