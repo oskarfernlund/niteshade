@@ -75,11 +75,9 @@ class Simulator():
                                 an episode as the time period over which a stream of incoming data
                                 would be collected and subsequently passed on to the model to be 
                                 trained.
-        
-        shuffle (bool) : Boolean indicating if passed X and y should be shuffled in DataLoader.
     """
     def __init__(self, X, y, model, attacker=None, defender=None, 
-                 batch_size=1, num_episodes=1, shuffle=True, save=False) -> None:
+                 batch_size=1, num_episodes=1, save=False) -> None:
         if not batch_size > 0 and batch_size <= len(X):
              raise ValueError('Batch size must be 0 < batch_size <= len(X).')
         if not num_episodes > 0 and num_episodes <= len(X):
@@ -107,9 +105,6 @@ class Simulator():
         self.defender = defender
         self.save = save
         self.episode = 0
-        self.shuffle = shuffle
-        self.generator = DataLoader(self.X, self.y, batch_size = self.episode_size, 
-                                    shuffle=shuffle) #initialise data stream
 
         #get attacker and defender args
         if attacker:
@@ -258,7 +253,7 @@ class Simulator():
         self.results[self._cp_labels[checkpoint]].append(data)
 
     def run(self, defender_args = {}, attacker_args = {}, attacker_requires_model=False, 
-            defender_requires_model=False) -> None:
+            defender_requires_model=False, shuffle=False) -> None:
         """
         Runs a simulation of an online learning setting where, if specified, an attacker
         will 'poison' (i.e. perturb) incoming data points (from an episode) according to an 
@@ -297,11 +292,12 @@ class Simulator():
                                              the updated model at each episode.
             defender_requires_model (bool) : specifies if the .defend() method of the defender requires 
                                              the updated model at each episode.
+            shuffle (bool) : Boolean indicating if passed X and y should be shuffled in DataLoader.
         """
         self.num_poisoned = 0
         self.num_defended = 0
-        generator = DataLoader(batch_size = self.episode_size) #initialise data stream
-        generator._queue = self.generator._queue.copy()
+        generator = DataLoader(self.X, self.y, batch_size = self.episode_size, 
+                               shuffle=shuffle) #initialise data stream
         batch_queue = DataLoader(batch_size = self.batch_size) #initialise cache data loader
         
         with tqdm(generator, desc="Running simulation", unit="episode") as tepoch: 
