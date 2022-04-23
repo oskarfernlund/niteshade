@@ -121,10 +121,7 @@ that was able to cause a misclassification.</p>
 <p>This is repeated for either M optimization steps or until the perturbation
 is unable to cause a misclassification. The perturbed points then replace
 the orignal points in the batch.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="niteshade.attack.BrewPoison.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">M</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aggressiveness</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.9</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">one_hot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niteshade.attack.BrewPoison.__init__" title="Permalink to this definition"></a></dt>
-<dd><dl class="field-list simple">
+<dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>target</strong> (<em>label</em>) – label to use as a target for misclassification</p></li>
@@ -135,7 +132,10 @@ the orignal points in the batch.</p>
 </ul>
 </dd>
 </dl>
-</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="niteshade.attack.BrewPoison.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">M</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aggressiveness</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.9</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">one_hot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niteshade.attack.BrewPoison.__init__" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
 
 <p class="rubric">Methods</p>
 <table class="autosummary longtable docutils align-default">
@@ -145,12 +145,7 @@ the orignal points in the batch.</p>
 </colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#niteshade.attack.BrewPoison.__init__" title="niteshade.attack.BrewPoison.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(target[, M, aggressiveness, alpha, ...])</p></td>
-<td><p><dl class="field-list simple">
-<dt class="field-odd">param target</dt>
-<dd class="field-odd"><p>label to use as a target for misclassification</p>
-</dd>
-</dl>
-</p></td>
+<td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#niteshade.attack.BrewPoison.apply_pert" title="niteshade.attack.BrewPoison.apply_pert"><code class="xref py py-obj docutils literal notranslate"><span class="pre">apply_pert</span></code></a>(selected_X, pert)</p></td>
 <td><p>Apply the pertubation to a list of inputs.</p></td>
@@ -166,17 +161,19 @@ the orignal points in the batch.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="niteshade.attack.BrewPoison.apply_pert">
 <span class="sig-name descname"><span class="pre">apply_pert</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">selected_X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pert</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niteshade.attack.BrewPoison.apply_pert" title="Permalink to this definition"></a></dt>
-<dd><p>Apply the pertubation to a list of inputs.
-:param selected_X: list of tensors to perturb
-:type selected_X: list
-:param pert: tensor used to perturb
-:type pert: torch.tensor</p>
+<dd><p>Apply the pertubation to a list of inputs.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>list of perturbed tensors</p>
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>selected_X</strong> (<em>list</em>) – list of tensors to perturb</p></li>
+<li><p><strong>pert</strong> (<em>torch.tensor</em>) – tensor used to perturb</p></li>
+</ul>
 </dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>perturbed_X (list)</p>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list of perturbed tensors</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>perturbed_X (list)</p>
 </dd>
 </dl>
 </dd></dl>
