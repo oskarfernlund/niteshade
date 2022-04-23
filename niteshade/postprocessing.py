@@ -225,7 +225,7 @@ class PostProcessor():
 
         sim_predictions = {}
         for label, state_dict in state_dicts.items():
-            model = self.base_model
+            model = self.final_models[label]
             model.load_state_dict(state_dict)
             if isinstance(model, torch.nn.Module):
                 model.eval()
