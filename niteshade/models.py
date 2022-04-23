@@ -396,7 +396,7 @@ class _ResidualBlock(nn.Module):
 class CifarClassifier(BaseModel):
     """
     ResNet-18 classifier inheriting from BaseModel for the torchvision 
-    CIFAR10 dataset. Achieves 78% accuracy on the held out test set in 20
+    CIFAR10 dataset. Achieves 80% accuracy on the held out test set in 20
     epochs using mini-batches of size 32.
 
     Args:
