@@ -69,6 +69,56 @@ Note that after executing the above for loop there would still be 6 points in
 the cache.
 
 
+.. _managing_pipeline_asynchrononicity:
+
+Managing Pipeline Asynchronicity
+--------------------------------
+
+In many scenarios, data generation and learning are asynchronous. For example, 
+if data is generated in batches of 10 datapoints (let's call these episodes for 
+notational clarity), but the model wants to learn on batches of size 16, then 
+the model will only be able to do an incremental learning step every 1.6 
+episodes on average. To complicate matters, if we add deploy a poisoning attack 
+and implement a defence strategy that rejects suspicious datapoints, the 
+pipeline becomes even more asynchronous (episodes may now consist of fewer than 
+16 datapoints if the defence strategy determines that 1 or more points should 
+be rejected). To address this asynchronicity, niteshade workflows generally 
+involve separate generation and learning loops, each with their own 
+``DataLoader`` (leveraging the cache and queue to ensure consistent episode and 
+batch sizes). Below is a very simple example (model, attack and defence 
+strategies not specified):
+
+.. code-block:: python
+
+    from niteshade.data import DataLoader
+
+    X = np.random.rand(100, 4)
+    y = np.random.rand(100)
+
+    episodes = DataLoader(X, y, batch_size=10)
+    batches = DataLoader(batch_size=16)
+
+    for epiosde in episodes:
+
+        # Attack strategy deployed (may change shape of episode)
+        ...
+        
+        # Defense strategy deployed (may change shape of episode)
+        ...
+
+        batches.add_to_cache(episode)
+
+        for batch in batches:
+
+            # Incremental learning update
+            ...
+
+Note that the inner loop (learning loop) will only execute if the batch 
+``DataLoader`` contains sufficient datapoints to form a complete batch. 
+Otherwise, its queue attribute will be empty and iterating over it will do 
+nothing. 
+
+
 .. _importing_a_model:
 
 Setting Up a Victim Model
@@ -145,12 +195,16 @@ filling in the ``.forward()``, ``.predict()`` and ``.evaluate()`` methods.
             
             return accuracy
 
+All niteshade models perform incremental learning updates using the ``.step()`` 
+method (inherited from ``BaseModel``).
+
 
 .. _defining_an_attack_strategy:
 
 Defining an Attack Strategy
 ---------------------------
 
+Bing
 
 
 .. _defining_a_defence_strategy:
@@ -158,21 +212,13 @@ Defining an Attack Strategy
 Defining a Defence Strategy
 ---------------------------
 
+Bong
 
 
-.. _managing_asynchronous_data_generation_and_learning:
+.. _running_a_simulation:
 
-Managing Asychronous Data Generation and Learning
--------------------------------------------------
-
-There are a number of reasons why the data generation and online learning 
-processes may be asynchronous. 
-
-
-.. _running_simulations:
-
-Running Simulations
--------------------
+Running a Simulations
+---------------------
 
 To run a simulation, you can use the ``niteshade.simulation.Simulator`` class:
 
