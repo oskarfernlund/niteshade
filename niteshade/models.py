@@ -21,11 +21,10 @@ from niteshade.data import DataLoader
 # =============================================================================
 
 class BaseModel(nn.Module):
-    """Abstract model class intended for ease of implementation in designing 
-       neural networks for data poisining attacks. Requires an architecture
-       to be defined in the form of a list or nested list containing the 
-       sequence of torch.nn.modules objects needed to perform a forward 
-       pass. 
+    """ Abstract model class intended for ease of implementation in designing 
+    neural networks for data poisoning attacks. Requires an architecture to be 
+    defined in the form of a list or nested list containing the sequence of 
+    torch.nn.modules objects needed to perform a forward pass. 
     """
     def __init__(self, architecture: list, optimizer: str, 
                  loss_func: str, lr: float, optim_kwargs = {}, 
