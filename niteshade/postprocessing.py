@@ -59,9 +59,9 @@ class PDF(FPDF):
         """Add a table to the pdf.
 
         Args:
-            - df (pd.core.frame.DataFrame) : pandas data frame.
-            - table_title (string) : title as necessary.
-            - new_page (bool) : print table on a new page.
+            df (pd.core.frame.DataFrame) : pandas data frame
+            table_title (str) : title as necessary
+            new_page (bool) : print table on a new page
         """
         assert type(df) == pd.core.frame.DataFrame
         
@@ -98,9 +98,9 @@ class PDF(FPDF):
         """Add a jpg / png / jpeg to a pdf.
 
         Args:
-            - file_path (string) : file path.
-            - chart_title (string) : title as necessary.
-            - new_page (bool) : print table on a new page.
+            file_path (str) : file path
+            chart_title (str) : title as necessary
+            new_page (bool) : print table on a new page
         """
         if new_page: self.add_page()
         self.set_font('Arial','B', 10)
@@ -117,8 +117,8 @@ class PDF(FPDF):
         """Add all jpg / png / jpeg to a pdf from a directory.
 
         Args:
-            - dir_path (string) : directory path.
-            - new_page (bool) : print table on a new page.
+            dir_path (str) : directory path
+            new_page (bool) : print table on a new page
         """
         contents = os.listdir(dir_path)
         for chart in contents: 
@@ -137,7 +137,7 @@ class PostProcessor():
         simulators (dict) : Dictionary containing the simulator objects 
                             (presumably after making use of their .run()
                             method) as values and descriptive labels for 
-                            each Simulator as keys.
+                            each Simulator as keys
 
     """
     def __init__(self, simulators: dict) -> None:
@@ -158,7 +158,7 @@ class PostProcessor():
             results (pd.core.frame.DataFrame): Dictionary with keys 
                                                corresponding to simulator names, 
                                                values corresponding to dicts 
-                                               with keys a, b, c, d per above.
+                                               with keys a, b, c, d per above
         """
         results = {}
         for simulator in self.wrapped_data.keys():
@@ -201,12 +201,12 @@ class PostProcessor():
                         Output: metric
 
         Args:
-            X_test (np.ndarray) : NumPy array containing features.
-            y_test (np.ndarray) : NumPy array containing labels.
+            X_test (np.ndarray) : NumPy array containing features
+            y_test (np.ndarray) : NumPy array containing labels
 
         Returns:
             metrics (dict) : Dictionary where each key is a simulator 
-                             and each value is a final evaluation metric.
+                             and each value is a final evaluation metric
         """
         metrics = {}
         
@@ -226,14 +226,14 @@ class PostProcessor():
                         Output: metric
 
         Args:
-            X_test (np.ndarray) : NumPy array containing features.
-            y_test (np.ndarray) : NumPy array containing labels.
+            X_test (np.ndarray) : NumPy array containing features
+            y_test (np.ndarray) : NumPy array containing labels
 
         Returns:
             metrics (dict) : Dictionary where each key is a simulator and each 
                              value is a list of coresponding metrics throughout 
                              the simulation (each value corresponds to a single 
-                             timestep of a simulation).
+                             timestep of a simulation)
         """
         metrics = {}
         
@@ -254,11 +254,11 @@ class PostProcessor():
         """Prints a plot into a console. Supports supervised learning only.
         
         Args:
-            - metrics (np.ndarray) : an array of metrics of length equal to the 
-                                     number of episodes in a simulation.
-            - save (bool) : enable saving. 
-            - plotname (str) : if set to None, file name is set to a current 
-                               timestamp.
+            metrics (np.ndarray) : an array of metrics of length equal to the 
+                                   number of episodes in a simulation
+            save (bool) : enable saving
+            plotname (str) : if set to None, file name is set to a current 
+                             timestamp
         """
         if plotname is None: plotname = get_time_stamp_as_string()
         
@@ -283,20 +283,20 @@ class PostProcessor():
         """Extract embedded x,y positions for every datapoint in the dataset.
         
         Args:
-            - dataset (np.ndarray) : NumPy array containing data.
-            - perplexity (int) : The perplexity is related to the number of 
+            dataset (np.ndarray) : NumPy array containing data
+            perplexity (int) : The perplexity is related to the number of 
                                  nearest neighbors that is used in other manifold 
                                  learning algorithms. Larger datasets usually 
                                  require a larger perplexity. Consider selecting 
                                  a value between 5 and 50. Different values can 
                                  result in significantly different results. 
-                                 Default = 50.
-            - n_iter (iter) : Maximum number of iterations for the optimization. 
-                              Should be at least 250. SeeDefault = 2000.
+                                 Default = 50
+            n_iter (iter) : Maximum number of iterations for the optimization. 
+                              Should be at least 250. SeeDefault = 2000
 
         Returns:
-            - tsne_results : embedded x,y positions for every datapoint 
-                             in the dataset.
+            tsne_results : embedded x,y positions for every datapoint 
+                             in the dataset
         """
         tsne = TSNE(n_components=2, perplexity=perplexity, n_iter=n_iter)
         tsne_results = tsne.fit_transform(dataset.reshape(dataset.shape[0], -1))
@@ -308,14 +308,14 @@ class PostProcessor():
         """Get all predictions on a test set of the models inside state_dicts.
 
         Args:
-            - X_test (np.ndarray, torch.Tensor) : Test data. 
-            - state_dicts (dict) : Dictionary containing state dictionaries of 
-                                   any number of trained models. 
+            X_test (np.ndarray, torch.Tensor) : Test data
+            state_dicts (dict) : Dictionary containing state dictionaries of 
+                                   any number of trained models 
 
         Returns:
-            - sim_predictions (dict) : Dictionary with same keys as state_dicts 
+            sim_predictions (dict) : Dictionary with same keys as state_dicts 
                                        and values corresponding to the predictions 
-                                       of the respective trained models. 
+                                       of the respective trained models
         """
         #convert test set to torch tensor
         if type(X_test) != torch.Tensor:
@@ -352,32 +352,32 @@ class PostProcessor():
         boundaries in 2D.
 
         Args: 
-            - X_test (np.ndarray, torch.Tensor) : Test input data.
-            - y_test (np.ndarray, torch.Tensor) : Test labels. 
-            - num_points (int) : Number of points within X_test/y_test to plot 
+            X_test (np.ndarray, torch.Tensor) : Test input data
+            y_test (np.ndarray, torch.Tensor) : Test labels
+            num_points (int) : Number of points within X_test/y_test to plot 
                                  in the figure. Consider selecting a value 
-                                 between 300 and 1000.
-            - perplexity (int) : The perplexity is related to the number of 
+                                 between 300 and 1000
+            perplexity (int) : The perplexity is related to the number of 
                                  nearest neighbors that is used in other manifold 
                                  learning algorithms. Larger datasets usually 
                                  require a larger perplexity. Consider selecting 
                                  a value between 5 and 50. Different values can 
                                  result in significantly different results. 
-                                 Default = 50.
-            - n_iter (iter) : Maximum number of iterations for the optimization. 
-                              Should be at least 250. Default = 2000.
-            - C (float) : Regularization parameter. The strength of the 
+                                 Default = 50
+            n_iter (iter) : Maximum number of iterations for the optimization. 
+                              Should be at least 250. Default = 2000
+            C (float) : Regularization parameter. The strength of the 
                           regularization is inversely proportional to C. Must be 
-                          strictly positive. The penalty is a squared l2 penalty.
-            - kernel (str) : {'linear', 'poly', 'rbf', 'sigmoid', 'precomputed'} 
+                          strictly positive. The penalty is a squared l2 penalty
+            kernel (str) : {'linear', 'poly', 'rbf', 'sigmoid', 'precomputed'} 
                              or callable. Specifies the kernel type to be used in 
                              the algorithm. If none is given, 'rbf' will be used. 
                              If a callable is given it is used to pre-compute the 
                              kernel matrix from data matrices; that matrix should 
                              be an array of shape (n_samples, n_samples). 
-                             Default='poly'.
-            - degree (int) : Degree of the polynomial kernel function ('poly'). 
-                             Ignored by all other kernels.
+                             Default='poly'
+            degree (int) : Degree of the polynomial kernel function ('poly'). 
+                             Ignored by all other kernels
             
         """
         #make sure number of points is smaller than length of test set

@@ -34,7 +34,7 @@ from matplotlib.colors import ListedColormap
 def copy(array_like):
     """Used to copy a torch.Tensor or np.ndarray object.
 
-    Args. 
+    Args:
         array_like (np.ndarray, torch.Tensor) : array/tensor to copy.
     """
     if isinstance(array_like, torch.Tensor):
@@ -46,6 +46,7 @@ def copy(array_like):
 
 def get_time_stamp_as_string():
     """Get the current time stamp as a string.
+    
     Returns:
         date_time_str (str) : current timestemp
     """
@@ -57,11 +58,12 @@ def get_time_stamp_as_string():
 
 def save_plot(plt, dirname='output', plotname='default'):
     """Save a matplotlib.pyplot.plot() as a .png file.
+    
     Args:
-        dirname {str} : name of the directory to save the plot to. 
-                        If the directory doesn't exist, it is created.
-        plotname {str}: plot name, if plotname is set to default, 
-                        the plot name is set to timestemp.
+        dirname (str) : name of the directory to save the plot to. 
+                        If the directory doesn't exist, it is created
+        plotname (str): plot name, if plotname is set to default, 
+                        the plot name is set to timestemp
     """
     # Check if dirrectory exists, if not make one
     if not os.path.isdir(dirname):
@@ -76,11 +78,12 @@ def save_plot(plt, dirname='output', plotname='default'):
 
 def save_pickle(results, dirname='output', filename='default'):
     """Save results as a .pickle file.
+    
     Args:
         dirname (str) : name of the directory to save the pickle to. 
-                        If the directory doesn't exist, it is created.
+                        If the directory doesn't exist, it is created
         filename (str) : file name, if filename is set to default, 
-                        the file name is set to timestemp.
+                        the file name is set to timestemp
     """
     # Check if dirrectory exists, if not make one
     if not os.path.isdir(dirname):
@@ -95,10 +98,12 @@ def save_pickle(results, dirname='output', filename='default'):
 
 def load_model(filename):
     """Load a binary file containing a neural network.
+
     Args: 
-        filename (str) : name of file to save model in (excluding extension).
+        filename (str) : name of file to save model in (excluding extension)
+
     Returns:
-        model (nn.Module) : Trained model inheriting nn.Module with learnable parameters.
+        model (nn.Module) : Trained model inheriting nn.Module with learnable parameters
     """
     # If you alter this, make sure it works in tandem with save_regressor
     with open(filename, 'rb') as target:
@@ -111,8 +116,8 @@ def save_model(model, filename):
     """Save an object as a binary .pickle file.
 
     Args:
-        model (nn.Module) : model to save.
-        filename (str) : name of file to save model in (excluding extension).
+        model (nn.Module) : model to save
+        filename (str) : name of file to save model in (excluding extension)
     """
     # If you alter this, make sure it works in tandem with load_regressor
     with open(f'{filename}.pickle', 'wb') as target:
@@ -139,8 +144,7 @@ def one_hot_encoding(y, num_classes):
 
 
 def check_num_of_classes(y):
-    """
-    Check the number of classes in one hot encoded data.
+    """Check the number of classes in one hot encoded data.
     
     Supposing data is initially encoded, to attack it needs to be decoded.
     Then, before outputting it, it needs to be encoded once again and so we 
@@ -168,10 +172,10 @@ def check_batch_size(y):
     batch size is 1 or not.
     
     Args: 
-        y (np.array, torch.tensor) : labels.
+        y (np.array, torch.tensor) : labels
     
     Returns:
-        check (int) : 1 means 1, else means not 1.
+        check (int) : 1 means 1, else means not 1
     """
     check = len(np.shape(y))
     
@@ -182,10 +186,10 @@ def decode_one_hot(y):
     """Decode one hot encoded data.
     
     Args:
-        y (np.array, torch.tensor) : labels (encoded).
+        y (np.array, torch.tensor) : labels (encoded)
     
     Returns:
-        new_y (np.array, torch.tensor) : labels (decoded).
+        new_y (np.array, torch.tensor) : labels (decoded)
     """
     if check_batch_size(y) == 1:
         y = y.reshape(1,-1)
@@ -201,29 +205,28 @@ def decode_one_hot(y):
 
 
 def train_test_iris(test_size=0.2, val_size = None, rand_state=42):
-    """
-    Loads the Iris dataset using sklearn.datasets.load_iris()
+    """Loads the Iris dataset using sklearn.datasets.load_iris()
     and returns the inputs and labels in splitted train and test
     sets (and validation too if val_size != None). Please note 
     that the returned labels are one-hot encoded.
 
     Args: 
         test_size (float) : Size of the test set expressed as a fraction
-                            of the complete dataset (Default = 0.2).
+                            of the complete dataset (Default = 0.2)
         val_size (float) : Size of the validation set expressed as a fraction
                            of the training set. Default = None (i.e only train 
-                           and test sets are returned).
+                           and test sets are returned)
         rand_state (int) : random seed with which to split the dataset using
                            sklearn.model_selection.train_test_split(). 
-                           Default = 42.
+                           Default = 42
     
     Returns: 
-        X_train (np.ndarray) : Train inputs.
-        y_train (np.ndarray) : Train labels.
-        X_test (np.ndarray) : Test inputs.
-        y_test (np.ndarray) : Test labels.        
-        X_val (np.ndarray) : Validation inputs (only if val_size != None).
-        y_val (np.ndarray) : Validation labels (only if val_size != None).     
+        X_train (np.ndarray) : Train inputs
+        y_train (np.ndarray) : Train labels
+        X_test (np.ndarray) : Test inputs
+        y_test (np.ndarray) : Test labels     
+        X_val (np.ndarray) : Validation inputs (only if val_size != None)
+        y_val (np.ndarray) : Validation labels (only if val_size != None)   
     """
     #define input and target data
     data = load_iris()
@@ -251,8 +254,7 @@ def train_test_iris(test_size=0.2, val_size = None, rand_state=42):
 
 
 def train_test_MNIST(dir="datasets/", transform=None, val_size=None):
-    """
-    Function to load torchivisions' MNIST dataset, splitted into 
+    """Function to load torchivisions' MNIST dataset, splitted into 
     train, test, and validation sets (the latter only if val_size != None).
 
     Args:
@@ -260,17 +262,17 @@ def train_test_MNIST(dir="datasets/", transform=None, val_size=None):
                                              to the train and test sets.
                                              Default: transforms.Compose([torchvision.transforms.Normalize(
                                                                           (0.1307,), (0.3081,)), 
-                                                                          transforms.ToTensor()])).
+                                                                          transforms.ToTensor()]))
         val_size (float) : Value between 0 and 1 indicating the percentage of the
                            training set that should be allocated to the validation set. 
-                           (Default = 0.2).
+                           (Default = 0.2)
     Returns: 
-        X_train (np.ndarray) : Train inputs.
-        y_train (np.ndarray) : Train labels.
-        X_test (np.ndarray) : Test inputs.
-        y_test (np.ndarray) : Test labels.        
-        X_val (np.ndarray) : Validation inputs (only if val_size != None).
-        y_val (np.ndarray) : Validation labels (only if val_size != None).     
+        X_train (np.ndarray) : Train inputs
+        y_train (np.ndarray) : Train labels
+        X_test (np.ndarray) : Test inputs
+        y_test (np.ndarray) : Test labels    
+        X_val (np.ndarray) : Validation inputs (only if val_size != None)
+        y_val (np.ndarray) : Validation labels (only if val_size != None) 
     """
     if transform is None:
         transform = torchvision.transforms.Compose([
@@ -307,17 +309,17 @@ def train_test_cifar(dir="datasets/", transform = None, val_size=None):
         transform (torchvision.transforms) : Sequence of transformations to apply
                                              to the train and test sets.
                                              Default: transforms.Compose([transforms.RandomHorizontalFlip(), 
-                                                                          transforms.ToTensor()])).
+                                                                          transforms.ToTensor()]))
         val_size (float) : Value between 0 and 1 indicating the percentage of the
                            training set that should be allocated to the validation set. 
-                           (Default = 0.2).
+                           (Default = 0.2)
     Returns: 
-        X_train (torch.Tensor) : Train inputs.
-        y_train (torch.Tensor) : Train labels.
-        X_test (torch.Tensor) : Test inputs.
-        y_test (torch.Tensor) : Test labels.        
-        X_val (torch.Tensor) : Validation inputs (only if val_size != None).
-        y_val (torch.Tensor) : Validation labels (only if val_size != None).     
+        X_train (torch.Tensor) : Train inputs
+        y_train (torch.Tensor) : Train labels
+        X_test (torch.Tensor) : Test inputs
+        y_test (torch.Tensor) : Test labels      
+        X_val (torch.Tensor) : Validation inputs (only if val_size != None)
+        y_val (torch.Tensor) : Validation labels (only if val_size != None)
     """
     if transform is None:    
         #data augmentation transformations for train and val/test datasets
@@ -347,7 +349,7 @@ def rand_cmap(nlabels):
         nlabels (int) : Number of labels (size of colormap)
 
     Returns:
-         random_colormap (ListedColormap) : colormap filled with nlabels random colors.
+         random_colormap (ListedColormap) : colormap filled with nlabels random colors
     """
 
     # Generate color map for bright colors, based on hsv
