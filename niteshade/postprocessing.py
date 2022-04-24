@@ -449,8 +449,7 @@ class PostProcessor():
             #calculate accuracy of simulation on test set
             accuracy = accuracy_score(np.array(y_test), np.array(predictions))
             #labels/title/legend
-            plt.title(f"'{sim_label}' Decision Boundaries \
-                (Test Accuracy = {accuracy})", fontsize=fontsize)
+            plt.title(f"'{sim_label}' Decision Boundaries (Test Accuracy = {accuracy})", fontsize=fontsize)
             plt.ylabel("Embedded Y", fontsize=fontsize)
             plt.xlabel("Embedded X", fontsize=fontsize)
             plt.legend(*scatter.legend_elements(),loc="best",
