@@ -112,21 +112,21 @@ train, test, and validation sets (the latter only if val_size != None).</p>
 to the train and test sets.
 Default: transforms.Compose([transforms.RandomHorizontalFlip(),</p>
 <blockquote>
-<div><p>transforms.ToTensor()])).</p>
+<div><p>transforms.ToTensor()]))</p>
 </div></blockquote>
 </p></li>
 <li><p><strong>val_size</strong> (<em>float</em>) – Value between 0 and 1 indicating the percentage of the
 training set that should be allocated to the validation set.
-(Default = 0.2).</p></li>
+(Default = 0.2)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Train inputs.
-y_train (torch.Tensor) : Train labels.
-X_test (torch.Tensor) : Test inputs.
-y_test (torch.Tensor) : Test labels.
-X_val (torch.Tensor) : Validation inputs (only if val_size != None).
-y_val (torch.Tensor) : Validation labels (only if val_size != None).</p>
+<dd class="field-even"><p>Train inputs
+y_train (torch.Tensor) : Train labels
+X_test (torch.Tensor) : Test inputs
+y_test (torch.Tensor) : Test labels
+X_val (torch.Tensor) : Validation inputs (only if val_size != None)
+y_val (torch.Tensor) : Validation labels (only if val_size != None)</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>X_train (torch.Tensor)</p>

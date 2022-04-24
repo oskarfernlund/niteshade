@@ -111,22 +111,22 @@ that the returned labels are one-hot encoded.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>test_size</strong> (<em>float</em>) – Size of the test set expressed as a fraction
-of the complete dataset (Default = 0.2).</p></li>
+of the complete dataset (Default = 0.2)</p></li>
 <li><p><strong>val_size</strong> (<em>float</em>) – Size of the validation set expressed as a fraction
 of the training set. Default = None (i.e only train
-and test sets are returned).</p></li>
+and test sets are returned)</p></li>
 <li><p><strong>rand_state</strong> (<em>int</em>) – random seed with which to split the dataset using
 sklearn.model_selection.train_test_split().
-Default = 42.</p></li>
+Default = 42</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Train inputs.
-y_train (np.ndarray) : Train labels.
-X_test (np.ndarray) : Test inputs.
-y_test (np.ndarray) : Test labels.
-X_val (np.ndarray) : Validation inputs (only if val_size != None).
-y_val (np.ndarray) : Validation labels (only if val_size != None).</p>
+<dd class="field-even"><p>Train inputs
+y_train (np.ndarray) : Train labels
+X_test (np.ndarray) : Test inputs
+y_test (np.ndarray) : Test labels
+X_val (np.ndarray) : Validation inputs (only if val_size != None)
+y_val (np.ndarray) : Validation labels (only if val_size != None)</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>X_train (np.ndarray)</p>
