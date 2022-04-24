@@ -37,10 +37,10 @@ https://pypi.org/project/niteshade/.
 
     $ pip install niteshade
 
-Use of a virtual environment is strongly recommended. 
+Use of a virtual environment is *strongly* recommended. 
 
-**Note:** Installation with ``Anaconda`` is not currently available. Anaconda 
-users should install niteshade with ``pip`` inside an ``Anaconda`` environment.
+**Note:** Installation with Anaconda is not currently available. Anaconda users 
+should install niteshade with pip inside an Anaconda environment.
 
 
 Usage
@@ -57,14 +57,14 @@ Dependencies
 ------------
 
 This project has separate package and developer dependencies, both of which can 
-be found in the ``env/`` directory in the form of requirements.txt and 
-environment.yml files for ``pip`` and ``Anaconda`` users. Package dependencies 
-(pkg_requirements.txt, pkg_environment.yml) consist exclusively of the packages 
-required to use the library and are installed automatically when niteshade 
-binaries are installed with ``pip``. Developer dependencies 
-(dev_requirements.txt, dev_environment.yml), include the package dependencies 
-as well as additional packages required for building the documentation, running 
-tests, linting the source code and publishing releases.
+be found in the ``env/`` directory in the form of ``requirements.txt`` and 
+``environment.yml`` files for pip and Anaconda users. Package dependencies 
+(``pkg_requirements.txt``, ``pkg_environment.yml``) consist exclusively of the 
+packages required to use the library and are installed automatically when 
+niteshade binaries are installed with pip. Developer dependencies 
+(``dev_requirements.txt``, ``dev_environment.yml``), include the package 
+dependencies as well as additional packages required for building the 
+documentation, running tests, linting the source code and publishing releases.
 
 .. code-block:: console
 
@@ -74,13 +74,19 @@ For ``pip`` users:
 
 .. code-block:: console
 
-    $ pip install -r <pkg_requirements.txt> or <dev_requirements.txt>
+    $ pip install -r <file.txt>
+
+where ``<file.txt>`` is either ``pkg_requirements.txt`` or 
+``dev_requirements.txt``.
 
 For ``Anaconda`` users:
 
 .. code-block:: console
 
-    $ conda env create -f <pkg_environment.yml> or <dev_environment.yml>
+    $ conda env create -f <file.yml>
+
+where ``<file.yml>`` is either ``pkg_environment.yml`` or 
+``dev_environment.yml``.
 
 
 Building the Documentation
@@ -100,7 +106,7 @@ documentation by running ``make <format>`` from the ``docs/`` directory. Run
 Running Unit and Integration Tests
 ----------------------------------
 
-This project uses ``pytest`` for unit and integration testing (included in the 
+This project uses pytest for unit and integration testing (included in the 
 developer dependencies). The tests may be run from the root directory as 
 follows:
 
@@ -150,4 +156,4 @@ License
 -------
 
 niteshade uses the MIT license. Details regarding permissions to use and 
-distribute the software may be found in the LICENSE file.
+distribute the software may be found in the ``LICENSE`` file.
