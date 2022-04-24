@@ -44,7 +44,9 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Usage</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#getting-started">Getting Started</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#setting-up-an-online-data-pipeline">Setting Up an Online Data Pipeline</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#setting-up-a-model">Setting Up a Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#setting-up-a-victim-model">Setting Up a Victim Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#defining-an-attack-strategy">Defining an Attack Strategy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#defining-a-defence-strategy">Defining a Defence Strategy</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#managing-asychronous-data-generation-and-learning">Managing Asychronous Data Generation and Learning</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#running-simulations">Running Simulations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#postprocessing-results">Postprocessing Results</a></li>
@@ -80,10 +82,14 @@
              
   <section id="usage">
 <h1>Usage<a class="headerlink" href="#usage" title="Permalink to this headline"></a></h1>
+<p>Below are some simple example uses of the various functions and classes in
+niteshade. For a more comprehensive overview of niteshade’s functionality,
+please refer to the <a class="reference internal" href="api.html"><span class="doc">API</span></a> section.</p>
 <section id="getting-started">
 <span id="id1"></span><h2>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this headline"></a></h2>
 <p>Before setting up a niteshade workflow, be sure to import any necessary
-libraries:</p>
+packages. For the following examples, we will be using numpy and PyTorch (as
+well as niteshade, of course!).</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">torch</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">niteshade</span> <span class="k">as</span> <span class="nn">shade</span>
@@ -95,6 +101,9 @@ libraries:</p>
 <p>niteshade makes setting up an online data pipeline easy, thanks to its bespoke
 data loader class specifically designed for online learning
 <code class="docutils literal notranslate"><span class="pre">niteshade.data.DataLoader</span></code>.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">niteshade.data</span> <span class="kn">import</span> <span class="n">DataLoader</span>
+</pre></div>
+</div>
 <p>A <code class="docutils literal notranslate"><span class="pre">DataLoader</span></code> may be instantiated with a particular set of features (X) and
 labels (y):</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">X</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">32</span><span class="p">)</span>
@@ -133,43 +142,101 @@ over (and depleted) using a for loop:</p>
 <p>Note that after executing the above for loop there would still be 6 points in
 the cache.</p>
 </section>
-<section id="setting-up-a-model">
-<span id="importing-a-model"></span><h2>Setting Up a Model<a class="headerlink" href="#setting-up-a-model" title="Permalink to this headline"></a></h2>
-<p>One of the first steps when setting up a workflow in niteshade is specifying a
-model which will be the subject of the data poisoning attack. niteshade comes
-with a few toy models which may be used out of the box, e.g.:</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">shade</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">IrisClassifier</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">shade</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">MNISTClassifier</span>
+<section id="setting-up-a-victim-model">
+<span id="importing-a-model"></span><h2>Setting Up a Victim Model<a class="headerlink" href="#setting-up-a-victim-model" title="Permalink to this headline"></a></h2>
+<p>Setting up a victim model (an online learning model which will be the subject
+of a data poisoning attack) can be done in two different ways. The simplest way
+is to use one of niteshade’s out-of-the-box model classes, e.g.
+<code class="docutils literal notranslate"><span class="pre">shade.models.IrisClassifier</span></code> (designed specifically for the Iris dataset),
+<code class="docutils literal notranslate"><span class="pre">shade.models.MNISTClassifier</span></code> (designed specifically for MNIST), or
+<code class="docutils literal notranslate"><span class="pre">shade.models.CifarClassifier</span></code> (designed specifically for CIFAR-10):</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">niteshade.models</span> <span class="kn">import</span> <span class="n">MNISTClassifier</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mnist_model</span> <span class="o">=</span> <span class="n">MNISTClassifier</span><span class="p">(</span><span class="n">optimizer</span><span class="o">=</span><span class="s2">&quot;sgd&quot;</span><span class="p">,</span> <span class="n">loss_func</span><span class="o">=</span><span class="s2">&quot;nll&quot;</span><span class="p">,</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>However, most users will prefer to use a custom model class. This can be done</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">torch</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">the_model</span><span class="o">.</span><span class="n">state_dict</span><span class="p">(),</span> <span class="n">filepath</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">torch</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">the_model</span><span class="p">,</span> <span class="n">filepath</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">()</span>
+<p>However, most users will prefer to create a custom model class. Custom model
+classes can be easily created by inheriting the <code class="docutils literal notranslate"><span class="pre">niteshade.models.BaseModel</span></code>
+superclass, providing it the necessary arguments in the constructor, and
+filling in the <code class="docutils literal notranslate"><span class="pre">.forward()</span></code>, <code class="docutils literal notranslate"><span class="pre">.predict()</span></code> and <code class="docutils literal notranslate"><span class="pre">.evaluate()</span></code> methods.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">torch.nn</span> <span class="k">as</span> <span class="nn">nn</span>
+
+<span class="k">class</span> <span class="nc">CustomModel</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">optimizer</span><span class="o">=</span><span class="s2">&quot;adam&quot;</span><span class="p">,</span> <span class="n">loss_func</span><span class="o">=</span><span class="s2">&quot;mse&quot;</span><span class="p">,</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.001</span><span class="p">)</span>
+        <span class="n">architecture</span> <span class="o">=</span> <span class="p">[</span><span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">16</span><span class="p">),</span> <span class="n">nn</span><span class="o">.</span><span class="n">ReLU</span><span class="p">(),</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">1</span><span class="p">)]</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">architecture</span><span class="p">,</span> <span class="n">optimizer</span><span class="p">,</span> <span class="n">loss_func</span><span class="p">,</span> <span class="n">lr</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">network</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+
+        <span class="c1"># Is this necessary? Does it get used?</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span> <span class="c1"># Set to eval mode (not necessary in this simple case)</span>
+        <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
+            <span class="n">pred</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">pred</span>
+
+    <span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">):</span>
+
+        <span class="c1"># Can this be something much simpler? Is this necessary?</span>
+
+
+        <span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_inputs</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)</span>
+
+        <span class="c1">#create dataloader with test data</span>
+        <span class="n">test_loader</span> <span class="o">=</span> <span class="n">DataLoader</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">)</span>
+        <span class="n">num_batches</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">test_loader</span><span class="p">)</span>
+
+        <span class="c1">#disable autograd since we don&#39;t need gradients to perform forward pass</span>
+        <span class="c1">#in testing and less computation is needed</span>
+        <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
+            <span class="n">test_loss</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">correct</span> <span class="o">=</span> <span class="mi">0</span>
+
+            <span class="k">for</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">targets</span> <span class="ow">in</span> <span class="n">test_loader</span><span class="p">:</span>
+                <span class="n">outputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="n">inputs</span><span class="o">.</span><span class="n">float</span><span class="p">())</span> <span class="c1">#forward pass</span>
+                <span class="c1">#reduction=&quot;sum&quot; allows for loss aggregation across batches using</span>
+                <span class="c1">#summation instead of taking the mean (take mean when done)</span>
+                <span class="n">test_loss</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">loss_func</span><span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="n">targets</span><span class="p">)</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+
+                <span class="n">pred</span> <span class="o">=</span> <span class="n">outputs</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdim</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">correct</span> <span class="o">+=</span> <span class="n">pred</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="n">targets</span><span class="o">.</span><span class="n">view_as</span><span class="p">(</span><span class="n">pred</span><span class="p">))</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+
+        <span class="n">num_points</span> <span class="o">=</span> <span class="n">batch_size</span> <span class="o">*</span> <span class="n">num_batches</span>
+
+        <span class="n">test_loss</span> <span class="o">/=</span> <span class="n">num_points</span> <span class="c1">#mean loss</span>
+
+        <span class="n">accuracy</span> <span class="o">=</span> <span class="n">correct</span> <span class="o">/</span> <span class="n">num_points</span>
+
+        <span class="k">return</span> <span class="n">accuracy</span>
 </pre></div>
 </div>
-<p>it may be loaded</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
-</pre></div>
-</div>
+</section>
+<section id="defining-an-attack-strategy">
+<span id="id3"></span><h2>Defining an Attack Strategy<a class="headerlink" href="#defining-an-attack-strategy" title="Permalink to this headline"></a></h2>
+</section>
+<section id="defining-a-defence-strategy">
+<span id="id4"></span><h2>Defining a Defence Strategy<a class="headerlink" href="#defining-a-defence-strategy" title="Permalink to this headline"></a></h2>
 </section>
 <section id="managing-asychronous-data-generation-and-learning">
 <span id="managing-asynchronous-data-generation-and-learning"></span><h2>Managing Asychronous Data Generation and Learning<a class="headerlink" href="#managing-asychronous-data-generation-and-learning" title="Permalink to this headline"></a></h2>
-<p>niteshade makes setting up an online data pipeline easy, thanks to its bespoke
-data loader class specifically designed for online learning
-<code class="docutils literal notranslate"><span class="pre">niteshade.data.DataLoader</span></code></p>
+<p>There are a number of reasons why the data generation and online learning
+processes may be asynchronous.</p>
 </section>
 <section id="running-simulations">
-<span id="id3"></span><h2>Running Simulations<a class="headerlink" href="#running-simulations" title="Permalink to this headline"></a></h2>
+<span id="id5"></span><h2>Running Simulations<a class="headerlink" href="#running-simulations" title="Permalink to this headline"></a></h2>
 <p>To run a simulation, you can use the <code class="docutils literal notranslate"><span class="pre">niteshade.simulation.Simulator</span></code> class:</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">niteshade</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">simulator</span> <span class="o">=</span> <span class="n">niteshade</span><span class="o">.</span><span class="n">simulation</span><span class="o">.</span><span class="n">Simulator</span><span class="p">()</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">niteshade.simulation</span> <span class="kn">import</span> <span class="n">Simulator</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">simulator</span> <span class="o">=</span> <span class="n">Simulator</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">simulator</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 </pre></div>
 </div>
 </section>
 <section id="postprocessing-results">
-<span id="id4"></span><h2>Postprocessing Results<a class="headerlink" href="#postprocessing-results" title="Permalink to this headline"></a></h2>
+<span id="id6"></span><h2>Postprocessing Results<a class="headerlink" href="#postprocessing-results" title="Permalink to this headline"></a></h2>
 <p>To postprocess results, you can use the
 <code class="docutils literal notranslate"><span class="pre">niteshade.postprocessing.PostProcessor</span></code> class:</p>
 </section>
