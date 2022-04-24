@@ -419,7 +419,7 @@ class PostProcessor():
                 if predictions.is_cuda:
                     predictions = predictions.cpu().numpy()
                 else: 
-                    predictions = predic tions.numpy()
+                    predictions = predictions.numpy()
             if len(predictions.shape) > 1:
                 predictions = predictions.flatten()
 
