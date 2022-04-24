@@ -1,4 +1,4 @@
-﻿niteshade.attack.BrewPoison
+niteshade.attack.BrewPoison
 ===========================
 
 .. currentmodule:: niteshade.attack
@@ -19,6 +19,7 @@
       ~BrewPoison.apply_pert
       ~BrewPoison.attack
       ~BrewPoison.get_new_pert
+      ~BrewPoison.inc_reset_ep
    
    
 

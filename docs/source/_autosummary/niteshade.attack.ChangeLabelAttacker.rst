@@ -17,6 +17,7 @@ niteshade.attack.ChangeLabelAttacker
    
       ~ChangeLabelAttacker.__init__
       ~ChangeLabelAttacker.attack
+      ~ChangeLabelAttacker.num_pts_to_change
    
    
 

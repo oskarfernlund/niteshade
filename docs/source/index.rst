@@ -3,23 +3,21 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to niteshade's documentation!
-=====================================
+niteshade Docs
+==============
 
 **niteshade** (/ˈnaɪt.ʃeɪd/) is a Python library for simulating data poisoning 
-attack and defence strategies against online machine learning systems. It is 
-primarily a research tool and offers a *simple* and *intuitive* API.
+attack and defence strategies against online machine learning systems. The 
+library is written in Python 3.10 and offers a *simple* and *intuitive* API 
+which is heavily integrated with PyTorch's machine learning framework.
 
 For information about data poisoning attacks and why they are a topic of 
-concern as well as general information about the project and its contributors, 
-check out the :doc:`about` section. For details regarding getting set up with 
-niteshade, see the :doc:`installation` and :doc:`usage` sections. For a 
-detailed overview of the Python API and how to contribute, see the :doc:`api` 
-and :doc:`contributing` sections.
+concern as well as general information about the project, check out the 
+:doc:`about` section. For details regarding setting up and using niteshade, see 
+the :doc:`installation`, :doc:`usage` and :doc:`api`sections. Are you a 
+cybersecurity researcher or Python developer interested in contributing to 
+niteshade? See the :doc:`contributing` section.
 
-.. note::
-
-   This project is under active development and may be unstable!
 
 Contents
 --------

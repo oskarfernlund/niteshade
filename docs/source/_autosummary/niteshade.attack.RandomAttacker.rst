@@ -17,6 +17,7 @@ niteshade.attack.RandomAttacker
    
       ~RandomAttacker.__init__
       ~RandomAttacker.attack
+      ~RandomAttacker.num_pts_to_change
    
    
 
