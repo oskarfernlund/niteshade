@@ -416,7 +416,10 @@ class PostProcessor():
         for sim_label, predictions in model_predictions.items():
             #check if the predictions are a tensor and convert to numpy array
             if type(predictions) == torch.Tensor:
-                predictions = predictions.numpy()
+                if predictions.is_cuda:
+                    predictions = predictions.cpu().numpy()
+                else: 
+                    predictions = predic tions.numpy()
             if len(predictions.shape) > 1:
                 predictions = predictions.flatten()
 
