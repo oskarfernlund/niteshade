@@ -33,8 +33,7 @@ from niteshade.utils import save_plot, get_cmap, get_time_stamp_as_string
 # =============================================================================
 
 class PostProcessor():
-    """
-    Class used for a variety of post-processing functionalities common
+    """Class used for a variety of post-processing functionalities common
     in assessing and visualising the effectiveness of different attack
     and defense strategies in simulating data poisoning attacks during 
     online learning. 
@@ -62,8 +61,9 @@ class PostProcessor():
 
         Returns:
             results (pd.core.frame.DataFrame): Dictionary with keys 
-            corresponding to simulator names, values corresponding to dicts 
-            with keys a, b, c, d per above.
+                                               corresponding to simulator names, 
+                                               values corresponding to dicts 
+                                               with keys a, b, c, d per above.
         """
         results = {}
         for simulator in self.wrapped_data.keys():
@@ -102,8 +102,8 @@ class PostProcessor():
     def evaluate_simulators_metrics(self, X_test, y_test):
         """Returns a dictionary of lists with metrics. 
            Requirement: The model must have an evaluate method of the form:
-                            Input: X_test, y_test, self.batch_sizes[simulation_label]
-                            Output: metric
+                        Input: X_test, y_test, self.batch_sizes[simulation_label]
+                        Output: metric
 
         Args:
             X_test (np.ndarray) : NumPy array containing features.
@@ -127,8 +127,8 @@ class PostProcessor():
     def compute_online_learning_metrics(self, X_test, y_test):
         """Returns a dictionary of lists with metrics. 
            Requirement: The model must have an evaluate method of the form:
-                            Input: X_test, y_test, self.batch_sizes[simulation_label]
-                            Output: metric
+                        Input: X_test, y_test, self.batch_sizes[simulation_label]
+                        Output: metric
 
         Args:
             X_test (np.ndarray) : NumPy array containing features.
@@ -136,8 +136,9 @@ class PostProcessor():
 
         Returns:
             metrics (dict) : Dictionary where each key is a simulator and each 
-            value is a list of coresponding metrics throughout the simulation 
-            (each value corresponds to a single timestep of a simulation).
+                             value is a list of coresponding metrics throughout 
+                             the simulation (each value corresponds to a single 
+                             timestep of a simulation).
         """
         metrics = {}
         
@@ -159,10 +160,10 @@ class PostProcessor():
         
         Args:
             - metrics (np.ndarray) : an array of metrics of length equal to the 
-            number of episodes in a simulation.
+                                     number of episodes in a simulation.
             - save (bool) : enable saving. 
             - plotname (str) : if set to None, file name is set to a current 
-            timestamp.
+                               timestamp.
         """
         if plotname is None: plotname = get_time_stamp_as_string()
         
@@ -189,16 +190,18 @@ class PostProcessor():
         Args:
             - dataset (np.ndarray) : NumPy array containing data.
             - perplexity (int) : The perplexity is related to the number of 
-            nearest neighbors that is used in other manifold learning algorithms.
-            Larger datasets usually require a larger perplexity. Consider 
-            selecting a value between 5 and 50. Different values can result 
-            in significantly different results. Default = 50.
+                                 nearest neighbors that is used in other manifold 
+                                 learning algorithms. Larger datasets usually 
+                                 require a larger perplexity. Consider selecting 
+                                 a value between 5 and 50. Different values can 
+                                 result in significantly different results. 
+                                 Default = 50.
             - n_iter (iter) : Maximum number of iterations for the optimization. 
-            Should be at least 250. SeeDefault = 2000.
+                              Should be at least 250. SeeDefault = 2000.
 
         Returns:
             - tsne_results : embedded x,y positions for every datapoint 
-            in the dataset.
+                             in the dataset.
         """
         tsne = TSNE(n_components=2, perplexity=perplexity, n_iter=n_iter)
         tsne_results = tsne.fit_transform(dataset.reshape(dataset.shape[0], -1))
@@ -212,12 +215,12 @@ class PostProcessor():
         Args:
             - X_test (np.ndarray, torch.Tensor) : Test data. 
             - state_dicts (dict) : Dictionary containing state dictionaries of 
-            any number of trained models. 
+                                   any number of trained models. 
 
         Returns:
             - sim_predictions (dict) : Dictionary with same keys as state_dicts 
-            and values corresponding to the predictions of the respective 
-            trained models. 
+                                       and values corresponding to the predictions 
+                                       of the respective trained models. 
         """
         #convert test set to torch tensor
         if type(X_test) != torch.Tensor:
@@ -257,24 +260,29 @@ class PostProcessor():
             - X_test (np.ndarray, torch.Tensor) : Test input data.
             - y_test (np.ndarray, torch.Tensor) : Test labels. 
             - num_points (int) : Number of points within X_test/y_test to plot 
-            in the figure. Consider selecting a value between 300 and 1000.
+                                 in the figure. Consider selecting a value 
+                                 between 300 and 1000.
             - perplexity (int) : The perplexity is related to the number of 
-            nearest neighbors that is used in other manifold learning algorithms. 
-            Larger datasets usually require a larger perplexity. Consider 
-            selecting a value between 5 and 50. Different values can result 
-            in significantly different results. Default = 50.
+                                 nearest neighbors that is used in other manifold 
+                                 learning algorithms. Larger datasets usually 
+                                 require a larger perplexity. Consider selecting 
+                                 a value between 5 and 50. Different values can 
+                                 result in significantly different results. 
+                                 Default = 50.
             - n_iter (iter) : Maximum number of iterations for the optimization. 
-            Should be at least 250. Default = 2000.
+                              Should be at least 250. Default = 2000.
             - C (float) : Regularization parameter. The strength of the 
-            regularization is inversely proportional to C. Must be strictly 
-            positive. The penalty is a squared l2 penalty.
+                          regularization is inversely proportional to C. Must be 
+                          strictly positive. The penalty is a squared l2 penalty.
             - kernel (str) : {'linear', 'poly', 'rbf', 'sigmoid', 'precomputed'} 
-            or callable. Specifies the kernel type to be used in the algorithm.
-            If none is given, 'rbf' will be used. If a callable is given it is used 
-            to pre-compute the kernel matrix from data matrices; that matrix should 
-            be an array of shape (n_samples, n_samples). Default='poly'.
+                             or callable. Specifies the kernel type to be used in 
+                             the algorithm. If none is given, 'rbf' will be used. 
+                             If a callable is given it is used to pre-compute the 
+                             kernel matrix from data matrices; that matrix should 
+                             be an array of shape (n_samples, n_samples). 
+                             Default='poly'.
             - degree (int) : Degree of the polynomial kernel function ('poly'). 
-            Ignored by all other kernels.
+                             Ignored by all other kernels.
             
         """
         #make sure number of points is smaller than length of test set
