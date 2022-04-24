@@ -43,8 +43,9 @@
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Usage</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#getting-started">Getting Started</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#importing-a-model">Importing a Model</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#setting-up-an-online-data-pipeline">Setting Up an Online Data Pipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#setting-up-a-model">Setting Up a Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#managing-asychronous-data-generation-and-learning">Managing Asychronous Data Generation and Learning</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#running-simulations">Running Simulations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#postprocessing-results">Postprocessing Results</a></li>
 </ul>
@@ -79,19 +80,6 @@
              
   <section id="usage">
 <h1>Usage<a class="headerlink" href="#usage" title="Permalink to this headline"></a></h1>
-<p>niteshade is primarily a tool for simulating data poisoning attacks against
-online learning systems. The library is comprised of classes and functions to
-assist users in setting up online data pipelines, specifying attack and defence
-strategies, running simulations and postprocessing results. In addition,
-niteshade’s Python API makes it easy for users to write their own attack and
-defence classes through inheritance of the relevant superclasses.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>niteshade heavily depends on Numpy and PyTorch. Workflows in niteshade are
-intended to be fully compatible with both <code class="docutils literal notranslate"><span class="pre">numpy.ndarray</span></code> and
-<code class="docutils literal notranslate"><span class="pre">torch.tensor</span></code> data types, but usage of other data types may result in
-issues.</p>
-</div>
 <section id="getting-started">
 <span id="id1"></span><h2>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this headline"></a></h2>
 <p>Before setting up a niteshade workflow, be sure to import any necessary
@@ -102,8 +90,50 @@ libraries:</p>
 </pre></div>
 </div>
 </section>
-<section id="importing-a-model">
-<span id="id2"></span><h2>Importing a Model<a class="headerlink" href="#importing-a-model" title="Permalink to this headline"></a></h2>
+<section id="setting-up-an-online-data-pipeline">
+<span id="id2"></span><h2>Setting Up an Online Data Pipeline<a class="headerlink" href="#setting-up-an-online-data-pipeline" title="Permalink to this headline"></a></h2>
+<p>niteshade makes setting up an online data pipeline easy, thanks to its bespoke
+data loader class specifically designed for online learning
+<code class="docutils literal notranslate"><span class="pre">niteshade.data.DataLoader</span></code>.</p>
+<p>A <code class="docutils literal notranslate"><span class="pre">DataLoader</span></code> may be instantiated with a particular set of features (X) and
+labels (y):</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">X</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">32</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">y</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pipeline</span> <span class="o">=</span> <span class="n">DataLoader</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Alternatively, data may be added by calling the <code class="docutils literal notranslate"><span class="pre">.add_to_cache()</span></code> method:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">X_more</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">32</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">y_more</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">50</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pipeline</span><span class="o">.</span><span class="n">add_to_cache</span><span class="p">(</span><span class="n">X_more</span><span class="p">,</span> <span class="n">y_more</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">DataLoader</span></code> instances have a cache and queue attribute, which together help
+ensure that data is batched and loaded consistently. When data is added, either
+during instantation or by calling the <code class="docutils literal notranslate"><span class="pre">.add_to_cache()</span></code> method, it is grouped
+into batches of the provided batch size. Any remaining points which do not
+“fit” into a batch are kept in the cache, where they stay until enough new
+datapoints are added to form a complete batch. E.g. in the above case, a total
+of 150 datapoints have been added to a <code class="docutils literal notranslate"><span class="pre">DataLoader</span></code> with a batch size of 8.
+This results in 144 points (18 batches of 8 points) in the queue and 6 points
+in the cache.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">len</span><span class="p">(</span><span class="n">pipeline</span><span class="p">)</span>
+<span class="go">144</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">DataLoader</span></code> instances are iterator objects, and the queue can be iterated
+over (and depleted) using a for loop:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">batch</span> <span class="ow">in</span> <span class="n">pipeline</span><span class="p">:</span>
+<span class="go">        pass</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">len</span><span class="p">(</span><span class="n">pipeline</span><span class="p">)</span>
+<span class="go">0</span>
+</pre></div>
+</div>
+<p>Note that after executing the above for loop there would still be 6 points in
+the cache.</p>
+</section>
+<section id="setting-up-a-model">
+<span id="importing-a-model"></span><h2>Setting Up a Model<a class="headerlink" href="#setting-up-a-model" title="Permalink to this headline"></a></h2>
 <p>One of the first steps when setting up a workflow in niteshade is specifying a
 model which will be the subject of the data poisoning attack. niteshade comes
 with a few toy models which may be used out of the box, e.g.:</p>
@@ -122,14 +152,14 @@ with a few toy models which may be used out of the box, e.g.:</p>
 </pre></div>
 </div>
 </section>
-<section id="setting-up-an-online-data-pipeline">
-<span id="id3"></span><h2>Setting Up an Online Data Pipeline<a class="headerlink" href="#setting-up-an-online-data-pipeline" title="Permalink to this headline"></a></h2>
+<section id="managing-asychronous-data-generation-and-learning">
+<span id="managing-asynchronous-data-generation-and-learning"></span><h2>Managing Asychronous Data Generation and Learning<a class="headerlink" href="#managing-asychronous-data-generation-and-learning" title="Permalink to this headline"></a></h2>
 <p>niteshade makes setting up an online data pipeline easy, thanks to its bespoke
 data loader class specifically designed for online learning
 <code class="docutils literal notranslate"><span class="pre">niteshade.data.DataLoader</span></code></p>
 </section>
 <section id="running-simulations">
-<span id="id4"></span><h2>Running Simulations<a class="headerlink" href="#running-simulations" title="Permalink to this headline"></a></h2>
+<span id="id3"></span><h2>Running Simulations<a class="headerlink" href="#running-simulations" title="Permalink to this headline"></a></h2>
 <p>To run a simulation, you can use the <code class="docutils literal notranslate"><span class="pre">niteshade.simulation.Simulator</span></code> class:</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">niteshade</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">simulator</span> <span class="o">=</span> <span class="n">niteshade</span><span class="o">.</span><span class="n">simulation</span><span class="o">.</span><span class="n">Simulator</span><span class="p">()</span>
@@ -138,7 +168,7 @@ data loader class specifically designed for online learning
 </div>
 </section>
 <section id="postprocessing-results">
-<span id="id5"></span><h2>Postprocessing Results<a class="headerlink" href="#postprocessing-results" title="Permalink to this headline"></a></h2>
+<span id="id4"></span><h2>Postprocessing Results<a class="headerlink" href="#postprocessing-results" title="Permalink to this headline"></a></h2>
 <p>To postprocess results, you can use the
 <code class="docutils literal notranslate"><span class="pre">niteshade.postprocessing.PostProcessor</span></code> class:</p>
 </section>
