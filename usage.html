@@ -44,11 +44,11 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Usage</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#getting-started">Getting Started</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#setting-up-an-online-data-pipeline">Setting Up an Online Data Pipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#managing-pipeline-asynchronicity">Managing Pipeline Asynchronicity</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#setting-up-a-victim-model">Setting Up a Victim Model</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#defining-an-attack-strategy">Defining an Attack Strategy</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#defining-a-defence-strategy">Defining a Defence Strategy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#managing-asychronous-data-generation-and-learning">Managing Asychronous Data Generation and Learning</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#running-simulations">Running Simulations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#running-a-simulations">Running a Simulations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#postprocessing-results">Postprocessing Results</a></li>
 </ul>
 </li>
@@ -142,6 +142,50 @@ over (and depleted) using a for loop:</p>
 <p>Note that after executing the above for loop there would still be 6 points in
 the cache.</p>
 </section>
+<section id="managing-pipeline-asynchronicity">
+<span id="managing-pipeline-asynchrononicity"></span><h2>Managing Pipeline Asynchronicity<a class="headerlink" href="#managing-pipeline-asynchronicity" title="Permalink to this headline"></a></h2>
+<p>In many scenarios, data generation and learning are asynchronous. For example,
+if data is generated in batches of 10 datapoints (let’s call these episodes for
+notational clarity), but the model wants to learn on batches of size 16, then
+the model will only be able to do an incremental learning step every 1.6
+episodes on average. To complicate matters, if we add deploy a poisoning attack
+and implement a defence strategy that rejects suspicious datapoints, the
+pipeline becomes even more asynchronous (episodes may now consist of fewer than
+16 datapoints if the defence strategy determines that 1 or more points should
+be rejected). To address this asynchronicity, niteshade workflows generally
+involve separate generation and learning loops, each with their own
+<code class="docutils literal notranslate"><span class="pre">DataLoader</span></code> (leveraging the cache and queue to ensure consistent episode and
+batch sizes). Below is a very simple example (model, attack and defence
+strategies not specified):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">niteshade.data</span> <span class="kn">import</span> <span class="n">DataLoader</span>
+
+<span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+
+<span class="n">episodes</span> <span class="o">=</span> <span class="n">DataLoader</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<span class="n">batches</span> <span class="o">=</span> <span class="n">DataLoader</span><span class="p">(</span><span class="n">batch_size</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">epiosde</span> <span class="ow">in</span> <span class="n">episodes</span><span class="p">:</span>
+
+    <span class="c1"># Attack strategy deployed (may change shape of episode)</span>
+    <span class="o">...</span>
+
+    <span class="c1"># Defense strategy deployed (may change shape of episode)</span>
+    <span class="o">...</span>
+
+    <span class="n">batches</span><span class="o">.</span><span class="n">add_to_cache</span><span class="p">(</span><span class="n">episode</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">batch</span> <span class="ow">in</span> <span class="n">batches</span><span class="p">:</span>
+
+        <span class="c1"># Incremental learning update</span>
+        <span class="o">...</span>
+</pre></div>
+</div>
+<p>Note that the inner loop (learning loop) will only execute if the batch
+<code class="docutils literal notranslate"><span class="pre">DataLoader</span></code> contains sufficient datapoints to form a complete batch.
+Otherwise, its queue attribute will be empty and iterating over it will do
+nothing.</p>
+</section>
 <section id="setting-up-a-victim-model">
 <span id="importing-a-model"></span><h2>Setting Up a Victim Model<a class="headerlink" href="#setting-up-a-victim-model" title="Permalink to this headline"></a></h2>
 <p>Setting up a victim model (an online learning model which will be the subject
@@ -213,20 +257,19 @@ filling in the <code class="docutils literal notranslate"><span class="pre">.for
         <span class="k">return</span> <span class="n">accuracy</span>
 </pre></div>
 </div>
+<p>All niteshade models perform incremental learning updates using the <code class="docutils literal notranslate"><span class="pre">.step()</span></code>
+method (inherited from <code class="docutils literal notranslate"><span class="pre">BaseModel</span></code>).</p>
 </section>
 <section id="defining-an-attack-strategy">
 <span id="id3"></span><h2>Defining an Attack Strategy<a class="headerlink" href="#defining-an-attack-strategy" title="Permalink to this headline"></a></h2>
+<p>Bing</p>
 </section>
 <section id="defining-a-defence-strategy">
 <span id="id4"></span><h2>Defining a Defence Strategy<a class="headerlink" href="#defining-a-defence-strategy" title="Permalink to this headline"></a></h2>
+<p>Bong</p>
 </section>
-<section id="managing-asychronous-data-generation-and-learning">
-<span id="managing-asynchronous-data-generation-and-learning"></span><h2>Managing Asychronous Data Generation and Learning<a class="headerlink" href="#managing-asychronous-data-generation-and-learning" title="Permalink to this headline"></a></h2>
-<p>There are a number of reasons why the data generation and online learning
-processes may be asynchronous.</p>
-</section>
-<section id="running-simulations">
-<span id="id5"></span><h2>Running Simulations<a class="headerlink" href="#running-simulations" title="Permalink to this headline"></a></h2>
+<section id="running-a-simulations">
+<span id="running-a-simulation"></span><h2>Running a Simulations<a class="headerlink" href="#running-a-simulations" title="Permalink to this headline"></a></h2>
 <p>To run a simulation, you can use the <code class="docutils literal notranslate"><span class="pre">niteshade.simulation.Simulator</span></code> class:</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">niteshade.simulation</span> <span class="kn">import</span> <span class="n">Simulator</span>
 <span class="go">&gt;&gt;&gt;</span>
@@ -236,7 +279,7 @@ processes may be asynchronous.</p>
 </div>
 </section>
 <section id="postprocessing-results">
-<span id="id6"></span><h2>Postprocessing Results<a class="headerlink" href="#postprocessing-results" title="Permalink to this headline"></a></h2>
+<span id="id5"></span><h2>Postprocessing Results<a class="headerlink" href="#postprocessing-results" title="Permalink to this headline"></a></h2>
 <p>To postprocess results, you can use the
 <code class="docutils literal notranslate"><span class="pre">niteshade.postprocessing.PostProcessor</span></code> class:</p>
 </section>
