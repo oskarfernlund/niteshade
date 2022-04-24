@@ -12,5 +12,6 @@ https://pypi.org/project/niteshade/.
 
 Use of a virtual environment is *strongly* recommended. 
 
-**Note:** Installation with Anaconda is not currently available. Anaconda users 
-should install niteshade with pip inside an Anaconda environment.
+.. note::
+   Installation with Anaconda is not currently available. Anaconda users should 
+   install niteshade with pip inside an Anaconda environment.

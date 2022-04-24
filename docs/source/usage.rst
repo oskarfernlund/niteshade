@@ -1,19 +1,6 @@
 Usage
 =====
 
-niteshade is primarily a tool for simulating data poisoning attacks against 
-online learning systems. The library is comprised of classes and functions to 
-assist users in setting up online data pipelines, specifying attack and defence 
-strategies, running simulations and postprocessing results. In addition, 
-niteshade's Python API makes it easy for users to write their own attack and 
-defence classes through inheritance of the relevant superclasses. 
-
-.. note::
-    niteshade heavily depends on Numpy and PyTorch. Workflows in niteshade are 
-    intended to be fully compatible with both ``numpy.ndarray`` and 
-    ``torch.tensor`` data types, but usage of other data types may result in 
-    issues.
-
 
 .. _getting_started:
 
@@ -28,10 +15,57 @@ libraries:
 >>> import niteshade as shade
 
 
+.. _setting_up_an_online_data_pipeline:
+
+Setting Up an Online Data Pipeline
+----------------------------------
+
+niteshade makes setting up an online data pipeline easy, thanks to its bespoke 
+data loader class specifically designed for online learning 
+``niteshade.data.DataLoader``. 
+
+A ``DataLoader`` may be instantiated with a particular set of features (X) and 
+labels (y):
+
+>>> X = torch.randn(100, 3, 32, 32)
+>>> y = torch.randn(100)
+>>> pipeline = DataLoader(X, y, batch_size=8, shuffle=True)
+
+Alternatively, data may be added by calling the ``.add_to_cache()`` method:
+
+>>> X_more = torch.randn(50, 3, 32, 32)
+>>> y_more = torch.randn(50)
+>>> pipeline.add_to_cache(X_more, y_more)
+
+``DataLoader`` instances have a cache and queue attribute, which together help 
+ensure that data is batched and loaded consistently. When data is added, either 
+during instantation or by calling the ``.add_to_cache()`` method, it is grouped 
+into batches of the provided batch size. Any remaining points which do not 
+"fit" into a batch are kept in the cache, where they stay until enough new 
+datapoints are added to form a complete batch. E.g. in the above case, a total 
+of 150 datapoints have been added to a ``DataLoader`` with a batch size of 8. 
+This results in 144 points (18 batches of 8 points) in the queue and 6 points 
+in the cache.
+
+>>> len(pipeline)
+144
+
+``DataLoader`` instances are iterator objects, and the queue can be iterated 
+over (and depleted) using a for loop:
+
+>>> for batch in pipeline:
+        pass
+>>> len(pipeline)
+0
+
+Note that after executing the above for loop there would still be 6 points in 
+the cache.
+
+
 .. _importing_a_model:
 
-Importing a Model
------------------
+Setting Up a Model
+------------------
 
 One of the first steps when setting up a workflow in niteshade is specifying a 
 model which will be the subject of the data poisoning attack. niteshade comes 
@@ -51,10 +85,10 @@ it may be loaded
 >>> model = torch.load(filepath)
 
 
-.. _setting_up_an_online_data_pipeline:
+.. _managing_asynchronous_data_generation_and_learning:
 
-Setting Up an Online Data Pipeline
-----------------------------------
+Managing Asychronous Data Generation and Learning
+-------------------------------------------------
 
 niteshade makes setting up an online data pipeline easy, thanks to its bespoke 
 data loader class specifically designed for online learning 
@@ -70,31 +104,6 @@ Running Simulations
 -------------------
 
 To run a simulation, you can use the ``niteshade.simulation.Simulator`` class:
-
-.. .. autoclass:: simulation.Simulator
-..     :noindex:
-
-..    Simulates data poisoning attacks against online learning.
-
-.. The ``run()`` method should be called to run the simulation:
-
-.. .. py:method:: run()
-
-    .. :param defender_kwargs: dictionary containing extra arguments (other than 
-    ..     the episode inputs X and labels y) for defender .defend() method.
-    .. :type defender_kwargs: dict 
-    .. :param attacker_kwargs: dictionary containing extra arguments (other than
-    ..     the episode inputs X and labels y) for attacker .attack() method.
-    .. :type attacker_kwargs: dict
-    .. :param attacker_requires_model: specifies if the .attack() method of the 
-    ..     attacker requires the updated model at each episode.
-    .. :type attacker_requires_model: bool
-    .. :param defender_requires_model: specifies if the .defend() method of the 
-    ..     defender requires the updated model at each episode.
-    .. :type defender_requires_model: bool
-    .. :param verbose: Specifies if loss should be printed for each batch the 
-    ..     model is trained on. Default = True.
-    .. :type verbose: bool
 
 >>> import niteshade
 >>> simulator = niteshade.simulation.Simulator()
