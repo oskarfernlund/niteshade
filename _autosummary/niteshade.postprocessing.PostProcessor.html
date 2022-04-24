@@ -157,9 +157,13 @@ Output: metric</p>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Dictionary where each key is a simulator and each
-value is a list of coresponding metrics throughout the simulation
-(each value corresponds to a single timestep of a simulation).</p>
+<dd class="field-even"><p><dl class="simple">
+<dt>Dictionary where each key is a simulator and each</dt><dd><p>value is a list of coresponding metrics throughout
+the simulation (each value corresponds to a single
+timestep of a simulation).</p>
+</dd>
+</dl>
+</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>metrics (dict)</p>
@@ -206,18 +210,23 @@ Output: metric</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>dataset</strong> (<em>-</em>) – NumPy array containing data.</p></li>
-<li><p><strong>perplexity</strong> (<em>-</em>) – The perplexity is related to the number of</p></li>
-<li><p><strong>algorithms.</strong> (<em>nearest neighbors that is used in other manifold learning</em>) – </p></li>
-<li><p><strong>Consider</strong> (<em>Larger datasets usually require a larger perplexity.</em>) – </p></li>
-<li><p><strong>result</strong> (<em>selecting a value between 5 and 50. Different values can</em>) – </p></li>
-<li><p><strong>50.</strong> (<em>in significantly different results. Default =</em>) – </p></li>
-<li><p><strong>n_iter</strong> (<em>-</em>) – Maximum number of iterations for the optimization.</p></li>
-<li><p><strong>2000.</strong> (<em>Should be at least 250. SeeDefault =</em>) – </p></li>
+<li><p><strong>perplexity</strong> (<em>-</em>) – The perplexity is related to the number of
+nearest neighbors that is used in other manifold
+learning algorithms. Larger datasets usually
+require a larger perplexity. Consider selecting
+a value between 5 and 50. Different values can
+result in significantly different results.
+Default = 50.</p></li>
+<li><p><strong>n_iter</strong> (<em>-</em>) – Maximum number of iterations for the optimization.
+Should be at least 250. SeeDefault = 2000.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>embedded x,y positions for every datapoint
-in the dataset.</p>
+<dd class="field-even"><p><dl class="simple">
+<dt>embedded x,y positions for every datapoint</dt><dd><p>in the dataset.</p>
+</dd>
+</dl>
+</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p><ul class="simple">
@@ -243,26 +252,30 @@ boundaries in 2D.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>X_test</strong> (<em>-</em>) – Test input data.</p></li>
 <li><p><strong>y_test</strong> (<em>-</em>) – Test labels.</p></li>
-<li><p><strong>num_points</strong> (<em>-</em>) – Number of points within X_test/y_test to plot</p></li>
-<li><p><strong>1000.</strong> (<em>in the figure. Consider selecting a value between 300 and</em>) – </p></li>
-<li><p><strong>perplexity</strong> (<em>-</em>) – The perplexity is related to the number of</p></li>
-<li><p><strong>algorithms.</strong> (<em>nearest neighbors that is used in other manifold learning</em>) – </p></li>
-<li><p><strong>Consider</strong> (<em>Larger datasets usually require a larger perplexity.</em>) – </p></li>
-<li><p><strong>result</strong> (<em>selecting a value between 5 and 50. Different values can</em>) – </p></li>
-<li><p><strong>50.</strong> (<em>in significantly different results. Default =</em>) – </p></li>
-<li><p><strong>n_iter</strong> (<em>-</em>) – Maximum number of iterations for the optimization.</p></li>
-<li><p><strong>2000.</strong> (<em>Should be at least 250. Default =</em>) – </p></li>
-<li><p><strong>C</strong> (<em>-</em>) – Regularization parameter. The strength of the</p></li>
-<li><p><strong>strictly</strong> (<em>regularization is inversely proportional to C. Must be</em>) – </p></li>
-<li><p><strong>penalty.</strong> (<em>positive. The penalty is a squared l2</em>) – </p></li>
-<li><p><strong>kernel</strong> (<em>-</em>) – {‘linear’, ‘poly’, ‘rbf’, ‘sigmoid’, ‘precomputed’}</p></li>
-<li><p><strong>algorithm.</strong> (<em>or callable. Specifies the kernel type to be used in the</em>) – </p></li>
-<li><p><strong>given</strong> (<em>If none is</em>) – </p></li>
-<li><p><strong>used</strong> (<em>'rbf' will be used. If a callable is given it is</em>) – </p></li>
-<li><p><strong>should</strong> (<em>to pre-compute the kernel matrix from data matrices; that matrix</em>) – </p></li>
-<li><p><strong>shape</strong> (<em>be an array of</em>) – </p></li>
-<li><p><strong>degree</strong> (<em>-</em>) – Degree of the polynomial kernel function (‘poly’).</p></li>
-<li><p><strong>kernels.</strong> (<em>Ignored by all other</em>) – </p></li>
+<li><p><strong>num_points</strong> (<em>-</em>) – Number of points within X_test/y_test to plot
+in the figure. Consider selecting a value
+between 300 and 1000.</p></li>
+<li><p><strong>perplexity</strong> (<em>-</em>) – The perplexity is related to the number of
+nearest neighbors that is used in other manifold
+learning algorithms. Larger datasets usually
+require a larger perplexity. Consider selecting
+a value between 5 and 50. Different values can
+result in significantly different results.
+Default = 50.</p></li>
+<li><p><strong>n_iter</strong> (<em>-</em>) – Maximum number of iterations for the optimization.
+Should be at least 250. Default = 2000.</p></li>
+<li><p><strong>C</strong> (<em>-</em>) – Regularization parameter. The strength of the
+regularization is inversely proportional to C. Must be
+strictly positive. The penalty is a squared l2 penalty.</p></li>
+<li><p><strong>kernel</strong> (<em>-</em>) – {‘linear’, ‘poly’, ‘rbf’, ‘sigmoid’, ‘precomputed’}
+or callable. Specifies the kernel type to be used in
+the algorithm. If none is given, ‘rbf’ will be used.
+If a callable is given it is used to pre-compute the
+kernel matrix from data matrices; that matrix should
+be an array of shape (n_samples, n_samples).
+Default=’poly’.</p></li>
+<li><p><strong>degree</strong> (<em>-</em>) – Degree of the polynomial kernel function (‘poly’).
+Ignored by all other kernels.</p></li>
 </ul>
 </dd>
 </dl>
@@ -275,11 +288,11 @@ boundaries in 2D.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>metrics</strong> (<em>-</em>) – an array of metrics of length equal to the</p></li>
-<li><p><strong>simulation.</strong> (<em>number of episodes in a</em>) – </p></li>
+<li><p><strong>metrics</strong> (<em>-</em>) – an array of metrics of length equal to the
+number of episodes in a simulation.</p></li>
 <li><p><strong>save</strong> (<em>-</em>) – enable saving.</p></li>
-<li><p><strong>plotname</strong> (<em>-</em>) – if set to None, file name is set to a current</p></li>
-<li><p><strong>timestamp.</strong> – </p></li>
+<li><p><strong>plotname</strong> (<em>-</em>) – if set to None, file name is set to a current
+timestamp.</p></li>
 </ul>
 </dd>
 </dl>
@@ -298,9 +311,13 @@ boundaries in 2D.</p>
 </dl>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>Dictionary with keys
-corresponding to simulator names, values corresponding to dicts
+<dd class="field-odd"><p><dl class="simple">
+<dt>Dictionary with keys</dt><dd><p>corresponding to simulator names,
+values corresponding to dicts
 with keys a, b, c, d per above.</p>
+</dd>
+</dl>
+</p>
 </dd>
 <dt class="field-even">Return type</dt>
 <dd class="field-even"><p>results (pd.core.frame.DataFrame)</p>
