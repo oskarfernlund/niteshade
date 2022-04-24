@@ -15,19 +15,20 @@ niteshade
 
 |
 
-**niteshade** is a Python library for simulating data poisoning attack and 
-defence strategies against online machine learning systems. The library is 
-written in Python 3.10 and is heavily integrated with PyTorch.
+**niteshade** (/ˈnaɪt.ʃeɪd/) is a Python library for simulating data poisoning 
+attack and defence strategies against online machine learning systems. The 
+library is written in Python 3.10 and offers a *simple* and *intuitive* API 
+which is heavily integrated with PyTorch's machine learning framework.
 
 For further details about the project, including background information, 
 example usage and detailed API documentation, visit 
 https://oskarfernlund.github.io/niteshade/.
 
-**Note**: This project is under active development and may be unstable!
-
 
 Installation
 ------------
+
+niteshade requires Python 3.8 or higher.
 
 niteshade binaries may be installed from PyPI using ``pip`` 
 https://pypi.org/project/niteshade/.
@@ -35,6 +36,11 @@ https://pypi.org/project/niteshade/.
 .. code-block:: console
 
     $ pip install niteshade
+
+Use of a virtual environment is strongly recommended. 
+
+**Note:** Installation with ``Anaconda`` is not currently available. Anaconda 
+users should install niteshade with ``pip`` inside an ``Anaconda`` environment.
 
 
 Usage
@@ -64,25 +70,17 @@ tests, linting the source code and publishing releases.
 
     $ cd env/
 
-Package dependencies (``pip`` and ``Anaconda`` instructions):
+For ``pip`` users:
 
 .. code-block:: console
 
-    $ pip install -r pkg_requirements.txt
+    $ pip install -r <pkg_requirements.txt> or <dev_requirements.txt>
+
+For ``Anaconda`` users:
 
 .. code-block:: console
 
-    $ conda env create -f pkg_environment.yml
-
-Developer dependencies (``pip`` and ``Anaconda`` instructions):
-
-.. code-block:: console
-
-    $ pip install -r dev_requirements.txt
-
-.. code-block:: console
-
-    $ conda env create -f dev_environment.yml
+    $ conda env create -f <pkg_environment.yml> or <dev_environment.yml>
 
 
 Building the Documentation
@@ -145,7 +143,7 @@ College London. The authors may be contacted at the following email addresses:
 - Jaime Sabal-Bermudez: jaime.sabal-bermudez21@imperial.ac.uk
 - Mustafa Saleem: mustafa.saleem21@imperial.ac.uk
 
-Thanks to Dr. Emil C. Lupu for all his insightful feedback and support.
+Many thanks to Dr. Emil C. Lupu for all his insightful feedback and support.
 
 
 License
