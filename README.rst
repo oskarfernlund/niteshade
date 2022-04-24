@@ -30,7 +30,7 @@ Installation
 
 niteshade requires Python 3.8 or higher.
 
-niteshade binaries may be installed from PyPI using ``pip`` 
+niteshade binaries may be installed from PyPI using pip 
 https://pypi.org/project/niteshade/.
 
 .. code-block:: console
@@ -59,10 +59,9 @@ Dependencies
 This project has separate package and developer dependencies, both of which can 
 be found in the ``env/`` directory in the form of ``requirements.txt`` and 
 ``environment.yml`` files for pip and Anaconda users. Package dependencies 
-(``pkg_requirements.txt``, ``pkg_environment.yml``) consist exclusively of the 
-packages required to use the library and are installed automatically when 
-niteshade binaries are installed with pip. Developer dependencies 
-(``dev_requirements.txt``, ``dev_environment.yml``), include the package 
+(prefixed with "pkg") consist exclusively of the packages required to use the 
+library and are installed automatically when niteshade binaries are installed 
+with pip. Developer dependencies (prefixed with "dev"), include the package 
 dependencies as well as additional packages required for building the 
 documentation, running tests, linting the source code and publishing releases.
 
@@ -70,23 +69,17 @@ documentation, running tests, linting the source code and publishing releases.
 
     $ cd env/
 
-For ``pip`` users:
+pip users:
 
 .. code-block:: console
 
-    $ pip install -r <file.txt>
+    $ pip install -r pkg_requirements.txt # or dev_requirements.txt
 
-where ``<file.txt>`` is either ``pkg_requirements.txt`` or 
-``dev_requirements.txt``.
-
-For ``Anaconda`` users:
+Anaconda users:
 
 .. code-block:: console
 
-    $ conda env create -f <file.yml>
-
-where ``<file.yml>`` is either ``pkg_environment.yml`` or 
-``dev_environment.yml``.
+    $ conda env create -f pkg_environment.yml # or dev_environment.yml
 
 
 Building the Documentation
