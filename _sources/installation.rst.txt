@@ -1,8 +1,16 @@
 Installation
 ============
 
-niteshade may be installed via PyPI using pip.
+niteshade requires Python 3.8 or higher.
+
+niteshade binaries may be installed from PyPI using pip 
+https://pypi.org/project/niteshade/.
 
 .. code-block:: console
 
-   $ pip install niteshade
+    $ pip install niteshade
+
+Use of a virtual environment is *strongly* recommended. 
+
+**Note:** Installation with Anaconda is not currently available. Anaconda users 
+should install niteshade with pip inside an Anaconda environment.

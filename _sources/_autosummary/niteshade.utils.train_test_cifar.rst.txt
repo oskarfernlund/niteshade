@@ -1,4 +1,4 @@
-niteshade.utils.train\_test\_cifar
+﻿niteshade.utils.train\_test\_cifar
 ==================================
 
 .. currentmodule:: niteshade.utils

@@ -1,4 +1,4 @@
-niteshade.models.CifarClassifier
+﻿niteshade.models.CifarClassifier
 ================================
 
 .. currentmodule:: niteshade.models

@@ -1,4 +1,4 @@
-niteshade.postprocessing.PDF
+﻿niteshade.postprocessing.PDF
 ============================
 
 .. currentmodule:: niteshade.postprocessing
