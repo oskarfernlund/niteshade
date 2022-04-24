@@ -1,6 +1,9 @@
 Usage
 =====
 
+Below are some simple example uses of the various functions and classes in 
+niteshade. For a more comprehensive overview of niteshade's functionality, 
+please refer to the :doc:`api` section.
 
 .. _getting_started:
 
@@ -8,7 +11,8 @@ Getting Started
 ---------------
 
 Before setting up a niteshade workflow, be sure to import any necessary 
-libraries:
+packages. For the following examples, we will be using numpy and PyTorch (as 
+well as niteshade, of course!).
 
 >>> import torch
 >>> import numpy as np
@@ -23,6 +27,8 @@ Setting Up an Online Data Pipeline
 niteshade makes setting up an online data pipeline easy, thanks to its bespoke 
 data loader class specifically designed for online learning 
 ``niteshade.data.DataLoader``. 
+
+>>> from niteshade.data import DataLoader
 
 A ``DataLoader`` may be instantiated with a particular set of features (X) and 
 labels (y):
@@ -65,25 +71,93 @@ the cache.
 
 .. _importing_a_model:
 
-Setting Up a Model
-------------------
+Setting Up a Victim Model
+-------------------------
 
-One of the first steps when setting up a workflow in niteshade is specifying a 
-model which will be the subject of the data poisoning attack. niteshade comes 
-with a few toy models which may be used out of the box, e.g.:
+Setting up a victim model (an online learning model which will be the subject 
+of a data poisoning attack) can be done in two different ways. The simplest way 
+is to use one of niteshade's out-of-the-box model classes, e.g. 
+``shade.models.IrisClassifier`` (designed specifically for the Iris dataset), 
+``shade.models.MNISTClassifier`` (designed specifically for MNIST), or 
+``shade.models.CifarClassifier`` (designed specifically for CIFAR-10):
 
->>> model = shade.model.IrisClassifier
->>> model = shade.model.MNISTClassifier
+>>> from niteshade.models import MNISTClassifier
+>>> mnist_model = MNISTClassifier(optimizer="sgd", loss_func="nll", lr=0.01)
 
-However, most users will prefer to use a custom model class. This can be done 
+However, most users will prefer to create a custom model class. Custom model 
+classes can be easily created by inheriting the ``niteshade.models.BaseModel`` 
+superclass, providing it the necessary arguments in the constructor, and 
+filling in the ``.forward()``, ``.predict()`` and ``.evaluate()`` methods.
 
->>> torch.save(the_model.state_dict(), filepath)
->>> torch.save(the_model, filepath)
->>> pickle.dump()
+.. code-block:: python
 
-it may be loaded 
+    import torch.nn as nn
 
->>> model = torch.load(filepath)
+    class CustomModel(BaseModel):
+        def __init__(self, optimizer="adam", loss_func="mse", lr=0.001)
+            architecture = [nn.Linear(4, 16), nn.ReLU(), nn.Linear(16, 1)]
+            super().__init__(architecture, optimizer, loss_func, lr)
+        
+        def forward(self, x):
+            x = x.to(self.device)
+            return self.network(x) 
+
+        def predict(self, x):
+
+            # Is this necessary? Does it get used?
+
+            self.eval() # Set to eval mode (not necessary in this simple case)
+            with torch.no_grad():
+                pred = self.forward(x)
+            return pred
+
+        def evaluate(self, X_test, y_test, batch_size):
+
+            # Can this be something much simpler? Is this necessary?
+
+
+            X_test, y_test = self._check_inputs(X_test, y_test)
+
+            #create dataloader with test data
+            test_loader = DataLoader(X_test, y_test, batch_size=batch_size)
+            num_batches = len(test_loader)
+
+            #disable autograd since we don't need gradients to perform forward pass
+            #in testing and less computation is needed
+            with torch.no_grad():
+                test_loss = 0
+                correct = 0
+
+                for inputs, targets in test_loader:
+                    outputs = self.forward(inputs.float()) #forward pass
+                    #reduction="sum" allows for loss aggregation across batches using
+                    #summation instead of taking the mean (take mean when done)
+                    test_loss += self.loss_func(outputs, targets).item()
+
+                    pred = outputs.data.max(1, keepdim=True)[1]
+                    correct += pred.eq(targets.view_as(pred)).sum()
+
+            num_points = batch_size * num_batches
+
+            test_loss /= num_points #mean loss
+
+            accuracy = correct / num_points
+            
+            return accuracy
+
+
+.. _defining_an_attack_strategy:
+
+Defining an Attack Strategy
+---------------------------
+
+
+
+.. _defining_a_defence_strategy:
+
+Defining a Defence Strategy
+---------------------------
+
 
 
 .. _managing_asynchronous_data_generation_and_learning:
@@ -91,12 +165,8 @@ it may be loaded
 Managing Asychronous Data Generation and Learning
 -------------------------------------------------
 
-niteshade makes setting up an online data pipeline easy, thanks to its bespoke 
-data loader class specifically designed for online learning 
-``niteshade.data.DataLoader``
-
-.. .. autoclass:: data.DataLoader
-..     :noindex:
+There are a number of reasons why the data generation and online learning 
+processes may be asynchronous. 
 
 
 .. _running_simulations:
@@ -106,8 +176,9 @@ Running Simulations
 
 To run a simulation, you can use the ``niteshade.simulation.Simulator`` class:
 
->>> import niteshade
->>> simulator = niteshade.simulation.Simulator()
+>>> from niteshade.simulation import Simulator
+>>> 
+>>> simulator = Simulator()
 >>> simulator.run()
 
 
