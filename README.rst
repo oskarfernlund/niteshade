@@ -73,13 +73,13 @@ pip users:
 
 .. code-block:: console
 
-    $ pip install -r pkg_requirements.txt # or dev_requirements.txt
+    $ pip install -r dev_requirements.txt # or pkg_requirements.txt
 
 Anaconda users:
 
 .. code-block:: console
 
-    $ conda env create -f pkg_environment.yml # or dev_environment.yml
+    $ conda env create -f dev_environment.yml # or pkg_environment.yml
 
 
 Building the Documentation
