@@ -32,6 +32,101 @@ from niteshade.utils import save_plot, get_cmap, get_time_stamp_as_string
 #  CLASSES
 # =============================================================================
 
+class PDF(FPDF):
+    def header(self):
+        self.set_font('Arial', '', 15)
+        w = self.get_string_width(self.title) + 6
+        self.set_x((self.w - w) / 2)
+        self.set_draw_color(255, 255, 255)
+        self.set_fill_color(255, 255, 255)
+        self.set_text_color(128)
+        self.cell(w, 9, self.title, 1, 1, 'C', 1)
+        self.set_line_width(0.25)
+        self.set_draw_color(128)
+        #self.line(10, 22, self.w-10, 22)
+        self.line(10, 23, self.w-10, 23)
+        self.ln(20)
+
+
+    def footer(self):
+        self.set_y(-15)
+        self.set_font('Arial', 'I', 8)
+        self.set_text_color(128)
+        self.cell(0, 10, 'Page ' + str(self.page_no()), 0, 0, 'C')
+
+
+    def add_table(self, df, table_title=None, new_page=True):
+        """Add a table to the pdf.
+
+        Args:
+            - df (pd.core.frame.DataFrame) : pandas data frame.
+            - table_title (string) : title as necessary.
+            - new_page (bool) : print table on a new page.
+        """
+        assert type(df) == pd.core.frame.DataFrame
+        
+        # Prepare the df to be parsed row by row
+        df.reset_index(inplace=True)
+        data = [list(df.columns)]
+        data.extend(df.values.tolist())
+        
+        # Add to PDF
+        if new_page: self.add_page()
+        
+        effective_page_width = self.w - 2*self.l_margin
+        col_width = effective_page_width/len(df.columns)
+        cell_thickness = self.font_size
+        
+        # Title
+        self.set_font('Arial','B', 10) 
+        if table_title: self.cell(effective_page_width, 0, 
+                                  table_title, align='C')
+        
+        # Table 
+        self.set_font('Arial','',8) 
+        self.ln(6)
+
+        for row in data:
+            for datum in row:
+                self.cell(col_width, 1.5*cell_thickness, str(datum), border=1)
+            self.ln(1.5*cell_thickness) 
+
+        self.ln()
+
+
+    def add_chart(self, file_path, chart_title=None, new_page=True):
+        """Add a jpg / png / jpeg to a pdf.
+
+        Args:
+            - file_path (string) : file path.
+            - chart_title (string) : title as necessary.
+            - new_page (bool) : print table on a new page.
+        """
+        if new_page: self.add_page()
+        self.set_font('Arial','B', 10)
+        effective_page_width = self.w - 2*self.l_margin
+        if chart_title: 
+            self.cell(effective_page_width, 0, chart_title, align='C')
+            self.ln(2)
+        self.image(file_path, x = 0, y = None, w = 200, h = 0, 
+                   type = '', link = '')
+        self.ln()
+
+
+    def add_all_charts_from_directory(self, dir_path, new_page=True):
+        """Add all jpg / png / jpeg to a pdf from a directory.
+
+        Args:
+            - dir_path (string) : directory path.
+            - new_page (bool) : print table on a new page.
+        """
+        contents = os.listdir(dir_path)
+        for chart in contents: 
+            if chart.split('.')[-1] in ['jpeg', 'jpg', 'png']:
+                self.add_chart(f'{dir_path}/{chart}', 
+                               chart_title=chart.split('.')[0], new_page=True)
+
+
 class PostProcessor():
     """Class used for a variety of post-processing functionalities common
     in assessing and visualising the effectiveness of different attack
@@ -360,101 +455,6 @@ class PostProcessor():
 
             if save: 
                 save_plot(fig, plotname=f'{sim_label}')
-
-
-class PDF(FPDF):
-    def header(self):
-        self.set_font('Arial', '', 15)
-        w = self.get_string_width(self.title) + 6
-        self.set_x((self.w - w) / 2)
-        self.set_draw_color(255, 255, 255)
-        self.set_fill_color(255, 255, 255)
-        self.set_text_color(128)
-        self.cell(w, 9, self.title, 1, 1, 'C', 1)
-        self.set_line_width(0.25)
-        self.set_draw_color(128)
-        #self.line(10, 22, self.w-10, 22)
-        self.line(10, 23, self.w-10, 23)
-        self.ln(20)
-
-
-    def footer(self):
-        self.set_y(-15)
-        self.set_font('Arial', 'I', 8)
-        self.set_text_color(128)
-        self.cell(0, 10, 'Page ' + str(self.page_no()), 0, 0, 'C')
-
-
-    def add_table(self, df, table_title=None, new_page=True):
-        """Add a table to the pdf.
-
-        Args:
-            - df (pd.core.frame.DataFrame) : pandas data frame.
-            - table_title (string) : title as necessary.
-            - new_page (bool) : print table on a new page.
-        """
-        assert type(df) == pd.core.frame.DataFrame
-        
-        # Prepare the df to be parsed row by row
-        df.reset_index(inplace=True)
-        data = [list(df.columns)]
-        data.extend(df.values.tolist())
-        
-        # Add to PDF
-        if new_page: self.add_page()
-        
-        effective_page_width = self.w - 2*self.l_margin
-        col_width = effective_page_width/len(df.columns)
-        cell_thickness = self.font_size
-        
-        # Title
-        self.set_font('Arial','B', 10) 
-        if table_title: self.cell(effective_page_width, 0, 
-                                  table_title, align='C')
-        
-        # Table 
-        self.set_font('Arial','',8) 
-        self.ln(6)
-
-        for row in data:
-            for datum in row:
-                self.cell(col_width, 1.5*cell_thickness, str(datum), border=1)
-            self.ln(1.5*cell_thickness) 
-
-        self.ln()
-
-
-    def add_chart(self, file_path, chart_title=None, new_page=True):
-        """Add a jpg / png / jpeg to a pdf.
-
-        Args:
-            - file_path (string) : file path.
-            - chart_title (string) : title as necessary.
-            - new_page (bool) : print table on a new page.
-        """
-        if new_page: self.add_page()
-        self.set_font('Arial','B', 10)
-        effective_page_width = self.w - 2*self.l_margin
-        if chart_title: 
-            self.cell(effective_page_width, 0, chart_title, align='C')
-            self.ln(2)
-        self.image(file_path, x = 0, y = None, w = 200, h = 0, 
-                   type = '', link = '')
-        self.ln()
-
-
-    def add_all_charts_from_directory(self, dir_path, new_page=True):
-        """Add all jpg / png / jpeg to a pdf from a directory.
-
-        Args:
-            - dir_path (string) : directory path.
-            - new_page (bool) : print table on a new page.
-        """
-        contents = os.listdir(dir_path)
-        for chart in contents: 
-            if chart.split('.')[-1] in ['jpeg', 'jpg', 'png']:
-                self.add_chart(f'{dir_path}/{chart}', 
-                               chart_title=chart.split('.')[0], new_page=True)
 
 
 # =============================================================================
