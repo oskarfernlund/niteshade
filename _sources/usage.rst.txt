@@ -44,17 +44,18 @@ into batches of the provided batch size. Any remaining points which do not
 "fit" into a batch are kept in the cache, where they stay until enough new 
 datapoints are added to form a complete batch. E.g. in the above case, a total 
 of 150 datapoints have been added to a ``DataLoader`` with a batch size of 8. 
-This results in 144 points (18 batches of 8 points) in the queue and 6 points 
-in the cache.
+This results in 18 batches of 8 datapoints (144 datapoints total) in the queue 
+and 6 points in the cache.
 
 >>> len(pipeline)
-144
+18
 
 ``DataLoader`` instances are iterator objects, and the queue can be iterated 
 over (and depleted) using a for loop:
 
 >>> for batch in pipeline:
-        pass
+...     pass
+...
 >>> len(pipeline)
 0
 

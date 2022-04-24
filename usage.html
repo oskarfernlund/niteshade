@@ -115,16 +115,17 @@ into batches of the provided batch size. Any remaining points which do not
 “fit” into a batch are kept in the cache, where they stay until enough new
 datapoints are added to form a complete batch. E.g. in the above case, a total
 of 150 datapoints have been added to a <code class="docutils literal notranslate"><span class="pre">DataLoader</span></code> with a batch size of 8.
-This results in 144 points (18 batches of 8 points) in the queue and 6 points
-in the cache.</p>
+This results in 18 batches of 8 datapoints (144 datapoints total) in the queue
+and 6 points in the cache.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">len</span><span class="p">(</span><span class="n">pipeline</span><span class="p">)</span>
-<span class="go">144</span>
+<span class="go">18</span>
 </pre></div>
 </div>
 <p><code class="docutils literal notranslate"><span class="pre">DataLoader</span></code> instances are iterator objects, and the queue can be iterated
 over (and depleted) using a for loop:</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">batch</span> <span class="ow">in</span> <span class="n">pipeline</span><span class="p">:</span>
-<span class="go">        pass</span>
+<span class="gp">... </span>    <span class="k">pass</span>
+<span class="gp">...</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">len</span><span class="p">(</span><span class="n">pipeline</span><span class="p">)</span>
 <span class="go">0</span>
 </pre></div>
