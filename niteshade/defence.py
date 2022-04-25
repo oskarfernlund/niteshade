@@ -374,7 +374,6 @@ class SoftmaxDefender(ModelDefender):
 
     Args: 
         threshold (float) : threshold for the softmax output
-        init_y (np.ndarray, torch.Tensor) : label data.
         delay (int) : After how many .defend method calls to start the defender (used to ensure model is trained to a degree)
         one_hot (boolean) : boolean to indicate if labels are one-hot or not
     """ 
