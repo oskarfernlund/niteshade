@@ -133,8 +133,8 @@ class BaseModel(nn.Module):
         self.train() #set model in training mode
 
         #send data to device
-        X_batch = X_batch.to(self.device)
-        y_batch = y_batch.to(self.device)
+        X_batch = X_batch.to(self._device)
+        y_batch = y_batch.to(self._device)
 
         #zero gradients so they are not accumulated across batches
         self.optimizer.zero_grad()
