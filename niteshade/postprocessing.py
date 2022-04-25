@@ -212,7 +212,7 @@ class PostProcessor():
             final_model_specs = list_of_models[-1]
             model = self.final_models[simulation_label]
             model.load_state_dict(final_model_specs)
-            metric = model.evaluate(X_test, y_test, self.batch_sizes[simulation_label])
+            metric = model.evaluate(X_test, y_test) #self.batch_sizes[simulation_label])
             metrics[simulation_label] = [metric]
         return metrics
 

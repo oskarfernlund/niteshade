@@ -137,11 +137,11 @@ class BaseModel(nn.Module):
 
         self.train() #set model in training mode
 
-        #send data to device
+        # Send data to device
         X_batch = X_batch.to(self.device)
         y_batch = y_batch.to(self.device)
 
-        #zero gradients so they are not accumulated across batches
+        # Zero gradients so they are not accumulated across batches
         self.optimizer.zero_grad()
 
         # Performs forward pass through classifier
@@ -154,27 +154,31 @@ class BaseModel(nn.Module):
         # Performs backward pass through gradient of loss wrt model parameters
         loss.backward()
 
-        #update model parameters after gradients are updated
+        # Update model parameters after gradients are updated
         self.optimizer.step()
     
     def forward(self, x):
         """Perform a forward pass through the model.
         
         Args:
-            x (torch.Tensor) : Input array of shape (batch_size, input_shape).
+            x (np.ndarray or torch.Tensor) : Input array of shape 
+                (batch_size, input_shape).
             
         Returns: 
-            Predictions from current state of the model.
+            (np.ndarray or torch.Tensor) : Predictions from current state of 
+                the model.
         """
         raise NotImplementedError
 
     def evaluate(self, X_test, y_test):
-        """Test the accuracy of the iris classifier on a test set.
+        """Compute evaluation metric on some test data.
 
         Args:
-            X_test (np.ndarray, torch.Tensor) : test input data.
-            y_test (np.ndarray, torch.Tensor) : test target data.
-            batch_size (int) : size of batches in DataLoader object.
+            X_test (np.ndarray or torch.Tensor) : test input data.
+            y_test (np.ndarray or torch.Tensor) : test target data.
+
+        Returns:
+            (np.ndarray or torch.Tensor) : evaluation metric.
         """
         raise NotImplementedError
         
