@@ -50,6 +50,16 @@ class _KeyMap(object):
 class Simulator():
     """
     Class used to simulate data poisoning attacks during online learning. 
+    It is important to note the distinction between batch size and num_episodes
+    in simulating data poisoning attacks during online learning; the batch size 
+    here refers to the size of the mini-batches the specified model is trained on, 
+    while the number of episodes refers to the number of times the data
+    becomes available for the model to train on (which is equivalent to the number
+    of times the attacker and defender are able to intervene in the learning process).
+    The default batch size and number of episodes is 1, implying that the
+    model is trained one sample at a time (no mini-batches) and the data 
+    comes in all at once (i.e attacker and defender only intervene once 
+    in this scenario).
        
     Args:
         X (np.ndarray, torch.Tensor) : stream of input data to train the model
