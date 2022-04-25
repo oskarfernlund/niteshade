@@ -117,13 +117,13 @@
 <td><p>A KNN  class, inheriting from the PointModifierDefender, that flips the labels of input points if the proportion of the most frequent label of nearest neighbours exceeds a threshold.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="niteshade.defence.ModelDefender.html#niteshade.defence.ModelDefender" title="niteshade.defence.ModelDefender"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ModelDefender</span></code></a>()</p></td>
-<td><p>Abstractclass for defenders that use a strategy that needs access to the model This class is used mainly in the siumlation to check if the current model needs to be sent to the .defend method</p></td>
+<td><p>Abstractclass for defenders that use a strategy that needs access to the model.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="niteshade.defence.OutlierDefender.html#niteshade.defence.OutlierDefender" title="niteshade.defence.OutlierDefender"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OutlierDefender</span></code></a>(initial_dataset_x, ...)</p></td>
-<td><p>Abstractclass for defenders that use a outlierfiltering strategy</p></td>
+<td><p>Abstractclass for defenders that use a outlier filtering strategy :param initial_dataset_x: point data.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="niteshade.defence.PointModifierDefender.html#niteshade.defence.PointModifierDefender" title="niteshade.defence.PointModifierDefender"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PointModifierDefender</span></code></a>()</p></td>
-<td><p>Abstractclass for defenders that use a strategy that modifies the input points</p></td>
+<td><p>Abstractclass for defenders that use a strategy that modifies the input points.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="niteshade.defence.SoftmaxDefender.html#niteshade.defence.SoftmaxDefender" title="niteshade.defence.SoftmaxDefender"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SoftmaxDefender</span></code></a>([threshold, delay, one_hot])</p></td>
 <td><p>A SoftmaxDefender class, inheriting from the ModelDefender, rejects points if the softmax output for the true class label of the incoming point is below a threshold</p></td>
