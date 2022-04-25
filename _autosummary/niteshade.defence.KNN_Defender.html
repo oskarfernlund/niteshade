@@ -101,17 +101,18 @@
 <p>A KNN  class, inheriting from the PointModifierDefender, that flips the labels
 of input points if the proportion of the most frequent label of nearest neighbours
 exceeds a threshold.
-A SKlearn KNeighborsClassifier is used to find nearest neighbours.
-:param init_x: point data (shape (batch_size, data dimensionality)).
-:type init_x: np.ndarray, torch.Tensor
-:param init_y: label data (shape (batch_size,)).
-:type init_y: np.ndarray, torch.Tensor
-:param nearest_neighbours: number of nearest neighbours to use for decisionmaking
-:type nearest_neighbours: int
-:param confidence_threshold: threshold to use for decisionmaking
-:type confidence_threshold: float
-:param one_hot: boolean to indicate if labels are one-hot or not
-:type one_hot: boolean</p>
+A SKlearn KNeighborsClassifier is used to find nearest neighbours.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>init_x</strong> (<em>np.ndarray</em><em>, </em><em>torch.Tensor</em>) – point data (shape (batch_size, data dimensionality))</p></li>
+<li><p><strong>init_y</strong> (<em>np.ndarray</em><em>, </em><em>torch.Tensor</em>) – label data (shape (batch_size,))</p></li>
+<li><p><strong>nearest_neighbours</strong> (<em>int</em>) – number of nearest neighbours to use for decisionmaking</p></li>
+<li><p><strong>confidence_threshold</strong> (<em>float</em>) – threshold to use for decisionmaking</p></li>
+<li><p><strong>one_hot</strong> (<em>boolean</em>) – boolean to indicate if labels are one-hot or not</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="niteshade.defence.KNN_Defender.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">init_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nearest_neighbours</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">confidence_threshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">one_hot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#niteshade.defence.KNN_Defender.__init__" title="Permalink to this definition"></a></dt>
