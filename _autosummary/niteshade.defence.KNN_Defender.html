@@ -102,9 +102,9 @@
 of input points if the proportion of the most frequent label of nearest neighbours
 exceeds a threshold.
 A SKlearn KNeighborsClassifier is used to find nearest neighbours.
-:param init_x: point data.
+:param init_x: point data (shape (batch_size, data dimensionality)).
 :type init_x: np.ndarray, torch.Tensor
-:param init_y: label data.
+:param init_y: label data (shape (batch_size,)).
 :type init_y: np.ndarray, torch.Tensor
 :param nearest_neighbours: number of nearest neighbours to use for decisionmaking
 :type nearest_neighbours: int
@@ -147,13 +147,13 @@ then the label of the point is flipped to be the most frequent label of closest 
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>datapoints</strong> (<em>np.ndarray</em><em>, </em><em>torch.Tensor</em>) – point data.</p></li>
-<li><p><strong>input_labels</strong> (<em>np.ndarray</em><em>, </em><em>torch.Tensor</em>) – label data.</p></li>
+<li><p><strong>datapoints</strong> (<em>np.ndarray</em><em>, </em><em>torch.Tensor</em>) – point data (shape (batch_size, data dimensionality)).</p></li>
+<li><p><strong>input_labels</strong> (<em>np.ndarray</em><em>, </em><em>torch.Tensor</em>) – label data (shape (batch_size,)).</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>datapoints (np.ndarray, torch.Tensor): point data,
-flipped_labels (np.ndarray, torch.Tensor): modified label data.</p>
+<dd class="field-even"><p>datapoints (np.ndarray, torch.Tensor): point data (shape (batch_size, data dimensionality)),
+flipped_labels (np.ndarray, torch.Tensor): modified label data (shape (batch_size,)).</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>tuple (datapoints, flipped_labels)</p>

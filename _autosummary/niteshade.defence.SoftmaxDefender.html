@@ -142,14 +142,14 @@ If one_hot encoded, artificial labels are created.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>datapoints</strong> (<em>np.ndarray</em><em>, </em><em>torch.Tensor</em>) – point data.</p></li>
-<li><p><strong>input_labels</strong> (<em>np.ndarray</em><em>, </em><em>torch.Tensor</em>) – label data.</p></li>
+<li><p><strong>datapoints</strong> (<em>np.ndarray</em><em>, </em><em>torch.Tensor</em>) – point data (shape (batch_size, data dimensionality)).</p></li>
+<li><p><strong>input_labels</strong> (<em>np.ndarray</em><em>, </em><em>torch.Tensor</em>) – label data (shape (batch_size,)).</p></li>
 <li><p><strong>model</strong> (<em>torch.nn.model</em>) – The updated current model that is used for online learning</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>datapoints (np.ndarray, torch.Tensor): point data,
-labels (np.ndarray, torch.Tensor): modified label data.</p>
+<dd class="field-even"><p>datapoints (np.ndarray, torch.Tensor): point data (shape (batch_size, data dimensionality)),
+labels (np.ndarray, torch.Tensor): modified label data (shape (batch_size,)).</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>tuple (datapoints, labels)</p>

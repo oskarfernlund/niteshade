@@ -98,11 +98,15 @@
 <dt class="sig sig-object py" id="niteshade.defence.OutlierDefender">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">niteshade.defence.</span></span><span class="sig-name descname"><span class="pre">OutlierDefender</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">initial_dataset_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_dataset_y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niteshade.defence.OutlierDefender" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="niteshade.defence.Defender.html#niteshade.defence.Defender" title="niteshade.defence.Defender"><code class="xref py py-class docutils literal notranslate"><span class="pre">niteshade.defence.Defender</span></code></a></p>
-<p>Abstractclass for defenders that use a outlier filtering strategy.
-:param initial_dataset_x: point data.
-:type initial_dataset_x: np.ndarray, torch.Tensor
-:param initial_dataset_y: label data.
-:type initial_dataset_y: np.ndarray, torch.Tensor</p>
+<p>Abstractclass for defenders that use a outlier filtering strategy.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>initial_dataset_x</strong> (<em>np.ndarray</em><em>, </em><em>torch.Tensor</em>) – point data (shape (batch_size, data dimensionality)).</p></li>
+<li><p><strong>initial_dataset_y</strong> (<em>np.ndarray</em><em>, </em><em>torch.Tensor</em>) – label data (shape (batch_size, )).</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="niteshade.defence.OutlierDefender.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">initial_dataset_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_dataset_y</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#niteshade.defence.OutlierDefender.__init__" title="Permalink to this definition"></a></dt>
