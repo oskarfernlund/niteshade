@@ -107,12 +107,15 @@ the points is higher than ensemble_accept_rate</p>
 <dt class="sig sig-object py" id="niteshade.defence.DefenderGroup.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">defender_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ensemble_accept_rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#niteshade.defence.DefenderGroup.__init__" title="Permalink to this definition"></a></dt>
 <dd><p>Constrcutor method of DefenderGroup class .
-:param - defender_list {list}: List containing defender objects to be used for defending
-:param - ensemble_accept_rate {float}: A rate to be used for ensemble decisionmaking</p>
+:param - defender_list: List containing defender objects to be used for defending
+:type - defender_list: list
+:param - ensemble_accept_rate: A rate to be used for ensemble decisionmaking</p>
 <blockquote>
 <div><p>if = 0, sequential decisionmaking is used
 if &gt; 0, ensemble decisionmaking is used</p>
 </div></blockquote>
+<dl class="field-list simple">
+</dl>
 </dd></dl>
 
 <p class="rubric">Methods</p>
@@ -123,7 +126,7 @@ if &gt; 0, ensemble decisionmaking is used</p>
 </colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#niteshade.defence.DefenderGroup.__init__" title="niteshade.defence.DefenderGroup.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(defender_list[, ensemble_accept_rate])</p></td>
-<td><p>Constrcutor method of DefenderGroup class . :param - defender_list {list}: List containing defender objects to be used for defending :param - ensemble_accept_rate {float}: A rate to be used for ensemble decisionmaking                                        if = 0, sequential decisionmaking is used                                        if &gt; 0, ensemble decisionmaking is used.</p></td>
+<td><p>Constrcutor method of DefenderGroup class . :param - defender_list: List containing defender objects to be used for defending :type - defender_list: list :param - ensemble_accept_rate: A rate to be used for ensemble decisionmaking                                if = 0, sequential decisionmaking is used                                if &gt; 0, ensemble decisionmaking is used :type - ensemble_accept_rate: float.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#niteshade.defence.DefenderGroup.defend" title="niteshade.defence.DefenderGroup.defend"><code class="xref py py-obj docutils literal notranslate"><span class="pre">defend</span></code></a>(X, y, **input_kwargs)</p></td>
 <td><p>Group defend method, where the defender group will be defending</p></td>
@@ -140,15 +143,13 @@ if &gt; 0, ensemble decisionmaking is used</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>{np.ndarray</strong> (<em>y</em>) – point data.</p></li>
-<li><p><strong>torch.Tensor}</strong> – point data.</p></li>
-<li><p><strong>{np.ndarray</strong> – label data.</p></li>
-<li><p><strong>torch.Tensor}</strong> – label data.</p></li>
+<li><p><strong>X</strong> (<em>np.ndarray</em><em>, </em><em>torch.Tensor</em>) – point data.</p></li>
+<li><p><strong>y</strong> (<em>np.ndarray</em><em>, </em><em>torch.Tensor</em>) – label data.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>output_x {np.ndarray, torch.Tensor}: point data.
-output_y {np.ndarray, torch.Tensor}: label data.</p>
+<dd class="field-even"><p>output_x (np.ndarray, torch.Tensor): point data.
+output_y (np.ndarray, torch.Tensor): label data.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>tuple (output_x, output_y) where</p>

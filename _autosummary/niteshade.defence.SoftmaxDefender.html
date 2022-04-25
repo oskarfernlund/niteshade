@@ -104,11 +104,14 @@ softmax output for the true class label of the incoming point is below a thresho
 <dt class="sig sig-object py" id="niteshade.defence.SoftmaxDefender.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">one_hot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#niteshade.defence.SoftmaxDefender.__init__" title="Permalink to this definition"></a></dt>
 <dd><p>Constructor method of SoftmaxDefender class.
-:param - threshold {float}: threshold for the softmax output
-:param - init_y {np.ndarray: label data.
-:param torch.Tensor}: label data.
-:param - delay {int}: After how many .defend method calls to start the defender (used to ensure model is trained to a degree)
-:param - one_hot {boolean}: boolean to indicate if labels are one-hot or not</p>
+:param - threshold: threshold for the softmax output
+:type - threshold: float
+:param - init_y: label data.
+:type - init_y: np.ndarray, torch.Tensor
+:param - delay: After how many .defend method calls to start the defender (used to ensure model is trained to a degree)
+:type - delay: int
+:param - one_hot: boolean to indicate if labels are one-hot or not
+:type - one_hot: boolean</p>
 </dd></dl>
 
 <p class="rubric">Methods</p>
@@ -139,16 +142,14 @@ If one_hot encoded, artificial labels are created</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>{np.ndarray</strong> (<em>input_labels</em>) – point data.</p></li>
-<li><p><strong>torch.Tensor}</strong> – point data.</p></li>
-<li><p><strong>{np.ndarray</strong> – label data.</p></li>
-<li><p><strong>torch.Tensor}</strong> – label data.</p></li>
-<li><p><strong>{torch.nn.model}</strong> (<em>model</em>) – The updated current model that is used for online learning</p></li>
+<li><p><strong>datapoints</strong> (<em>np.ndarray</em><em>, </em><em>torch.Tensor</em>) – point data.</p></li>
+<li><p><strong>input_labels</strong> (<em>np.ndarray</em><em>, </em><em>torch.Tensor</em>) – label data.</p></li>
+<li><p><strong>model</strong> (<em>torch.nn.model</em>) – The updated current model that is used for online learning</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>datapoints {np.ndarray, torch.Tensor}: point data.
-labels {np.ndarray, torch.Tensor}: modified label data.</p>
+<dd class="field-even"><p>datapoints (np.ndarray, torch.Tensor): point data.
+labels (np.ndarray, torch.Tensor): modified label data.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>tuple (datapoints, labels) where</p>

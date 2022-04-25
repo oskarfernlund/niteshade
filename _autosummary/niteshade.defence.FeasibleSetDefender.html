@@ -111,14 +111,11 @@ depending on the input a respective distance metric is constructed for calculati
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>{np.ndarray</strong> (<em>- initial_dataset_y</em>) – point data.</p></li>
-<li><p><strong>torch.Tensor}</strong> – point data.</p></li>
-<li><p><strong>{np.ndarray</strong> – label data.</p></li>
-<li><p><strong>torch.Tensor}</strong> – label data.</p></li>
-<li><p><strong>{float</strong> (<em>- threshold</em>) – distance threshold to use for decisionmaking</p></li>
-<li><p><strong>int}</strong> – distance threshold to use for decisionmaking</p></li>
-<li><p><strong>{boolean}</strong> (<em>- one_hot</em>) – boolean to indicate if labels are one-hot or not</p></li>
-<li><p><strong>{Distance_metric}</strong> (<em>- dist_metric</em>) – Distance metric to be used for calculating distances from points to centroids</p></li>
+<li><p><strong>initial_dataset_x</strong> (<em>-</em>) – point data.</p></li>
+<li><p><strong>initial_dataset_y</strong> (<em>-</em>) – label data.</p></li>
+<li><p><strong>threshold</strong> (<em>-</em>) – distance threshold to use for decisionmaking</p></li>
+<li><p><strong>one_hot</strong> (<em>-</em>) – boolean to indicate if labels are one-hot or not</p></li>
+<li><p><strong>dist_metric</strong> (<em>-</em>) – Distance metric to be used for calculating distances from points to centroids</p></li>
 </ul>
 </dd>
 </dl>
@@ -164,15 +161,13 @@ If one_hot encoded, artificial labels are created</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>{np.ndarray</strong> (<em>input_labels</em>) – point data.</p></li>
-<li><p><strong>torch.Tensor}</strong> – point data.</p></li>
-<li><p><strong>{np.ndarray</strong> – label data.</p></li>
-<li><p><strong>torch.Tensor}</strong> – label data.</p></li>
+<li><p><strong>datapoints</strong> (<em>np.ndarray</em><em>, </em><em>torch.Tensor</em>) – point data.</p></li>
+<li><p><strong>input_labels</strong> (<em>np.ndarray</em><em>, </em><em>torch.Tensor</em>) – label data.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>output_datapoints {np.ndarray, torch.Tensor}: point data.
-output_labels {np.ndarray, torch.Tensor}: label data.</p>
+<dd class="field-even"><p>output_datapoints (np.ndarray, torch.Tensor): point data.
+output_labels (np.ndarray, torch.Tensor): label data.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>tuple (output_datapoints, output_labels) where</p>
