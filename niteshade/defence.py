@@ -191,14 +191,14 @@ class Defender(ABC):
 
 
 class OutlierDefender(Defender):
-    """ Abstractclass for defenders that use a outlierfiltering strategy
+    """ Abstractclass for defenders that use a outlier filtering strategy
+        Args: 
+            initial_dataset_x (np.ndarray, torch.Tensor): point data.
+            initial_dataset_y (np.ndarray, torch.Tensor): label data.
     
     """ 
     def __init__(self, initial_dataset_x, initial_dataset_y) -> None:
         """ Initialise the OutlierDefender class using a initial dataset
-        Args: 
-            initial_dataset_x (np.ndarray, torch.Tensor): point data.
-            initial_dataset_y (np.ndarray, torch.Tensor): label data.
         """
         super().__init__()
         self._type_check(initial_dataset_x, initial_dataset_y) # Type check for initial data
@@ -211,16 +211,16 @@ class OutlierDefender(Defender):
 
 
 class ModelDefender(Defender):
-    """ Abstractclass for defenders that use a strategy that needs access to the model
+    """ Abstractclass for defenders that use a strategy that needs access to the model.
         This class is used mainly in the siumlation to check if the current model needs
-        to be sent to the .defend method
+        to be sent to the .defend method.
     """ 
     def __init__(self) -> None:
         super().__init__()
 
 
 class PointModifierDefender(Defender):
-    """ Abstractclass for defenders that use a strategy that modifies the input points
+    """ Abstractclass for defenders that use a strategy that modifies the input points.
     """ 
     def __init__(self) -> None:
         super().__init__()
