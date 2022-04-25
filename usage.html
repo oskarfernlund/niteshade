@@ -42,7 +42,6 @@
 <li class="toctree-l1"><a class="reference internal" href="about.html">About</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Usage</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#getting-started">Getting Started</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#setting-up-an-online-data-pipeline">Setting Up an Online Data Pipeline</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#managing-pipeline-asynchronicity">Managing Pipeline Asynchronicity</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#setting-up-a-victim-model">Setting Up a Victim Model</a></li>
@@ -85,23 +84,13 @@
 <p>Below are some simple example uses of the various functions and classes in
 niteshade. For a more comprehensive overview of niteshade’s functionality,
 please refer to the <a class="reference internal" href="api.html"><span class="doc">API</span></a> section.</p>
-<section id="getting-started">
-<span id="id1"></span><h2>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this headline"></a></h2>
-<p>Before setting up a niteshade workflow, be sure to import any necessary
-packages. For the following examples, we will be using numpy and PyTorch (as
-well as niteshade, of course!).</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">torch</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">niteshade</span> <span class="k">as</span> <span class="nn">shade</span>
-</pre></div>
-</div>
-</section>
 <section id="setting-up-an-online-data-pipeline">
-<span id="id2"></span><h2>Setting Up an Online Data Pipeline<a class="headerlink" href="#setting-up-an-online-data-pipeline" title="Permalink to this headline"></a></h2>
+<span id="id1"></span><h2>Setting Up an Online Data Pipeline<a class="headerlink" href="#setting-up-an-online-data-pipeline" title="Permalink to this headline"></a></h2>
 <p>niteshade makes setting up an online data pipeline easy, thanks to its bespoke
 data loader class specifically designed for online learning
 <code class="docutils literal notranslate"><span class="pre">niteshade.data.DataLoader</span></code>.</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">niteshade.data</span> <span class="kn">import</span> <span class="n">DataLoader</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">torch</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">niteshade.data</span> <span class="kn">import</span> <span class="n">DataLoader</span>
 </pre></div>
 </div>
 <p>A <code class="docutils literal notranslate"><span class="pre">DataLoader</span></code> may be instantiated with a particular set of features (X) and
@@ -157,10 +146,11 @@ involve separate generation and learning loops, each with their own
 <code class="docutils literal notranslate"><span class="pre">DataLoader</span></code> (leveraging the cache and queue to ensure consistent episode and
 batch sizes). Below is a very simple example (model, attack and defence
 strategies not specified):</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">niteshade.data</span> <span class="kn">import</span> <span class="n">DataLoader</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">niteshade.data</span> <span class="kn">import</span> <span class="n">DataLoader</span>
 
-<span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
-<span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+<span class="n">X</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
 
 <span class="n">episodes</span> <span class="o">=</span> <span class="n">DataLoader</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
 <span class="n">batches</span> <span class="o">=</span> <span class="n">DataLoader</span><span class="p">(</span><span class="n">batch_size</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
@@ -209,55 +199,129 @@ of a simple multi-layer perceptron regressor:</p>
 <span class="k">class</span> <span class="nc">MLPRegressor</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Simple MLP regressor class. &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Constructor. &quot;&quot;&quot;</span>
-        <span class="c1"># Define the MLP architecture</span>
-        <span class="n">architecture</span> <span class="o">=</span> <span class="p">[</span><span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">16</span><span class="p">),</span>
-                        <span class="n">nn</span><span class="o">.</span><span class="n">ReLU</span><span class="p">(),</span>
-                        <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">1</span><span class="p">)]</span>
-
-        <span class="c1"># Inherit the BaseModel superclass (passing necessary arguments)</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">architecture</span><span class="o">=</span><span class="n">architecture</span><span class="p">,</span>
-                         <span class="n">optimizer</span><span class="o">=</span><span class="s2">&quot;adam&quot;</span><span class="p">,</span>
-                         <span class="n">loss_func</span><span class="o">=</span><span class="s2">&quot;mse&quot;</span><span class="p">,</span>
-                         <span class="n">lr</span><span class="o">=</span><span class="mf">0.001</span><span class="p">)</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">optimizer</span><span class="o">=</span><span class="s2">&quot;adam&quot;</span><span class="p">,</span> <span class="n">loss_func</span><span class="o">=</span><span class="s2">&quot;mse&quot;</span><span class="p">,</span> <span class="n">lr</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Specify architecture, optimizer, loss and learning rate. &quot;&quot;&quot;</span>
+        <span class="n">architecture</span> <span class="o">=</span> <span class="p">[</span><span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">16</span><span class="p">),</span> <span class="n">nn</span><span class="o">.</span><span class="n">ReLU</span><span class="p">(),</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">1</span><span class="p">)]</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">architecture</span><span class="p">,</span> <span class="n">optimizer</span><span class="p">,</span> <span class="n">loss_func</span><span class="p">,</span> <span class="n">lr</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Execute the forward pass. &quot;&quot;&quot;</span>
-        <span class="c1"># Mount input to GPU if available, execute forward pass</span>
         <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">network</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Evaluate the model predictions. &quot;&quot;&quot;</span>
-        <span class="c1"># Turn on evaluate mode and compute accuracy w/o storing gradients</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
         <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
             <span class="n">y_pred</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
         <span class="k">return</span> <span class="mi">1</span> <span class="o">-</span> <span class="p">(</span><span class="n">y_pred</span> <span class="o">-</span> <span class="n">y_test</span><span class="p">)</span><span class="o">.</span><span class="n">square</span><span class="p">()</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">sqrt</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>In the constructor (<code class="docutils literal notranslate"><span class="pre">.__init__()</span></code> method), the model architecture is defined
-as a list of PyTorch building blocks (layers, activations etc.), then passed to
-the superclass along with the desired optimiser, loss function and learning
-rate (see <a class="reference internal" href="api.html"><span class="doc">API</span></a> section for possible values). The <code class="docutils literal notranslate"><span class="pre">BaseModel</span></code> class has
-<code class="docutils literal notranslate"><span class="pre">.device</span></code> attribute which indicates whether or not a hardware accelerator is
-available, and a <code class="docutils literal notranslate"><span class="pre">.network</span></code> attribute which assembles the provided
-architecture as a callable function that passes inputs through the layers
-sequentially. Both these attributes are used in the <code class="docutils literal notranslate"><span class="pre">.forward()</span></code> method,
-which implements the forward pass through the model. Finally, the
-<code class="docutils literal notranslate"><span class="pre">.evaluate()</span></code> method computes whichever performance metric we are interested
-in analysing during the simulation (accuracy, in this case).</p>
-<p>All niteshade models perform incremental learning updates using the <code class="docutils literal notranslate"><span class="pre">.step()</span></code>
-method (inherited from <code class="docutils literal notranslate"><span class="pre">BaseModel</span></code>).</p>
+<p>In the constructor (<code class="docutils literal notranslate"><span class="pre">.__init__()</span></code> method), the model architecture must be
+defined as a list of PyTorch building blocks (layers, activations etc.), then
+passed to the <code class="docutils literal notranslate"><span class="pre">BaseModel</span></code> superclass along with the desired optimiser, loss
+function and learning rate (see <a class="reference internal" href="api.html"><span class="doc">API</span></a> section for possible values). The
+<code class="docutils literal notranslate"><span class="pre">BaseModel</span></code> class has a <code class="docutils literal notranslate"><span class="pre">.device</span></code> attribute which is automatically set to
+“cuda” or “cpu” depending on whether a GPU is available, and a <code class="docutils literal notranslate"><span class="pre">.network</span></code>
+attribute which assembles the provided architecture as a callable that passes
+inputs through the layers and activations in sequence. Both these attributes
+are used in the <code class="docutils literal notranslate"><span class="pre">.forward()</span></code> method, which implements the forward pass.
+Finally, the <code class="docutils literal notranslate"><span class="pre">.evaluate()</span></code> method computes whichever performance metric we
+are interested in analysing during the simulation (accuracy, in this case).</p>
+<p>All niteshade models (out-of-the-box and custom) perform incremental learning
+updates using the <code class="docutils literal notranslate"><span class="pre">.step()</span></code> method, which is inherited from <code class="docutils literal notranslate"><span class="pre">BaseModel</span></code>.</p>
 </section>
 <section id="defining-an-attack-strategy">
-<span id="id3"></span><h2>Defining an Attack Strategy<a class="headerlink" href="#defining-an-attack-strategy" title="Permalink to this headline"></a></h2>
-<p>Bing</p>
+<span id="id2"></span><h2>Defining an Attack Strategy<a class="headerlink" href="#defining-an-attack-strategy" title="Permalink to this headline"></a></h2>
+<p>niteshade’s attack module (<code class="docutils literal notranslate"><span class="pre">niteshade.attack</span></code>) includes several
+out-of-the-box classes based on some of the most commonly encountered data
+poisoning attack strategies, e.g. <code class="docutils literal notranslate"><span class="pre">LabelFlipperAttacker</span></code> (which as the name
+suggests, flips training labels) and <code class="docutils literal notranslate"><span class="pre">AddLabelledPointsAttacker</span></code> (which
+injects fake datapoints into the learning pipeline).</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">niteshade.attack</span> <span class="kn">import</span> <span class="n">AddLabelledPointsAttacker</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">attacker</span> <span class="o">=</span> <span class="n">AddLabeledPointsAttacker</span><span class="p">(</span><span class="n">aggressiveness</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Custom attack strategies may also be defined by following niteshade’s attack
+class hierarchy by inheriting from the relevant superclass and filling in the
+<code class="docutils literal notranslate"><span class="pre">.attack()</span></code> method. At the top of the hierarchy is the <code class="docutils literal notranslate"><span class="pre">Attacker</span></code> class,
+which is a general abstract base class for all attack strategies. The next tier
+in the hierarchy is comprised of general categories of attack strategies,
+namely <code class="docutils literal notranslate"><span class="pre">AddPointsAttacker</span></code> (for strategies which involve injecting <em>fake</em>
+datapoints into the learning pipeline), <code class="docutils literal notranslate"><span class="pre">PerturbPointsAttacker</span></code> (for
+strategies which involve perturbing <em>real</em> datapoints in the learning pipeline)
+and <code class="docutils literal notranslate"><span class="pre">ChangeLabelAttacker</span></code> (for strategies which involve altering training
+data labels). Below is an example of a very simple custom attack strategy which
+involves appending zeros to the end of training batches:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">niteshade.attack</span> <span class="kn">import</span> <span class="n">AddPointsAttacker</span>
+
+<span class="k">class</span> <span class="nc">AppendZerosAttacker</span><span class="p">(</span><span class="n">AddPointsAttacker</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Append zeros attack strategy class. &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">aggressiveness</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Set the aggressiveness. &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">aggressiveness</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">attack</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Define the attack strategy. &quot;&quot;&quot;</span>
+        <span class="n">num_to_add</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">num_pts_to_add</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+        <span class="n">X_fake</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">num_to_add</span><span class="p">,</span> <span class="o">*</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+        <span class="n">y_fake</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">num_to_add</span><span class="p">,</span> <span class="o">*</span><span class="n">y</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">((</span><span class="n">X</span><span class="p">,</span> <span class="n">X_fake</span><span class="p">)),</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">((</span><span class="n">y</span><span class="p">,</span> <span class="n">y_fake</span><span class="p">)))</span>
+</pre></div>
+</div>
+<p>This simple (and ineffective) strategy involves injecting fake datapoints, so
+the class inherits from <code class="docutils literal notranslate"><span class="pre">AddPointsAttacker</span></code> in its constructor. The
+<code class="docutils literal notranslate"><span class="pre">aggressiveness</span></code> attribute is a float between 0.0-1.0 which determines
+the proportion of points the attacker is allowed to attack (or append, in this
+case). The <code class="docutils literal notranslate"><span class="pre">.attack()</span></code> method defines the attack strategy, which in this case
+is very straightforward. The <code class="docutils literal notranslate"><span class="pre">AddPointsAttacker</span></code> superclass has a method
+<code class="docutils literal notranslate"><span class="pre">.num_pts_to_add()</span></code> which uses <code class="docutils literal notranslate"><span class="pre">aggressiveness</span></code> to determine the (integer)
+number of points to add. Note that if the attack strategy we wish to define
+doesn’t fit into any of the aforementioned categories, we can simply inherit
+from <code class="docutils literal notranslate"><span class="pre">Attacker</span></code>.</p>
 </section>
 <section id="defining-a-defence-strategy">
-<span id="id4"></span><h2>Defining a Defence Strategy<a class="headerlink" href="#defining-a-defence-strategy" title="Permalink to this headline"></a></h2>
-<p>Bong</p>
+<span id="id3"></span><h2>Defining a Defence Strategy<a class="headerlink" href="#defining-a-defence-strategy" title="Permalink to this headline"></a></h2>
+<p>Similarly to the attack module, niteshade’s defence module
+(<code class="docutils literal notranslate"><span class="pre">niteshade.defence</span></code>) includes several out-of-the-box classes based on some
+of the most well-known defence strategies against data poisoning attacks, e.g.
+<code class="docutils literal notranslate"><span class="pre">FeasibleSetDefender</span></code> (which functions as an outlier detector based on a
+“clean” set of feasible points), <code class="docutils literal notranslate"><span class="pre">KNN_Defender</span></code> (which flips labels based on
+the consensus of neighbouring points) and <code class="docutils literal notranslate"><span class="pre">SoftmaxDefender</span></code> (which rejects
+points based on a softmax threshold).</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">niteshade.defence</span> <span class="kn">import</span> <span class="n">SoftmaxDefender</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">defender</span> <span class="o">=</span> <span class="n">SoftmaxDefender</span><span class="p">(</span><span class="n">threshold</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Custom defence strategies may also be defined by following niteshade’s defence
+class hierarchy by inheriting from the relevant superclass and filling in the
+<code class="docutils literal notranslate"><span class="pre">.defend()</span></code> method. At the top of the hierarchy is the <code class="docutils literal notranslate"><span class="pre">Defender</span></code> class,
+which is a general abstract base class for all defence strategies. The next
+tier in the hierarchy is comprised of general categories of defence strategies,
+namely <code class="docutils literal notranslate"><span class="pre">OutlierDefender</span></code> (for strategies which involve filtering outliers),
+<code class="docutils literal notranslate"><span class="pre">ModelDefender</span></code> (for strategies which require access to the model and its
+parameters) and <code class="docutils literal notranslate"><span class="pre">PointModifierDefender</span></code> (for strategies which modify
+datapoints). Below is an example of a very simple custom defence strategy which
+involves removing points which have even-valued labels:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">niteshade.defence</span> <span class="kn">import</span> <span class="n">Defender</span>
+
+<span class="k">class</span> <span class="nc">EvenLabelDefender</span><span class="p">(</span><span class="n">Defender</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Even-valued label filtering defence strategy. &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Constructor. &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">defend</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Define the defence strategy. &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">X</span><span class="p">[</span><span class="n">y</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">],</span> <span class="n">y</span><span class="p">[</span><span class="n">y</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>Although this simple (and ineffective) strategy resembles an
+<code class="docutils literal notranslate"><span class="pre">OutlierDefender</span></code>-type strategy, it doesn’t require a clean feasible set for
+outlier detection, and thus we have just inherited from <code class="docutils literal notranslate"><span class="pre">Defender</span></code>.</p>
 </section>
 <section id="running-a-simulations">
 <span id="running-a-simulation"></span><h2>Running a Simulations<a class="headerlink" href="#running-a-simulations" title="Permalink to this headline"></a></h2>
@@ -270,7 +334,7 @@ method (inherited from <code class="docutils literal notranslate"><span class="p
 </div>
 </section>
 <section id="postprocessing-results">
-<span id="id5"></span><h2>Postprocessing Results<a class="headerlink" href="#postprocessing-results" title="Permalink to this headline"></a></h2>
+<span id="id4"></span><h2>Postprocessing Results<a class="headerlink" href="#postprocessing-results" title="Permalink to this headline"></a></h2>
 <p>To postprocess results, you can use the
 <code class="docutils literal notranslate"><span class="pre">niteshade.postprocessing.PostProcessor</span></code> class:</p>
 </section>

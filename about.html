@@ -145,11 +145,11 @@ enthusiasts to simulate adversarial learning scenarios using a simple and
 intuitive API. niteshade offers several out-of-the-box attack and defence
 strategy classes, as well as a well-defined class hierarchy which makes it easy
 for users to define their own attack and defence strategies. Workflows are
-heavily integrated with PyTorch and data pipelines may be created using both
-<code class="docutils literal notranslate"><span class="pre">numpy.ndarray</span></code> and <code class="docutils literal notranslate"><span class="pre">torch.Tensor</span></code> data types. niteshade’s postprocessing
-module allows users to easily assess the effectiveness of attack and defence
-strategies by computing metrics and KPI’s, plotting results and generating
-summary reports.</p>
+heavily integrated with PyTorch; data pipelines are specifically designed for
+<code class="docutils literal notranslate"><span class="pre">torch.Tensor</span></code> data types and models inherit from <code class="docutils literal notranslate"><span class="pre">torch.nn.module</span></code>.
+niteshade’s postprocessing module allows users to easily assess the
+effectiveness of attack and defence strategies by computing metrics and KPI’s,
+plotting results and generating summary reports.</p>
 </section>
 <section id="references">
 <span id="id5"></span><h2>References<a class="headerlink" href="#references" title="Permalink to this headline"></a></h2>
