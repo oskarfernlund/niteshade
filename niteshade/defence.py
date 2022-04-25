@@ -34,9 +34,9 @@ class DefenderGroup():
     def __init__(self,defender_list: list, ensemble_accept_rate = 0.0) -> None:
         """Constrcutor method of DefenderGroup class .
         Args: 
-            - defender_list {list}: List containing defender objects to be used for defending
+            - defender_list (list): List containing defender objects to be used for defending
             
-            - ensemble_accept_rate {float}: A rate to be used for ensemble decisionmaking
+            - ensemble_accept_rate (float): A rate to be used for ensemble decisionmaking
                                         if = 0, sequential decisionmaking is used
                                         if > 0, ensemble decisionmaking is used
         """
@@ -50,13 +50,13 @@ class DefenderGroup():
         """ Group defend method, where the defender group will be defending
             The exact defence depends on whether ensemble decisionmaking has been used
         Args: 
-            X {np.ndarray, torch.Tensor}: point data.
-            y {np.ndarray, torch.Tensor}: label data.
+            X (np.ndarray, torch.Tensor): point data.
+            y (np.ndarray, torch.Tensor): label data.
         
         Return:
             tuple (output_x, output_y) where:
-                output_x {np.ndarray, torch.Tensor}: point data.
-                output_y {np.ndarray, torch.Tensor}: label data.
+                output_x (np.ndarray, torch.Tensor): point data.
+                output_y (np.ndarray, torch.Tensor): label data.
         """
         if self.ensemble_accept_rate > 0:
             output_x, output_y = self._ensemble_defence(X, y, **input_kwargs)
@@ -70,13 +70,13 @@ class DefenderGroup():
            the .defend method of each defender will be called for all points and their decisions will be recorded in a dictionary
            Points will be rejected based on the proportion of defenders rejecting each individual point
         Args: 
-            X {np.ndarray, torch.Tensor}: point data.
-            y {np.ndarray, torch.Tensor}: label data.
+            X (np.ndarray, torch.Tensor): point data.
+            y (np.ndarray, torch.Tensor): label data.
         
         Return:
             tuple (output_x, output_y) where:
-                output_x {np.ndarray, torch.Tensor}: point data.
-                output_y {np.ndarray, torch.Tensor}: label data.
+                output_x (np.ndarray, torch.Tensor): point data.
+                output_y (np.ndarray, torch.Tensor): label data.
         """
         input_datapoints = X.copy()
         input_labels = y.copy()
@@ -95,13 +95,13 @@ class DefenderGroup():
            the .defend method of each defender will be called for all points
            if one defender rejects a point, that point will be rejected and not sent forward
         Args: 
-            X {np.ndarray, torch.Tensor}: point data.
-            y {np.ndarray, torch.Tensor}: label data.
+            X (np.ndarray, torch.Tensor): point data.
+            y (np.ndarray, torch.Tensor): label data.
         
         Return:
             tuple (output_x, output_y) where:
-                output_x {np.ndarray, torch.Tensor}: point data.
-                output_y {np.ndarray, torch.Tensor}: label data.
+                output_x (np.ndarray, torch.Tensor): point data.
+                output_y (np.ndarray, torch.Tensor): label data.
         """
         for defender in self.defender_list:
             if len(X)>0:
@@ -114,11 +114,11 @@ class DefenderGroup():
             second for str(points) and str(labels) (value) to indeces (key)
             third for indeces (keys) to accept_counts (values)
         Args: 
-            X {np.ndarray, torch.Tensor}: point data.
-            y {np.ndarray, torch.Tensor}: label data.
+            X (np.ndarray, torch.Tensor): point data.
+            y (np.ndarray, torch.Tensor): label data.
         
         Return:
-            accept_counts {dictionary} - A dictionary with point indeces (keys) and accept counts (values)
+            accept_counts (dictionary) - A dictionary with point indeces (keys) and accept counts (values)
         """
         accept_counts = {}
         self.__idx_point_mapping = {}
@@ -134,11 +134,11 @@ class DefenderGroup():
             for all incoming points, add 1 to the  accept count of that point
             To get the indeces of input points, the string points and labels to indeces dict is used
         Args: 
-            X {np.ndarray, torch.Tensor}: point data.
-            y {np.ndarray, torch.Tensor}: label data.
-            point_dict {dictionary}: dictionary of accept counts
+            X (np.ndarray, torch.Tensor): point data.
+            y (np.ndarray, torch.Tensor): label data.
+            point_dict (dictionary): dictionary of accept counts
         Return:
-            point_dict {dictionary} - A dictionary with updated point indeces (keys) and accept counts (values)
+            point_dict (dictionary) - A dictionary with updated point indeces (keys) and accept counts (values)
         """
         key_list = list(self.__idx_str_mapping.keys())
         value_list = list(self.__idx_str_mapping.values())
@@ -153,7 +153,7 @@ class DefenderGroup():
         """ Using the accept count dictionary, obtain the final points that are accepted
             points accepted if accept_count/nr_of_defenders > ensemble_accept_rate
         Args: 
-            point_dict {dictionary}: dictionary of accept counts
+            point_dict (dictionary): dictionary of accept counts
         Return:
             tuple (np.array(accepted_X), np.array(accepted_Y))
         """
@@ -195,8 +195,8 @@ class OutlierDefender(Defender):
     def __init__(self, initial_dataset_x, initial_dataset_y) -> None:
         """ Initialise the OutlierDefender class using a initial dataset
         Args: 
-            initial_dataset_x {np.ndarray, torch.Tensor}: point data.
-            initial_dataset_y {np.ndarray, torch.Tensor}: label data.
+            initial_dataset_x (np.ndarray, torch.Tensor): point data.
+            initial_dataset_y (np.ndarray, torch.Tensor): label data.
         """
         super().__init__()
         self._type_check(initial_dataset_x, initial_dataset_y) # Type check for initial data
@@ -236,11 +236,11 @@ class KNN_Defender(PointModifierDefender):
             If the inputs are one-hot encoded, artificial integer labels are constructed
             to use the SKlearn classifier
         Args: 
-            - init_x {np.ndarray, torch.Tensor}: point data.
-            - init_y {np.ndarray, torch.Tensor}: label data.
-            - nearest_neighbours {int}: number of nearest neighbours to use for decisionmaking
-            - confidence_threshold {float}: threshold to use for decisionmaking
-            - one_hot {boolean}: boolean to indicate if labels are one-hot or not
+            - init_x (np.ndarray, torch.Tensor): point data.
+            - init_y (np.ndarray, torch.Tensor): label data.
+            - nearest_neighbours (int): number of nearest neighbours to use for decisionmaking
+            - confidence_threshold (float): threshold to use for decisionmaking
+            - one_hot (boolean): boolean to indicate if labels are one-hot or not
         """
         super().__init__()
         self._type_check(init_x, init_y) # Check if input data is tensor or ndarray
@@ -266,12 +266,12 @@ class KNN_Defender(PointModifierDefender):
             If the proportion of the most frequent label in closest neighbours is higher than a threshold
             Then the label of the point is flipped to be the most frequent label of closest neighbours 
         Args: 
-            datapoints {np.ndarray, torch.Tensor}: point data.
-            input_labels {np.ndarray, torch.Tensor}: label data.
+            datapoints (np.ndarray, torch.Tensor): point data.
+            input_labels (np.ndarray, torch.Tensor): label data.
         Return:
             tuple (datapoints, flipped_labels) where:
-                datapoints {np.ndarray, torch.Tensor}: point data.
-                flipped_labels {np.ndarray, torch.Tensor}: modified label data.
+                datapoints (np.ndarray, torch.Tensor): point data.
+                flipped_labels (np.ndarray, torch.Tensor): modified label data.
         """
         self._type_check(datapoints, input_labels) # Check if input data is tensor or ndarray
         if self._datatype == 0: # If incoming data is tensor, make into ndarray
@@ -301,10 +301,10 @@ class KNN_Defender(PointModifierDefender):
     def _one_hot_decoding(self, one_hot_length, flipped_labels):
         """ Construct one_hot outputs from int input labels
         Args: 
-            one_hot_length {int}: Dimensionality of one_hot_encoded outputs
-            flipped_labels {np.ndarray}: label data.
+            one_hot_length (int): Dimensionality of one_hot_encoded outputs
+            flipped_labels (np.ndarray): label data.
         Return:
-            output_labels {np.ndarray}: one_hot_encoded label data
+            output_labels (np.ndarray): one_hot_encoded label data
         """
         output_labels = np.zeros((flipped_labels.shape[0], one_hot_length))
         for id, label in enumerate(flipped_labels):
@@ -315,10 +315,10 @@ class KNN_Defender(PointModifierDefender):
         """ Find the most frequent label from the nearest neighbour indeces
              and get its confidence (label_count / nr_of_nghbs)
         Args: 
-            indeces {list}: list of lists, inner list contains indeces for the nearest neighbours for datapoints
-            input_labels {np.ndarray}: label data.
+            indeces (list): list of lists, inner list contains indeces for the nearest neighbours for datapoints
+            input_labels (np.ndarray): label data.
         Return:
-            confidence array {np.ndarray}: array of tuples where tuple[0]: most frequent label, tuple[1]: confidence of label
+            confidence array (np.ndarray): array of tuples where tuple[0]: most frequent label, tuple[1]: confidence of label
         """
         confidence_list = []
         for nghbs in indeces: # Loop through nearest indeces for each input point
@@ -333,11 +333,11 @@ class KNN_Defender(PointModifierDefender):
         """ Find the most frequent label from a incoming list of labels
              and get its confidence (label_count / len(label_list))
         Args: 
-            labels {list}: list containing labels for the nearest neighbours
+            labels (list): list containing labels for the nearest neighbours
         Return:
             tuple(max_label, confidence)
-                max_label {int}: Most frequent label
-                confidence {float}: most frequent_label_count/len(label_list)
+                max_label (int): Most frequent label
+                confidence (float): most frequent_label_count/len(label_list)
         """
         unique_labels = list(set(labels)) # Get unique labels
         max_count = 0
@@ -352,10 +352,10 @@ class KNN_Defender(PointModifierDefender):
         """ Flip incoming input labels if the confidence of the most frequent label of their nearest nghbs
             is over a threshold
         Args: 
-            labels {list}: list containing input labels
-            labels {list}: list containing a tuple for each input label with most frequent nearest nghb label and its confidence
+            labels (list): list containing input labels
+            labels (list): list containing a tuple for each input label with most frequent nearest nghb label and its confidence
         Return:
-            labels {list}: List of modified input labels
+            labels (list): List of modified input labels
         """
         for idx, _ in enumerate(labels): # Loop through input labels
             if confidence_list[idx][1]>self.confidence_threshold: # Check if confidence of most frequent nearest nghb label is high
@@ -370,10 +370,10 @@ class SoftmaxDefender(ModelDefender):
     def __init__(self, threshold = 0.05, delay = 0, one_hot = True) -> None:
         """Constructor method of SoftmaxDefender class.
         Args: 
-            - threshold {float}: threshold for the softmax output
-            - init_y {np.ndarray, torch.Tensor}: label data.
-            - delay {int}: After how many .defend method calls to start the defender (used to ensure model is trained to a degree)
-            - one_hot {boolean}: boolean to indicate if labels are one-hot or not
+            - threshold (float): threshold for the softmax output
+            - init_y (np.ndarray, torch.Tensor): label data.
+            - delay (int): After how many .defend method calls to start the defender (used to ensure model is trained to a degree)
+            - one_hot (boolean): boolean to indicate if labels are one-hot or not
         """
         super().__init__()
         self.threshold = threshold
@@ -388,13 +388,13 @@ class SoftmaxDefender(ModelDefender):
             If the output value of the true label is below the threshold, the points are rejected
             If one_hot encoded, artificial labels are created
         Args: 
-            datapoints {np.ndarray, torch.Tensor}: point data.
-            input_labels {np.ndarray, torch.Tensor}: label data.
-            model {torch.nn.model}: The updated current model that is used for online learning
+            datapoints (np.ndarray, torch.Tensor): point data.
+            input_labels (np.ndarray, torch.Tensor): label data.
+            model (torch.nn.model): The updated current model that is used for online learning
         Return:
             tuple (datapoints, labels) where:
-                datapoints {np.ndarray, torch.Tensor}: point data.
-                labels {np.ndarray, torch.Tensor}: modified label data.
+                datapoints (np.ndarray, torch.Tensor): point data.
+                labels (np.ndarray, torch.Tensor): modified label data.
         """
         self._type_check(datapoints, labels) # Check if input data is tensor or ndarray
         self.defender_counter += 1
@@ -434,11 +434,11 @@ class FeasibleSetDefender(OutlierDefender):
             Within the init, a feasible set is constructed and
             depending on the input a respective distance metric is constructed for calculating point distances from label centroids
         Args: 
-            - initial_dataset_x {np.ndarray, torch.Tensor}: point data.
-            - initial_dataset_y {np.ndarray, torch.Tensor}: label data.
-            - threshold {float, int}: distance threshold to use for decisionmaking
-            - one_hot {boolean}: boolean to indicate if labels are one-hot or not
-            - dist_metric {Distance_metric}: Distance metric to be used for calculating distances from points to centroids
+            - initial_dataset_x (np.ndarray, torch.Tensor): point data.
+            - initial_dataset_y (np.ndarray, torch.Tensor): label data.
+            - threshold (float, int): distance threshold to use for decisionmaking
+            - one_hot (boolean): boolean to indicate if labels are one-hot or not
+            - dist_metric (Distance_metric): Distance metric to be used for calculating distances from points to centroids
         """
         super().__init__(initial_dataset_x, initial_dataset_y)
         #Input validation
@@ -484,8 +484,8 @@ class FeasibleSetDefender(OutlierDefender):
         """ Adjust running means of feasible set (the centroid locations)
             using label counts, input new datapoint and label
         Args: 
-            datapoint {np.ndarray, torch.Tensor}: point data.
-            label {np.ndarray, torch.Tensor}: label data.
+            datapoint (np.ndarray, torch.Tensor): point data.
+            label (np.ndarray, torch.Tensor): label data.
         """
         label_mean = self.feasible_set[label]
         self._label_counts[label]+=1 # Update the label count
@@ -495,10 +495,10 @@ class FeasibleSetDefender(OutlierDefender):
     def _distance_metric_calculator(self,datapoint, label):
         """ Calculate the distance metric for the datapoint from the feasible set mean of that datapoints label
         Args: 
-            datapoint {np.ndarray, torch.Tensor}: point data.
-            label {np.ndarray, torch.Tensor}: label data.
+            datapoint (np.ndarray, torch.Tensor): point data.
+            label (np.ndarray, torch.Tensor): label data.
         Return:
-            distance {float}: distance of the point calculated from the centroid of the label
+            distance (float): distance of the point calculated from the centroid of the label
         """
         label_mean = self.feasible_set[label]
         distance = self.__distance_metric.distance(datapoint, label_mean)
@@ -511,12 +511,12 @@ class FeasibleSetDefender(OutlierDefender):
             If all points are rejceted, empty arrays are returned  
             If one_hot encoded, artificial labels are created
         Args: 
-            datapoints {np.ndarray, torch.Tensor}: point data.
-            input_labels {np.ndarray, torch.Tensor}: label data.
+            datapoints (np.ndarray, torch.Tensor): point data.
+            input_labels (np.ndarray, torch.Tensor): label data.
         Return:
             tuple (output_datapoints, output_labels) where:
-                output_datapoints {np.ndarray, torch.Tensor}: point data.
-                output_labels {np.ndarray, torch.Tensor}: label data.
+                output_datapoints (np.ndarray, torch.Tensor): point data.
+                output_labels (np.ndarray, torch.Tensor): label data.
         """
         self._type_check(datapoints, labels) # Check if input data is tensor or ndarray
         if self._datatype == 0: # If incoming data is tensor, make into ndarray
@@ -565,10 +565,10 @@ class FeasibleSetDefender(OutlierDefender):
     def _one_hot_decoding(self, cleared_labels_stack, one_hot_length):
         """ Construct one_hot outputs from int input labels
         Args: 
-            one_hot_length {int}: Dimensionality of one_hot_encoded outputs
-            cleared_labels_stack {list}: list of labels.
+            one_hot_length (int): Dimensionality of one_hot_encoded outputs
+            cleared_labels_stack (list): list of labels.
         Return:
-            output_labels {np.ndarray}: one_hot_encoded label data
+            output_labels (np.ndarray): one_hot_encoded label data
         """
         output_labels = np.zeros((len(cleared_labels_stack), one_hot_length))
         for id,label in enumerate(cleared_labels_stack):
@@ -585,7 +585,7 @@ class Distance_metric:
         """ Constructor method of FeasibleSetDefender class.
             Default Distance_metric is Eucleidian distance.
         Args: 
-            - type {string}: The type of the distance metric.
+            - type (string): The type of the distance metric.
                  This will be returned for informative purposes when .distance_metric is called for feasibleset defender
         """
         self._type = type
@@ -594,10 +594,10 @@ class Distance_metric:
         """ Calculates the distance between 2 input points
             Currently only Eucleidian (l2 norm) distance metric is implemented off-the-shelf
         Args: 
-            input_1 {np.ndarray}: point_1 data.
-            input_2 {np.ndarray}: point_2 data.
+            input_1 (np.ndarray): point_1 data.
+            input_2 (np.ndarray): point_2 data.
         Return:
-            distance {float}: distance between the 2 input points
+            distance (float): distance between the 2 input points
         """
         if self._type == "Eucleidian":
             return np.sqrt(np.sum((input_1 - Input_2)**2))
@@ -611,9 +611,9 @@ def _label_encoding(one_hot_labels):
         """ Constructs artificial 1d labels from incoming array of one_hot encoded label data
             Artificial label of a one_hot encoded label is the dim number where the label had a 1
         Args: 
-            one_hot_labels {np.ndarray}: label data
+            one_hot_labels (np.ndarray): label data
         Return:
-            encoded_labels {float}: label data
+            encoded_labels (float): label data
         """
         encoded_labels = np.argmax(one_hot_labels, axis = 1) #encode labels
         return encoded_labels
@@ -621,7 +621,7 @@ def _label_encoding(one_hot_labels):
 def _input_validation(defender):
     """ Input validation for various defenders or Defendergroup
         Args: 
-            defender {Defender, DefenderGroup}: label data
+            defender (Defender, DefenderGroup): label data
         """
     if isinstance(defender, DefenderGroup):
         if not isinstance(defender.defender_list, list):
