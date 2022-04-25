@@ -25,40 +25,39 @@ class BaseModel(nn.Module):
     neural networks for data poisoning attacks. Requires an architecture to be 
     defined in the form of a list or nested list containing the sequence of 
     torch.nn.modules objects needed to perform a forward pass. 
+
+    **NOTE**: If cuda is available, the class/model will be automatically sent to
+    torch.device("cuda"). 
+
+    Args: 
+        architecture (list) : list or nested list containing sequence of 
+                                nn.torch.modules objects to be used in the 
+                                forward pass of the model.
+        optimizer (str) : String specifying optimizer to use in training neural network.
+                            Options:
+                            "adam": torch.optim.Adam(),
+                            "adagrad": torch.optim.Adagrad(),
+                            "adamax": torch.optim.Adamax(),
+                            "sgd": torch.optim.SGD().
+        loss_func (str) : String specifying loss function to use in training neural network.
+                            Options:
+                            "mse": nn.MSELoss(),
+                            "nll": nn.NLLLoss(),
+                            "bce": nn.BCELoss(),
+                            "cross_entropy": nn.CrossEntropyLoss().
+        lr (float) : Learning rate to use in training neural network.
+        optim_kwargs (dict) : dictionary containing additional optimizer key-word 
+                              arguments (Default = {}).
+        loss_kwargs (dict) : dictionary containing additional key-word arguments 
+                                for the loss function (Default = {}).
     """
     def __init__(self, architecture: list, optimizer: str, 
                  loss_func: str, lr: float, optim_kwargs = {}, 
                  loss_kwargs = {}, seed = None):
-        """
-        Constrcutor method of BaseModel class that inherits from nn.Module.
-        Args: 
-            architecture (list) : list or nested list containing sequence of 
-                                  nn.torch.modules objects to be used in the 
-                                  forward pass of the model.
-            optimizer (str) : String specifying optimizer to use in training neural network.
-                              Options:
-                                'adam': torch.optim.Adam(),
-                                'adagrad': torch.optim.Adagrad(),
-                                'adamax': torch.optim.Adamax(),
-                                'sgd': torch.optim.SGD().
-            loss_func (str) : String specifying loss function to use in training neural network.
-                              Options:
-                                'mse': nn.MSELoss(),
-                                'nll': nn.NLLLoss(),
-                                'bce': nn.BCELoss(),
-                                'cross_entropy': nn.CrossEntropyLoss().
-            lr (float) : Learning rate to use in training neural network.
-            optim_kwargs (dict) : dictionary containing additional optimizer key-word 
-                                  arguments (Default = {}).
-            loss_kwargs (dict) : dictionary containing additional key-word arguments 
-                                 for the loss function (Default = {}).
-        """
         super().__init__()
         #initialise attributes to store training hyperparameters
         self.lr = lr 
         self.loss_func_str = loss_func
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        self = self.to(self.device) #send model to device 
 
         #retrieve user-defined sequences of layers
         if any(isinstance(el, list) for el in architecture):
@@ -66,11 +65,15 @@ class BaseModel(nn.Module):
         else: 
             self.network = nn.Sequential(*architecture)
         
+        #check device and automatically use cuda if available
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self = self.to(self.device) #send model to device 
+
         #apply random seed
         if seed: 
             torch.manual_seed(seed)
 
-        if optimizer.lower() == 'adam':
+        if optimizer.lower() == "adam":
             self.optimizer = torch.optim.Adam(self.parameters(), lr=self.lr, **optim_kwargs)
         elif optimizer == "sgd":
             self.optimizer = torch.optim.SGD(self.parameters(), lr=self.lr, **optim_kwargs)
@@ -101,9 +104,9 @@ class BaseModel(nn.Module):
         #convert np.ndarray /pd.Dataframe to tensor for the NN
         if (isinstance(X, np.ndarray) and isinstance(y, np.ndarray)):
             X = torch.tensor(X, dtype=torch.float64)
-            if self.loss_func_str in ['mse']:
+            if self.loss_func_str in ["mse"]:
                 y = torch.tensor(y, dtype=torch.float64)
-            if self.loss_func_str in ['nll', 'bce', 'cross_entropy']:
+            if self.loss_func_str in ["nll", "bce", "cross_entropy"]:
                 #check if one-hot encoded
                 if len(y.shape) > 1: 
                     y = torch.tensor(y).argmax(dim=1)
@@ -111,7 +114,7 @@ class BaseModel(nn.Module):
                     y = torch.tensor(y, dtype=torch.long)
         else:
             X = X.type(torch.float64)
-            if self.loss_func_str in ['mse']:
+            if self.loss_func_str in ["mse"]:
                 y = y.type(torch.float64)
             else:
                 if len(y.shape) > 1: 
@@ -122,7 +125,9 @@ class BaseModel(nn.Module):
         return X, y
     
     def step(self, X_batch, y_batch):
-        """Perform a step of gradient descent on the passed inputs (X_batch) and labels (y_batch).
+        """
+        Perform a step of gradient descent on the passed inputs (X_batch) and 
+        labels (y_batch). The inputs and labels are automatiucally
 
         Args:
              X_batch (np.ndarray, torch.Tensor) : input data used in training.
@@ -153,10 +158,10 @@ class BaseModel(nn.Module):
         self.optimizer.step()
     
     def forward(self, x):
-        """Perform a forward pass through the regressor.
+        """Perform a forward pass through the model.
         
         Args:
-            x (torch.Tensor) : Processed input array of size (batch_size, input_size).
+            x (torch.Tensor) : Input array of shape (batch_size, input_shape).
             
         Returns: 
             Predictions from current state of the model.
@@ -171,7 +176,7 @@ class BaseModel(nn.Module):
         """
         raise NotImplementedError
 
-    def evaluate(self, X_test, y_test, batch_size):
+    def evaluate(self, X_test, y_test):
         """Test the accuracy of the iris classifier on a test set.
 
         Args:
@@ -185,31 +190,36 @@ class BaseModel(nn.Module):
 #=======================IRIS========================
 #====================================================
 class IrisClassifier(BaseModel):
-    """Pre-defined simple classifier for the Iris dataset containing 
-       one fully-connected layer with 16 neurons using ReLU. 
+    """
+    Pre-defined simple classifier for the Iris dataset containing 
+    three fully-connected layers with neurons 4--50--3 using ReLU
+    as an activation function and a Softmax output activation. By 
+    default, the model uses torch.optim.Adam() as an optimiser with 
+    a learning rate of 0.001 and nn.CrossEntropyLoss() as a loss
+    function. Additional parameters may be passed for these through 
+    the arguments optim_kwargs and loss_kwargs, respectively.
+    
+    Args:
+        optimizer (str) : String specifying optimizer to use in training neural network (Default = "adam").
+                          Options:
+                            "adam": torch.optim.Adam(),
+                            "adagrad": torch.optim.Adagrad(),
+                            "sgd": torch.optim.SGD().
+        loss_func (str) : String specifying loss function to use in training neural network 
+                          (Default = "cross_entropy").
+                          Options:
+                            "mse": nn.MSELoss(),
+                            "nll": nn.NLLLoss(),
+                            "bce": nn.BCELoss(),
+                            "cross_entropy": nn.CrossEntropyLoss().
+        lr (float) : Learning rate to use in training neural network (Default = 0.001).
+        optim_kwargs (dict) : dictionary containing additional optimizer key-word 
+                                arguments (Default = {}).
+        loss_kwargs (dict) : dictionary containing additional key-word arguments 
+                                for the loss function (Default = {}).
     """
     def __init__(self, optimizer="adam", loss_func="cross_entropy", lr=0.001,
-                 optim_kwargs = {}, loss_kwargs = {}):
-        """Construct network as per user specifications.
-
-        Args:
-            optimizer (str) : String specifying optimizer to use in training neural network (Default = 'adam').
-                              Options:
-                                'adam': torch.optim.Adam(),
-                                'adagrad': torch.optim.Adagrad(),
-                                'sgd': torch.optim.SGD().
-            loss_func (str) : String specifying loss function to use in training neural network (Default = 'cross_entropy').
-                              Options:
-                                'mse': nn.MSELoss(),
-                                'nll': nn.NLLLoss(),
-                                'bce': nn.BCELoss(),
-                                'cross_entropy': nn.CrossEntropyLoss().
-            lr (float) : Learning rate to use in training neural network (Default = 0.001).
-            optim_kwargs (dict) : dictionary containing additional optimizer key-word 
-                                  arguments (Default = {}).
-            loss_kwargs (dict) : dictionary containing additional key-word arguments 
-                                 for the loss function (Default = {}).
-        """
+                 optim_kwargs = {}, loss_kwargs = {}, seed=None):
         #pre-defined simple architecture for classification on the iris dataset
         architecture = [nn.Linear(4, 50), 
                         nn.ReLU(), 
@@ -218,7 +228,8 @@ class IrisClassifier(BaseModel):
                         nn.Linear(50, 3), 
                         nn.Softmax()]
 
-        super().__init__(architecture, optimizer, loss_func, lr, optim_kwargs, loss_kwargs)
+        super().__init__(architecture, optimizer, loss_func, lr, optim_kwargs, 
+                         loss_kwargs, seed)
     
     def forward(self, x):
         "Forward method for model (needed as subclass of nn.Module)."
@@ -249,7 +260,7 @@ class IrisClassifier(BaseModel):
         test_loader = DataLoader(X_test, y_test, batch_size=batch_size)
         num_batches = len(test_loader)
 
-        #disable autograd since we don't need gradients to perform forward pass
+        #disable autograd since we don"t need gradients to perform forward pass
         #in testing and less computation is needed
         with torch.no_grad():
             test_loss = 0
@@ -277,27 +288,36 @@ class IrisClassifier(BaseModel):
 #====================================================
 class MNISTClassifier(BaseModel):
     """
-    Pre-defined classifier for the MNIST dataset.
+    Pre-defined classifier for the MNIST dataset. The architecture 
+    consists of two convolutional layers (using MaxPool2d and Dropout2d)
+    and two dense layers with a LogSoftmax output activation. By 
+    default, the model uses torch.optim.SGD() as an optimiser with 
+    a learning rate of 0.01 and nn.NLLLoss() as a loss
+    function. Additional parameters may be passed for these through 
+    the arguments optim_kwargs and loss_kwargs, respectively.
 
     Args:
-        optimizer (str) : String specifying optimizer to use in training neural network (Default = 'sgd').
-                            Options:
-                            'adam': torch.optim.Adam(),
-                            'adagrad': torch.optim.Adagrad(),
-                            'sgd': torch.optim.SGD()
-        loss_func (str) : String specifying loss function to use in training neural network (Default = 'nll').
-                            Options:
-                            'mse': nn.MSELoss(),
-                            'nll': nn.NLLLoss(),
-                            'bce': nn.BCELoss(),
-                            'cross_entropy': nn.CrossEntropyLoss().
+        optimizer (str) : String specifying optimizer to use in training neural network 
+                          (Default = "sgd").
+                          Options:
+                            "adam": torch.optim.Adam(),
+                            "adagrad": torch.optim.Adagrad(),
+                            "sgd": torch.optim.SGD()
+        loss_func (str) : String specifying loss function to use in training neural network 
+                          (Default = "nll").
+                          Options:
+                            "mse": nn.MSELoss(),
+                            "nll": nn.NLLLoss(),
+                            "bce": nn.BCELoss(),
+                            "cross_entropy": nn.CrossEntropyLoss().
         lr (float) : Learning rate to use in training neural network (Default = 0.01).
         optim_kwargs (dict) : dictionary containing additional optimizer key-word 
                               arguments (Default = {}).
         loss_kwargs (dict) : dictionary containing additional key-word arguments 
                              for the loss function (Default = {}).
     """
-    def __init__(self, optimizer="sgd", loss_func="nll", lr=0.01):
+    def __init__(self, optimizer="sgd", loss_func="nll", lr=0.01, optim_kwargs={},
+                 loss_kwargs={}, seed=None):
         #pre-defined architecture for classification on the MNIST dataset
         conv_layers = [nn.Conv2d(1, 10, kernel_size=5),
                        nn.MaxPool2d(kernel_size=2), 
@@ -315,7 +335,8 @@ class MNISTClassifier(BaseModel):
 
         architecture = [conv_layers, dense_layers]
                         
-        super().__init__(architecture, optimizer, loss_func, lr)
+        super().__init__(architecture, optimizer, loss_func, lr, optim_kwargs, 
+                         loss_kwargs, seed)
     
     def forward(self, x):
         "Forward method for model (needed as subclass of nn.Module)."
@@ -356,7 +377,7 @@ class MNISTClassifier(BaseModel):
         test_loader = DataLoader(X_test, y_test, batch_size=batch_size)
         num_batches = len(test_loader)
 
-        #disable autograd since we don't need gradients to perform forward pass
+        #disable autograd since we don"t need gradients to perform forward pass
         #in testing and less computation is needed
         test_loss = 0
         correct = 0
@@ -405,20 +426,22 @@ class CifarClassifier(BaseModel):
     """
     ResNet-18 classifier inheriting from BaseModel for the torchvision 
     CIFAR10 dataset. Achieves 80% accuracy on the held out test set in 20
-    epochs using mini-batches of size 32.
+    epochs using mini-batches of size 32. More details on ResNet-18 can 
+    be found on the paper "Deep Residual Learning for Image Recognition"
+    (https://arxiv.org/abs/1512.03385). 
 
     Args:
-        optimizer (str) : String specifying optimizer to use in training neural network (Default = 'adam').
+        optimizer (str) : String specifying optimizer to use in training neural network (Default = "adam").
                             Options:
-                            'adam': torch.optim.Adam(),
-                            'adagrad': torch.optim.Adagrad(),
-                            'sgd': torch.optim.SGD()
-        loss_func (str) : String specifying loss function to use in training neural network (Default = 'cross_entropy').
+                            "adam": torch.optim.Adam(),
+                            "adagrad": torch.optim.Adagrad(),
+                            "sgd": torch.optim.SGD()
+        loss_func (str) : String specifying loss function to use in training neural network (Default = "cross_entropy").
                             Options:
-                            'mse': nn.MSELoss(),
-                            'nll': nn.NLLLoss(),
-                            'bce': nn.BCELoss(),
-                            'cross_entropy': nn.CrossEntropyLoss().
+                            "mse": nn.MSELoss(),
+                            "nll": nn.NLLLoss(),
+                            "bce": nn.BCELoss(),
+                            "cross_entropy": nn.CrossEntropyLoss().
         lr (float) : Learning rate to use in training neural network (Default = 0.0001).
         optim_kwargs (dict) : dictionary containing additional optimizer key-word 
                               arguments (Default = {}).
@@ -426,7 +449,7 @@ class CifarClassifier(BaseModel):
                              for the loss function (Default = {}).
     """
     def __init__(self, optimizer="adam", loss_func="cross_entropy", lr=0.0001,
-                 optim_kwargs = {'weight_decay': 1e-6}, loss_kwargs = {}):
+                 optim_kwargs = {"weight_decay": 1e-6}, loss_kwargs = {}, seed=None):
 
         self.inchannel = 64
         conv1 = [nn.Conv2d(3, 64, kernel_size = 3, stride = 1,
@@ -451,7 +474,7 @@ class CifarClassifier(BaseModel):
 
         architecture = [conv_layers, dense_layers]
 
-        super().__init__(architecture, optimizer, loss_func, lr, optim_kwargs, loss_kwargs)
+        super().__init__(architecture, optimizer, loss_func, lr, optim_kwargs, loss_kwargs, seed)
         
     def _make_layer(self, block, channels, num_blocks, stride):
         """Make a layer composed of num_blocks _ResidualBlock objects.
@@ -502,7 +525,7 @@ class CifarClassifier(BaseModel):
         test_loader = DataLoader(X_test, y_test, batch_size=batch_size)
         num_batches = len(test_loader)
 
-        #disable autograd since we don't need gradients to perform forward pass
+        #disable autograd since we don"t need gradients to perform forward pass
         #in testing and less computation is needed
         test_loss = 0
         correct = 0
@@ -522,6 +545,6 @@ class CifarClassifier(BaseModel):
 # =============================================================================
 #  MAIN ENTRY POINT
 # =============================================================================
-if __name__ == '__main__':
+if __name__ == "__main__":
     pass
 
