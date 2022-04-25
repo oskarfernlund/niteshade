@@ -51,13 +51,13 @@ class DefenderGroup():
         """ Group defend method, where each of the .defend method of each defender in defender_list is called. 
             The exact defence depends on whether ensemble decisionmaking has been used.
         Args: 
-            X (np.ndarray, torch.Tensor) : point data.
-            y (np.ndarray, torch.Tensor) : label data.
+            X (np.ndarray, torch.Tensor) : point data (shape (batch_size, data dimensionality)).
+            y (np.ndarray, torch.Tensor) : label data (shape (batch_size,)).
         
         Return:
             tuple (output_x, output_y):
-                output_x (np.ndarray, torch.Tensor) : point data,
-                output_y (np.ndarray, torch.Tensor) : label data.
+                output_x (np.ndarray, torch.Tensor) : point data (shape (batch_size, data dimensionality)),
+                output_y (np.ndarray, torch.Tensor) : label data (shape (batch_size,)) .
         """
         if self.ensemble_accept_rate > 0:
             output_x, output_y = self._ensemble_defence(X, y, **input_kwargs)
@@ -71,8 +71,8 @@ class DefenderGroup():
            the .defend method of each defender will be called for all points and their decisions will be recorded in a dictionary
            Points will be rejected based on the proportion of defenders rejecting each individual point
         Args: 
-            X (np.ndarray, torch.Tensor) : point data.
-            y (np.ndarray, torch.Tensor) : label data.
+            X (np.ndarray, torch.Tensor) : point data (shape (batch_size, data dimensionality)).
+            y (np.ndarray, torch.Tensor) : label data (shape (batch_size,)).
         
         Return:
             tuple (output_x, output_y):
@@ -192,9 +192,10 @@ class Defender(ABC):
 
 class OutlierDefender(Defender):
     """ Abstractclass for defenders that use a outlier filtering strategy.
+
         Args: 
-            initial_dataset_x (np.ndarray, torch.Tensor) : point data.
-            initial_dataset_y (np.ndarray, torch.Tensor) : label data.
+            initial_dataset_x (np.ndarray, torch.Tensor) : point data (shape (batch_size, data dimensionality)).
+            initial_dataset_y (np.ndarray, torch.Tensor) : label data (shape (batch_size, )).
     
     """ 
     def __init__(self, initial_dataset_x, initial_dataset_y) -> None:
@@ -232,8 +233,8 @@ class KNN_Defender(PointModifierDefender):
         exceeds a threshold.
         A SKlearn KNeighborsClassifier is used to find nearest neighbours.
         Args: 
-            init_x (np.ndarray, torch.Tensor): point data.
-            init_y (np.ndarray, torch.Tensor): label data.
+            init_x (np.ndarray, torch.Tensor): point data (shape (batch_size, data dimensionality)).
+            init_y (np.ndarray, torch.Tensor): label data (shape (batch_size,)).
             nearest_neighbours (int): number of nearest neighbours to use for decisionmaking
             confidence_threshold (float): threshold to use for decisionmaking
             one_hot (boolean): boolean to indicate if labels are one-hot or not
@@ -268,12 +269,12 @@ class KNN_Defender(PointModifierDefender):
             If the proportion of the most frequent label in closest neighbours is higher than a threshold,
             then the label of the point is flipped to be the most frequent label of closest neighbours.
         Args: 
-            datapoints (np.ndarray, torch.Tensor): point data.
-            input_labels (np.ndarray, torch.Tensor): label data.
+            datapoints (np.ndarray, torch.Tensor): point data (shape (batch_size, data dimensionality)).
+            input_labels (np.ndarray, torch.Tensor): label data (shape (batch_size,)).
         Return:
             tuple (datapoints, flipped_labels) :
-                datapoints (np.ndarray, torch.Tensor): point data,
-                flipped_labels (np.ndarray, torch.Tensor): modified label data.
+                datapoints (np.ndarray, torch.Tensor): point data (shape (batch_size, data dimensionality)),
+                flipped_labels (np.ndarray, torch.Tensor): modified label data (shape (batch_size,)).
         """
         self._type_check(datapoints, input_labels) # Check if input data is tensor or ndarray
         if self._datatype == 0: # If incoming data is tensor, make into ndarray
@@ -390,13 +391,13 @@ class SoftmaxDefender(ModelDefender):
             If the output value of the true label is below the threshold, the points are rejected.
             If one_hot encoded, artificial labels are created.
         Args: 
-            datapoints (np.ndarray, torch.Tensor): point data.
-            input_labels (np.ndarray, torch.Tensor): label data.
+            datapoints (np.ndarray, torch.Tensor): point data (shape (batch_size, data dimensionality)).
+            input_labels (np.ndarray, torch.Tensor): label data (shape (batch_size,)).
             model (torch.nn.model): The updated current model that is used for online learning
         Return:
             tuple (datapoints, labels):
-                datapoints (np.ndarray, torch.Tensor): point data,
-                labels (np.ndarray, torch.Tensor): modified label data.
+                datapoints (np.ndarray, torch.Tensor): point data (shape (batch_size, data dimensionality)),
+                labels (np.ndarray, torch.Tensor): modified label data (shape (batch_size,)).
         """
         self._type_check(datapoints, labels) # Check if input data is tensor or ndarray
         self.defender_counter += 1
@@ -429,12 +430,13 @@ class SoftmaxDefender(ModelDefender):
 class FeasibleSetDefender(OutlierDefender):
     """ A FeasibleSetDefender class, inheriting from the OutlierDefender. Rejects points if the 
     distance from the point to the label centroid is too large (if the point is in the feasible set of the label).
+
     Args: 
-            initial_dataset_x (np.ndarray, torch.Tensor): point data.
-            initial_dataset_y (np.ndarray, torch.Tensor): label data.
-            threshold (float, int): distance threshold to use for decisionmaking
-            one_hot (boolean): boolean to indicate if labels are one-hot or not
-            dist_metric (Distance_metric): Distance metric to be used for calculating distances from points to centroids
+        initial_dataset_x (np.ndarray, torch.Tensor) : point data (shape (batch_size, data dimensionality)).
+        initial_dataset_y (np.ndarray, torch.Tensor) : label data (shape (batch_size,)).
+        threshold (float, int) : distance threshold to use for decisionmaking
+        one_hot (boolean) : boolean to indicate if labels are one-hot or not
+        dist_metric (Distance_metric) : Distance metric to be used for calculating distances from points to centroids
     """ 
     def __init__(self, initial_dataset_x, initial_dataset_y, threshold, one_hot = False,
                  dist_metric = None) -> None:
@@ -512,13 +514,14 @@ class FeasibleSetDefender(OutlierDefender):
             If the distance is higher than the threshold, the points are rejected.
             If all points are rejceted, empty arrays are returned.
             If one_hot encoded, artificial labels are created.
+
         Args: 
-            datapoints (np.ndarray, torch.Tensor): point data.
-            input_labels (np.ndarray, torch.Tensor): label data.
+            datapoints (np.ndarray, torch.Tensor): point data (shape (batch_size, data dimensionality)).
+            input_labels (np.ndarray, torch.Tensor): label data (shape (batch_size,)).
         Return:
             tuple (output_datapoints, output_labels) :
-                output_datapoints (np.ndarray, torch.Tensor): point data,
-                output_labels (np.ndarray, torch.Tensor): label data.
+                output_datapoints (np.ndarray, torch.Tensor): point data (shape (batch_size, data dimensionality)),
+                output_labels (np.ndarray, torch.Tensor): label data (shape (batch_size,)).
         """
         self._type_check(datapoints, labels) # Check if input data is tensor or ndarray
         if self._datatype == 0: # If incoming data is tensor, make into ndarray
@@ -597,8 +600,8 @@ class Distance_metric:
         """ Calculates the distance between 2 input points
             Currently only Eucleidian (l2 norm) distance metric is implemented off-the-shelf
         Args: 
-            input_1 (np.ndarray) : point_1 data.
-            input_2 (np.ndarray) : point_2 data.
+            input_1 (np.ndarray) : point_1 data (shape data dimensionality).
+            input_2 (np.ndarray) : point_2 data (shape data dimensionality).
         Return:
             distance (float) : distance between the 2 input points.
         """
