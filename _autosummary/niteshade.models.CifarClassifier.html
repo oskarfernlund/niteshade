@@ -95,21 +95,23 @@
 <dd><p>Bases: <a class="reference internal" href="niteshade.models.BaseModel.html#niteshade.models.BaseModel" title="niteshade.models.BaseModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">niteshade.models.BaseModel</span></code></a></p>
 <p>ResNet-18 classifier inheriting from BaseModel for the torchvision
 CIFAR10 dataset. Achieves 80% accuracy on the held out test set in 20
-epochs using mini-batches of size 32.</p>
+epochs using mini-batches of size 32. More details on ResNet-18 can
+be found on the paper “Deep Residual Learning for Image Recognition”
+(<a class="reference external" href="https://arxiv.org/abs/1512.03385">https://arxiv.org/abs/1512.03385</a>).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>optimizer</strong> (<em>str</em>) – String specifying optimizer to use in training neural network (Default = ‘adam’).
+<li><p><strong>optimizer</strong> (<em>str</em>) – String specifying optimizer to use in training neural network (Default = “adam”).
 Options:
-‘adam’: torch.optim.Adam(),
-‘adagrad’: torch.optim.Adagrad(),
-‘sgd’: torch.optim.SGD()</p></li>
-<li><p><strong>loss_func</strong> (<em>str</em>) – String specifying loss function to use in training neural network (Default = ‘cross_entropy’).
+“adam”: torch.optim.Adam(),
+“adagrad”: torch.optim.Adagrad(),
+“sgd”: torch.optim.SGD()</p></li>
+<li><p><strong>loss_func</strong> (<em>str</em>) – String specifying loss function to use in training neural network (Default = “cross_entropy”).
 Options:
-‘mse’: nn.MSELoss(),
-‘nll’: nn.NLLLoss(),
-‘bce’: nn.BCELoss(),
-‘cross_entropy’: nn.CrossEntropyLoss().</p></li>
+“mse”: nn.MSELoss(),
+“nll”: nn.NLLLoss(),
+“bce”: nn.BCELoss(),
+“cross_entropy”: nn.CrossEntropyLoss().</p></li>
 <li><p><strong>lr</strong> (<em>float</em>) – Learning rate to use in training neural network (Default = 0.0001).</p></li>
 <li><p><strong>optim_kwargs</strong> (<em>dict</em>) – dictionary containing additional optimizer key-word
 arguments (Default = {}).</p></li>
@@ -121,41 +123,7 @@ for the loss function (Default = {}).</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="niteshade.models.CifarClassifier.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">optimizer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'adam'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_func</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cross_entropy'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optim_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'weight_decay':</span> <span class="pre">1e-06}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niteshade.models.CifarClassifier.__init__" title="Permalink to this definition"></a></dt>
-<dd><p>Constrcutor method of BaseModel class that inherits from nn.Module.
-:param architecture: list or nested list containing sequence of</p>
-<blockquote>
-<div><p>nn.torch.modules objects to be used in the
-forward pass of the model.</p>
-</div></blockquote>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>optimizer</strong> (<em>str</em>) – <p>String specifying optimizer to use in training neural network.
-Options:</p>
-<blockquote>
-<div><p>’adam’: torch.optim.Adam(),
-‘adagrad’: torch.optim.Adagrad(),
-‘adamax’: torch.optim.Adamax(),
-‘sgd’: torch.optim.SGD().</p>
-</div></blockquote>
-</p></li>
-<li><p><strong>loss_func</strong> (<em>str</em>) – <p>String specifying loss function to use in training neural network.
-Options:</p>
-<blockquote>
-<div><p>’mse’: nn.MSELoss(),
-‘nll’: nn.NLLLoss(),
-‘bce’: nn.BCELoss(),
-‘cross_entropy’: nn.CrossEntropyLoss().</p>
-</div></blockquote>
-</p></li>
-<li><p><strong>lr</strong> (<em>float</em>) – Learning rate to use in training neural network.</p></li>
-<li><p><strong>optim_kwargs</strong> (<em>dict</em>) – dictionary containing additional optimizer key-word
-arguments (Default = {}).</p></li>
-<li><p><strong>loss_kwargs</strong> (<em>dict</em>) – dictionary containing additional key-word arguments
-for the loss function (Default = {}).</p></li>
-</ul>
-</dd>
-</dl>
+<dd><p>Initializes internal Module state, shared by both nn.Module and ScriptModule.</p>
 </dd></dl>
 
 <p class="rubric">Methods</p>
@@ -166,7 +134,7 @@ for the loss function (Default = {}).</p></li>
 </colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#niteshade.models.CifarClassifier.__init__" title="niteshade.models.CifarClassifier.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>([optimizer, loss_func, lr, ...])</p></td>
-<td><p>Constrcutor method of BaseModel class that inherits from nn.Module. :param architecture: list or nested list containing sequence of                      nn.torch.modules objects to be used in the                      forward pass of the model. :type architecture: list :param optimizer: String specifying optimizer to use in training neural network. Options:                     'adam': torch.optim.Adam(),                     'adagrad': torch.optim.Adagrad(),                     'adamax': torch.optim.Adamax(),                     'sgd': torch.optim.SGD(). :type optimizer: str :param loss_func: String specifying loss function to use in training neural network. Options:                     'mse': nn.MSELoss(),                     'nll': nn.NLLLoss(),                     'bce': nn.BCELoss(),                     'cross_entropy': nn.CrossEntropyLoss(). :type loss_func: str :param lr: Learning rate to use in training neural network. :type lr: float :param optim_kwargs: dictionary containing additional optimizer key-word                      arguments (Default = {}). :type optim_kwargs: dict :param loss_kwargs: dictionary containing additional key-word arguments                     for the loss function (Default = {}). :type loss_kwargs: dict.</p></td>
+<td><p>Initializes internal Module state, shared by both nn.Module and ScriptModule.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_module</span></code>(name, module)</p></td>
 <td><p>Adds a child module to the current module.</p></td>
@@ -205,7 +173,7 @@ for the loss function (Default = {}).</p></li>
 <td><p>Casts all floating point parameters and buffers to <code class="docutils literal notranslate"><span class="pre">float</span></code> datatype.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#niteshade.models.CifarClassifier.forward" title="niteshade.models.CifarClassifier.forward"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward</span></code></a>(x)</p></td>
-<td><p>Perform a forward pass through the regressor.</p></td>
+<td><p>Perform a forward pass through the model.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_buffer</span></code>(target)</p></td>
 <td><p>Returns the buffer given by <code class="docutils literal notranslate"><span class="pre">target</span></code> if it exists, otherwise throws an error.</p></td>
@@ -341,10 +309,10 @@ for the loss function (Default = {}).</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="niteshade.models.CifarClassifier.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niteshade.models.CifarClassifier.forward" title="Permalink to this definition"></a></dt>
-<dd><p>Perform a forward pass through the regressor.</p>
+<dd><p>Perform a forward pass through the model.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>x</strong> (<em>torch.Tensor</em>) – Processed input array of size (batch_size, input_size).</p>
+<dd class="field-odd"><p><strong>x</strong> (<em>torch.Tensor</em>) – Input array of shape (batch_size, input_shape).</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Predictions from current state of the model.</p>

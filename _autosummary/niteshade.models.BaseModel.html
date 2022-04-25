@@ -97,36 +97,26 @@
 neural networks for data poisoning attacks. Requires an architecture to be
 defined in the form of a list or nested list containing the sequence of
 torch.nn.modules objects needed to perform a forward pass.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="niteshade.models.BaseModel.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">architecture</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optim_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niteshade.models.BaseModel.__init__" title="Permalink to this definition"></a></dt>
-<dd><p>Constrcutor method of BaseModel class that inherits from nn.Module.
-:param architecture: list or nested list containing sequence of</p>
-<blockquote>
-<div><p>nn.torch.modules objects to be used in the
-forward pass of the model.</p>
-</div></blockquote>
+<p><strong>NOTE</strong>: If cuda is available, the class/model will be automatically sent to
+torch.device(“cuda”).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>optimizer</strong> (<em>str</em>) – <p>String specifying optimizer to use in training neural network.
-Options:</p>
-<blockquote>
-<div><p>’adam’: torch.optim.Adam(),
-‘adagrad’: torch.optim.Adagrad(),
-‘adamax’: torch.optim.Adamax(),
-‘sgd’: torch.optim.SGD().</p>
-</div></blockquote>
-</p></li>
-<li><p><strong>loss_func</strong> (<em>str</em>) – <p>String specifying loss function to use in training neural network.
-Options:</p>
-<blockquote>
-<div><p>’mse’: nn.MSELoss(),
-‘nll’: nn.NLLLoss(),
-‘bce’: nn.BCELoss(),
-‘cross_entropy’: nn.CrossEntropyLoss().</p>
-</div></blockquote>
-</p></li>
+<li><p><strong>architecture</strong> (<em>list</em>) – list or nested list containing sequence of
+nn.torch.modules objects to be used in the
+forward pass of the model.</p></li>
+<li><p><strong>optimizer</strong> (<em>str</em>) – String specifying optimizer to use in training neural network.
+Options:
+“adam”: torch.optim.Adam(),
+“adagrad”: torch.optim.Adagrad(),
+“adamax”: torch.optim.Adamax(),
+“sgd”: torch.optim.SGD().</p></li>
+<li><p><strong>loss_func</strong> (<em>str</em>) – String specifying loss function to use in training neural network.
+Options:
+“mse”: nn.MSELoss(),
+“nll”: nn.NLLLoss(),
+“bce”: nn.BCELoss(),
+“cross_entropy”: nn.CrossEntropyLoss().</p></li>
 <li><p><strong>lr</strong> (<em>float</em>) – Learning rate to use in training neural network.</p></li>
 <li><p><strong>optim_kwargs</strong> (<em>dict</em>) – dictionary containing additional optimizer key-word
 arguments (Default = {}).</p></li>
@@ -135,6 +125,10 @@ for the loss function (Default = {}).</p></li>
 </ul>
 </dd>
 </dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="niteshade.models.BaseModel.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">architecture</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optim_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niteshade.models.BaseModel.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Initializes internal Module state, shared by both nn.Module and ScriptModule.</p>
 </dd></dl>
 
 <p class="rubric">Methods</p>
@@ -145,7 +139,7 @@ for the loss function (Default = {}).</p></li>
 </colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#niteshade.models.BaseModel.__init__" title="niteshade.models.BaseModel.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(architecture, optimizer, loss_func, lr)</p></td>
-<td><p>Constrcutor method of BaseModel class that inherits from nn.Module. :param architecture: list or nested list containing sequence of                      nn.torch.modules objects to be used in the                      forward pass of the model. :type architecture: list :param optimizer: String specifying optimizer to use in training neural network. Options:                     'adam': torch.optim.Adam(),                     'adagrad': torch.optim.Adagrad(),                     'adamax': torch.optim.Adamax(),                     'sgd': torch.optim.SGD(). :type optimizer: str :param loss_func: String specifying loss function to use in training neural network. Options:                     'mse': nn.MSELoss(),                     'nll': nn.NLLLoss(),                     'bce': nn.BCELoss(),                     'cross_entropy': nn.CrossEntropyLoss(). :type loss_func: str :param lr: Learning rate to use in training neural network. :type lr: float :param optim_kwargs: dictionary containing additional optimizer key-word                      arguments (Default = {}). :type optim_kwargs: dict :param loss_kwargs: dictionary containing additional key-word arguments                     for the loss function (Default = {}). :type loss_kwargs: dict.</p></td>
+<td><p>Initializes internal Module state, shared by both nn.Module and ScriptModule.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_module</span></code>(name, module)</p></td>
 <td><p>Adds a child module to the current module.</p></td>
@@ -174,7 +168,7 @@ for the loss function (Default = {}).</p></li>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">eval</span></code>()</p></td>
 <td><p>Sets the module in evaluation mode.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#niteshade.models.BaseModel.evaluate" title="niteshade.models.BaseModel.evaluate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">evaluate</span></code></a>(X_test, y_test, batch_size)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#niteshade.models.BaseModel.evaluate" title="niteshade.models.BaseModel.evaluate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">evaluate</span></code></a>(X_test, y_test)</p></td>
 <td><p>Test the accuracy of the iris classifier on a test set.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">extra_repr</span></code>()</p></td>
@@ -184,7 +178,7 @@ for the loss function (Default = {}).</p></li>
 <td><p>Casts all floating point parameters and buffers to <code class="docutils literal notranslate"><span class="pre">float</span></code> datatype.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#niteshade.models.BaseModel.forward" title="niteshade.models.BaseModel.forward"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forward</span></code></a>(x)</p></td>
-<td><p>Perform a forward pass through the regressor.</p></td>
+<td><p>Perform a forward pass through the model.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_buffer</span></code>(target)</p></td>
 <td><p>Returns the buffer given by <code class="docutils literal notranslate"><span class="pre">target</span></code> if it exists, otherwise throws an error.</p></td>
@@ -298,7 +292,7 @@ for the loss function (Default = {}).</p></li>
 </table>
 <dl class="py method">
 <dt class="sig sig-object py" id="niteshade.models.BaseModel.evaluate">
-<span class="sig-name descname"><span class="pre">evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X_test</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_test</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niteshade.models.BaseModel.evaluate" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X_test</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_test</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niteshade.models.BaseModel.evaluate" title="Permalink to this definition"></a></dt>
 <dd><p>Test the accuracy of the iris classifier on a test set.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -314,10 +308,10 @@ for the loss function (Default = {}).</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="niteshade.models.BaseModel.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niteshade.models.BaseModel.forward" title="Permalink to this definition"></a></dt>
-<dd><p>Perform a forward pass through the regressor.</p>
+<dd><p>Perform a forward pass through the model.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>x</strong> (<em>torch.Tensor</em>) – Processed input array of size (batch_size, input_size).</p>
+<dd class="field-odd"><p><strong>x</strong> (<em>torch.Tensor</em>) – Input array of shape (batch_size, input_shape).</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Predictions from current state of the model.</p>
@@ -339,7 +333,8 @@ for the loss function (Default = {}).</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="niteshade.models.BaseModel.step">
 <span class="sig-name descname"><span class="pre">step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X_batch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_batch</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niteshade.models.BaseModel.step" title="Permalink to this definition"></a></dt>
-<dd><p>Perform a step of gradient descent on the passed inputs (X_batch) and labels (y_batch).</p>
+<dd><p>Perform a step of gradient descent on the passed inputs (X_batch) and
+labels (y_batch). The inputs and labels are automatiucally</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
