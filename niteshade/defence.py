@@ -370,7 +370,7 @@ class KNN_Defender(PointModifierDefender):
 
 class SoftmaxDefender(ModelDefender):
     """ A SoftmaxDefender class, inheriting from the ModelDefender. Rejects points if the 
-    softmax output for the true class label of the incoming point is below a threshold.
+    softmax output for the true class label of the in   coming point is below a threshold.
 
     Args: 
         threshold (float) : threshold for the softmax output
@@ -413,9 +413,10 @@ class SoftmaxDefender(ModelDefender):
             if self.one_hot:
                 class_labels = torch.argmax(labels, axis = 1).reshape(-1,1) # Get class labels from onehot
             #zero gradients so they are not accumulated across batches
-            model.optimizer.zero_grad()
+            model.evaluate()
+            with torch.no_grad():
             # Performs forward pass through classifier
-            outputs = model.forward(X_batch.float())
+                outputs = model.forward(X_batch.float())
             confidence = torch.gather(outputs, 1 , class_labels) # Get softmax output for class labels
             mask = (confidence>self.threshold).squeeze(1) #mask for points true if confidence>threshold
             X_output = X_batch[mask] # Get output points using mask
