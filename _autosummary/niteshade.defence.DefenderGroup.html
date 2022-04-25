@@ -103,19 +103,20 @@ The decisionmaking of Group can be sequential if ensemble_accept_rate=0 or ensem
 ensemble_accept_rate != 0 .
 If ensemble decisionmaking, points are accepted only if the proportion of defenders accepting
 the points is higher than ensemble_accept_rate.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>defender_list</strong> (<em>list</em>) – List containing defender objects to be used for defending</p></li>
+<li><p><strong>ensemble_accept_rate</strong> (<em>float</em>) – A rate to be used for ensemble decisionmaking,
+if = 0, sequential decisionmaking is used,
+if &gt; 0, ensemble decisionmaking is used</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="niteshade.defence.DefenderGroup.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">defender_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ensemble_accept_rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#niteshade.defence.DefenderGroup.__init__" title="Permalink to this definition"></a></dt>
-<dd><p>Constructor method of DefenderGroup class.
-:param defender_list: List containing defender objects to be used for defending
-:type defender_list: list
-:param ensemble_accept_rate: A rate to be used for ensemble decisionmaking</p>
-<blockquote>
-<div><p>if = 0, sequential decisionmaking is used
-if &gt; 0, ensemble decisionmaking is used</p>
-</div></blockquote>
-<dl class="field-list simple">
-</dl>
+<dd><p>Constructor method of DefenderGroup class.</p>
 </dd></dl>
 
 <p class="rubric">Methods</p>
@@ -126,7 +127,7 @@ if &gt; 0, ensemble decisionmaking is used</p>
 </colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#niteshade.defence.DefenderGroup.__init__" title="niteshade.defence.DefenderGroup.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(defender_list[, ensemble_accept_rate])</p></td>
-<td><p>Constructor method of DefenderGroup class. :param defender_list: List containing defender objects to be used for defending :type defender_list: list :param ensemble_accept_rate: A rate to be used for ensemble decisionmaking                              if = 0, sequential decisionmaking is used                              if &gt; 0, ensemble decisionmaking is used :type ensemble_accept_rate: float.</p></td>
+<td><p>Constructor method of DefenderGroup class.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#niteshade.defence.DefenderGroup.defend" title="niteshade.defence.DefenderGroup.defend"><code class="xref py py-obj docutils literal notranslate"><span class="pre">defend</span></code></a>(X, y, **input_kwargs)</p></td>
 <td><p>Group defend method, where each of the .defend method of each defender in defender_list is called.</p></td>
@@ -148,8 +149,8 @@ if &gt; 0, ensemble decisionmaking is used</p>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>output_x (np.ndarray, torch.Tensor): point data,
-output_y (np.ndarray, torch.Tensor): label data.</p>
+<dd class="field-even"><p>output_x (np.ndarray, torch.Tensor) : point data,
+output_y (np.ndarray, torch.Tensor) : label data.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>tuple (output_x, output_y)</p>
