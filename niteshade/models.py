@@ -58,8 +58,6 @@ class BaseModel(nn.Module):
         #initialise attributes to store training hyperparameters
         self.lr = lr 
         self.loss_func_str = loss_func
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        self = self.to(self.device) #send model to device 
 
         #retrieve user-defined sequences of layers
         if any(isinstance(el, list) for el in architecture):
@@ -67,6 +65,10 @@ class BaseModel(nn.Module):
         else: 
             self.network = nn.Sequential(*architecture)
         
+        #check device and automatically use cuda if available
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self = self.to(self.device) #send model to device 
+
         #apply random seed
         if seed: 
             torch.manual_seed(seed)
@@ -217,7 +219,7 @@ class IrisClassifier(BaseModel):
                                 for the loss function (Default = {}).
     """
     def __init__(self, optimizer="adam", loss_func="cross_entropy", lr=0.001,
-                 optim_kwargs = {}, loss_kwargs = {}):
+                 optim_kwargs = {}, loss_kwargs = {}, seed=None):
         #pre-defined simple architecture for classification on the iris dataset
         architecture = [nn.Linear(4, 50), 
                         nn.ReLU(), 
@@ -226,7 +228,8 @@ class IrisClassifier(BaseModel):
                         nn.Linear(50, 3), 
                         nn.Softmax()]
 
-        super().__init__(architecture, optimizer, loss_func, lr, optim_kwargs, loss_kwargs)
+        super().__init__(architecture, optimizer, loss_func, lr, optim_kwargs, 
+                         loss_kwargs, seed)
     
     def forward(self, x):
         "Forward method for model (needed as subclass of nn.Module)."
@@ -313,7 +316,8 @@ class MNISTClassifier(BaseModel):
         loss_kwargs (dict) : dictionary containing additional key-word arguments 
                              for the loss function (Default = {}).
     """
-    def __init__(self, optimizer="sgd", loss_func="nll", lr=0.01):
+    def __init__(self, optimizer="sgd", loss_func="nll", lr=0.01, optim_kwargs={},
+                 loss_kwargs={}, seed=None):
         #pre-defined architecture for classification on the MNIST dataset
         conv_layers = [nn.Conv2d(1, 10, kernel_size=5),
                        nn.MaxPool2d(kernel_size=2), 
@@ -331,7 +335,8 @@ class MNISTClassifier(BaseModel):
 
         architecture = [conv_layers, dense_layers]
                         
-        super().__init__(architecture, optimizer, loss_func, lr)
+        super().__init__(architecture, optimizer, loss_func, lr, optim_kwargs, 
+                         loss_kwargs, seed)
     
     def forward(self, x):
         "Forward method for model (needed as subclass of nn.Module)."
@@ -444,7 +449,7 @@ class CifarClassifier(BaseModel):
                              for the loss function (Default = {}).
     """
     def __init__(self, optimizer="adam", loss_func="cross_entropy", lr=0.0001,
-                 optim_kwargs = {"weight_decay": 1e-6}, loss_kwargs = {}):
+                 optim_kwargs = {"weight_decay": 1e-6}, loss_kwargs = {}, seed=None):
 
         self.inchannel = 64
         conv1 = [nn.Conv2d(3, 64, kernel_size = 3, stride = 1,
@@ -469,7 +474,7 @@ class CifarClassifier(BaseModel):
 
         architecture = [conv_layers, dense_layers]
 
-        super().__init__(architecture, optimizer, loss_func, lr, optim_kwargs, loss_kwargs)
+        super().__init__(architecture, optimizer, loss_func, lr, optim_kwargs, loss_kwargs, seed)
         
     def _make_layer(self, block, channels, num_blocks, stride):
         """Make a layer composed of num_blocks _ResidualBlock objects.
