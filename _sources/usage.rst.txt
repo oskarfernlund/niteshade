@@ -129,7 +129,8 @@ of a data poisoning attack) can be done in two different ways. The simplest way
 is to use one of niteshade's out-of-the-box model classes, e.g. 
 ``shade.models.IrisClassifier`` (designed specifically for the Iris dataset), 
 ``shade.models.MNISTClassifier`` (designed specifically for MNIST), or 
-``shade.models.CifarClassifier`` (designed specifically for CIFAR-10):
+``shade.models.CifarClassifier`` (designed specifically for CIFAR-10), for 
+example:
 
 >>> from niteshade.models import MNISTClassifier
 >>> mnist_model = MNISTClassifier(optimizer="sgd", loss_func="nll", lr=0.01)
@@ -137,63 +138,54 @@ is to use one of niteshade's out-of-the-box model classes, e.g.
 However, most users will prefer to create a custom model class. Custom model 
 classes can be easily created by inheriting the ``niteshade.models.BaseModel`` 
 superclass, providing it the necessary arguments in the constructor, and 
-filling in the ``.forward()``, ``.predict()`` and ``.evaluate()`` methods.
+filling in the ``.forward()``, and ``.evaluate()`` methods. Below is an example 
+of a simple multi-layer perceptron regressor: 
 
 .. code-block:: python
 
     import torch.nn as nn
 
-    class CustomModel(BaseModel):
-        def __init__(self, optimizer="adam", loss_func="mse", lr=0.001)
-            architecture = [nn.Linear(4, 16), nn.ReLU(), nn.Linear(16, 1)]
-            super().__init__(architecture, optimizer, loss_func, lr)
+    class MLPRegressor(BaseModel):
+        """ Simple MLP regressor class. """
+
+        def __init__(self):
+            """ Constructor. """
+            # Define the MLP architecture
+            architecture = [nn.Linear(4, 16),
+                            nn.ReLU(),
+                            nn.Linear(16, 1)]
+
+            # Inherit the BaseModel superclass (passing necessary arguments)
+            super().__init__(architecture=architecture,
+                             optimizer="adam", 
+                             loss_func="mse", 
+                             lr=0.001)
         
         def forward(self, x):
+            """ Execute the forward pass. """
+            # Mount input to GPU if available, execute forward pass
             x = x.to(self.device)
             return self.network(x) 
 
-        def predict(self, x):
-
-            # Is this necessary? Does it get used?
-
-            self.eval() # Set to eval mode (not necessary in this simple case)
+        def evaluate(self, X_test, y_test):
+            """ Evaluate the model predictions. """
+            # Turn on evaluate mode and compute accuracy w/o storing gradients
+            self.eval()
             with torch.no_grad():
-                pred = self.forward(x)
-            return pred
+                y_pred = self.forward(X_test)
+            return 1 - (y_pred - y_test).square().mean().sqrt()
 
-        def evaluate(self, X_test, y_test, batch_size):
-
-            # Can this be something much simpler? Is this necessary?
-
-
-            X_test, y_test = self._check_inputs(X_test, y_test)
-
-            #create dataloader with test data
-            test_loader = DataLoader(X_test, y_test, batch_size=batch_size)
-            num_batches = len(test_loader)
-
-            #disable autograd since we don't need gradients to perform forward pass
-            #in testing and less computation is needed
-            with torch.no_grad():
-                test_loss = 0
-                correct = 0
-
-                for inputs, targets in test_loader:
-                    outputs = self.forward(inputs.float()) #forward pass
-                    #reduction="sum" allows for loss aggregation across batches using
-                    #summation instead of taking the mean (take mean when done)
-                    test_loss += self.loss_func(outputs, targets).item()
-
-                    pred = outputs.data.max(1, keepdim=True)[1]
-                    correct += pred.eq(targets.view_as(pred)).sum()
-
-            num_points = batch_size * num_batches
-
-            test_loss /= num_points #mean loss
-
-            accuracy = correct / num_points
-            
-            return accuracy
+In the constructor (``.__init__()`` method), the model architecture is defined 
+as a list of PyTorch building blocks (layers, activations etc.), then passed to 
+the superclass along with the desired optimiser, loss function and learning 
+rate (see :doc:`api` section for possible values). The ``BaseModel`` class has 
+``.device`` attribute which indicates whether or not a hardware accelerator is 
+available, and a ``.network`` attribute which assembles the provided 
+architecture as a callable function that passes inputs through the layers 
+sequentially. Both these attributes are used in the ``.forward()`` method, 
+which implements the forward pass through the model. Finally, the 
+``.evaluate()`` method computes whichever performance metric we are interested 
+in analysing during the simulation (accuracy, in this case).
 
 All niteshade models perform incremental learning updates using the ``.step()`` 
 method (inherited from ``BaseModel``).
