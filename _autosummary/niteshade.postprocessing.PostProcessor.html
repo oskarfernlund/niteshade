@@ -124,16 +124,13 @@ each Simulator as keys.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="#niteshade.postprocessing.PostProcessor.evaluate_simulators_metrics" title="niteshade.postprocessing.PostProcessor.evaluate_simulators_metrics"><code class="xref py py-obj docutils literal notranslate"><span class="pre">evaluate_simulators_metrics</span></code></a>(X_test, y_test)</p></td>
 <td><p>Returns a dictionary of lists with metrics.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#niteshade.postprocessing.PostProcessor.extract_z" title="niteshade.postprocessing.PostProcessor.extract_z"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extract_z</span></code></a>(dataset[, perplexity, n_iter])</p></td>
-<td><p>Extract embedded x,y positions for every datapoint in the dataset.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#niteshade.postprocessing.PostProcessor.plot_decision_boundaries" title="niteshade.postprocessing.PostProcessor.plot_decision_boundaries"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_decision_boundaries</span></code></a>(X_test, y_test[, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#niteshade.postprocessing.PostProcessor.plot_decision_boundaries" title="niteshade.postprocessing.PostProcessor.plot_decision_boundaries"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_decision_boundaries</span></code></a>(X_test, y_test[, ...])</p></td>
 <td><p>Plot the decision boundaries of the final models inside all the ran Simulator objects passed in the constructor method of the PostProcessor.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#niteshade.postprocessing.PostProcessor.plot_online_learning_metrics" title="niteshade.postprocessing.PostProcessor.plot_online_learning_metrics"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_online_learning_metrics</span></code></a>(metrics[, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#niteshade.postprocessing.PostProcessor.plot_online_learning_metrics" title="niteshade.postprocessing.PostProcessor.plot_online_learning_metrics"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_online_learning_metrics</span></code></a>(metrics[, ...])</p></td>
 <td><p>Prints a plot into a console.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#niteshade.postprocessing.PostProcessor.track_data_modifications" title="niteshade.postprocessing.PostProcessor.track_data_modifications"><code class="xref py py-obj docutils literal notranslate"><span class="pre">track_data_modifications</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#niteshade.postprocessing.PostProcessor.track_data_modifications" title="niteshade.postprocessing.PostProcessor.track_data_modifications"><code class="xref py py-obj docutils literal notranslate"><span class="pre">track_data_modifications</span></code></a>()</p></td>
 <td><p>Computes for each simulation the following: a) the number of points modified by the attacker; b) the number of points removed by the defender; c) the number of points modified by the defender.</p></td>
 </tr>
 </tbody>
@@ -169,9 +166,9 @@ timestep of a simulation).</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="niteshade.postprocessing.PostProcessor.evaluate_simulators_metrics">
 <span class="sig-name descname"><span class="pre">evaluate_simulators_metrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X_test</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_test</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niteshade.postprocessing.PostProcessor.evaluate_simulators_metrics" title="Permalink to this definition"></a></dt>
-<dd><p>Returns a dictionary of lists with metrics. Requirement: The model
-must have an evaluate method of the form: Input: X_test, y_test,
-self.batch_sizes[simulation_label]. Output: metric.</p>
+<dd><p>Returns a dictionary of lists with metrics. Requires the model
+to have an .evaluate() method with arguments (X_test, y_test) that returns
+any given metric that the user deems appropriate for the task at hand.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -193,40 +190,8 @@ self.batch_sizes[simulation_label]. Output: metric.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="niteshade.postprocessing.PostProcessor.extract_z">
-<span class="sig-name descname"><span class="pre">extract_z</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">perplexity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_iter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2000</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niteshade.postprocessing.PostProcessor.extract_z" title="Permalink to this definition"></a></dt>
-<dd><p>Extract embedded x,y positions for every datapoint in the dataset.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>dataset</strong> (<em>np.ndarray</em>) – NumPy array containing data.</p></li>
-<li><p><strong>perplexity</strong> (<em>int</em>) – The perplexity is related to the number of
-nearest neighbors that is used in other manifold
-learning algorithms. Larger datasets usually
-require a larger perplexity. Consider selecting
-a value between 5 and 50. Different values can
-result in significantly different results.
-Default = 50.</p></li>
-<li><p><strong>n_iter</strong> (<em>iter</em>) – Maximum number of iterations for the optimization.
-Should be at least 250. SeeDefault = 2000.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><dl class="simple">
-<dt>embedded x,y positions for every datapoint</dt><dd><p>in the dataset.</p>
-</dd>
-</dl>
-</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>tsne_results</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="niteshade.postprocessing.PostProcessor.plot_decision_boundaries">
-<span class="sig-name descname"><span class="pre">plot_decision_boundaries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X_test</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_test</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">500</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">perplexity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_iter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kernel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'poly'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">degree</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(20,</span> <span class="pre">20)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fontsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">markersize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resolution</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_plot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niteshade.postprocessing.PostProcessor.plot_decision_boundaries" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">plot_decision_boundaries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X_test</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_test</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">500</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">perplexity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_iter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kernel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'poly'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">degree</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(20,</span> <span class="pre">20)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fontsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">markersize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resolution</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_plot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niteshade.postprocessing.PostProcessor.plot_decision_boundaries" title="Permalink to this definition"></a></dt>
 <dd><p>Plot the decision boundaries of the final models inside all the ran
 Simulator objects passed in the constructor method of the PostProcessor.
 This method uses sklearn.manifold.TSNE to reduce the dimensionality of
@@ -262,7 +227,20 @@ kernel matrix from data matrices; that matrix should
 be an array of shape (n_samples, n_samples).
 Default=’poly’.</p></li>
 <li><p><strong>degree</strong> (<em>int</em>) – Degree of the polynomial kernel function (‘poly’).
-Ignored by all other kernels.</p></li>
+Ignored by all other kernels. Default = 3.</p></li>
+<li><p><strong>figsize</strong> (<em>tuple</em>) – Tuple (W,H) indicating the size of the figures to plot.
+Default = (20,20).</p></li>
+<li><p><strong>fontsize</strong> (<em>int</em>) – Size of the font in the plots. Default = 10.</p></li>
+<li><p><strong>markersize</strong> (<em>int</em>) – Size of the markers representing individual points in
+X_test and y_test. Default = 20.</p></li>
+<li><p><strong>resolution</strong> (<em>float</em>) – Size of the “steps” used to create the meshgrid upon
+which the predictions are made to plot the decision
+boundaries of the model. The smaller the value the
+more computationally exhaustive the process becomes.
+Values &lt; 0.1 are not recommended for this reason
+(Default = 0.2).</p></li>
+<li><p><strong>save</strong> (<em>bool</em>) – Boolean indicating wether to save the plots or not. (Default = False).</p></li>
+<li><p><strong>show_plot</strong> (<em>bool</em>) – Boolean indicating if plot should be showed (Default = True).</p></li>
 </ul>
 </dd>
 </dl>
