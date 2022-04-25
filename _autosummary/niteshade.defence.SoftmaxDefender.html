@@ -133,7 +133,7 @@ softmax output for the true class label of the incoming point is below a thresho
 <dt class="sig sig-object py" id="niteshade.defence.SoftmaxDefender.defend">
 <span class="sig-name descname"><span class="pre">defend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">datapoints</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">input_kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niteshade.defence.SoftmaxDefender.defend" title="Permalink to this definition"></a></dt>
 <dd><dl class="simple">
-<dt>The defend method for the SoftMaxDefender.</dt><dd><p>defender starts defending if defend call counter (self.defend_counter) is larger than delay attribute.
+<dt>The defend method for the SoftMaxDefender.</dt><dd><p>Defender starts defending if defend call counter (self.defend_counter) is larger than delay attribute.
 For each incoming point, a forward pass is done to get the softmax output values for the point.
 If the output value of the true label is below the threshold, the points are rejected.
 If one_hot encoded, artificial labels are created.</p>
