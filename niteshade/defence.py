@@ -175,7 +175,7 @@ class Defender(ABC):
     
     @abstractmethod
     def defend(self):
-        """Checks if the .defend method is implemented"""
+        """Checks if the .defend method is implemented. """
 
         raise NotImplementedError("Defend method needs to be implemented for a defender")
     
@@ -191,14 +191,14 @@ class Defender(ABC):
 
 
 class OutlierDefender(Defender):
-    """ Abstractclass for defenders that use a outlier filtering strategy
+    """ Abstractclass for defenders that use a outlier filtering strategy.
         Args: 
-            initial_dataset_x (np.ndarray, torch.Tensor): point data.
-            initial_dataset_y (np.ndarray, torch.Tensor): label data.
+            initial_dataset_x (np.ndarray, torch.Tensor) : point data.
+            initial_dataset_y (np.ndarray, torch.Tensor) : label data.
     
     """ 
     def __init__(self, initial_dataset_x, initial_dataset_y) -> None:
-        """ Initialise the OutlierDefender class using a initial dataset
+        """ Initialise the OutlierDefender class using a initial dataset.
         """
         super().__init__()
         self._type_check(initial_dataset_x, initial_dataset_y) # Type check for initial data
@@ -212,8 +212,8 @@ class OutlierDefender(Defender):
 
 class ModelDefender(Defender):
     """ Abstractclass for defenders that use a strategy that needs access to the model.
-        This class is used mainly in the siumlation to check if the current model needs
-        to be sent to the .defend method.
+        This class is used mainly in the simulation to check if the current model needs
+        to be sent to the .defend method as an input parameter.
     """ 
     def __init__(self) -> None:
         super().__init__()
@@ -385,7 +385,7 @@ class SoftmaxDefender(ModelDefender):
         self.defend_counter = 0
     def defend(self, datapoints, labels, model, **input_kwargs):
         """ The defend method for the SoftMaxDefender.
-            defender starts defending if defend call counter (self.defend_counter) is larger than delay attribute.
+            Defender starts defending if defend call counter (self.defend_counter) is larger than delay attribute.
             For each incoming point, a forward pass is done to get the softmax output values for the point.
             If the output value of the true label is below the threshold, the points are rejected.
             If one_hot encoded, artificial labels are created.
