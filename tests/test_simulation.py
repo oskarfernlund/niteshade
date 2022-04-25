@@ -9,14 +9,18 @@ Unit and integration tests for the simulation module.
 # =============================================================================
 #  IMPORTS AND DEPENDENCIES
 # =============================================================================
+from matplotlib.pyplot import isinteractive
 import pytest
 
-from niteshade.attack import AddLabeledPointsAttacker, LabelFlipperAttacker, Attacker
+from niteshade.attack import AddLabeledPointsAttacker, LabelFlipperAttacker, Attacker, AddPointsAttacker, PerturbPointsAttacker
 from niteshade.defence import Defender, FeasibleSetDefender
 from niteshade.models import IrisClassifier, MNISTClassifier
 from niteshade.simulation import Simulator, wrap_results
 from niteshade.utils import train_test_iris, train_test_MNIST
 
+import torch.nn as nn
+import torch
+import numpy as np
 
 # =============================================================================
 #  Tests
@@ -103,11 +107,51 @@ def test_iris():
 
     wrapped_data, wrapped_models =  wrap_results(simulators)
 
+def test_attacker_arguments():
+    class TestModelAttacker(Attacker):
+        def __init__(self):
+            super().__init__()
+        def attack(self, X, y, model, arg1, arg2):
+            assert isinstance(model, nn.Module)
+            assert isinstance(X, (torch.Tensor, np.ndarray))
+            assert isinstance(y, (torch.Tensor, np.ndarray))
+            assert arg1 == 2
+            assert arg2 == 5
+            return X, y
+            
+    class TestAttacker(Attacker):
+        def __init__(self):
+            super().__init__()
+        def attack(self, X, y, arg1, arg2):
+            assert isinstance(X, (torch.Tensor, np.ndarray))
+            assert isinstance(y, (torch.Tensor, np.ndarray))
+            assert arg1 == 2
+            assert arg2 == 5
+            return X, y
+    X_train, y_train, X_test, y_test = train_test_iris()
+    batch_size = 5
+    num_episodes = 10
+    args = {"arg1": 2, "arg2": 5}
+
+    model1 = IrisClassifier()
+    attacker1 = TestModelAttacker()
+    simulator1 = Simulator(X_train, y_train, model1, attacker=attacker1,
+                           batch_size=batch_size, num_episodes=num_episodes)
+
+    model2 = IrisClassifier()
+    attacker2 = TestAttacker()
+    simulator2 = Simulator(X_train, y_train, model2, attacker=attacker2,
+                           batch_size=batch_size, num_episodes=num_episodes)
+
+    simulator1.run(attacker_requires_model=True, attacker_args=args)
+    simulator2.run(attacker_args=args)
+
 
 # =============================================================================
 #  MAIN ENTRY POINT
 # =============================================================================
 
 if __name__ == '__main__':
+    test_attacker_arguments()
     test_mnist()
     test_iris()

@@ -23,7 +23,7 @@ from niteshade.postprocessing import PostProcessor, PDF
 from niteshade.simulation import Simulator, wrap_results
 from niteshade.utils import train_test_iris, train_test_MNIST, get_time_stamp_as_string, save_plot
 
-
+from tests.test_simulation import test_attacker_arguments
 # =============================================================================
 #  GLOBAL VARIABLES
 # =============================================================================
@@ -305,7 +305,7 @@ def test_learning_rates(saved_models=None, baseline=None):
 
 if __name__ == "__main__":
     #-----------IRIS TRIALS------------
-    test_iris_simulations()
+    #test_iris_simulations()
     #test_iris_regular()
 
     #-----------MNIST TRIALS-----------
@@ -318,5 +318,8 @@ if __name__ == "__main__":
     #test_decision_boundaries_MNIST(saved_models=None, baseline=None)
     #test_learning_rates(saved_models=None, baseline=None)
     #test_decision_boundaries_iris()
+
+    #-------------TESTS--------------
+    test_attacker_arguments()
 
 
