@@ -194,9 +194,9 @@ class PostProcessor():
     
 
     def evaluate_simulators_metrics(self, X_test, y_test):
-        """Returns a dictionary of lists with metrics. Requirement: The model 
-        must have an evaluate method of the form: Input: X_test, y_test, 
-        self.batch_sizes[simulation_label]. Output: metric.
+        """Returns a dictionary of lists with metrics. Requires the model 
+        to have an .evaluate() method with arguments (X_test, y_test) that returns
+        any given metric that the user deems appropriate for the task at hand.
 
         Args:
             X_test (np.ndarray) : NumPy array containing features.
@@ -213,6 +213,11 @@ class PostProcessor():
             model = self.final_models[simulation_label]
             model.load_state_dict(final_model_specs)
             metric = model.evaluate(X_test, y_test) #self.batch_sizes[simulation_label])
+            if isinstance(metric, torch.Tensor):
+                if metric.is_cuda:
+                    metric = metric.cpu().numpy()
+                else:
+                    metric = metric.numpy()
             metrics[simulation_label] = [metric]
         return metrics
 
@@ -281,7 +286,7 @@ class PostProcessor():
         if save: save_plot(fig, plotname=plotname)
 
 
-    def extract_z(self, dataset, perplexity=50, n_iter=2000):
+    def _extract_z(self, dataset, perplexity=50, n_iter=2000):
         """Extract embedded x,y positions for every datapoint in the dataset.
         
         Args:
@@ -340,10 +345,10 @@ class PostProcessor():
         return sim_predictions
 
 
-    def plot_decision_boundaries(self, X_test, y_test, num_points = 500, 
+    def plot_decision_boundaries(self, X_test, y_test, num_points=500, 
                                  perplexity=50, n_iter=2000, C=10, 
                                  kernel='poly', degree=3, figsize=(20,20), 
-                                 fontsize=10, markersize=20, resolution = 0.1, 
+                                 fontsize=10, markersize=20, resolution = 0.2, 
                                  save=False, show_plot=True): 
         """Plot the decision boundaries of the final models inside all the ran 
         Simulator objects passed in the constructor method of the PostProcessor. 
@@ -379,8 +384,20 @@ class PostProcessor():
                              be an array of shape (n_samples, n_samples). 
                              Default='poly'.
             degree (int) : Degree of the polynomial kernel function ('poly'). 
-                             Ignored by all other kernels.
-            
+                           Ignored by all other kernels. Default = 3.
+            figsize (tuple) : Tuple (W,H) indicating the size of the figures to plot.
+                              Default = (20,20).
+            fontsize (int) : Size of the font in the plots. Default = 10.
+            markersize (int) : Size of the markers representing individual points in 
+                               X_test and y_test. Default = 20.
+            resolution (float) : Size of the "steps" used to create the meshgrid upon
+                                 which the predictions are made to plot the decision
+                                 boundaries of the model. The smaller the value the 
+                                 more computationally exhaustive the process becomes. 
+                                 Values < 0.1 are not recommended for this reason 
+                                 (Default = 0.2).
+            save (bool) : Boolean indicating wether to save the plots or not. (Default = False).
+            show_plot (bool) : Boolean indicating if plot should be showed (Default = True). 
         """
         #make sure number of points is smaller than length of test set
         assert num_points <= len(X_test), 'Number of points to plot must be \
@@ -406,7 +423,7 @@ class PostProcessor():
         model_predictions = self._get_predictions(X_test, final_state_dicts)
 
         #reduce dimensionality of model embeddings to two so they can be plotted
-        z_embedding = self.extract_z(X_test, perplexity, n_iter) 
+        z_embedding = self._extract_z(X_test, perplexity, n_iter) 
 
         # create a mesh to plot in
         x_min, x_max = z_embedding[:, 0].min() - 1, z_embedding[:, 0].max() + 1
