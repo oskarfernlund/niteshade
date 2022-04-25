@@ -25,18 +25,18 @@ from sklearn.neighbors import KNeighborsClassifier
 # =============================================================================
 
 class DefenderGroup():
-    """ Class allowing the grouping of defenders through a input list containing defender objects
+    """ Class allowing the grouping of defenders through a input list containing defender objects.
         The decisionmaking of Group can be sequential if ensemble_accept_rate=0 or ensemble if 
-        ensemble_accept_rate != 0
+        ensemble_accept_rate != 0 .
         If ensemble decisionmaking, points are accepted only if the proportion of defenders accepting 
-        the points is higher than ensemble_accept_rate
+        the points is higher than ensemble_accept_rate.
     """ 
     def __init__(self,defender_list: list, ensemble_accept_rate = 0.0) -> None:
-        """Constrcutor method of DefenderGroup class .
+        """Constructor method of DefenderGroup class.
         Args: 
-            - defender_list (list): List containing defender objects to be used for defending
+            defender_list (list): List containing defender objects to be used for defending
             
-            - ensemble_accept_rate (float): A rate to be used for ensemble decisionmaking
+            ensemble_accept_rate (float): A rate to be used for ensemble decisionmaking
                                         if = 0, sequential decisionmaking is used
                                         if > 0, ensemble decisionmaking is used
         """
@@ -47,15 +47,15 @@ class DefenderGroup():
         _input_validation(self)
 
     def defend(self, X, y, **input_kwargs):
-        """ Group defend method, where the defender group will be defending
-            The exact defence depends on whether ensemble decisionmaking has been used
+        """ Group defend method, where each of the .defend method of each defender in defender_list is called. 
+            The exact defence depends on whether ensemble decisionmaking has been used.
         Args: 
             X (np.ndarray, torch.Tensor): point data.
             y (np.ndarray, torch.Tensor): label data.
         
         Return:
-            tuple (output_x, output_y) where:
-                output_x (np.ndarray, torch.Tensor): point data.
+            tuple (output_x, output_y):
+                output_x (np.ndarray, torch.Tensor): point data,
                 output_y (np.ndarray, torch.Tensor): label data.
         """
         if self.ensemble_accept_rate > 0:
@@ -167,14 +167,15 @@ class DefenderGroup():
         
 
 class Defender(ABC):
-    """ Abstractclass that the defenders use
-        Checks if the  .defend method is implemented
+    """ Abstractclass that the defenders use.
     """ 
     def __init__(self) -> None:
         pass
     
     @abstractmethod
     def defend(self):
+        """Checks if the .defend method is implemented"""
+
         raise NotImplementedError("Defend method needs to be implemented for a defender")
     
     def _type_check(self, x, y):
