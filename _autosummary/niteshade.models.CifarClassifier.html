@@ -320,10 +320,18 @@ for the loss function (Default = {}).</p></li>
 <dd><p>Perform a forward pass through the model.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>x</strong> (<em>torch.Tensor</em>) – Input array of shape (batch_size, input_shape).</p>
+<dd class="field-odd"><p><strong>x</strong> (<em>np.ndarray</em><em> or </em><em>torch.Tensor</em>) – Input array of shape
+(batch_size, input_shape).</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Predictions from current state of the model.</p>
+<dd class="field-even"><p><dl class="simple">
+<dt>Predictions from current state of</dt><dd><p>the model.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(np.ndarray or torch.Tensor)</p>
 </dd>
 </dl>
 </dd></dl>

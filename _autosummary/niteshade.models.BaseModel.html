@@ -169,7 +169,7 @@ for the loss function (Default = {}).</p></li>
 <td><p>Sets the module in evaluation mode.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#niteshade.models.BaseModel.evaluate" title="niteshade.models.BaseModel.evaluate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">evaluate</span></code></a>(X_test, y_test)</p></td>
-<td><p>Test the accuracy of the iris classifier on a test set.</p></td>
+<td><p>Compute evaluation metric on some test data.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">extra_repr</span></code>()</p></td>
 <td><p>Set the extra representation of the module</p></td>
@@ -290,14 +290,19 @@ for the loss function (Default = {}).</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="niteshade.models.BaseModel.evaluate">
 <span class="sig-name descname"><span class="pre">evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X_test</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_test</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niteshade.models.BaseModel.evaluate" title="Permalink to this definition"></a></dt>
-<dd><p>Test the accuracy of the iris classifier on a test set.</p>
+<dd><p>Compute evaluation metric on some test data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>X_test</strong> (<em>np.ndarray</em><em>, </em><em>torch.Tensor</em>) – test input data.</p></li>
-<li><p><strong>y_test</strong> (<em>np.ndarray</em><em>, </em><em>torch.Tensor</em>) – test target data.</p></li>
-<li><p><strong>batch_size</strong> (<em>int</em>) – size of batches in DataLoader object.</p></li>
+<li><p><strong>X_test</strong> (<em>np.ndarray</em><em> or </em><em>torch.Tensor</em>) – test input data.</p></li>
+<li><p><strong>y_test</strong> (<em>np.ndarray</em><em> or </em><em>torch.Tensor</em>) – test target data.</p></li>
 </ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>evaluation metric.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(np.ndarray or torch.Tensor)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -308,10 +313,18 @@ for the loss function (Default = {}).</p></li>
 <dd><p>Perform a forward pass through the model.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>x</strong> (<em>torch.Tensor</em>) – Input array of shape (batch_size, input_shape).</p>
+<dd class="field-odd"><p><strong>x</strong> (<em>np.ndarray</em><em> or </em><em>torch.Tensor</em>) – Input array of shape
+(batch_size, input_shape).</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Predictions from current state of the model.</p>
+<dd class="field-even"><p><dl class="simple">
+<dt>Predictions from current state of</dt><dd><p>the model.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(np.ndarray or torch.Tensor)</p>
 </dd>
 </dl>
 </dd></dl>
