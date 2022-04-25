@@ -232,12 +232,14 @@ class KNN_Defender(PointModifierDefender):
         of input points if the proportion of the most frequent label of nearest neighbours 
         exceeds a threshold.
         A SKlearn KNeighborsClassifier is used to find nearest neighbours.
+
         Args: 
-            init_x (np.ndarray, torch.Tensor): point data (shape (batch_size, data dimensionality)).
-            init_y (np.ndarray, torch.Tensor): label data (shape (batch_size,)).
-            nearest_neighbours (int): number of nearest neighbours to use for decisionmaking
-            confidence_threshold (float): threshold to use for decisionmaking
-            one_hot (boolean): boolean to indicate if labels are one-hot or not
+            init_x (np.ndarray, torch.Tensor) : point data (shape (batch_size, data dimensionality))
+            init_y (np.ndarray, torch.Tensor) : label data (shape (batch_size,))
+            nearest_neighbours (int) : number of nearest neighbours to use for decisionmaking
+            confidence_threshold (float) : threshold to use for decisionmaking
+            one_hot (boolean) : boolean to indicate if labels are one-hot or not
+
     """ 
     def __init__(self, init_x, init_y, nearest_neighbours: int,
                  confidence_threshold:float, one_hot = False) -> None:
