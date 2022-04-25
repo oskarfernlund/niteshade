@@ -5,19 +5,6 @@ Below are some simple example uses of the various functions and classes in
 niteshade. For a more comprehensive overview of niteshade's functionality, 
 please refer to the :doc:`api` section.
 
-.. _getting_started:
-
-Getting Started
----------------
-
-Before setting up a niteshade workflow, be sure to import any necessary 
-packages. For the following examples, we will be using numpy and PyTorch (as 
-well as niteshade, of course!).
-
->>> import torch
->>> import numpy as np
->>> import niteshade as shade
-
 
 .. _setting_up_an_online_data_pipeline:
 
@@ -28,6 +15,7 @@ niteshade makes setting up an online data pipeline easy, thanks to its bespoke
 data loader class specifically designed for online learning 
 ``niteshade.data.DataLoader``. 
 
+>>> import torch
 >>> from niteshade.data import DataLoader
 
 A ``DataLoader`` may be instantiated with a particular set of features (X) and 
@@ -90,10 +78,11 @@ strategies not specified):
 
 .. code-block:: python
 
+    import torch
     from niteshade.data import DataLoader
 
-    X = np.random.rand(100, 4)
-    y = np.random.rand(100)
+    X = torch.randn(100, 4)
+    y = torch.randn(100)
 
     episodes = DataLoader(X, y, batch_size=10)
     batches = DataLoader(batch_size=16)
@@ -148,47 +137,37 @@ of a simple multi-layer perceptron regressor:
     class MLPRegressor(BaseModel):
         """ Simple MLP regressor class. """
 
-        def __init__(self):
-            """ Constructor. """
-            # Define the MLP architecture
-            architecture = [nn.Linear(4, 16),
-                            nn.ReLU(),
-                            nn.Linear(16, 1)]
-
-            # Inherit the BaseModel superclass (passing necessary arguments)
-            super().__init__(architecture=architecture,
-                             optimizer="adam", 
-                             loss_func="mse", 
-                             lr=0.001)
+        def __init__(self, optimizer="adam", loss_func="mse", lr=1e-3):
+            """ Specify architecture, optimizer, loss and learning rate. """
+            architecture = [nn.Linear(4, 16), nn.ReLU(), nn.Linear(16, 1)]
+            super().__init__(architecture, optimizer, loss_func, lr)
         
         def forward(self, x):
             """ Execute the forward pass. """
-            # Mount input to GPU if available, execute forward pass
             x = x.to(self.device)
             return self.network(x) 
 
         def evaluate(self, X_test, y_test):
             """ Evaluate the model predictions. """
-            # Turn on evaluate mode and compute accuracy w/o storing gradients
             self.eval()
             with torch.no_grad():
                 y_pred = self.forward(X_test)
             return 1 - (y_pred - y_test).square().mean().sqrt()
 
-In the constructor (``.__init__()`` method), the model architecture is defined 
-as a list of PyTorch building blocks (layers, activations etc.), then passed to 
-the superclass along with the desired optimiser, loss function and learning 
-rate (see :doc:`api` section for possible values). The ``BaseModel`` class has 
-``.device`` attribute which indicates whether or not a hardware accelerator is 
-available, and a ``.network`` attribute which assembles the provided 
-architecture as a callable function that passes inputs through the layers 
-sequentially. Both these attributes are used in the ``.forward()`` method, 
-which implements the forward pass through the model. Finally, the 
-``.evaluate()`` method computes whichever performance metric we are interested 
-in analysing during the simulation (accuracy, in this case).
+In the constructor (``.__init__()`` method), the model architecture must be 
+defined as a list of PyTorch building blocks (layers, activations etc.), then 
+passed to the ``BaseModel`` superclass along with the desired optimiser, loss 
+function and learning rate (see :doc:`api` section for possible values). The 
+``BaseModel`` class has a ``.device`` attribute which is automatically set to 
+"cuda" or "cpu" depending on whether a GPU is available, and a ``.network`` 
+attribute which assembles the provided architecture as a callable that passes 
+inputs through the layers and activations in sequence. Both these attributes 
+are used in the ``.forward()`` method, which implements the forward pass. 
+Finally, the ``.evaluate()`` method computes whichever performance metric we 
+are interested in analysing during the simulation (accuracy, in this case).
 
-All niteshade models perform incremental learning updates using the ``.step()`` 
-method (inherited from ``BaseModel``).
+All niteshade models (out-of-the-box and custom) perform incremental learning 
+updates using the ``.step()`` method, which is inherited from ``BaseModel``.
 
 
 .. _defining_an_attack_strategy:
@@ -196,7 +175,56 @@ method (inherited from ``BaseModel``).
 Defining an Attack Strategy
 ---------------------------
 
-Bing
+niteshade's attack module (``niteshade.attack``) includes several 
+out-of-the-box classes based on some of the most commonly encountered data 
+poisoning attack strategies, e.g. ``LabelFlipperAttacker`` (which as the name 
+suggests, flips training labels) and ``AddLabelledPointsAttacker`` (which 
+injects fake datapoints into the learning pipeline). 
+
+>>> from niteshade.attack import AddLabelledPointsAttacker
+>>> attacker = AddLabeledPointsAttacker(aggressiveness=0.5, label=1)
+
+Custom attack strategies may also be defined by following niteshade's attack 
+class hierarchy by inheriting from the relevant superclass and filling in the 
+``.attack()`` method. At the top of the hierarchy is the ``Attacker`` class, 
+which is a general abstract base class for all attack strategies. The next tier 
+in the hierarchy is comprised of general categories of attack strategies, 
+namely ``AddPointsAttacker`` (for strategies which involve injecting *fake* 
+datapoints into the learning pipeline), ``PerturbPointsAttacker`` (for 
+strategies which involve perturbing *real* datapoints in the learning pipeline) 
+and ``ChangeLabelAttacker`` (for strategies which involve altering training 
+data labels). Below is an example of a very simple custom attack strategy which 
+involves appending zeros to the end of training batches:
+
+.. code-block:: python
+
+    import torch
+    from niteshade.attack import AddPointsAttacker
+
+    class AppendZerosAttacker(AddPointsAttacker):
+        """ Append zeros attack strategy class. """
+
+        def __init__(self, aggressiveness):
+            """ Set the aggressiveness. """
+            super().__init__(aggressiveness)
+
+        def attack(self, X, y):
+            """ Define the attack strategy. """
+            num_to_add = super().num_pts_to_add(X)
+            X_fake = torch.zeros(num_to_add, *X.shape[1:])
+            y_fake = torch.zeros(num_to_add, *y.shape[1:])
+            return (torch.cat((X, X_fake)), torch.cat((y, y_fake)))
+
+This simple (and ineffective) strategy involves injecting fake datapoints, so 
+the class inherits from ``AddPointsAttacker`` in its constructor. The 
+``aggressiveness`` attribute is a float between 0.0-1.0 which determines 
+the proportion of points the attacker is allowed to attack (or append, in this 
+case). The ``.attack()`` method defines the attack strategy, which in this case 
+is very straightforward. The ``AddPointsAttacker`` superclass has a method 
+``.num_pts_to_add()`` which uses ``aggressiveness`` to determine the (integer) 
+number of points to add. Note that if the attack strategy we wish to define 
+doesn't fit into any of the aforementioned categories, we can simply inherit 
+from ``Attacker``.
 
 
 .. _defining_a_defence_strategy:
@@ -204,7 +232,46 @@ Bing
 Defining a Defence Strategy
 ---------------------------
 
-Bong
+Similarly to the attack module, niteshade's defence module 
+(``niteshade.defence``) includes several out-of-the-box classes based on some 
+of the most well-known defence strategies against data poisoning attacks, e.g. 
+``FeasibleSetDefender`` (which functions as an outlier detector based on a 
+"clean" set of feasible points), ``KNN_Defender`` (which flips labels based on 
+the consensus of neighbouring points) and ``SoftmaxDefender`` (which rejects 
+points based on a softmax threshold).
+
+>>> from niteshade.defence import SoftmaxDefender
+>>> defender = SoftmaxDefender(threshold=0.1)
+
+Custom defence strategies may also be defined by following niteshade's defence 
+class hierarchy by inheriting from the relevant superclass and filling in the 
+``.defend()`` method. At the top of the hierarchy is the ``Defender`` class, 
+which is a general abstract base class for all defence strategies. The next 
+tier in the hierarchy is comprised of general categories of defence strategies, 
+namely ``OutlierDefender`` (for strategies which involve filtering outliers), 
+``ModelDefender`` (for strategies which require access to the model and its 
+parameters) and ``PointModifierDefender`` (for strategies which modify 
+datapoints). Below is an example of a very simple custom defence strategy which 
+involves removing points which have even-valued labels:
+
+.. code-block:: python
+
+    from niteshade.defence import Defender
+
+    class EvenLabelDefender(Defender):
+        """ Even-valued label filtering defence strategy. """
+
+        def __init__(self):
+            """ Constructor. """
+            super().__init__()
+
+        def defend(self, X, y):
+            """ Define the defence strategy. """
+            return (X[y % 2 != 0], y[y % 2 != 0])
+
+Although this simple (and ineffective) strategy resembles an 
+``OutlierDefender``-type strategy, it doesn't require a clean feasible set for 
+outlier detection, and thus we have just inherited from ``Defender``.
 
 
 .. _running_a_simulation:
