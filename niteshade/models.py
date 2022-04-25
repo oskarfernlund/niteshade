@@ -168,14 +168,6 @@ class BaseModel(nn.Module):
         """
         raise NotImplementedError
 
-    def predict(self, x):
-        """Predict on a data sample (x).
-
-        Args: 
-            x (np.ndarray, torch.Tensor) : sample to predict from. 
-        """
-        raise NotImplementedError
-
     def evaluate(self, X_test, y_test):
         """Test the accuracy of the iris classifier on a test set.
 
@@ -243,7 +235,7 @@ class IrisClassifier(BaseModel):
             pred =  self.forward(x)
         return pred
 
-    def evaluate(self, X_test, y_test, batch_size):
+    def evaluate(self, X_test, y_test, batch_size=5):
         """Test the accuracy of the iris classifier on a test set.
 
         Args:
@@ -358,7 +350,7 @@ class MNISTClassifier(BaseModel):
             pred =  self.forward(x)
         return pred
 
-    def evaluate(self, X_test, y_test, batch_size):
+    def evaluate(self, X_test, y_test, batch_size=32):
         """Test the accuracy of the iris classifier on a test set.
 
         Args:
@@ -428,23 +420,25 @@ class CifarClassifier(BaseModel):
     CIFAR10 dataset. Achieves 80% accuracy on the held out test set in 20
     epochs using mini-batches of size 32. More details on ResNet-18 can 
     be found on the paper "Deep Residual Learning for Image Recognition"
-    (https://arxiv.org/abs/1512.03385). 
+    by Zhang et al (https://arxiv.org/abs/1512.03385). 
 
     Args:
-        optimizer (str) : String specifying optimizer to use in training neural network (Default = "adam").
-                            Options:
+        optimizer (str) : String specifying optimizer to use in training neural network 
+                          (Default = "adam").
+                          Options:
                             "adam": torch.optim.Adam(),
                             "adagrad": torch.optim.Adagrad(),
                             "sgd": torch.optim.SGD()
-        loss_func (str) : String specifying loss function to use in training neural network (Default = "cross_entropy").
-                            Options:
+        loss_func (str) : String specifying loss function to use in training neural network 
+                          (Default = "cross_entropy").
+                          Options:
                             "mse": nn.MSELoss(),
                             "nll": nn.NLLLoss(),
                             "bce": nn.BCELoss(),
                             "cross_entropy": nn.CrossEntropyLoss().
         lr (float) : Learning rate to use in training neural network (Default = 0.0001).
         optim_kwargs (dict) : dictionary containing additional optimizer key-word 
-                              arguments (Default = {}).
+                              arguments (Default = {"weight_decay": 1e-6}).
         loss_kwargs (dict) : dictionary containing additional key-word arguments 
                              for the loss function (Default = {}).
     """
@@ -502,12 +496,12 @@ class CifarClassifier(BaseModel):
             pred =  self.forward(x)
         return pred
     
-    def evaluate(self, X_test, y_test, batch_size):
+    def evaluate(self, X_test, y_test, batch_size=32):
         """Test the accuracy of the CIFAR10 classifier on a test set.
 
         Args:
-            X_test (np.ndarray) : test input data.
-            y_test (np.ndarray) : test target data.
+            X_test (np.ndarray, torch.Tensor) : test input data.
+            y_test (np.ndarray, torch.Tensor) : test target data.
             batch_size (int) : Size of mini-batches to test model on.
         
         Returns: 
