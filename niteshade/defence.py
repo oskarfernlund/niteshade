@@ -366,16 +366,16 @@ class KNN_Defender(PointModifierDefender):
 
 
 class SoftmaxDefender(ModelDefender):
-    """ A SoftmaxDefender class, inheriting from the ModelDefender, rejects points if the 
-    softmax output for the true class label of the incoming point is below a threshold
-    """ 
-    def __init__(self, threshold = 0.05, delay = 0, one_hot = True) -> None:
-        """Constructor method of SoftmaxDefender class.
-        Args: 
+    """ A SoftmaxDefender class, inheriting from the ModelDefender. Rejects points if the 
+    softmax output for the true class label of the incoming point is below a threshold.
+    Args: 
             - threshold (float): threshold for the softmax output
             - init_y (np.ndarray, torch.Tensor): label data.
             - delay (int): After how many .defend method calls to start the defender (used to ensure model is trained to a degree)
             - one_hot (boolean): boolean to indicate if labels are one-hot or not
+    """ 
+    def __init__(self, threshold = 0.05, delay = 0, one_hot = True) -> None:
+        """Constructor method of SoftmaxDefender class.
         """
         super().__init__()
         self.threshold = threshold
@@ -384,18 +384,18 @@ class SoftmaxDefender(ModelDefender):
         _input_validation(self)
         self.defend_counter = 0
     def defend(self, datapoints, labels, model, **input_kwargs):
-        """ The defend method for the SoftMaxDefender
-            defender starts defending if defend call counter (self.defend_counter) is larger than delay attribute
-            for each incoming point, a forward pass is done to get the softmax output values for the point
-            If the output value of the true label is below the threshold, the points are rejected
-            If one_hot encoded, artificial labels are created
+        """ The defend method for the SoftMaxDefender.
+            defender starts defending if defend call counter (self.defend_counter) is larger than delay attribute.
+            For each incoming point, a forward pass is done to get the softmax output values for the point.
+            If the output value of the true label is below the threshold, the points are rejected.
+            If one_hot encoded, artificial labels are created.
         Args: 
             datapoints (np.ndarray, torch.Tensor): point data.
             input_labels (np.ndarray, torch.Tensor): label data.
             model (torch.nn.model): The updated current model that is used for online learning
         Return:
-            tuple (datapoints, labels) where:
-                datapoints (np.ndarray, torch.Tensor): point data.
+            tuple (datapoints, labels):
+                datapoints (np.ndarray, torch.Tensor): point data,
                 labels (np.ndarray, torch.Tensor): modified label data.
         """
         self._type_check(datapoints, labels) # Check if input data is tensor or ndarray
