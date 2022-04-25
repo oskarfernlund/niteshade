@@ -30,15 +30,16 @@ class DefenderGroup():
         ensemble_accept_rate != 0 .
         If ensemble decisionmaking, points are accepted only if the proportion of defenders accepting 
         the points is higher than ensemble_accept_rate.
+        
+        Args: 
+            defender_list (list) : List containing defender objects to be used for defending
+            
+            ensemble_accept_rate (float) : A rate to be used for ensemble decisionmaking,
+                                        if = 0, sequential decisionmaking is used,
+                                        if > 0, ensemble decisionmaking is used
     """ 
     def __init__(self,defender_list: list, ensemble_accept_rate = 0.0) -> None:
         """Constructor method of DefenderGroup class.
-        Args: 
-            defender_list (list): List containing defender objects to be used for defending
-            
-            ensemble_accept_rate (float): A rate to be used for ensemble decisionmaking
-                                        if = 0, sequential decisionmaking is used
-                                        if > 0, ensemble decisionmaking is used
         """
 
         # Input validation
@@ -50,13 +51,13 @@ class DefenderGroup():
         """ Group defend method, where each of the .defend method of each defender in defender_list is called. 
             The exact defence depends on whether ensemble decisionmaking has been used.
         Args: 
-            X (np.ndarray, torch.Tensor): point data.
-            y (np.ndarray, torch.Tensor): label data.
+            X (np.ndarray, torch.Tensor) : point data.
+            y (np.ndarray, torch.Tensor) : label data.
         
         Return:
             tuple (output_x, output_y):
-                output_x (np.ndarray, torch.Tensor): point data,
-                output_y (np.ndarray, torch.Tensor): label data.
+                output_x (np.ndarray, torch.Tensor) : point data,
+                output_y (np.ndarray, torch.Tensor) : label data.
         """
         if self.ensemble_accept_rate > 0:
             output_x, output_y = self._ensemble_defence(X, y, **input_kwargs)
@@ -70,13 +71,13 @@ class DefenderGroup():
            the .defend method of each defender will be called for all points and their decisions will be recorded in a dictionary
            Points will be rejected based on the proportion of defenders rejecting each individual point
         Args: 
-            X (np.ndarray, torch.Tensor): point data.
-            y (np.ndarray, torch.Tensor): label data.
+            X (np.ndarray, torch.Tensor) : point data.
+            y (np.ndarray, torch.Tensor) : label data.
         
         Return:
-            tuple (output_x, output_y) where:
-                output_x (np.ndarray, torch.Tensor): point data.
-                output_y (np.ndarray, torch.Tensor): label data.
+            tuple (output_x, output_y):
+                output_x (np.ndarray, torch.Tensor) : point data.
+                output_y (np.ndarray, torch.Tensor) : label data.
         """
         input_datapoints = X.copy()
         input_labels = y.copy()
@@ -578,16 +579,17 @@ class FeasibleSetDefender(OutlierDefender):
 
 
 class Distance_metric:
-    """ A Distance_metric class for the feasibleset defender
-        Allows to define custom distance metrics for feasibleset defender distance calculation
-        For user implemented custom Distance_metric objects, need to have a .distance method where a float is returned
+    """ A Distance_metric class for the feasibleset defender.
+        Allows to define custom distance metrics for feasibleset defender distance calculation.
+        For user implemented custom Distance_metric objects, need to have a .distance method where a float is returned.
+        
+        Args: 
+            type (string): The type of the distance metric.
+                 This will be returned for informative purposes when .distance_metric is called for feasibleset defender.
     """ 
     def __init__(self, type = "Eucleidian") -> None:
         """ Constructor method of FeasibleSetDefender class.
             Default Distance_metric is Eucleidian distance.
-        Args: 
-            - type (string): The type of the distance metric.
-                 This will be returned for informative purposes when .distance_metric is called for feasibleset defender
         """
         self._type = type
         
@@ -595,10 +597,10 @@ class Distance_metric:
         """ Calculates the distance between 2 input points
             Currently only Eucleidian (l2 norm) distance metric is implemented off-the-shelf
         Args: 
-            input_1 (np.ndarray): point_1 data.
-            input_2 (np.ndarray): point_2 data.
+            input_1 (np.ndarray) : point_1 data.
+            input_2 (np.ndarray) : point_2 data.
         Return:
-            distance (float): distance between the 2 input points
+            distance (float) : distance between the 2 input points.
         """
         if self._type == "Eucleidian":
             return np.sqrt(np.sum((input_1 - Input_2)**2))
