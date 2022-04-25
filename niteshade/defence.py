@@ -230,19 +230,19 @@ class KNN_Defender(PointModifierDefender):
     """ A KNN  class, inheriting from the PointModifierDefender, that flips the labels 
         of input points if the proportion of the most frequent label of nearest neighbours 
         exceeds a threshold.
-        A SKlearn KNeighborsClassifier is used to find nearest neighbours
+        A SKlearn KNeighborsClassifier is used to find nearest neighbours.
+        Args: 
+            init_x (np.ndarray, torch.Tensor): point data.
+            init_y (np.ndarray, torch.Tensor): label data.
+            nearest_neighbours (int): number of nearest neighbours to use for decisionmaking
+            confidence_threshold (float): threshold to use for decisionmaking
+            one_hot (boolean): boolean to indicate if labels are one-hot or not
     """ 
     def __init__(self, init_x, init_y, nearest_neighbours: int,
                  confidence_threshold:float, one_hot = False) -> None:
-        """Constructor method of KNN_Defender class.
+        """ Constructor method of KNN_Defender class.
             If the inputs are one-hot encoded, artificial integer labels are constructed
-            to use the SKlearn classifier
-        Args: 
-            - init_x (np.ndarray, torch.Tensor): point data.
-            - init_y (np.ndarray, torch.Tensor): label data.
-            - nearest_neighbours (int): number of nearest neighbours to use for decisionmaking
-            - confidence_threshold (float): threshold to use for decisionmaking
-            - one_hot (boolean): boolean to indicate if labels are one-hot or not
+            to use the SKlearn classifier.
         """
         super().__init__()
         self._type_check(init_x, init_y) # Check if input data is tensor or ndarray
@@ -263,16 +263,16 @@ class KNN_Defender(PointModifierDefender):
 
     
     def defend(self, datapoints, input_labels, **kwargs):
-        """ The defend method for the KNN_defender
-            for each incoming point, closest neighbours and their labels are found
-            If the proportion of the most frequent label in closest neighbours is higher than a threshold
-            Then the label of the point is flipped to be the most frequent label of closest neighbours 
+        """ The defend method for the KNN_defender.
+            For each incoming point, closest neighbours and their labels are found.
+            If the proportion of the most frequent label in closest neighbours is higher than a threshold,
+            then the label of the point is flipped to be the most frequent label of closest neighbours.
         Args: 
             datapoints (np.ndarray, torch.Tensor): point data.
             input_labels (np.ndarray, torch.Tensor): label data.
         Return:
-            tuple (datapoints, flipped_labels) where:
-                datapoints (np.ndarray, torch.Tensor): point data.
+            tuple (datapoints, flipped_labels) :
+                datapoints (np.ndarray, torch.Tensor): point data,
                 flipped_labels (np.ndarray, torch.Tensor): modified label data.
         """
         self._type_check(datapoints, input_labels) # Check if input data is tensor or ndarray
@@ -427,20 +427,20 @@ class SoftmaxDefender(ModelDefender):
 
 
 class FeasibleSetDefender(OutlierDefender):
-    """ A FeasibleSetDefender class, inheriting from the OutlierDefender, rejects points if the 
-    distance from the point to the label centroid is too large (if the point is in the feasible set of the label)
+    """ A FeasibleSetDefender class, inheriting from the OutlierDefender. Rejects points if the 
+    distance from the point to the label centroid is too large (if the point is in the feasible set of the label).
+    Args: 
+            initial_dataset_x (np.ndarray, torch.Tensor): point data.
+            initial_dataset_y (np.ndarray, torch.Tensor): label data.
+            threshold (float, int): distance threshold to use for decisionmaking
+            one_hot (boolean): boolean to indicate if labels are one-hot or not
+            dist_metric (Distance_metric): Distance metric to be used for calculating distances from points to centroids
     """ 
     def __init__(self, initial_dataset_x, initial_dataset_y, threshold, one_hot = False,
                  dist_metric = None) -> None:
         """ Constructor method of FeasibleSetDefender class.
             Within the init, a feasible set is constructed and
-            depending on the input a respective distance metric is constructed for calculating point distances from label centroids
-        Args: 
-            - initial_dataset_x (np.ndarray, torch.Tensor): point data.
-            - initial_dataset_y (np.ndarray, torch.Tensor): label data.
-            - threshold (float, int): distance threshold to use for decisionmaking
-            - one_hot (boolean): boolean to indicate if labels are one-hot or not
-            - dist_metric (Distance_metric): Distance metric to be used for calculating distances from points to centroids
+            depending on the input a respective distance metric is constructed for calculating point distances from label centroids.
         """
         super().__init__(initial_dataset_x, initial_dataset_y)
         #Input validation
@@ -507,17 +507,17 @@ class FeasibleSetDefender(OutlierDefender):
         return distance
     
     def defend(self, datapoints, labels, **input_kwargs):
-        """ The defend method for the FeasibleSetDefender
-            for each incoming point, a distance from the feasible set centroid of that label is calculated
-            If the distance is higher than the threshold, the points are rejected
-            If all points are rejceted, empty arrays are returned  
-            If one_hot encoded, artificial labels are created
+        """ The defend method for the FeasibleSetDefender.
+            For each incoming point, a distance from the feasible set centroid of that label is calculated.
+            If the distance is higher than the threshold, the points are rejected.
+            If all points are rejceted, empty arrays are returned.
+            If one_hot encoded, artificial labels are created.
         Args: 
             datapoints (np.ndarray, torch.Tensor): point data.
             input_labels (np.ndarray, torch.Tensor): label data.
         Return:
-            tuple (output_datapoints, output_labels) where:
-                output_datapoints (np.ndarray, torch.Tensor): point data.
+            tuple (output_datapoints, output_labels) :
+                output_datapoints (np.ndarray, torch.Tensor): point data,
                 output_labels (np.ndarray, torch.Tensor): label data.
         """
         self._type_check(datapoints, labels) # Check if input data is tensor or ndarray
