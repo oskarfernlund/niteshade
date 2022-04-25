@@ -371,11 +371,12 @@ class KNN_Defender(PointModifierDefender):
 class SoftmaxDefender(ModelDefender):
     """ A SoftmaxDefender class, inheriting from the ModelDefender. Rejects points if the 
     softmax output for the true class label of the incoming point is below a threshold.
+
     Args: 
-            - threshold (float): threshold for the softmax output
-            - init_y (np.ndarray, torch.Tensor): label data.
-            - delay (int): After how many .defend method calls to start the defender (used to ensure model is trained to a degree)
-            - one_hot (boolean): boolean to indicate if labels are one-hot or not
+            - threshold (float) : threshold for the softmax output
+            - init_y (np.ndarray, torch.Tensor) : label data.
+            - delay (int) : After how many .defend method calls to start the defender (used to ensure model is trained to a degree)
+            - one_hot (boolean) : boolean to indicate if labels are one-hot or not
     """ 
     def __init__(self, threshold = 0.05, delay = 0, one_hot = True) -> None:
         """Constructor method of SoftmaxDefender class.
