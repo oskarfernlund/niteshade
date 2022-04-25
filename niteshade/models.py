@@ -57,8 +57,8 @@ class BaseModel(nn.Module):
         #initialise attributes to store training hyperparameters
         self.lr = lr 
         self.loss_func_str = loss_func
-        self._device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        self = self.to(self._device) #send model to device 
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self = self.to(self.device) #send model to device 
 
         #retrieve user-defined sequences of layers
         if any(isinstance(el, list) for el in architecture):
