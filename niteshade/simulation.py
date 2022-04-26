@@ -14,7 +14,6 @@ against online learning.
 import inspect
 from copy import deepcopy
 from collections import defaultdict
-from jinja2 import pass_eval_context
 
 import torch
 import numpy as np
@@ -23,7 +22,7 @@ from tqdm import tqdm
 from niteshade.data import DataLoader
 from niteshade.attack import Attacker
 from niteshade.defence import DefenderGroup, Defender
-from niteshade.utils import save_pickle, train_test_iris, copy
+from niteshade.utils import save_pickle, copy
 
 
 # =============================================================================
