@@ -408,6 +408,9 @@ class SoftmaxDefender(ModelDefender):
             if self._datatype == 1: # If incoming data is nd.array, make into tensor for NeuralNetwork
                 X_batch = torch.tensor(datapoints)
                 labels = torch.tensor(labels)
+            else:
+                X_batch = datapoints
+                labels = labels
             # If onehot, then construct artificial class labels
             if self.one_hot:
                 class_labels = torch.argmax(labels, axis = 1).reshape(-1,1) # Get class labels from onehot
