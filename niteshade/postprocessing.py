@@ -170,22 +170,40 @@ class PostProcessor():
             post_defense_point_set = set(k for list_item in s['post_defense'] \
                 for (k,_) in list_item.items())
             
-            poisoned_by_attacker = len(post_attack_point_set-original_point_set)
-            removed_by_defender = len(post_attack_point_set-post_defense_point_set)
-            modified_by_defender = len(post_defense_point_set-post_attack_point_set)
-
-            if len(post_attack_point_set) == 0:
-                poisoned_by_attacker = 0
-                removed_by_defender = len(original_point_set-post_defense_point_set)
-                modified_by_defender = len(post_defense_point_set-original_point_set)
-
-            if len(post_defense_point_set) == 0:
-                removed_by_defender, modified_by_defender = 0, 0
+            if len(post_attack_point_set) == 0 and len(post_defense_point_set)!= 0:
+                poisoned, correctly_defended = 0, 0
+                not_poisoned  = len(original_point_set)
+                incorrectly_defended = len(original_point_set-post_defense_point_set)
+                training_points_total = len(post_defense_point_set)
             
+            elif len(post_defense_point_set) == 0 and len(post_attack_point_set) != 0:
+                correctly_defended, incorrectly_defended = 0, 0
+                poisoned = len(post_attack_point_set-original_point_set)
+                not_poisoned = len(post_attack_point_set)-poisoned
+                training_points_total = len(post_attack_point_set)
+            
+            elif len(post_attack_point_set) == 0 and len(post_defense_point_set) == 0:
+                poisoned, correctly_defended, incorrectly_defended = 0, 0, 0
+                not_poisoned  = len(original_point_set)
+                training_points_total = len(original_point_set)
+            
+            else:
+                poisoned = len(post_attack_point_set-original_point_set)
+                not_poisoned = len(post_attack_point_set)-poisoned
+                poisoned_points_set = post_attack_point_set-original_point_set
+                correctly_defended = len(poisoned_points_set-\
+                    (post_defense_point_set-original_point_set))
+                incorrectly_defended = len(original_point_set-\
+                    (post_defense_point_set-poisoned_points_set))
+                training_points_total = len(post_defense_point_set)
+
             simulator_result = {
-                'poisoned_by_attacker': poisoned_by_attacker,
-                'removed_by_defender': removed_by_defender,
-                'modified_by_defender': modified_by_defender
+                'poisoned': poisoned,
+                'not_poisoned': not_poisoned,
+                'correctly_defended': correctly_defended,
+                'incorrectly_defended': incorrectly_defended,
+                'original_point_total': len(original_point_set),
+                'training_points_total': training_points_total
             }
     
             results[simulator] = simulator_result

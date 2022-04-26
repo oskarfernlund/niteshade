@@ -29,7 +29,7 @@ from niteshade.utils import train_test_iris, train_test_MNIST, get_time_stamp_as
 # =============================================================================
 
 # batch size
-BATCH_SIZE = 256
+BATCH_SIZE = 128
 NUM_EPISODES = 20
 
 # Model
@@ -43,10 +43,10 @@ NUM_EPISODES = 20
 
 def test_iris_simulations():
     """Attack and defense combinations simulations for Iris classifier."""
-    BATCH_SIZE = 2
+    BATCH_SIZE = 1
     NUM_EPISODES = 100
     #split iris dataset into train and test
-    X_train, y_train, X_test, y_test = train_test_iris(num_stacks=1)
+    X_train, y_train, X_test, y_test = train_test_iris()
 
     # Instantiate necessary classes
     # Instantiate necessary classes
@@ -135,14 +135,34 @@ def test_MNIST_simulations():
 
     #simulate attack and defense separately using class method
     simulator1.run()
-    #simulator2.run()
-    #simulator3.run()
-    #simulator4.run()
+    simulator2.run()
+    simulator3.run()
+    simulator4.run()
 
-    simulators = {'attacker_and_defense': simulator1}#, 'only_defender':simulator2,
-                #'only_attacker': simulator3, 'regular': simulator4}
+    simulators = {'attacker_and_defense': simulator1, 'only_defender':simulator2,
+                'only_attacker': simulator3, 'regular': simulator4}
 
-    wrapped_data, wrapped_models =  wrap_results(simulators)
+    postprocessor = PostProcessor(simulators)
+    postprocessor.plot_decision_boundaries(X_test, y_test, num_points = 2000, perplexity=100, 
+                                           n_iter=2000, fontsize=13, markersize=20, figsize=(10,10), 
+                                           resolution=0.2, save=True, show_plot=False)
+
+    # Get point counts for each simulation
+    data_modifications = postprocessor.track_data_modifications()
+
+    # Save the accruacy plot
+    metrics = postprocessor.compute_online_learning_metrics(X_test, y_test)
+    postprocessor.plot_online_learning_metrics(metrics, show_plot=False, save=True, 
+                                               plotname='test_accuracies', set_plot_title=False)
+    
+    time_stamp = get_time_stamp_as_string()
+    header_title = f'Example Simulation Report as of {time_stamp}'
+    pdf = PDF()
+    pdf.set_title(header_title)
+    pdf.add_table(data_modifications, 'Point Summary')
+    pdf.add_all_charts_from_directory('output')
+    pdf.output('summary_report.pdf', 'F')
+
 
 
 def test_decision_boundaries_MNIST(saved_models=None, baseline=None):
@@ -210,7 +230,7 @@ def test_decision_boundaries_iris(saved_models=None, baseline=None):
     BATCH_SIZE = 128
     NUM_EPISODES = 30
     #split iris dataset into train and test
-    X_train, y_train, X_test, y_test = train_test_iris(num_stacks=10)
+    X_train, y_train, X_test, y_test = train_test_iris()
 
     # Instantiate necessary classes
     # Instantiate necessary classes
@@ -305,12 +325,12 @@ def test_learning_rates(saved_models=None, baseline=None):
 
 if __name__ == "__main__":
     #-----------IRIS TRIALS------------
-    test_iris_simulations()
+    #test_iris_simulations()
     #test_iris_regular()
 
     #-----------MNIST TRIALS-----------
     #test_MNIST_regular()
-    #test_MNIST_simulations()
+    test_MNIST_simulations()
 
     #----------POSTPROCESSOR TRIALS----
     #saved_models='wrapped_models.pickle'
