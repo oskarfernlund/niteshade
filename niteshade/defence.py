@@ -414,6 +414,8 @@ class SoftmaxDefender(ModelDefender):
             # If onehot, then construct artificial class labels
             if self.one_hot:
                 class_labels = torch.argmax(labels, axis = 1).reshape(-1,1) # Get class labels from onehot
+            else:
+                class_labels = labels
             #zero gradients so they are not accumulated across batches
             model.eval()
             with torch.no_grad():
