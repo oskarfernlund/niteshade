@@ -34,8 +34,12 @@ class _KeyMap(object):
     def __init__(self, X, y):
         #convert to numpy arrays if data are torch.tensors
         if isinstance(X, torch.Tensor) and isinstance(y, torch.Tensor):
-            X = X.detach().numpy()
-            y = y.detach().numpy()
+            if X.is_cuda and y.is_cuda:
+                X = X.detach().cpu().numpy()
+                y = y.detach().cpu().numpy()
+            else: 
+                X = X.detach().numpy()
+                y = y.detach().numpy()
 
         self.data = X
         self.target = y
