@@ -149,9 +149,13 @@ class PostProcessor():
 
 
     def track_data_modifications(self):
-        """Computes for each simulation the following: a) the number of points 
-        modified by the attacker; b) the number of points removed by the defender;
-        c) the number of points modified by the defender.
+        """Computes for each simulation the following: a) number of poisoned points,
+        b) number of points that were unaugmented by the attacker, c) number of points 
+        correctly rejected by the defender, d) number of points that were incorrectly
+        rejected by the defender, e) total number of points that were originally available
+        for training, f) number of points that the model was actually trained on.
+
+        The function looks at all data available in a simulation.
 
         Returns:
             results (pd.core.frame.DataFrame): Dictionary with keys 
