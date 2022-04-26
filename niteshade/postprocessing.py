@@ -15,7 +15,8 @@ import random
 
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt 
+import matplotlib.pyplot as plt
+plt.style.use("seaborn") 
 
 import torch
 from sklearn.metrics import accuracy_score
@@ -57,7 +58,6 @@ class PDF(FPDF):
 
     def add_table(self, df, table_title=None, new_page=True):
         """Add a table to the pdf.
-
         Args:
             df (pd.core.frame.DataFrame) : pandas data frame.
             table_title (str) : title as necessary.
@@ -96,7 +96,6 @@ class PDF(FPDF):
 
     def add_chart(self, file_path, chart_title=None, new_page=True):
         """Add a jpg / png / jpeg to a pdf.
-
         Args:
             file_path (str) : file path. 
             chart_title (str) : title as necessary.
@@ -115,7 +114,6 @@ class PDF(FPDF):
 
     def add_all_charts_from_directory(self, dir_path, new_page=True):
         """Add all jpg / png / jpeg to a pdf from a directory.
-
         Args:
             dir_path (str) : directory path.
             new_page (bool) : print table on a new page.
@@ -132,13 +130,11 @@ class PostProcessor():
     in assessing and visualising the effectiveness of different attack
     and defense strategies in simulating data poisoning attacks during 
     online learning. 
-
     Args: 
         simulators (dict) : Dictionary containing the simulator objects 
                             (presumably after making use of their .run()
                             method) as values and descriptive labels for 
                             each Simulator as keys.
-
     """
     def __init__(self, simulators: dict) -> None:
         
@@ -149,10 +145,12 @@ class PostProcessor():
 
 
     def track_data_modifications(self):
-        """Computes for each simulation the following: a) the number of points 
-        modified by the attacker; b) the number of points removed by the defender;
-        c) the number of points modified by the defender.
-
+        """Computes for each simulation the following: a) number of poisoned points,
+        b) number of points that were unaugmented by the attacker, c) number of points 
+        correctly rejected by the defender, d) number of points that were incorrectly
+        rejected by the defender, e) total number of points that were originally available
+        for training, f) number of points that the model was actually trained on.
+        The function looks at all data available in a simulation.
         Returns:
             results (pd.core.frame.DataFrame): Dictionary with keys 
                                                corresponding to simulator names, 
@@ -170,22 +168,40 @@ class PostProcessor():
             post_defense_point_set = set(k for list_item in s['post_defense'] \
                 for (k,_) in list_item.items())
             
-            poisoned_by_attacker = len(post_attack_point_set-original_point_set)
-            removed_by_defender = len(post_attack_point_set-post_defense_point_set)
-            modified_by_defender = len(post_defense_point_set-post_attack_point_set)
-
-            if len(post_attack_point_set) == 0:
-                poisoned_by_attacker = 0
-                removed_by_defender = len(original_point_set-post_defense_point_set)
-                modified_by_defender = len(post_defense_point_set-original_point_set)
-
-            if len(post_defense_point_set) == 0:
-                removed_by_defender, modified_by_defender = 0, 0
+            if len(post_attack_point_set) == 0 and len(post_defense_point_set)!= 0:
+                poisoned, correctly_defended = 0, 0
+                not_poisoned  = len(original_point_set)
+                incorrectly_defended = len(original_point_set-post_defense_point_set)
+                training_points_total = len(post_defense_point_set)
             
+            elif len(post_defense_point_set) == 0 and len(post_attack_point_set) != 0:
+                correctly_defended, incorrectly_defended = 0, 0
+                poisoned = len(post_attack_point_set-original_point_set)
+                not_poisoned = len(post_attack_point_set)-poisoned
+                training_points_total = len(post_attack_point_set)
+            
+            elif len(post_attack_point_set) == 0 and len(post_defense_point_set) == 0:
+                poisoned, correctly_defended, incorrectly_defended = 0, 0, 0
+                not_poisoned  = len(original_point_set)
+                training_points_total = len(original_point_set)
+            
+            else:
+                poisoned = len(post_attack_point_set-original_point_set)
+                not_poisoned = len(post_attack_point_set)-poisoned
+                poisoned_points_set = post_attack_point_set-original_point_set
+                correctly_defended = len(poisoned_points_set-\
+                    (post_defense_point_set-original_point_set))
+                incorrectly_defended = len(original_point_set-\
+                    (post_defense_point_set-poisoned_points_set))
+                training_points_total = len(post_defense_point_set)
+
             simulator_result = {
-                'poisoned_by_attacker': poisoned_by_attacker,
-                'removed_by_defender': removed_by_defender,
-                'modified_by_defender': modified_by_defender
+                'poisoned': poisoned,
+                'not_poisoned': not_poisoned,
+                'correctly_defended': correctly_defended,
+                'incorrectly_defended': incorrectly_defended,
+                'original_points_total': len(original_point_set),
+                'training_points_total': training_points_total
             }
     
             results[simulator] = simulator_result
@@ -197,11 +213,9 @@ class PostProcessor():
         """Returns a dictionary of lists with metrics. Requires the model 
         to have an .evaluate() method with arguments (X_test, y_test) that returns
         any given metric that the user deems appropriate for the task at hand.
-
         Args:
             X_test (np.ndarray) : NumPy array containing features.
             y_test (np.ndarray) : NumPy array containing labels.
-
         Returns:
             metrics (dict) : Dictionary where each key is a simulator 
                              and each value is a final evaluation metric.
@@ -212,7 +226,7 @@ class PostProcessor():
             final_model_specs = list_of_models[-1]
             model = self.final_models[simulation_label]
             model.load_state_dict(final_model_specs)
-            metric = model.evaluate(X_test, y_test) #self.batch_sizes[simulation_label])
+            metric = model.evaluate(X_test, y_test) 
             if isinstance(metric, torch.Tensor):
                 if metric.is_cuda:
                     metric = metric.cpu().numpy()
@@ -226,11 +240,9 @@ class PostProcessor():
         """Returns a dictionary of lists with metrics. Requirement: The model 
         must have an evaluate method of the form: Input: X_test, y_test, 
         self.batch_sizes[simulation_label]. Output: metric.
-
         Args:
             X_test (np.ndarray) : NumPy array containing features.
             y_test (np.ndarray) : NumPy array containing labels.
-
         Returns:
             metrics (dict) : Dictionary where each key is a simulator and each 
                              value is a list of coresponding metrics throughout 
@@ -243,7 +255,7 @@ class PostProcessor():
             for model_specs in list_of_models:
                 model = self.final_models[simulation_label]
                 model.load_state_dict(model_specs)
-                metric = model.evaluate(X_test, y_test, self.batch_sizes[simulation_label])
+                metric = model.evaluate(X_test, y_test)
                 if isinstance(metric, torch.Tensor):
                     if metric.is_cuda:
                         metric = metric.cpu().numpy()
@@ -300,7 +312,6 @@ class PostProcessor():
                                  Default = 50.
             n_iter (iter) : Maximum number of iterations for the optimization. 
                               Should be at least 250. SeeDefault = 2000.
-
         Returns:
             tsne_results : embedded x,y positions for every datapoint 
                              in the dataset.
@@ -313,12 +324,10 @@ class PostProcessor():
 
     def _get_predictions(self, X_test, state_dicts):
         """Get all predictions on a test set of the models inside state_dicts.
-
         Args:
             X_test (np.ndarray, torch.Tensor) : Test data.
             state_dicts (dict) : Dictionary containing state dictionaries of 
                                    any number of trained models.
-
         Returns:
             sim_predictions (dict) : Dictionary with same keys as state_dicts 
                                        and values corresponding to the predictions 
@@ -357,7 +366,6 @@ class PostProcessor():
         Classifier is then trained using the points in the smaller feature space 
         with the predicted labels of each model to show their decision 
         boundaries in 2D.
-
         Args: 
             X_test (np.ndarray, torch.Tensor) : Test input data.
             y_test (np.ndarray, torch.Tensor) : Test labels.
