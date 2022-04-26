@@ -230,7 +230,7 @@ class PostProcessor():
             final_model_specs = list_of_models[-1]
             model = self.final_models[simulation_label]
             model.load_state_dict(final_model_specs)
-            metric = model.evaluate(X_test, y_test) #self.batch_sizes[simulation_label])
+            metric = model.evaluate(X_test, y_test) 
             if isinstance(metric, torch.Tensor):
                 if metric.is_cuda:
                     metric = metric.cpu().numpy()
@@ -261,7 +261,7 @@ class PostProcessor():
             for model_specs in list_of_models:
                 model = self.final_models[simulation_label]
                 model.load_state_dict(model_specs)
-                metric = model.evaluate(X_test, y_test, self.batch_sizes[simulation_label])
+                metric = model.evaluate(X_test, y_test)
                 if isinstance(metric, torch.Tensor):
                     if metric.is_cuda:
                         metric = metric.cpu().numpy()
