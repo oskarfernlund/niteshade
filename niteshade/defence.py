@@ -402,7 +402,7 @@ class SoftmaxDefender(ModelDefender):
                 labels (np.ndarray, torch.Tensor): modified label data (shape (batch_size,)).
         """
         self._type_check(datapoints, labels) # Check if input data is tensor or ndarray
-        self.defender_counter += 1
+        self.defend_counter += 1
         if self.defend_counter > self.delay: # Only defend if defend counter is larger than delay
             labels = labels.reshape(-1,1)
             if self._datatype == 1: # If incoming data is nd.array, make into tensor for NeuralNetwork
