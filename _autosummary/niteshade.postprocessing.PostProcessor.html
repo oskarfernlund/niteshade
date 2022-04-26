@@ -131,7 +131,7 @@ each Simulator as keys.</p>
 <td><p>Prints a plot into a console.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#niteshade.postprocessing.PostProcessor.track_data_modifications" title="niteshade.postprocessing.PostProcessor.track_data_modifications"><code class="xref py py-obj docutils literal notranslate"><span class="pre">track_data_modifications</span></code></a>()</p></td>
-<td><p>Computes for each simulation the following: a) the number of points modified by the attacker; b) the number of points removed by the defender; c) the number of points modified by the defender.</p></td>
+<td><p>Computes for each simulation the following: a) number of poisoned points, b) number of points that were unaugmented by the attacker, c) number of points correctly rejected by the defender, d) number of points that were incorrectly rejected by the defender, e) total number of points that were originally available for training, f) number of points that the model was actually trained on.</p></td>
 </tr>
 </tbody>
 </table>
@@ -266,9 +266,12 @@ timestamp.</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="niteshade.postprocessing.PostProcessor.track_data_modifications">
 <span class="sig-name descname"><span class="pre">track_data_modifications</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#niteshade.postprocessing.PostProcessor.track_data_modifications" title="Permalink to this definition"></a></dt>
-<dd><p>Computes for each simulation the following: a) the number of points
-modified by the attacker; b) the number of points removed by the defender;
-c) the number of points modified by the defender.</p>
+<dd><p>Computes for each simulation the following: a) number of poisoned points,
+b) number of points that were unaugmented by the attacker, c) number of points
+correctly rejected by the defender, d) number of points that were incorrectly
+rejected by the defender, e) total number of points that were originally available
+for training, f) number of points that the model was actually trained on.</p>
+<p>The function looks at all data available in a simulation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p><dl class="simple">
