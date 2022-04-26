@@ -64,10 +64,10 @@ def test_point_counter_iris():
     # Sense check regular results
     regular_results = data_modifications['regular']
     assert regular_results['poisoned'] == 0
-    assert regular_results['not_poisoned'] == regular_results['original_point_total']
+    assert regular_results['not_poisoned'] == regular_results['original_points_total']
     assert regular_results['correctly_defended'] == 0
     assert regular_results['incorrectly_defended'] == 0
-    assert regular_results['training_points_total'] == regular_results['original_point_total']
+    assert regular_results['training_points_total'] == regular_results['original_points_total']
 
     # Sense check attacker only results
     attacker_only_results = data_modifications['only_attacker']
@@ -77,7 +77,7 @@ def test_point_counter_iris():
     # Sense check defender only results
     defender_only_results = data_modifications['only_defender']
     assert defender_only_results['poisoned'] == 0
-    assert defender_only_results['not_poisoned'] == defender_only_results['original_point_total']
+    assert defender_only_results['not_poisoned'] == defender_only_results['original_points_total']
     
     # Sense check attacker and defender results
     attack_and_defence_results = data_modifications['attack_and_defence']
@@ -127,10 +127,10 @@ def test_point_counter_MNIST():
     # Sense check regular results
     regular_results = data_modifications['regular']
     assert regular_results['poisoned'] == 0
-    assert regular_results['not_poisoned'] == regular_results['original_point_total']
+    assert regular_results['not_poisoned'] == regular_results['original_points_total']
     assert regular_results['correctly_defended'] == 0
     assert regular_results['incorrectly_defended'] == 0
-    assert regular_results['training_points_total'] == regular_results['original_point_total']
+    assert regular_results['training_points_total'] == regular_results['original_points_total']
 
     # Sense check attacker only results
     attacker_only_results = data_modifications['only_attacker']
@@ -140,7 +140,7 @@ def test_point_counter_MNIST():
     # Sense check defender only results
     defender_only_results = data_modifications['only_defender']
     assert defender_only_results['poisoned'] == 0
-    assert defender_only_results['not_poisoned'] == defender_only_results['original_point_total']
+    assert defender_only_results['not_poisoned'] == defender_only_results['original_points_total']
     
     # Sense check attacker and defender results
     attack_and_defence_results = data_modifications['attack_and_defence']
