@@ -452,9 +452,8 @@ defended:</p>
 <li><p>correctly_defended: poisoned points correctly removed or modified by the defender</p></li>
 <li><p>incorrectly_defended: clean datapoints incorrectly removed or modified by the defender</p></li>
 <li><p>original_points_total: total datapoints in the original training dataset</p></li>
-<li><p>training_points_total: datapoints the model actually gets to train on</p></li>
+<li><p>training_points_total: datapoints the model actually gets to train on (certain attack/defence strategies remove datapoints from the learning pipeline)</p></li>
 </ul>
-<p>(certain attack/defence strategies remove datapoints from the learning pipeline)</p>
 <p><code class="docutils literal notranslate"><span class="pre">niteshade.postprocessing</span></code> also contains a <code class="docutils literal notranslate"><span class="pre">PDF</span></code> class, which can generate
 a summary report of the simulation(s). Adding tables and figures to the report
 is easy, as shown below. In this case, our summary report will contain a single

@@ -413,8 +413,7 @@ In the above table,
 - correctly_defended: poisoned points correctly removed or modified by the defender
 - incorrectly_defended: clean datapoints incorrectly removed or modified by the defender
 - original_points_total: total datapoints in the original training dataset
-- training_points_total: datapoints the model actually gets to train on 
-(certain attack/defence strategies remove datapoints from the learning pipeline)
+- training_points_total: datapoints the model actually gets to train on (certain attack/defence strategies remove datapoints from the learning pipeline)
 
 ``niteshade.postprocessing`` also contains a ``PDF`` class, which can generate 
 a summary report of the simulation(s). Adding tables and figures to the report 
