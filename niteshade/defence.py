@@ -402,21 +402,26 @@ class SoftmaxDefender(ModelDefender):
                 labels (np.ndarray, torch.Tensor): modified label data (shape (batch_size,)).
         """
         self._type_check(datapoints, labels) # Check if input data is tensor or ndarray
-        self.defender_counter += 1
+        self.defend_counter += 1
         if self.defend_counter > self.delay: # Only defend if defend counter is larger than delay
             labels = labels.reshape(-1,1)
             if self._datatype == 1: # If incoming data is nd.array, make into tensor for NeuralNetwork
                 X_batch = torch.tensor(datapoints)
                 labels = torch.tensor(labels)
+            else:
+                X_batch = datapoints
+                labels = labels
             # If onehot, then construct artificial class labels
             if self.one_hot:
                 class_labels = torch.argmax(labels, axis = 1).reshape(-1,1) # Get class labels from onehot
+            else:
+                class_labels = labels
             #zero gradients so they are not accumulated across batches
-            model.evaluate()
+            model.eval()
             with torch.no_grad():
             # Performs forward pass through classifier
                 outputs = model.forward(X_batch.float())
-            confidence = torch.gather(outputs, 1 , class_labels) # Get softmax output for class labels
+            confidence = torch.gather(outputs.cpu(), 1 , class_labels.cpu()) # Get softmax output for class labels
             mask = (confidence>self.threshold).squeeze(1) #mask for points true if confidence>threshold
             X_output = X_batch[mask] # Get output points using mask
             y_output = labels[mask]

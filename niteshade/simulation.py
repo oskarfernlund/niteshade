@@ -22,7 +22,7 @@ from tqdm import tqdm
 from niteshade.data import DataLoader
 from niteshade.attack import Attacker
 from niteshade.defence import DefenderGroup, Defender
-from niteshade.utils import save_pickle, train_test_iris, copy
+from niteshade.utils import save_pickle, copy
 
 
 # =============================================================================
@@ -34,12 +34,16 @@ class _KeyMap(object):
     def __init__(self, X, y):
         #convert to numpy arrays if data are torch.tensors
         if isinstance(X, torch.Tensor) and isinstance(y, torch.Tensor):
-            X = X.detach().numpy()
-            y = y.detach().numpy()
+            if X.is_cuda and y.is_cuda:
+                X = X.detach().cpu().numpy()
+                y = y.detach().cpu().numpy()
+            else: 
+                X = X.detach().numpy()
+                y = y.detach().numpy()
 
-        self.data = X
-        self.target = y
-        self.hash = hash((hash(self.data.tobytes()), hash(self.target.tobytes())))
+        self.x = X
+        self.y = y
+        self.hash = hash((hash(self.x.tostring()), hash(self.y.tostring())))
     def __hash__(self):
         return self.hash
     def __str__(self):
@@ -128,9 +132,6 @@ class Simulator():
             else: 
                 self.true_defender_args = args[3:] # assuming first three arguments are self, X_episode, y_episode
 
-        #save original data with indices as id's
-        self._datapoint_ids = self._assign_ids(self.X, self.y)
-
         #save original, post-attacked, and post-defended points on an
         #episodic basis
         self._original_ids = {}
@@ -138,6 +139,7 @@ class Simulator():
         self._defended_ids = {}
         self.num_poisoned = 0
         self.num_defended = 0
+        self.epoch = 0
 
         #logging of results
         self.results = {'original': [], 'post_attack': [], 'post_defense':[], 'models': []}
@@ -156,7 +158,7 @@ class Simulator():
         point_ids = {}
         for idx, (inpt, label) in enumerate(zip(X,y)):
             point_hash = hash(_KeyMap(inpt, label))
-            point_ids[point_hash] = idx
+            point_ids[point_hash] = f'o_{idx}_{self.epoch}'
         return point_ids
     
     def _get_func_args(self, func):
@@ -236,6 +238,7 @@ class Simulator():
                 point_id = self._attacked_ids.get(hash, 'd')
             else:
                 point_id = self._original_ids.get(hash, 'd')
+
             if point_id == 'd':
                 point_id = f'd_{self.num_defended}'
                 self.num_defended += 1
@@ -300,14 +303,18 @@ class Simulator():
                                              the updated model at each episode.
             shuffle (bool) : Boolean indicating if passed X and y should be shuffled in DataLoader.
         """
-        self.num_poisoned = 0
-        self.num_defended = 0
+        #save original data with index/epoch combination as id's
+        self._datapoint_ids = self._assign_ids(self.X, self.y)
+        self.epoch += 1
+
         generator = DataLoader(self.X, self.y, batch_size = self.episode_size, 
                                shuffle=shuffle) #initialise data stream
         batch_queue = DataLoader(batch_size = self.batch_size) #initialise cache data loader
         
         with tqdm(generator, desc="Running simulation", unit="episode") as tepoch: 
             for episode, (X_episode, y_episode) in enumerate(tepoch):
+                orig_X_episode = copy(X_episode)
+                orig_y_episode = copy(y_episode)
                 #save ids of true points
                 self._log(X_episode, y_episode, checkpoint=0) #log results
 
@@ -326,8 +333,6 @@ class Simulator():
                         attacker_args = {key:value for key, value in attacker_args.items() if key in valid_attacker_args}
                     
                     #pass episode datapoints to attacker
-                    orig_X_episode = copy(X_episode)
-                    orig_y_episode = copy(y_episode)
                     X_episode, y_episode = self.attacker.attack(X_episode, y_episode, **attacker_args)
 
                     #check if shapes have been altered in .attack() method
@@ -349,8 +354,6 @@ class Simulator():
                         defender_args = {key:value for key, value in defender_args.items() if key in valid_defender_args}
 
                     #pass possibly perturbed points onto defender
-                    orig_X_episode = copy(X_episode)
-                    orig_y_episode = copy(y_episode)
                     X_episode, y_episode = self.defender.defend(X_episode, y_episode, **defender_args)
 
                     #check if shapes have been altered in .defend() method
@@ -364,8 +367,11 @@ class Simulator():
                 num_batches = len(batch_queue)
                 for (X_batch, y_batch) in batch_queue:
                     
-                    #take a gradient descent step
-                    self.model.step(X_batch, y_batch) 
+                    try:
+                        #take a gradient descent step
+                        self.model.step(X_batch, y_batch) 
+                    except AttributeError:
+                        raise NotImplementedError("Model must have a .step() method to perform a gradient descent step.")
 
                     if hasattr(self.model, 'losses'):
                         loss = self.model.losses[-1]
@@ -427,21 +433,14 @@ def wrap_results(simulators: dict):
 # =============================================================================
 #  MAIN ENTRY POINT
 # =============================================================================
-
 if __name__ == '__main__':
-    X_train, y_train, X_test, y_test = train_test_iris(num_stacks=1)
+    a = np.array([0,1,1], dtype=np.float64)
+    b = np.array([0,1,1], dtype=np.float64)
 
-    mydict = {}
-    X = X_train[0]
-    y = y_train[0]
+    a_torch = torch.tensor([0,1,1], dtype=torch.float64)
+    a_torch_hash = hash(_KeyMap(a_torch, torch.tensor([1], dtype=torch.float64)))
 
-    hash_val1 = hash(_KeyMap(X,y))
-    mydict[hash_val1] = 1
+    a_hash = hash(_KeyMap(a, np.array([1], dtype=np.float64)))
+    b_hash = hash(_KeyMap(b, np.array([1], dtype=np.float64)))
 
-    X = X_train[0]
-    y = y_train[0]
-
-    hash_val2 = _KeyMap(X,y)
-    print(type(hash_val1))
-    print(hash_val2)
-    print(mydict[hash(hash_val2)])
+    print(a_hash == a_torch_hash)
