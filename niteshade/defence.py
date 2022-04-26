@@ -421,7 +421,7 @@ class SoftmaxDefender(ModelDefender):
             with torch.no_grad():
             # Performs forward pass through classifier
                 outputs = model.forward(X_batch.float())
-            confidence = torch.gather(outputs, 1 , class_labels) # Get softmax output for class labels
+            confidence = torch.gather(outputs.cpu(), 1 , class_labels.cpu()) # Get softmax output for class labels
             mask = (confidence>self.threshold).squeeze(1) #mask for points true if confidence>threshold
             X_output = X_batch[mask] # Get output points using mask
             y_output = labels[mask]
