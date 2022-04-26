@@ -51,10 +51,10 @@ attack in which an adversary alters a portion of a victim model's training data
 nefarious objective (e.g. flipping labels so that a classifier systematically 
 misclassifies a particular object). Data poisoning attacks against online 
 learning are of particular concern, as many online learning systems make 
-decisions in real-time and therefore small changes in performance can have 
-drastic immediate consequences (e.g. perturbing stock price data may cause a 
-trading bot to make unprofitable trades, painting zeros on speed limit signs 
-may cause an autonomous vehicle to accelerate dangerously).
+decisions in real-time and therefore corrupted input data can lead to drastic 
+immediate consequences (e.g. perturbing stock price data may cause a trading 
+bot to make unprofitable trades, painting over stop signs may cause an 
+autonomous vehicle to drive recklessly).
 
 
 .. _defending_against_data_poisoning_attacks:
@@ -67,7 +67,7 @@ attacks against online learning systems, there numerous strategies for
 defending against them. Defending against data poisoning attacks generally 
 involves attempting to minimise damage by identifying suspicious datapoints and 
 either removing them from the training data pipeline or adjusting values so 
-that they fall in a more "reasonable" range. Alternatively, regularisation may 
+that they fall in a more "reasonable" range. Additionally, regularisation may 
 be used in various forms to make models less sensitive to the data on which 
 they are trained. The effectiveness of a defence strategy depends on the attack 
 strategy against which it is defending and how well the defence parameters are 

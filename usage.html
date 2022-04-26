@@ -42,6 +42,7 @@
 <li class="toctree-l1"><a class="reference internal" href="about.html">About</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Usage</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#getting-started">Getting Started</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#setting-up-an-online-data-pipeline">Setting Up an Online Data Pipeline</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#managing-pipeline-asynchronicity">Managing Pipeline Asynchronicity</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#setting-up-a-victim-model">Setting Up a Victim Model</a></li>
@@ -85,13 +86,22 @@
 <p>Below are some simple example uses of the various functions and classes in
 niteshade. For a more comprehensive overview of niteshade’s functionality,
 please refer to the <a class="reference internal" href="api.html"><span class="doc">API</span></a> section.</p>
+<section id="getting-started">
+<span id="id1"></span><h2>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this headline"></a></h2>
+<p>Before we begin, many of the following sections will use various functions and
+classes from <code class="docutils literal notranslate"><span class="pre">PyTorch</span></code>, so let’s go ahead and import <code class="docutils literal notranslate"><span class="pre">PyTorch</span></code> so we can
+focus exclusively on niteshade imports from here on out:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">torch</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">torch.nn</span> <span class="k">as</span> <span class="nn">nn</span>
+</pre></div>
+</div>
+</section>
 <section id="setting-up-an-online-data-pipeline">
-<span id="id1"></span><h2>Setting Up an Online Data Pipeline<a class="headerlink" href="#setting-up-an-online-data-pipeline" title="Permalink to this headline"></a></h2>
+<span id="id2"></span><h2>Setting Up an Online Data Pipeline<a class="headerlink" href="#setting-up-an-online-data-pipeline" title="Permalink to this headline"></a></h2>
 <p>niteshade makes setting up an online data pipeline easy, thanks to its bespoke
 data loader class specifically designed for online learning
 <code class="docutils literal notranslate"><span class="pre">niteshade.data.DataLoader</span></code>.</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">torch</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">niteshade.data</span> <span class="kn">import</span> <span class="n">DataLoader</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">niteshade.data</span> <span class="kn">import</span> <span class="n">DataLoader</span>
 </pre></div>
 </div>
 <p>A <code class="docutils literal notranslate"><span class="pre">DataLoader</span></code> may be instantiated with a particular set of features (X) and
@@ -147,8 +157,7 @@ involve separate generation and learning loops, each with their own
 <code class="docutils literal notranslate"><span class="pre">DataLoader</span></code> (leveraging the cache and queue to ensure consistent episode and
 batch sizes). Below is a very simple example (model, attack and defence
 strategies not specified):</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">torch</span>
-<span class="kn">from</span> <span class="nn">niteshade.data</span> <span class="kn">import</span> <span class="n">DataLoader</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">niteshade.data</span> <span class="kn">import</span> <span class="n">DataLoader</span>
 
 <span class="n">X</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
 <span class="n">y</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
@@ -195,9 +204,7 @@ classes can be easily created by inheriting the <code class="docutils literal no
 superclass, providing it the necessary arguments in the constructor, and
 filling in the <code class="docutils literal notranslate"><span class="pre">.forward()</span></code>, and <code class="docutils literal notranslate"><span class="pre">.evaluate()</span></code> methods. Below is an example
 of a simple multi-layer perceptron regressor:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">torch.nn</span> <span class="k">as</span> <span class="nn">nn</span>
-
-<span class="k">class</span> <span class="nc">MLPRegressor</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MLPRegressor</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Simple MLP regressor class. &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">optimizer</span><span class="o">=</span><span class="s2">&quot;adam&quot;</span><span class="p">,</span> <span class="n">loss_func</span><span class="o">=</span><span class="s2">&quot;mse&quot;</span><span class="p">,</span> <span class="n">lr</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">):</span>
@@ -233,7 +240,7 @@ are interested in analysing during the simulation (accuracy, in this case).</p>
 updates using the <code class="docutils literal notranslate"><span class="pre">.step()</span></code> method, which is inherited from <code class="docutils literal notranslate"><span class="pre">BaseModel</span></code>.</p>
 </section>
 <section id="defining-an-attack-strategy">
-<span id="id2"></span><h2>Defining an Attack Strategy<a class="headerlink" href="#defining-an-attack-strategy" title="Permalink to this headline"></a></h2>
+<span id="id3"></span><h2>Defining an Attack Strategy<a class="headerlink" href="#defining-an-attack-strategy" title="Permalink to this headline"></a></h2>
 <p>niteshade’s attack module (<code class="docutils literal notranslate"><span class="pre">niteshade.attack</span></code>) includes several
 out-of-the-box classes based on some of the most commonly encountered data
 poisoning attack strategies, e.g. <code class="docutils literal notranslate"><span class="pre">LabelFlipperAttacker</span></code> (which as the name
@@ -254,8 +261,7 @@ strategies which involve perturbing <em>real</em> datapoints in the learning pip
 and <code class="docutils literal notranslate"><span class="pre">ChangeLabelAttacker</span></code> (for strategies which involve altering training
 data labels). Below is an example of a very simple custom attack strategy which
 involves appending zeros to the end of training batches:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">torch</span>
-<span class="kn">from</span> <span class="nn">niteshade.attack</span> <span class="kn">import</span> <span class="n">AddPointsAttacker</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">niteshade.attack</span> <span class="kn">import</span> <span class="n">AddPointsAttacker</span>
 
 <span class="k">class</span> <span class="nc">AppendZerosAttacker</span><span class="p">(</span><span class="n">AddPointsAttacker</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Append zeros attack strategy class. &quot;&quot;&quot;</span>
@@ -284,7 +290,7 @@ doesn’t fit into any of the aforementioned categories, we can simply inherit
 from <code class="docutils literal notranslate"><span class="pre">Attacker</span></code>.</p>
 </section>
 <section id="defining-a-defence-strategy">
-<span id="id3"></span><h2>Defining a Defence Strategy<a class="headerlink" href="#defining-a-defence-strategy" title="Permalink to this headline"></a></h2>
+<span id="id4"></span><h2>Defining a Defence Strategy<a class="headerlink" href="#defining-a-defence-strategy" title="Permalink to this headline"></a></h2>
 <p>Similarly to the attack module, niteshade’s defence module
 (<code class="docutils literal notranslate"><span class="pre">niteshade.defence</span></code>) includes several out-of-the-box classes based on some
 of the most well-known defence strategies against data poisoning attacks, e.g.
@@ -325,7 +331,7 @@ involves removing points which have even-valued labels:</p>
 outlier detection, and thus we have just inherited from <code class="docutils literal notranslate"><span class="pre">Defender</span></code>.</p>
 </section>
 <section id="running-a-simulation">
-<span id="id4"></span><h2>Running a Simulation<a class="headerlink" href="#running-a-simulation" title="Permalink to this headline"></a></h2>
+<span id="id5"></span><h2>Running a Simulation<a class="headerlink" href="#running-a-simulation" title="Permalink to this headline"></a></h2>
 <p>Once a model has been set up and attack and defence strategies have been
 defined, simulating an attack against online learning is very straightforward.
 niteshade’s simulation module (<code class="docutils literal notranslate"><span class="pre">niteshade.simulation</span></code>) contains a
@@ -367,7 +373,7 @@ both. If custom model, attack or defence classes have been created, they can be
 passed as arguments to the <code class="docutils literal notranslate"><span class="pre">Simulator</span></code> class exactly as shown above.</p>
 </section>
 <section id="postprocessing-results">
-<span id="id5"></span><h2>Postprocessing Results<a class="headerlink" href="#postprocessing-results" title="Permalink to this headline"></a></h2>
+<span id="id6"></span><h2>Postprocessing Results<a class="headerlink" href="#postprocessing-results" title="Permalink to this headline"></a></h2>
 <p>niteshade’s postprocessing module (<code class="docutils literal notranslate"><span class="pre">niteshade.postprocessing</span></code>) contains
 several useful tools for analysing and visualising results. Once a simulation
 has been run, (by calling <code class="docutils literal notranslate"><span class="pre">Simulator.run()</span></code>, which populates the <code class="docutils literal notranslate"><span class="pre">.results</span></code>
@@ -477,7 +483,7 @@ report.</p>
 </div>
 </section>
 <section id="end-to-end-example">
-<span id="id6"></span><h2>End-To-End Example<a class="headerlink" href="#end-to-end-example" title="Permalink to this headline"></a></h2>
+<span id="id7"></span><h2>End-To-End Example<a class="headerlink" href="#end-to-end-example" title="Permalink to this headline"></a></h2>
 <p>To wrap thing up, here is an end-to-end example of a niteshade workflow using
 out-of-the-box model, attack and defence classes:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Imports &amp; dependencies</span>

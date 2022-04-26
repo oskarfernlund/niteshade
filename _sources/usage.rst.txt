@@ -6,6 +6,19 @@ niteshade. For a more comprehensive overview of niteshade's functionality,
 please refer to the :doc:`api` section.
 
 
+.. _getting_started:
+
+Getting Started
+---------------
+
+Before we begin, many of the following sections will use various functions and 
+classes from ``PyTorch``, so let's go ahead and import ``PyTorch`` so we can 
+focus exclusively on niteshade imports from here on out:
+
+>>> import torch
+>>> import torch.nn as nn
+
+
 .. _setting_up_an_online_data_pipeline:
 
 Setting Up an Online Data Pipeline
@@ -15,7 +28,6 @@ niteshade makes setting up an online data pipeline easy, thanks to its bespoke
 data loader class specifically designed for online learning 
 ``niteshade.data.DataLoader``. 
 
->>> import torch
 >>> from niteshade.data import DataLoader
 
 A ``DataLoader`` may be instantiated with a particular set of features (X) and 
@@ -78,7 +90,6 @@ strategies not specified):
 
 .. code-block:: python
 
-    import torch
     from niteshade.data import DataLoader
 
     X = torch.randn(100, 4)
@@ -131,8 +142,6 @@ filling in the ``.forward()``, and ``.evaluate()`` methods. Below is an example
 of a simple multi-layer perceptron regressor: 
 
 .. code-block:: python
-
-    import torch.nn as nn
 
     class MLPRegressor(BaseModel):
         """ Simple MLP regressor class. """
@@ -198,7 +207,6 @@ involves appending zeros to the end of training batches:
 
 .. code-block:: python
 
-    import torch
     from niteshade.attack import AddPointsAttacker
 
     class AppendZerosAttacker(AddPointsAttacker):
