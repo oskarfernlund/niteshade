@@ -43,7 +43,7 @@ class _KeyMap(object):
 
         self.x = X
         self.y = y
-        self.hash = hash((hash(self.x.data.tobytes()), hash(self.y.data.tobytes())))
+        self.hash = hash((hash(self.x.tostring()), hash(self.y.tostring())))
     def __hash__(self):
         return self.hash
     def __str__(self):
