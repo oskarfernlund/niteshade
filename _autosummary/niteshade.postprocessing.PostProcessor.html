@@ -94,14 +94,14 @@
 <p>Class used for a variety of post-processing functionalities common
 in assessing and visualising the effectiveness of different attack
 and defense strategies in simulating data poisoning attacks during
-online learning.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>simulators</strong> (<em>dict</em>) – Dictionary containing the simulator objects
-(presumably after making use of their .run()
+online learning.
+:param simulators: Dictionary containing the simulator objects</p>
+<blockquote>
+<div><p>(presumably after making use of their .run()
 method) as values and descriptive labels for
 each Simulator as keys.</p>
-</dd>
+</div></blockquote>
+<dl class="field-list simple">
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="niteshade.postprocessing.PostProcessor.__init__">
@@ -125,7 +125,7 @@ each Simulator as keys.</p>
 <td><p>Returns a dictionary of lists with metrics.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#niteshade.postprocessing.PostProcessor.plot_decision_boundaries" title="niteshade.postprocessing.PostProcessor.plot_decision_boundaries"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_decision_boundaries</span></code></a>(X_test, y_test[, ...])</p></td>
-<td><p>Plot the decision boundaries of the final models inside all the ran Simulator objects passed in the constructor method of the PostProcessor.</p></td>
+<td><p>Plot the decision boundaries of the final models inside all the ran Simulator objects passed in the constructor method of the PostProcessor. This method uses sklearn.manifold.TSNE to reduce the dimensionality of X_test to 2D for visualisation purposes. An sklearn C-Support Vector Classifier is then trained using the points in the smaller feature space with the predicted labels of each model to show their decision boundaries in 2D. :param X_test: Test input data. :type X_test: np.ndarray, torch.Tensor :param y_test: Test labels. :type y_test: np.ndarray, torch.Tensor :param num_points: Number of points within X_test/y_test to plot                    in the figure. Consider selecting a value                    between 300 and 1000. :type num_points: int :param perplexity: The perplexity is related to the number of                    nearest neighbors that is used in other manifold                    learning algorithms. Larger datasets usually                    require a larger perplexity. Consider selecting                    a value between 5 and 50. Different values can                    result in significantly different results. Default = 50. :type perplexity: int :param n_iter: Maximum number of iterations for the optimization. Should be at least 250. Default = 2000. :type n_iter: iter :param C: Regularization parameter. The strength of the           regularization is inversely proportional to C. Must be           strictly positive. The penalty is a squared l2 penalty. :type C: float :param kernel: {'linear', 'poly', 'rbf', 'sigmoid', 'precomputed'}                or callable. Specifies the kernel type to be used in                the algorithm. If none is given, 'rbf' will be used. If a callable is given it is used to pre-compute the                kernel matrix from data matrices; that matrix should                be an array of shape (n_samples, n_samples). Default='poly'. :type kernel: str :param degree: Degree of the polynomial kernel function ('poly'). Ignored by all other kernels. Default = 3. :type degree: int :param figsize: Tuple (W,H) indicating the size of the figures to plot. Default = (20,20). :type figsize: tuple :param fontsize: Size of the font in the plots. Default = 10. :type fontsize: int :param markersize: Size of the markers representing individual points in                    X_test and y_test. Default = 20. :type markersize: int :param resolution: Size of the &quot;steps&quot; used to create the meshgrid upon                    which the predictions are made to plot the decision                    boundaries of the model. The smaller the value the                    more computationally exhaustive the process becomes. Values &lt; 0.1 are not recommended for this reason                    (Default = 0.2). :type resolution: float :param save: Boolean indicating wether to save the plots or not. (Default = False). :type save: bool :param show_plot: Boolean indicating if plot should be showed (Default = True). :type show_plot: bool.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#niteshade.postprocessing.PostProcessor.plot_online_learning_metrics" title="niteshade.postprocessing.PostProcessor.plot_online_learning_metrics"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_online_learning_metrics</span></code></a>(metrics[, ...])</p></td>
 <td><p>Prints a plot into a console.</p></td>
@@ -140,16 +140,14 @@ each Simulator as keys.</p>
 <span class="sig-name descname"><span class="pre">compute_online_learning_metrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X_test</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_test</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niteshade.postprocessing.PostProcessor.compute_online_learning_metrics" title="Permalink to this definition"></a></dt>
 <dd><p>Returns a dictionary of lists with metrics. Requirement: The model
 must have an evaluate method of the form: Input: X_test, y_test,
-self.batch_sizes[simulation_label]. Output: metric.</p>
+self.batch_sizes[simulation_label]. Output: metric.
+:param X_test: NumPy array containing features.
+:type X_test: np.ndarray
+:param y_test: NumPy array containing labels.
+:type y_test: np.ndarray</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>X_test</strong> (<em>np.ndarray</em>) – NumPy array containing features.</p></li>
-<li><p><strong>y_test</strong> (<em>np.ndarray</em>) – NumPy array containing labels.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><dl class="simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><dl class="simple">
 <dt>Dictionary where each key is a simulator and each</dt><dd><p>value is a list of coresponding metrics throughout
 the simulation (each value corresponds to a single
 timestep of a simulation).</p>
@@ -157,8 +155,8 @@ timestep of a simulation).</p>
 </dl>
 </p>
 </dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>metrics (dict)</p>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>metrics (dict)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -168,23 +166,21 @@ timestep of a simulation).</p>
 <span class="sig-name descname"><span class="pre">evaluate_simulators_metrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X_test</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_test</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#niteshade.postprocessing.PostProcessor.evaluate_simulators_metrics" title="Permalink to this definition"></a></dt>
 <dd><p>Returns a dictionary of lists with metrics. Requires the model
 to have an .evaluate() method with arguments (X_test, y_test) that returns
-any given metric that the user deems appropriate for the task at hand.</p>
+any given metric that the user deems appropriate for the task at hand.
+:param X_test: NumPy array containing features.
+:type X_test: np.ndarray
+:param y_test: NumPy array containing labels.
+:type y_test: np.ndarray</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>X_test</strong> (<em>np.ndarray</em>) – NumPy array containing features.</p></li>
-<li><p><strong>y_test</strong> (<em>np.ndarray</em>) – NumPy array containing labels.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><dl class="simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><dl class="simple">
 <dt>Dictionary where each key is a simulator</dt><dd><p>and each value is a final evaluation metric.</p>
 </dd>
 </dl>
 </p>
 </dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>metrics (dict)</p>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>metrics (dict)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -198,15 +194,19 @@ This method uses sklearn.manifold.TSNE to reduce the dimensionality of
 X_test to 2D for visualisation purposes. An sklearn C-Support Vector
 Classifier is then trained using the points in the smaller feature space
 with the predicted labels of each model to show their decision
-boundaries in 2D.</p>
+boundaries in 2D.
+:param X_test: Test input data.
+:type X_test: np.ndarray, torch.Tensor
+:param y_test: Test labels.
+:type y_test: np.ndarray, torch.Tensor
+:param num_points: Number of points within X_test/y_test to plot</p>
+<blockquote>
+<div><p>in the figure. Consider selecting a value
+between 300 and 1000.</p>
+</div></blockquote>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>X_test</strong> (<em>np.ndarray</em><em>, </em><em>torch.Tensor</em>) – Test input data.</p></li>
-<li><p><strong>y_test</strong> (<em>np.ndarray</em><em>, </em><em>torch.Tensor</em>) – Test labels.</p></li>
-<li><p><strong>num_points</strong> (<em>int</em>) – Number of points within X_test/y_test to plot
-in the figure. Consider selecting a value
-between 300 and 1000.</p></li>
 <li><p><strong>perplexity</strong> (<em>int</em>) – The perplexity is related to the number of
 nearest neighbors that is used in other manifold
 learning algorithms. Larger datasets usually
@@ -270,20 +270,20 @@ timestamp.</p></li>
 b) number of points that were unaugmented by the attacker, c) number of points
 correctly rejected by the defender, d) number of points that were incorrectly
 rejected by the defender, e) total number of points that were originally available
-for training, f) number of points that the model was actually trained on.</p>
-<p>The function looks at all data available in a simulation.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><dl class="simple">
+for training, f) number of points that the model was actually trained on.
+The function looks at all data available in a simulation.
+:returns:</p>
+<blockquote>
+<div><dl class="simple">
 <dt>Dictionary with keys</dt><dd><p>corresponding to simulator names,
 values corresponding to dicts
 with keys a, b, c, d per above.</p>
 </dd>
 </dl>
-</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>results (pd.core.frame.DataFrame)</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>results (pd.core.frame.DataFrame)</p>
 </dd>
 </dl>
 </dd></dl>

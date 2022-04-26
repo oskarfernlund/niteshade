@@ -44,8 +44,8 @@ and 6 points in the cache.
 >>> len(pipeline)
 18
 
-``DataLoader`` instances are iterator objects, and the queue can be iterated 
-over (and depleted) using a for loop:
+``DataLoader`` instances are iterators; the queue can be iterated over and 
+depleted in a for loop:
 
 >>> for batch in pipeline:
 ...     pass
@@ -121,8 +121,8 @@ is to use one of niteshade's out-of-the-box model classes, e.g.
 ``shade.models.CifarClassifier`` (designed specifically for CIFAR-10), for 
 example:
 
->>> from niteshade.models import MNISTClassifier
->>> mnist_model = MNISTClassifier(optimizer="sgd", loss_func="nll", lr=0.01)
+>>> from niteshade.models import IrisClassifier
+>>> model = IrisClassifier(optimizer="adam", loss_func="cross_entropy", lr=1e-3)
 
 However, most users will prefer to create a custom model class. Custom model 
 classes can be easily created by inheriting the ``niteshade.models.BaseModel`` 
@@ -276,15 +276,49 @@ outlier detection, and thus we have just inherited from ``Defender``.
 
 .. _running_a_simulation:
 
-Running a Simulations
----------------------
+Running a Simulation
+--------------------
 
-To run a simulation, you can use the ``niteshade.simulation.Simulator`` class:
+Once a model has been set up and attack and defence strategies have been 
+defined, simulating an attack against online learning is very straightforward. 
+niteshade's simulation module (``niteshade.simulation``) contains a 
+``Simulator`` class which sets up and executes the adversarial online learning 
+pipeline (the asynchronous double-loop pipeline shown above):
 
+>>> from niteshade.models import MNISTClassifier
+>>> from niteshade.attack import LabelFlipperAttacker
+>>> from niteshade.defence import KNN_Defender
 >>> from niteshade.simulation import Simulator
+>>> from niteshade.utils import train_test_MNIST
 >>> 
->>> simulator = Simulator()
+>>> X_train, y_train, X_test, y_test = train_test_MNIST()
+>>> model = MNISTClassifier()
+>>> attacker = LabelFlipperAttacker(aggressiveness=1, label_flips_dict={1:9, 9:1})
+>>> defender = KNN_Defender(X_train, y_train, nearest_neighbours=3, confidence_threshold=0.5)
+>>> batch_size = 128
+>>> num_eps = 50
+>>> simulator = Simulator(X_train, y_train, model, attacker, defender, batch_size, num_eps)
+
+In the above example, we are simulating a digit classification model trained on 
+MNIST subject to a label-flipping attack (specifically one which flips 1's and 
+9's with 100% aggressiveness) with a k-nearest neighbours defence (k=3, 50% 
+consensus). We use a helper function from ``niteshade.utils`` to load in the 
+MNIST dataset and specify that the online data pipeline should split the 
+dataset into 50 sequential episodes. Finally, we set the training batch size to 
+128 and pass all the above information to the ``Simulator`` class before 
+running the simulation by calling the ``.run()`` method:
+
 >>> simulator.run()
+
+The ``Simulator`` class has a ``.results`` attribute which stores snapshots of 
+the model's state dictionary at each episode as well as datapoint tracking 
+information to monitor the effects of the attack and defence strategies.
+
+Note that the attacker and defender arguments in ``Simulator`` are optional and 
+default to None; simulations can be run without any attack or defence strategy 
+in place, with just an attack strategy, with just a defence strategy or with 
+both. If custom model, attack or defence classes have been created, they can be 
+passed as arguments to the ``Simulator`` class exactly as shown above.
 
 
 .. _postprocessing_results:
@@ -292,8 +326,184 @@ To run a simulation, you can use the ``niteshade.simulation.Simulator`` class:
 Postprocessing Results
 ----------------------
 
-To postprocess results, you can use the 
-``niteshade.postprocessing.PostProcessor`` class:
+niteshade's postprocessing module (``niteshade.postprocessing``) contains 
+several useful tools for analysing and visualising results. Once a simulation 
+has been run, (by calling ``Simulator.run()``, which populates the ``.results`` 
+attribute), it may be passed to the ``PostProcessor`` class in a dictionary 
+keyed by the name of the simulation. Building off the previous example:
 
-.. .. autoclass:: postprocessing.PostProcessor
-..     :noindex:
+>>> from niteshade.models import MNISTClassifier
+>>> from niteshade.attack import LabelFlipperAttacker
+>>> from niteshade.defence import KNN_Defender
+>>> from niteshade.simulation import Simulator
+>>> from niteshade.postprocessing import PostProcessor
+>>> from niteshade.utils import train_test_MNIST
+>>> 
+>>> X_train, y_train, X_test, y_test = train_test_MNIST()
+>>> model = MNISTClassifier()
+>>> attacker = LabelFlipperAttacker(1, {1:9, 9:1})
+>>> defender = KNN_Defender(X_train, y_train, 3, 0.5)
+>>> batch_size = 128
+>>> num_eps = 50
+>>> simulator = Simulator(X_train, y_train, model, attacker, defender, batch_size, num_eps)
+>>> simulation.run()
+>>> simulation_dict = {"example_name": simulation}
+>>> postprocessor = PostProcessor(simulation_dict)
+
+We can also run multiple simulations and pass them to ``PostProcessor``:
+
+>>> model1 = MNISTClassifier()
+>>> model2 = MNISTClassifier()
+>>> model3 = MNISTClassifier()
+>>> s1 = Simulator(X_train, y_train, model1, None, None, batch_size, num_eps)
+>>> s2 = Simulator(X_train, y_train, model2, attacker, None, batch_size, num_eps)
+>>> s3 = Simulator(X_train, y_train, model3, attacker, defender, batch_size, num_eps)
+>>> s1.run()
+>>> s2.run()
+>>> s3.run()
+>>> simulation_dict = {"baseline": s1, "attack": s2, "attack_and_defence": s3}
+>>> postprocessor = PostProcessor(simulation_dict)
+
+This is useful because the impact of an attack or defence strategy is usually 
+relative to some baseline case. For example, it may be of interest to compare 
+the attacked and un-attacked learning scenarios to isolate the effect of the 
+attack. Similarly, comparing the scenario in which both attack and defence 
+strategies are implemented to the case in which only the attack strategy is 
+implemented can isolate the effect of the defence. Notice that we create 3 
+separate model instances as we want the models to be independent between the 
+simulations.
+
+``PostProcessor`` can then be used to compute and plot the model's performance 
+over the course of the simulation:
+
+>>> metrics = postprocessor.compute_online_learning_metrics(X_test, y_test)
+>>> postprocessor.plot_online_learning_metrics(metrics, show_plot=True)
+
+.. image:: _figures/metrics.png
+
+The performance metric that ``PostProcessor`` computes and plots on the y-axis 
+is whatever is written in the model's ``.evaluate()`` method (predictive 
+accuracy for ``MNISTClassifier``). We can see that in the baseline case, the 
+model achieves a predictive accuracy across all classes of ~0.95 after 50 
+episodes. When the model is subjected to the label-flipping attack, it is only 
+able to achieve a predictive accuracy of ~0.75 (specific accuracy for 1's and 
+9's is likely be even lower). When the kNN defence strategy is deployed against 
+the label-flipping attack, the model learns more slowly but is able to achieve 
+a final predictive accuracy of ~0.95 again.
+
+``PostProcessor`` also has a ``.track_data_modifications()`` method which 
+creates a table (``pandas.DataFrame`` object) which summarises the simulation 
+outcomes in terms of the numbers of datapoints which have been poisoned and 
+defended:
+
+>>> data_modifications = postprocessor.track_data_modifications()
+>>> print(data_modifications)
+                       baseline  attack  attack_and_defence
+poisoned                      0   12691               12691
+not_poisoned              60000   47309               47309
+correctly_defended            0       0               12677
+incorrectly_defended          0       0                 930
+original_points_total     60000   60000               60000
+training_points_total     60000   60000               60000
+
+In the above table,
+
+- poisoned: datapoints perturbed or injected by the attacker
+- not_poisoned: datapoints not perturbed or injected by the attacker
+- correctly_defended: poisoned points correctly removed or modified by the defender
+- incorrectly_defended: clean datapoints incorrectly removed or modified by the defender
+- original_points_total: total datapoints in the original training dataset
+- training_points_total: datapoints the model actually gets to train on 
+(certain attack/defence strategies remove datapoints from the learning pipeline)
+
+``niteshade.postprocessing`` also contains a ``PDF`` class, which can generate 
+a summary report of the simulation(s). Adding tables and figures to the report 
+is easy, as shown below. In this case, our summary report will contain a single 
+table and plot (the one shown above). If we generated additional plots and 
+saved them to the ``/outputs`` directory, they would also be included in the 
+report.
+
+>>> from niteshade.postprocessing import PDF
+>>> header_title = f"Example Report"
+>>> pdf = PDF()
+>>> pdf.set_title(header_title)
+>>> pdf.add_table(data_modifications, "Datapoint Summary")
+>>> pdf.add_all_charts_from_directory("output")
+>>> pdf.output("example_report.pdf", "F")
+
+Here, we have saved the report to our current working directory:
+
+.. code-block:: console
+
+    $ export REPORT=example_report.pdf
+    $ test -f $REPORT && echo "$REPORT exists :)"
+    example_report.pdf exists :)
+
+
+.. _end_to_end_example:
+
+End-To-End Example
+------------------
+
+To wrap thing up, here is an end-to-end example of a niteshade workflow using 
+out-of-the-box model, attack and defence classes:
+
+.. code-block:: python
+
+    # Imports & dependencies
+    from niteshade.models import MNISTClassifier
+    from niteshade.attack import LabelFlipperAttacker
+    from niteshade.defence import KNN_Defender
+    from niteshade.simulation import Simulator
+    from niteshade.postprocessing import PostProcessor, PDF
+    from niteshade.utils import train_test_MNIST
+
+    # Get MNIST training and test datasets
+    X_train, y_train, X_test, y_test = train_test_MNIST()
+    
+    # Instantiate out-of-the-box MNIST classifiers
+    model1 = MNISTClassifier()
+    model2 = MNISTClassifier()
+    model3 = MNISTClassifier()
+
+    # Specify attack and defence strategies
+    attacker = LabelFlipperAttacker(aggressiveness=1, label_flips_dict={1:9, 9:1})
+    defender = KNN_Defender(X_train, y_train, nearest_neighbours=3, confidence_threshold=0.5)
+
+    # Set batch size and number of episodes
+    batch_size = 128
+    num_eps = 50
+
+    # Instatiate simulations
+    s1 = Simulator(X_train, y_train, model1, None, None, batch_size, num_eps)
+    s2 = Simulator(X_train, y_train, model2, attacker, None, batch_size, num_eps)
+    s3 = Simulator(X_train, y_train, model3, attacker, defender, batch_size, num_eps)
+
+    # Run simulations (may take a few minutes)
+    s1.run()
+    s2.run()
+    s3.run()
+
+    # Postprocess simulation results
+    simulation_dict = {"baseline": s1, "attack": s2, "attack_and_defence": s3}
+    postprocessor = PostProcessor(simulation_dict)
+    metrics = postprocessor.compute_online_learning_metrics(X_test, y_test)
+    data_modifications = postprocessor.track_data_modifications()
+    postprocessor.plot_online_learning_metrics(metrics, show_plot=False, save=True)
+
+    # Create summary report
+    header_title = f"Example Report"
+    pdf = PDF()
+    pdf.set_title(header_title)
+    pdf.add_table(data_modifications, "Datapoint Summary")
+    pdf.add_all_charts_from_directory("output")
+    pdf.output("example_report.pdf", "F")
+
+This is a relatively simple workflow. For advanced users desiring more 
+customized workflows, consider the following options:
+
+- Writing custom model, attack and defence classes following niteshade's class 
+hierarchy,
+- Writing custom online learning pipelines using ``DataLoader``'s rather than 
+using ``Simulation.run()``, or
+- Writing custom postprocessing functions and plots for the ``.results`` dictionary

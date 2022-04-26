@@ -47,8 +47,9 @@
 <li class="toctree-l2"><a class="reference internal" href="#setting-up-a-victim-model">Setting Up a Victim Model</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#defining-an-attack-strategy">Defining an Attack Strategy</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#defining-a-defence-strategy">Defining a Defence Strategy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#running-a-simulations">Running a Simulations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#running-a-simulation">Running a Simulation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#postprocessing-results">Postprocessing Results</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#end-to-end-example">End-To-End Example</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
@@ -119,8 +120,8 @@ and 6 points in the cache.</p>
 <span class="go">18</span>
 </pre></div>
 </div>
-<p><code class="docutils literal notranslate"><span class="pre">DataLoader</span></code> instances are iterator objects, and the queue can be iterated
-over (and depleted) using a for loop:</p>
+<p><code class="docutils literal notranslate"><span class="pre">DataLoader</span></code> instances are iterators; the queue can be iterated over and
+depleted in a for loop:</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">batch</span> <span class="ow">in</span> <span class="n">pipeline</span><span class="p">:</span>
 <span class="gp">... </span>    <span class="k">pass</span>
 <span class="gp">...</span>
@@ -185,8 +186,8 @@ is to use one of niteshade’s out-of-the-box model classes, e.g.
 <code class="docutils literal notranslate"><span class="pre">shade.models.MNISTClassifier</span></code> (designed specifically for MNIST), or
 <code class="docutils literal notranslate"><span class="pre">shade.models.CifarClassifier</span></code> (designed specifically for CIFAR-10), for
 example:</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">niteshade.models</span> <span class="kn">import</span> <span class="n">MNISTClassifier</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">mnist_model</span> <span class="o">=</span> <span class="n">MNISTClassifier</span><span class="p">(</span><span class="n">optimizer</span><span class="o">=</span><span class="s2">&quot;sgd&quot;</span><span class="p">,</span> <span class="n">loss_func</span><span class="o">=</span><span class="s2">&quot;nll&quot;</span><span class="p">,</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">niteshade.models</span> <span class="kn">import</span> <span class="n">IrisClassifier</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">IrisClassifier</span><span class="p">(</span><span class="n">optimizer</span><span class="o">=</span><span class="s2">&quot;adam&quot;</span><span class="p">,</span> <span class="n">loss_func</span><span class="o">=</span><span class="s2">&quot;cross_entropy&quot;</span><span class="p">,</span> <span class="n">lr</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>However, most users will prefer to create a custom model class. Custom model
@@ -323,20 +324,222 @@ involves removing points which have even-valued labels:</p>
 <code class="docutils literal notranslate"><span class="pre">OutlierDefender</span></code>-type strategy, it doesn’t require a clean feasible set for
 outlier detection, and thus we have just inherited from <code class="docutils literal notranslate"><span class="pre">Defender</span></code>.</p>
 </section>
-<section id="running-a-simulations">
-<span id="running-a-simulation"></span><h2>Running a Simulations<a class="headerlink" href="#running-a-simulations" title="Permalink to this headline"></a></h2>
-<p>To run a simulation, you can use the <code class="docutils literal notranslate"><span class="pre">niteshade.simulation.Simulator</span></code> class:</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">niteshade.simulation</span> <span class="kn">import</span> <span class="n">Simulator</span>
+<section id="running-a-simulation">
+<span id="id4"></span><h2>Running a Simulation<a class="headerlink" href="#running-a-simulation" title="Permalink to this headline"></a></h2>
+<p>Once a model has been set up and attack and defence strategies have been
+defined, simulating an attack against online learning is very straightforward.
+niteshade’s simulation module (<code class="docutils literal notranslate"><span class="pre">niteshade.simulation</span></code>) contains a
+<code class="docutils literal notranslate"><span class="pre">Simulator</span></code> class which sets up and executes the adversarial online learning
+pipeline (the asynchronous double-loop pipeline shown above):</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">niteshade.models</span> <span class="kn">import</span> <span class="n">MNISTClassifier</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">niteshade.attack</span> <span class="kn">import</span> <span class="n">LabelFlipperAttacker</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">niteshade.defence</span> <span class="kn">import</span> <span class="n">KNN_Defender</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">niteshade.simulation</span> <span class="kn">import</span> <span class="n">Simulator</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">niteshade.utils</span> <span class="kn">import</span> <span class="n">train_test_MNIST</span>
 <span class="go">&gt;&gt;&gt;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">simulator</span> <span class="o">=</span> <span class="n">Simulator</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">simulator</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">train_test_MNIST</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">MNISTClassifier</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">attacker</span> <span class="o">=</span> <span class="n">LabelFlipperAttacker</span><span class="p">(</span><span class="n">aggressiveness</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">label_flips_dict</span><span class="o">=</span><span class="p">{</span><span class="mi">1</span><span class="p">:</span><span class="mi">9</span><span class="p">,</span> <span class="mi">9</span><span class="p">:</span><span class="mi">1</span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">defender</span> <span class="o">=</span> <span class="n">KNN_Defender</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">nearest_neighbours</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">confidence_threshold</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">batch_size</span> <span class="o">=</span> <span class="mi">128</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">num_eps</span> <span class="o">=</span> <span class="mi">50</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">simulator</span> <span class="o">=</span> <span class="n">Simulator</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">attacker</span><span class="p">,</span> <span class="n">defender</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">num_eps</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>In the above example, we are simulating a digit classification model trained on
+MNIST subject to a label-flipping attack (specifically one which flips 1’s and
+9’s with 100% aggressiveness) with a k-nearest neighbours defence (k=3, 50%
+consensus). We use a helper function from <code class="docutils literal notranslate"><span class="pre">niteshade.utils</span></code> to load in the
+MNIST dataset and specify that the online data pipeline should split the
+dataset into 50 sequential episodes. Finally, we set the training batch size to
+128 and pass all the above information to the <code class="docutils literal notranslate"><span class="pre">Simulator</span></code> class before
+running the simulation by calling the <code class="docutils literal notranslate"><span class="pre">.run()</span></code> method:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">simulator</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">Simulator</span></code> class has a <code class="docutils literal notranslate"><span class="pre">.results</span></code> attribute which stores snapshots of
+the model’s state dictionary at each episode as well as datapoint tracking
+information to monitor the effects of the attack and defence strategies.</p>
+<p>Note that the attacker and defender arguments in <code class="docutils literal notranslate"><span class="pre">Simulator</span></code> are optional and
+default to None; simulations can be run without any attack or defence strategy
+in place, with just an attack strategy, with just a defence strategy or with
+both. If custom model, attack or defence classes have been created, they can be
+passed as arguments to the <code class="docutils literal notranslate"><span class="pre">Simulator</span></code> class exactly as shown above.</p>
+</section>
+<section id="postprocessing-results">
+<span id="id5"></span><h2>Postprocessing Results<a class="headerlink" href="#postprocessing-results" title="Permalink to this headline"></a></h2>
+<p>niteshade’s postprocessing module (<code class="docutils literal notranslate"><span class="pre">niteshade.postprocessing</span></code>) contains
+several useful tools for analysing and visualising results. Once a simulation
+has been run, (by calling <code class="docutils literal notranslate"><span class="pre">Simulator.run()</span></code>, which populates the <code class="docutils literal notranslate"><span class="pre">.results</span></code>
+attribute), it may be passed to the <code class="docutils literal notranslate"><span class="pre">PostProcessor</span></code> class in a dictionary
+keyed by the name of the simulation. Building off the previous example:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">niteshade.models</span> <span class="kn">import</span> <span class="n">MNISTClassifier</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">niteshade.attack</span> <span class="kn">import</span> <span class="n">LabelFlipperAttacker</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">niteshade.defence</span> <span class="kn">import</span> <span class="n">KNN_Defender</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">niteshade.simulation</span> <span class="kn">import</span> <span class="n">Simulator</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">niteshade.postprocessing</span> <span class="kn">import</span> <span class="n">PostProcessor</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">niteshade.utils</span> <span class="kn">import</span> <span class="n">train_test_MNIST</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">train_test_MNIST</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">MNISTClassifier</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">attacker</span> <span class="o">=</span> <span class="n">LabelFlipperAttacker</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="p">{</span><span class="mi">1</span><span class="p">:</span><span class="mi">9</span><span class="p">,</span> <span class="mi">9</span><span class="p">:</span><span class="mi">1</span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">defender</span> <span class="o">=</span> <span class="n">KNN_Defender</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">batch_size</span> <span class="o">=</span> <span class="mi">128</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">num_eps</span> <span class="o">=</span> <span class="mi">50</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">simulator</span> <span class="o">=</span> <span class="n">Simulator</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">attacker</span><span class="p">,</span> <span class="n">defender</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">num_eps</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">simulation</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">simulation_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;example_name&quot;</span><span class="p">:</span> <span class="n">simulation</span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">postprocessor</span> <span class="o">=</span> <span class="n">PostProcessor</span><span class="p">(</span><span class="n">simulation_dict</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>We can also run multiple simulations and pass them to <code class="docutils literal notranslate"><span class="pre">PostProcessor</span></code>:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">model1</span> <span class="o">=</span> <span class="n">MNISTClassifier</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model2</span> <span class="o">=</span> <span class="n">MNISTClassifier</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model3</span> <span class="o">=</span> <span class="n">MNISTClassifier</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">s1</span> <span class="o">=</span> <span class="n">Simulator</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">model1</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">num_eps</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">s2</span> <span class="o">=</span> <span class="n">Simulator</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">model2</span><span class="p">,</span> <span class="n">attacker</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">num_eps</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">s3</span> <span class="o">=</span> <span class="n">Simulator</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">model3</span><span class="p">,</span> <span class="n">attacker</span><span class="p">,</span> <span class="n">defender</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">num_eps</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">s1</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">s2</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">s3</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">simulation_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;baseline&quot;</span><span class="p">:</span> <span class="n">s1</span><span class="p">,</span> <span class="s2">&quot;attack&quot;</span><span class="p">:</span> <span class="n">s2</span><span class="p">,</span> <span class="s2">&quot;attack_and_defence&quot;</span><span class="p">:</span> <span class="n">s3</span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">postprocessor</span> <span class="o">=</span> <span class="n">PostProcessor</span><span class="p">(</span><span class="n">simulation_dict</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This is useful because the impact of an attack or defence strategy is usually
+relative to some baseline case. For example, it may be of interest to compare
+the attacked and un-attacked learning scenarios to isolate the effect of the
+attack. Similarly, comparing the scenario in which both attack and defence
+strategies are implemented to the case in which only the attack strategy is
+implemented can isolate the effect of the defence. Notice that we create 3
+separate model instances as we want the models to be independent between the
+simulations.</p>
+<p><code class="docutils literal notranslate"><span class="pre">PostProcessor</span></code> can then be used to compute and plot the model’s performance
+over the course of the simulation:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">metrics</span> <span class="o">=</span> <span class="n">postprocessor</span><span class="o">.</span><span class="n">compute_online_learning_metrics</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">postprocessor</span><span class="o">.</span><span class="n">plot_online_learning_metrics</span><span class="p">(</span><span class="n">metrics</span><span class="p">,</span> <span class="n">show_plot</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<img alt="_images/metrics.png" src="_images/metrics.png" />
+<p>The performance metric that <code class="docutils literal notranslate"><span class="pre">PostProcessor</span></code> computes and plots on the y-axis
+is whatever is written in the model’s <code class="docutils literal notranslate"><span class="pre">.evaluate()</span></code> method (predictive
+accuracy for <code class="docutils literal notranslate"><span class="pre">MNISTClassifier</span></code>). We can see that in the baseline case, the
+model achieves a predictive accuracy across all classes of ~0.95 after 50
+episodes. When the model is subjected to the label-flipping attack, it is only
+able to achieve a predictive accuracy of ~0.75 (specific accuracy for 1’s and
+9’s is likely be even lower). When the kNN defence strategy is deployed against
+the label-flipping attack, the model learns more slowly but is able to achieve
+a final predictive accuracy of ~0.95 again.</p>
+<p><code class="docutils literal notranslate"><span class="pre">PostProcessor</span></code> also has a <code class="docutils literal notranslate"><span class="pre">.track_data_modifications()</span></code> method which
+creates a table (<code class="docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code> object) which summarises the simulation
+outcomes in terms of the numbers of datapoints which have been poisoned and
+defended:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">data_modifications</span> <span class="o">=</span> <span class="n">postprocessor</span><span class="o">.</span><span class="n">track_data_modifications</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">data_modifications</span><span class="p">)</span>
+<span class="go">                       baseline  attack  attack_and_defence</span>
+<span class="go">poisoned                      0   12691               12691</span>
+<span class="go">not_poisoned              60000   47309               47309</span>
+<span class="go">correctly_defended            0       0               12677</span>
+<span class="go">incorrectly_defended          0       0                 930</span>
+<span class="go">original_points_total     60000   60000               60000</span>
+<span class="go">training_points_total     60000   60000               60000</span>
+</pre></div>
+</div>
+<p>In the above table,</p>
+<ul class="simple">
+<li><p>poisoned: datapoints perturbed or injected by the attacker</p></li>
+<li><p>not_poisoned: datapoints not perturbed or injected by the attacker</p></li>
+<li><p>correctly_defended: poisoned points correctly removed or modified by the defender</p></li>
+<li><p>incorrectly_defended: clean datapoints incorrectly removed or modified by the defender</p></li>
+<li><p>original_points_total: total datapoints in the original training dataset</p></li>
+<li><p>training_points_total: datapoints the model actually gets to train on</p></li>
+</ul>
+<p>(certain attack/defence strategies remove datapoints from the learning pipeline)</p>
+<p><code class="docutils literal notranslate"><span class="pre">niteshade.postprocessing</span></code> also contains a <code class="docutils literal notranslate"><span class="pre">PDF</span></code> class, which can generate
+a summary report of the simulation(s). Adding tables and figures to the report
+is easy, as shown below. In this case, our summary report will contain a single
+table and plot (the one shown above). If we generated additional plots and
+saved them to the <code class="docutils literal notranslate"><span class="pre">/outputs</span></code> directory, they would also be included in the
+report.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">niteshade.postprocessing</span> <span class="kn">import</span> <span class="n">PDF</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">header_title</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Example Report&quot;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pdf</span> <span class="o">=</span> <span class="n">PDF</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pdf</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">header_title</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pdf</span><span class="o">.</span><span class="n">add_table</span><span class="p">(</span><span class="n">data_modifications</span><span class="p">,</span> <span class="s2">&quot;Datapoint Summary&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pdf</span><span class="o">.</span><span class="n">add_all_charts_from_directory</span><span class="p">(</span><span class="s2">&quot;output&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pdf</span><span class="o">.</span><span class="n">output</span><span class="p">(</span><span class="s2">&quot;example_report.pdf&quot;</span><span class="p">,</span> <span class="s2">&quot;F&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Here, we have saved the report to our current working directory:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">export</span> <span class="nv">REPORT</span><span class="o">=</span>example_report.pdf
+<span class="gp">$ </span><span class="nb">test</span> -f <span class="nv">$REPORT</span> <span class="o">&amp;&amp;</span> <span class="nb">echo</span> <span class="s2">&quot;</span><span class="nv">$REPORT</span><span class="s2"> exists :)&quot;</span>
+<span class="go">example_report.pdf exists :)</span>
 </pre></div>
 </div>
 </section>
-<section id="postprocessing-results">
-<span id="id4"></span><h2>Postprocessing Results<a class="headerlink" href="#postprocessing-results" title="Permalink to this headline"></a></h2>
-<p>To postprocess results, you can use the
-<code class="docutils literal notranslate"><span class="pre">niteshade.postprocessing.PostProcessor</span></code> class:</p>
+<section id="end-to-end-example">
+<span id="id6"></span><h2>End-To-End Example<a class="headerlink" href="#end-to-end-example" title="Permalink to this headline"></a></h2>
+<p>To wrap thing up, here is an end-to-end example of a niteshade workflow using
+out-of-the-box model, attack and defence classes:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Imports &amp; dependencies</span>
+<span class="kn">from</span> <span class="nn">niteshade.models</span> <span class="kn">import</span> <span class="n">MNISTClassifier</span>
+<span class="kn">from</span> <span class="nn">niteshade.attack</span> <span class="kn">import</span> <span class="n">LabelFlipperAttacker</span>
+<span class="kn">from</span> <span class="nn">niteshade.defence</span> <span class="kn">import</span> <span class="n">KNN_Defender</span>
+<span class="kn">from</span> <span class="nn">niteshade.simulation</span> <span class="kn">import</span> <span class="n">Simulator</span>
+<span class="kn">from</span> <span class="nn">niteshade.postprocessing</span> <span class="kn">import</span> <span class="n">PostProcessor</span><span class="p">,</span> <span class="n">PDF</span>
+<span class="kn">from</span> <span class="nn">niteshade.utils</span> <span class="kn">import</span> <span class="n">train_test_MNIST</span>
+
+<span class="c1"># Get MNIST training and test datasets</span>
+<span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">train_test_MNIST</span><span class="p">()</span>
+
+<span class="c1"># Instantiate out-of-the-box MNIST classifiers</span>
+<span class="n">model1</span> <span class="o">=</span> <span class="n">MNISTClassifier</span><span class="p">()</span>
+<span class="n">model2</span> <span class="o">=</span> <span class="n">MNISTClassifier</span><span class="p">()</span>
+<span class="n">model3</span> <span class="o">=</span> <span class="n">MNISTClassifier</span><span class="p">()</span>
+
+<span class="c1"># Specify attack and defence strategies</span>
+<span class="n">attacker</span> <span class="o">=</span> <span class="n">LabelFlipperAttacker</span><span class="p">(</span><span class="n">aggressiveness</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">label_flips_dict</span><span class="o">=</span><span class="p">{</span><span class="mi">1</span><span class="p">:</span><span class="mi">9</span><span class="p">,</span> <span class="mi">9</span><span class="p">:</span><span class="mi">1</span><span class="p">})</span>
+<span class="n">defender</span> <span class="o">=</span> <span class="n">KNN_Defender</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">nearest_neighbours</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">confidence_threshold</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+
+<span class="c1"># Set batch size and number of episodes</span>
+<span class="n">batch_size</span> <span class="o">=</span> <span class="mi">128</span>
+<span class="n">num_eps</span> <span class="o">=</span> <span class="mi">50</span>
+
+<span class="c1"># Instatiate simulations</span>
+<span class="n">s1</span> <span class="o">=</span> <span class="n">Simulator</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">model1</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">num_eps</span><span class="p">)</span>
+<span class="n">s2</span> <span class="o">=</span> <span class="n">Simulator</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">model2</span><span class="p">,</span> <span class="n">attacker</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">num_eps</span><span class="p">)</span>
+<span class="n">s3</span> <span class="o">=</span> <span class="n">Simulator</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">model3</span><span class="p">,</span> <span class="n">attacker</span><span class="p">,</span> <span class="n">defender</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">num_eps</span><span class="p">)</span>
+
+<span class="c1"># Run simulations (may take a few minutes)</span>
+<span class="n">s1</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+<span class="n">s2</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+<span class="n">s3</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+
+<span class="c1"># Postprocess simulation results</span>
+<span class="n">simulation_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;baseline&quot;</span><span class="p">:</span> <span class="n">s1</span><span class="p">,</span> <span class="s2">&quot;attack&quot;</span><span class="p">:</span> <span class="n">s2</span><span class="p">,</span> <span class="s2">&quot;attack_and_defence&quot;</span><span class="p">:</span> <span class="n">s3</span><span class="p">}</span>
+<span class="n">postprocessor</span> <span class="o">=</span> <span class="n">PostProcessor</span><span class="p">(</span><span class="n">simulation_dict</span><span class="p">)</span>
+<span class="n">metrics</span> <span class="o">=</span> <span class="n">postprocessor</span><span class="o">.</span><span class="n">compute_online_learning_metrics</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)</span>
+<span class="n">data_modifications</span> <span class="o">=</span> <span class="n">postprocessor</span><span class="o">.</span><span class="n">track_data_modifications</span><span class="p">()</span>
+<span class="n">postprocessor</span><span class="o">.</span><span class="n">plot_online_learning_metrics</span><span class="p">(</span><span class="n">metrics</span><span class="p">,</span> <span class="n">show_plot</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># Create summary report</span>
+<span class="n">header_title</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Example Report&quot;</span>
+<span class="n">pdf</span> <span class="o">=</span> <span class="n">PDF</span><span class="p">()</span>
+<span class="n">pdf</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">header_title</span><span class="p">)</span>
+<span class="n">pdf</span><span class="o">.</span><span class="n">add_table</span><span class="p">(</span><span class="n">data_modifications</span><span class="p">,</span> <span class="s2">&quot;Datapoint Summary&quot;</span><span class="p">)</span>
+<span class="n">pdf</span><span class="o">.</span><span class="n">add_all_charts_from_directory</span><span class="p">(</span><span class="s2">&quot;output&quot;</span><span class="p">)</span>
+<span class="n">pdf</span><span class="o">.</span><span class="n">output</span><span class="p">(</span><span class="s2">&quot;example_report.pdf&quot;</span><span class="p">,</span> <span class="s2">&quot;F&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This is a relatively simple workflow. For advanced users desiring more
+customized workflows, consider the following options:</p>
+<ul class="simple">
+<li><p>Writing custom model, attack and defence classes following niteshade’s class</p></li>
+</ul>
+<p>hierarchy,
+- Writing custom online learning pipelines using <code class="docutils literal notranslate"><span class="pre">DataLoader</span></code>’s rather than
+using <code class="docutils literal notranslate"><span class="pre">Simulation.run()</span></code>, or
+- Writing custom postprocessing functions and plots for the <code class="docutils literal notranslate"><span class="pre">.results</span></code> dictionary</p>
 </section>
 </section>
 
