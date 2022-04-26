@@ -412,7 +412,7 @@ class SoftmaxDefender(ModelDefender):
             if self.one_hot:
                 class_labels = torch.argmax(labels, axis = 1).reshape(-1,1) # Get class labels from onehot
             #zero gradients so they are not accumulated across batches
-            model.evaluate()
+            model.eval()
             with torch.no_grad():
             # Performs forward pass through classifier
                 outputs = model.forward(X_batch.float())
