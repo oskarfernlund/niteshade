@@ -4,10 +4,6 @@
 """
 Data poisoning attack strategy classes following a logical hierarchy.
 """
-# to do: 
-# witch brew needs delay
-# put init doc strings in class head
-
 
 
 # =============================================================================
@@ -253,7 +249,7 @@ class AddLabeledPointsAttacker(AddPointsAttacker):
             y = utils.one_hot_encoding(y, num_classes) 
             
         if is_tensor:
-            X = torch.tensor(x)
+            x = torch.tensor(x)
             y = torch.tensor(y)
 
         return x, y
@@ -310,7 +306,7 @@ class LabelFlipperAttacker(ChangeLabelAttacker):
             y = utils.one_hot_encoding(y, num_classes)
             
         if is_tensor:
-            X = torch.tensor(x)
+            x = torch.tensor(x)
             y = torch.tensor(y)
             
         return x, y
@@ -556,4 +552,6 @@ class BrewPoison(PerturbPointsAttacker):
 
 if __name__ == "__main__":
     pass
+    
+
         
