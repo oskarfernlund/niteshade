@@ -41,9 +41,9 @@ class _KeyMap(object):
                 X = X.detach().numpy()
                 y = y.detach().numpy()
 
-        self.data = X
-        self.target = y
-        self.hash = hash((hash(self.data.tobytes()), hash(self.target.tobytes())))
+        self.x = X
+        self.y = y
+        self.hash = hash((hash(self.x.data.tobytes()), hash(self.y.data.tobytes())))
     def __hash__(self):
         return self.hash
     def __str__(self):
@@ -433,6 +433,14 @@ def wrap_results(simulators: dict):
 # =============================================================================
 #  MAIN ENTRY POINT
 # =============================================================================
-
 if __name__ == '__main__':
-    pass
+    a = np.array([0,1,1], dtype=np.float64)
+    b = np.array([0,1,1], dtype=np.float64)
+
+    a_torch = torch.tensor([0,1,1], dtype=torch.float64)
+    a_torch_hash = hash(_KeyMap(a_torch, torch.tensor([1], dtype=torch.float64)))
+
+    a_hash = hash(_KeyMap(a, np.array([1], dtype=np.float64)))
+    b_hash = hash(_KeyMap(b, np.array([1], dtype=np.float64)))
+
+    print(a_hash == a_torch_hash)
