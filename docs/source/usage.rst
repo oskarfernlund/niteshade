@@ -161,7 +161,8 @@ of a simple multi-layer perceptron regressor:
             self.eval()
             with torch.no_grad():
                 y_pred = self.forward(X_test)
-            return 1 - (y_pred - y_test).square().mean().sqrt()
+                accuracy = 1 - (y_pred - y_test).square().mean().sqrt()
+            return accuracy
 
 In the constructor (``.__init__()`` method), the model architecture must be 
 defined as a list of PyTorch building blocks (layers, activations etc.), then 
