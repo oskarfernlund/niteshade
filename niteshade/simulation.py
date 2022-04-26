@@ -132,9 +132,6 @@ class Simulator():
             else: 
                 self.true_defender_args = args[3:] # assuming first three arguments are self, X_episode, y_episode
 
-        #save original data with indices as id's
-        self._datapoint_ids = self._assign_ids(self.X, self.y)
-
         #save original, post-attacked, and post-defended points on an
         #episodic basis
         self._original_ids = {}
@@ -142,6 +139,7 @@ class Simulator():
         self._defended_ids = {}
         self.num_poisoned = 0
         self.num_defended = 0
+        self.epoch = 0
 
         #logging of results
         self.results = {'original': [], 'post_attack': [], 'post_defense':[], 'models': []}
@@ -160,7 +158,7 @@ class Simulator():
         point_ids = {}
         for idx, (inpt, label) in enumerate(zip(X,y)):
             point_hash = hash(_KeyMap(inpt, label))
-            point_ids[point_hash] = idx
+            point_ids[point_hash] = f'o_{idx}_{self.epoch}'
         return point_ids
     
     def _get_func_args(self, func):
@@ -240,6 +238,7 @@ class Simulator():
                 point_id = self._attacked_ids.get(hash, 'd')
             else:
                 point_id = self._original_ids.get(hash, 'd')
+                
             if point_id == 'd':
                 point_id = f'd_{self.num_defended}'
                 self.num_defended += 1
@@ -304,8 +303,10 @@ class Simulator():
                                              the updated model at each episode.
             shuffle (bool) : Boolean indicating if passed X and y should be shuffled in DataLoader.
         """
-        self.num_poisoned = 0
-        self.num_defended = 0
+        #save original data with index/epoch combination as id's
+        self._datapoint_ids = self._assign_ids(self.X, self.y)
+        self.epoch += 1
+
         generator = DataLoader(self.X, self.y, batch_size = self.episode_size, 
                                shuffle=shuffle) #initialise data stream
         batch_queue = DataLoader(batch_size = self.batch_size) #initialise cache data loader
