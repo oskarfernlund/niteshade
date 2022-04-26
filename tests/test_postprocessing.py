@@ -145,5 +145,5 @@ def test_point_counter_MNIST():
 # =============================================================================
 
 if __name__ == '__main__':
-    test_iris()
-    test_MNIST()
+    test_point_counter_iris()
+    test_point_counter_MNIST()
