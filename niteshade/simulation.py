@@ -22,7 +22,7 @@ from tqdm import tqdm
 from niteshade.data import DataLoader
 from niteshade.attack import Attacker
 from niteshade.defence import DefenderGroup, Defender
-from niteshade.utils import save_pickle
+from niteshade.utils import save_pickle, copy
 
 
 # =============================================================================
@@ -313,6 +313,8 @@ class Simulator():
         
         with tqdm(generator, desc="Running simulation", unit="episode") as tepoch: 
             for episode, (X_episode, y_episode) in enumerate(tepoch):
+                orig_X_episode = copy(X_episode)
+                orig_y_episode = copy(y_episode)
                 #save ids of true points
                 self._log(X_episode, y_episode, checkpoint=0) #log results
 
@@ -331,11 +333,11 @@ class Simulator():
                         attacker_args = {key:value for key, value in attacker_args.items() if key in valid_attacker_args}
                     
                     #pass episode datapoints to attacker
-                    post_attack_X, post_attack_y = self.attacker.attack(X_episode, y_episode, **attacker_args)
+                    X_episode, y_episode = self.attacker.attack(X_episode, y_episode, **attacker_args)
 
                     #check if shapes have been altered in .attack() method
-                    self._shape_check(X_episode, y_episode, post_attack_X, post_attack_y)
-                    self._log(post_attack_X, post_attack_y, checkpoint=1) #log results
+                    self._shape_check(orig_X_episode, orig_y_episode, X_episode, y_episode)
+                    self._log(X_episode, y_episode, checkpoint=1) #log results
 
                 # Defender's turn to defend
                 if self.defender:
@@ -352,13 +354,13 @@ class Simulator():
                         defender_args = {key:value for key, value in defender_args.items() if key in valid_defender_args}
 
                     #pass possibly perturbed points onto defender
-                    post_defense_X, post_defense_y = self.defender.defend(post_attack_X, post_attack_y, **defender_args)
+                    X_episode, y_episode = self.defender.defend(X_episode, y_episode, **defender_args)
 
                     #check if shapes have been altered in .defend() method
-                    self._shape_check(X_episode, y_episode, post_defense_X, post_defense_y)
-                    self._log(post_defense_X, post_defense_y, checkpoint=2) #log results
+                    self._shape_check(orig_X_episode, orig_y_episode, X_episode, y_episode)
+                    self._log(X_episode, y_episode, checkpoint=2) #log results
 
-                batch_queue.add_to_cache(post_defense_X, post_defense_y) #add perturbed / filtered points to batch queue
+                batch_queue.add_to_cache(X_episode, y_episode) #add perturbed / filtered points to batch queue
                 
                 # Online learning loop
                 running_loss = 0
