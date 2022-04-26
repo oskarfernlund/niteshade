@@ -14,6 +14,7 @@ against online learning.
 import inspect
 from copy import deepcopy
 from collections import defaultdict
+from jinja2 import pass_eval_context
 
 import torch
 import numpy as np
@@ -364,8 +365,11 @@ class Simulator():
                 num_batches = len(batch_queue)
                 for (X_batch, y_batch) in batch_queue:
                     
-                    #take a gradient descent step
-                    self.model.step(X_batch, y_batch) 
+                    try:
+                        #take a gradient descent step
+                        self.model.step(X_batch, y_batch) 
+                    except AttributeError:
+                        raise NotImplementedError("Model must have a .step() method to perform a gradient descent step.")
 
                     if hasattr(self.model, 'losses'):
                         loss = self.model.losses[-1]
@@ -429,19 +433,4 @@ def wrap_results(simulators: dict):
 # =============================================================================
 
 if __name__ == '__main__':
-    X_train, y_train, X_test, y_test = train_test_iris(num_stacks=1)
-
-    mydict = {}
-    X = X_train[0]
-    y = y_train[0]
-
-    hash_val1 = hash(_KeyMap(X,y))
-    mydict[hash_val1] = 1
-
-    X = X_train[0]
-    y = y_train[0]
-
-    hash_val2 = _KeyMap(X,y)
-    print(type(hash_val1))
-    print(hash_val2)
-    print(mydict[hash(hash_val2)])
+    pass
