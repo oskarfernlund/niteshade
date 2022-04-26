@@ -1,4 +1,4 @@
-niteshade.postprocessing.PostProcessor
+﻿niteshade.postprocessing.PostProcessor
 ======================================
 
 .. currentmodule:: niteshade.postprocessing
@@ -18,7 +18,6 @@ niteshade.postprocessing.PostProcessor
       ~PostProcessor.__init__
       ~PostProcessor.compute_online_learning_metrics
       ~PostProcessor.evaluate_simulators_metrics
-      ~PostProcessor.extract_z
       ~PostProcessor.plot_decision_boundaries
       ~PostProcessor.plot_online_learning_metrics
       ~PostProcessor.track_data_modifications

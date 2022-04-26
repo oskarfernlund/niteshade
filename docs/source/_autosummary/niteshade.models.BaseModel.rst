@@ -1,4 +1,4 @@
-niteshade.models.BaseModel
+﻿niteshade.models.BaseModel
 ==========================
 
 .. currentmodule:: niteshade.models
@@ -41,7 +41,6 @@ niteshade.models.BaseModel
       ~BaseModel.named_modules
       ~BaseModel.named_parameters
       ~BaseModel.parameters
-      ~BaseModel.predict
       ~BaseModel.register_backward_hook
       ~BaseModel.register_buffer
       ~BaseModel.register_forward_hook
