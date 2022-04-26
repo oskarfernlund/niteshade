@@ -25,7 +25,6 @@
       BrewPoison
       ChangeLabelAttacker
       LabelFlipperAttacker
-      ModelAttacker
       PerturbPointsAttacker
       RandomAttacker
    
