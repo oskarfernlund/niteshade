@@ -26,31 +26,37 @@ from niteshade.utils import train_test_iris, train_test_MNIST, train_test_cifar
 #  Tests
 # =============================================================================
 def test_point_counter_iris():
-    batch_size = 32
-    num_episodes = 10   
+    batch_size = 1
+    num_episodes = 100   
     X_train, y_train, X_test, y_test = train_test_iris()
 
-    defender = FeasibleSetDefender(X_train, y_train, 2000)
-    attacker = AddLabeledPointsAttacker(0.6, 1)
+    defender = FeasibleSetDefender(X_train, y_train, 0.5, one_hot=True)
+    attacker = AddLabeledPointsAttacker(0.6, 1, one_hot=True)
     
     simulator1 = Simulator(X_train, y_train, IrisClassifier(), 
                            attacker=None, defender=None, 
-                           batch_size=batch_size, num_episodes=num_episodes).run()
+                           batch_size=batch_size, num_episodes=num_episodes)
     simulator2 = Simulator(X_train, y_train, IrisClassifier(), 
                            attacker=attacker, defender=None, 
-                           batch_size=batch_size, num_episodes=num_episodes).run()
+                           batch_size=batch_size, num_episodes=num_episodes)
     simulator3 = Simulator(X_train, y_train, IrisClassifier(), 
                            attacker=None, defender=defender, 
-                           batch_size=batch_size, num_episodes=num_episodes).run()
+                           batch_size=batch_size, num_episodes=num_episodes)
     simulator4 = Simulator(X_train, y_train, IrisClassifier(), 
                            attacker=attacker, defender=defender, 
-                           batch_size=batch_size, num_episodes=num_episodes).run()
+                           batch_size=batch_size, num_episodes=num_episodes)
+
+    simulator1.run()
+    simulator2.run()
+    simulator3.run()
+    simulator4.run()
 
     simulators = {'regular': simulator1, 
                   'only_attacker':simulator2,
                   'only_defender': simulator3, 
                   'attack_and_defence': simulator4}
 
+    print(simulators['regular'])
     postprocessor = PostProcessor(simulators)
 
     data_modifications = postprocessor.track_data_modifications()
@@ -93,16 +99,21 @@ def test_point_counter_MNIST():
     
     simulator1 = Simulator(X_train, y_train, MNISTClassifier(), 
                            attacker=None, defender=None, 
-                           batch_size=batch_size, num_episodes=num_episodes).run()
+                           batch_size=batch_size, num_episodes=num_episodes)
     simulator2 = Simulator(X_train, y_train, MNISTClassifier(), 
                            attacker=attacker, defender=None, 
-                           batch_size=batch_size, num_episodes=num_episodes).run()
+                           batch_size=batch_size, num_episodes=num_episodes)
     simulator3 = Simulator(X_train, y_train, MNISTClassifier(), 
                            attacker=None, defender=defender, 
-                           batch_size=batch_size, num_episodes=num_episodes).run()
+                           batch_size=batch_size, num_episodes=num_episodes)
     simulator4 = Simulator(X_train, y_train, MNISTClassifier(), 
                            attacker=attacker, defender=defender, 
-                           batch_size=batch_size, num_episodes=num_episodes).run()
+                           batch_size=batch_size, num_episodes=num_episodes)
+
+    simulator1.run()
+    simulator2.run()
+    simulator3.run()
+    simulator4.run()
 
     simulators = {'regular': simulator1, 
                   'only_attacker':simulator2,
