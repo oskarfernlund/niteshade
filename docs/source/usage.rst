@@ -503,5 +503,5 @@ This is a relatively simple workflow. For advanced users desiring more
 customized workflows, consider the following options:
 
 - Writing custom model, attack and defence classes following niteshade's class hierarchy
-- Writing custom online learning pipelines using ``DataLoader``'s rather than using ``Simulation.run()``
+- Writing custom online learning pipelines using ``DataLoader``'s rather than using ``Simulation``
 - Writing custom postprocessing functions and plots for the ``.results`` dictionary
