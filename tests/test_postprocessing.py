@@ -59,7 +59,7 @@ def test_point_counter_iris():
     print(simulators['regular'])
     postprocessor = PostProcessor(simulators)
 
-    data_modifications = postprocessor.track_data_modifications()
+    data_modifications = postprocessor.get_data_modifications()
 
     # Sense check regular results
     regular_results = data_modifications['regular']
@@ -122,7 +122,7 @@ def test_point_counter_MNIST():
 
     postprocessor = PostProcessor(simulators)
 
-    data_modifications = postprocessor.track_data_modifications()
+    data_modifications = postprocessor.get_data_modifications()
 
     # Sense check regular results
     regular_results = data_modifications['regular']
