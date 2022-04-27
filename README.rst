@@ -15,8 +15,6 @@
 
 ========================================
 
-|
-
 **niteshade** (/ˈnaɪt.ʃeɪd/) is a Python library for simulating data poisoning 
 attack and defence strategies against online machine learning systems. The 
 library is written in Python 3.10 and offers a *simple* and *intuitive* API 
