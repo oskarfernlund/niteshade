@@ -95,6 +95,8 @@ focus exclusively on niteshade imports from here on out:</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">torch.nn</span> <span class="k">as</span> <span class="nn">nn</span>
 </pre></div>
 </div>
+<p>Note that in many examples we use <code class="docutils literal notranslate"><span class="pre">torch.randn()</span></code> to generate example data
+tensors. The dimensions are completely arbitrary.</p>
 </section>
 <section id="setting-up-an-online-data-pipeline">
 <span id="id2"></span><h2>Setting Up an Online Data Pipeline<a class="headerlink" href="#setting-up-an-online-data-pipeline" title="Permalink to this headline"></a></h2>
@@ -118,14 +120,15 @@ labels (y):</p>
 </pre></div>
 </div>
 <p><code class="docutils literal notranslate"><span class="pre">DataLoader</span></code> instances have a cache and queue attribute, which together help
-ensure that data is batched and loaded consistently. When data is added, either
-during instantation or by calling the <code class="docutils literal notranslate"><span class="pre">.add_to_cache()</span></code> method, it is grouped
-into batches of the provided batch size. Any remaining points which do not
-“fit” into a batch are kept in the cache, where they stay until enough new
-datapoints are added to form a complete batch. E.g. in the above case, a total
-of 150 datapoints have been added to a <code class="docutils literal notranslate"><span class="pre">DataLoader</span></code> with a batch size of 8.
-This results in 18 batches of 8 datapoints (144 datapoints total) in the queue
-and 6 points in the cache.</p>
+ensure that data is batched and loaded consistently. When data is added to a
+<code class="docutils literal notranslate"><span class="pre">DataLoader</span></code>, either during instantation or by calling the
+<code class="docutils literal notranslate"><span class="pre">.add_to_cache()</span></code> method, it is added to the cache then automatically grouped
+into batches of the provided batch size and moved to the queue. Any remaining
+points which do not “fit” into a batch are kept in the cache, where they remain
+until enough new datapoints are added to form a complete batch. E.g. in the
+above case, a total of 150 datapoints have been added to a <code class="docutils literal notranslate"><span class="pre">DataLoader</span></code> with
+a batch size of 8. This results in 18 batches of 8 datapoints (144 datapoints
+total) in the queue and 6 points in the cache.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">len</span><span class="p">(</span><span class="n">pipeline</span><span class="p">)</span>
 <span class="go">18</span>
 </pre></div>
@@ -140,7 +143,16 @@ depleted in a for loop:</p>
 </pre></div>
 </div>
 <p>Note that after executing the above for loop there would still be 6 points in
-the cache.</p>
+the cache. If we add 2 additional points to the cache we can form a complete
+batch of 8 which will be added to the queue.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">X_last</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">32</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">y_last</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pipeline</span><span class="o">.</span><span class="n">add_to_cache</span><span class="p">(</span><span class="n">X_last</span><span class="p">,</span> <span class="n">y_last</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">len</span><span class="p">(</span><span class="n">pipeline</span><span class="p">)</span>
+<span class="go">1</span>
+</pre></div>
+</div>
+<p>The cache is now empty.</p>
 </section>
 <section id="managing-pipeline-asynchronicity">
 <span id="managing-pipeline-asynchrononicity"></span><h2>Managing Pipeline Asynchronicity<a class="headerlink" href="#managing-pipeline-asynchronicity" title="Permalink to this headline"></a></h2>
@@ -151,12 +163,11 @@ the model will only be able to do an incremental learning step every 1.6
 episodes on average. To complicate matters, if we add deploy a poisoning attack
 and implement a defence strategy that rejects suspicious datapoints, the
 pipeline becomes even more asynchronous (episodes may now consist of fewer than
-16 datapoints if the defence strategy determines that 1 or more points should
-be rejected). To address this asynchronicity, niteshade workflows generally
-involve separate generation and learning loops, each with their own
-<code class="docutils literal notranslate"><span class="pre">DataLoader</span></code> (leveraging the cache and queue to ensure consistent episode and
-batch sizes). Below is a very simple example (model, attack and defence
-strategies not specified):</p>
+16 datapoints if the defence strategy rejects points). To address this
+asynchronicity, niteshade workflows generally involve separate generation and
+learning loops, each with their own <code class="docutils literal notranslate"><span class="pre">DataLoader</span></code> (leveraging the cache and
+queue to ensure consistent episode and batch sizes). Below is a very simple
+example (model, attack and defence strategies not specified):</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">niteshade.data</span> <span class="kn">import</span> <span class="n">DataLoader</span>
 
 <span class="n">X</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
@@ -251,8 +262,15 @@ injects fake datapoints into the learning pipeline).</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">attacker</span> <span class="o">=</span> <span class="n">AddLabeledPointsAttacker</span><span class="p">(</span><span class="n">aggressiveness</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Custom attack strategies may also be defined by following niteshade’s attack
-class hierarchy by inheriting from the relevant superclass and filling in the
+<p>An attack can be deployed against a batch of datapoints by calling the
+<code class="docutils literal notranslate"><span class="pre">.attack()</span></code> method:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">X</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">y</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X_attacked</span><span class="p">,</span> <span class="n">y_attacked</span> <span class="o">=</span> <span class="n">attacker</span><span class="o">.</span><span class="n">attack</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Custom attack strategies may also be defined following niteshade’s attack class
+hierarchy by inheriting from the relevant superclass and filling in the
 <code class="docutils literal notranslate"><span class="pre">.attack()</span></code> method. At the top of the hierarchy is the <code class="docutils literal notranslate"><span class="pre">Attacker</span></code> class,
 which is a general abstract base class for all attack strategies. The next tier
 in the hierarchy is comprised of general categories of attack strategies,
@@ -296,14 +314,21 @@ from <code class="docutils literal notranslate"><span class="pre">Attacker</span
 (<code class="docutils literal notranslate"><span class="pre">niteshade.defence</span></code>) includes several out-of-the-box classes based on some
 of the most well-known defence strategies against data poisoning attacks, e.g.
 <code class="docutils literal notranslate"><span class="pre">FeasibleSetDefender</span></code> (which functions as an outlier detector based on a
-“clean” set of feasible points), <code class="docutils literal notranslate"><span class="pre">KNN_Defender</span></code> (which flips labels based on
-the consensus of neighbouring points) and <code class="docutils literal notranslate"><span class="pre">SoftmaxDefender</span></code> (which rejects
+“clean” set of feasible points), <code class="docutils literal notranslate"><span class="pre">KNN_Defender</span></code> (which adjusts labels based
+on the consensus of neighbouring points) and <code class="docutils literal notranslate"><span class="pre">SoftmaxDefender</span></code> (which rejects
 points based on a softmax threshold).</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">niteshade.defence</span> <span class="kn">import</span> <span class="n">SoftmaxDefender</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">defender</span> <span class="o">=</span> <span class="n">SoftmaxDefender</span><span class="p">(</span><span class="n">threshold</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Custom defence strategies may also be defined by following niteshade’s defence
+<p>After an attack has been deployed on a batch of datapoints, a defence can be
+implemented to minimise the damage by calling the <code class="docutils literal notranslate"><span class="pre">.defend()</span></code> method:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">X_attacked</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">y_attacked</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X_defended</span><span class="p">,</span> <span class="n">y_defended</span> <span class="o">=</span> <span class="n">defender</span><span class="o">.</span><span class="n">defend</span><span class="p">(</span><span class="n">X_attacked</span><span class="p">,</span> <span class="n">y_attacked</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Custom defence strategies may also be defined following niteshade’s defence
 class hierarchy by inheriting from the relevant superclass and filling in the
 <code class="docutils literal notranslate"><span class="pre">.defend()</span></code> method. At the top of the hierarchy is the <code class="docutils literal notranslate"><span class="pre">Defender</span></code> class,
 which is a general abstract base class for all defence strategies. The next
@@ -337,7 +362,7 @@ outlier detection, and thus we have just inherited from <code class="docutils li
 defined, simulating an attack against online learning is very straightforward.
 niteshade’s simulation module (<code class="docutils literal notranslate"><span class="pre">niteshade.simulation</span></code>) contains a
 <code class="docutils literal notranslate"><span class="pre">Simulator</span></code> class which sets up and executes the adversarial online learning
-pipeline (the asynchronous double-loop pipeline shown above):</p>
+pipeline (the asynchronous double-loop pipeline shown previously):</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">niteshade.models</span> <span class="kn">import</span> <span class="n">MNISTClassifier</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">niteshade.attack</span> <span class="kn">import</span> <span class="n">LabelFlipperAttacker</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">niteshade.defence</span> <span class="kn">import</span> <span class="n">KNN_Defender</span>
@@ -436,9 +461,10 @@ episodes. When the model is subjected to the label-flipping attack, it is only
 able to achieve a predictive accuracy of ~0.75 (specific accuracy for 1’s and
 9’s is likely be even lower). When the kNN defence strategy is deployed against
 the label-flipping attack, the model learns more slowly but is able to achieve
-a final predictive accuracy of ~0.95 again.</p>
+a final predictive accuracy of ~0.95 again, meaning the defence strategy is
+very effective against this particular attack.</p>
 <p><code class="docutils literal notranslate"><span class="pre">PostProcessor</span></code> also has a <code class="docutils literal notranslate"><span class="pre">.track_data_modifications()</span></code> method which
-creates a table (<code class="docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code> object) which summarises the simulation
+creates a table (pandas <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> object) which summarises the simulation
 outcomes in terms of the numbers of datapoints which have been poisoned and
 defended:</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">data_modifications</span> <span class="o">=</span> <span class="n">postprocessor</span><span class="o">.</span><span class="n">track_data_modifications</span><span class="p">()</span>
@@ -538,7 +564,7 @@ out-of-the-box model, attack and defence classes:</p>
 </pre></div>
 </div>
 <p>This is a relatively simple workflow. For advanced users desiring more
-customized workflows, consider the following options:</p>
+customised workflows, consider the following options:</p>
 <ul class="simple">
 <li><p>Writing custom model, attack and defence classes following niteshade’s class hierarchy</p></li>
 <li><p>Writing custom online learning pipelines using <code class="docutils literal notranslate"><span class="pre">DataLoader</span></code>’s rather than using <code class="docutils literal notranslate"><span class="pre">Simulation</span></code></p></li>
