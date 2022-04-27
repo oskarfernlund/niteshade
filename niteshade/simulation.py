@@ -174,18 +174,30 @@ class Simulator():
         return point_ids
     
     def _get_func_args(self, func):
-        """Get the arguments of a function."""
+        """Get the arguments of a function.
+        Args: 
+            func (function) : function to get arguments of.
+        """
         args, varargs, varkw, defaults = inspect.getargspec(func)
         return args, defaults
     
     def _get_valid_args(self, func_args, args):
-        """Get arguments from specified attacker/defender key-word arguments 
-           that are in the actual implemented .attack() / .defend() methods."""
+        """
+        Get arguments from specified attacker/defender key-word arguments 
+        that are in the actual implemented .attack() / .defend() methods.
+        Args: 
+            func_args (list) : Arguments of function.
+            args (dict) : Arguments dictionary inputted by user. 
+        """
         return [key for key in args.keys() if key in func_args]
 
     def _check_for_missing_args(self, input_args, is_attacker):
-        """Check if any of the specified arguments for the attacker/defender
-           are missing from the actual implemented .attack() / .defend() methods.
+        """
+        Check if any of the specified arguments for the attacker/defender
+        are missing from the actual implemented .attack() / .defend() methods.
+        Args: 
+            input_args (dict) : arguments inputted by user.
+            is_attacker (bool) : Indicates if checking arguments for attacker.
         """
         if is_attacker:
             args, defaults = self._get_func_args(self.attacker.attack)
@@ -236,6 +248,9 @@ class Simulator():
         the previous checkpoint (i.e attacked points are compare to original
         to determine if a point was poisoned or not and defended points are 
         compared with attacker points to determine if a point was rejected/modified
+        Args: 
+            hash (int) : hash value of point to get id of.
+            checkpoint (int) : point in pipeline.
         """
         #log episode points
         if checkpoint == 0:
@@ -294,8 +309,7 @@ class Simulator():
                     self._attacked_ids[point_hash] = point_id
             elif checkpoint == 2:
                 self.training_points += 1
-                                #account for case where attacker is injecting
-                # points that are already in the dataset
+
                 if point_hash in self._defended_ids.keys():
                     self._def_doubles += 1
                     self._defended_ids[f"dd_{self._def_doubles}"] = point_id
@@ -320,7 +334,7 @@ class Simulator():
                     elif point in original_ids and point not in post_defense_ids:
                         self.incorrectly_defended += 1
 
-            #if only defender, all missing points are incorrectly defended
+            #if only defender, all defended points are incorrectly defended
             else:
                 for point in original_ids:
                     if point not in post_defense_ids:
@@ -357,6 +371,10 @@ class Simulator():
         indicating that it is the nth defended point). If the defender rejects 
         a point in episode i, it can be inferred by inspecting the points missing
         from self.results["post_defense"][i] with respect to self.results["post_attack"][i].
+
+        Data on how the atacker and defender have influenced the training points can be 
+        found on the attributes: poisoned, not_poisoned, correctly_defended, incorrectly_defended,
+        training_points, original_points.
 
         Args:
             defender_args (dict) : dictionary containing extra arguments (other than the episode inputs
@@ -502,13 +520,4 @@ def wrap_results(simulators: dict):
 #  MAIN ENTRY POINT
 # =============================================================================
 if __name__ == '__main__':
-    a = np.array([0,1,1], dtype=np.float64)
-    b = np.array([0,1,1], dtype=np.float64)
-
-    a_torch = torch.tensor([0,1,1], dtype=torch.float64)
-    a_torch_hash = hash(_KeyMap(a_torch, torch.tensor([1], dtype=torch.float64)))
-
-    a_hash = hash(_KeyMap(a, np.array([1], dtype=np.float64)))
-    b_hash = hash(_KeyMap(b, np.array([1], dtype=np.float64)))
-
-    print(a_hash == a_torch_hash)
+    pass
