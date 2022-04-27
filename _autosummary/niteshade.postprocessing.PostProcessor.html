@@ -134,9 +134,6 @@ each Simulator as keys.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="#niteshade.postprocessing.PostProcessor.plot_online_learning_metrics" title="niteshade.postprocessing.PostProcessor.plot_online_learning_metrics"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_online_learning_metrics</span></code></a>(metrics[, ...])</p></td>
 <td><p>Prints a plot into a console.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#niteshade.postprocessing.PostProcessor.track_data_modifications" title="niteshade.postprocessing.PostProcessor.track_data_modifications"><code class="xref py py-obj docutils literal notranslate"><span class="pre">track_data_modifications</span></code></a>()</p></td>
-<td><p>Computes for each simulation the following: a) number of poisoned points, b) number of points that were unaugmented by the attacker, c) number of points correctly rejected by the defender, d) number of points that were incorrectly rejected by the defender, e) total number of points that were originally available for training, f) number of points that the model was actually trained on.</p></td>
-</tr>
 </tbody>
 </table>
 <dl class="py method">
@@ -287,31 +284,6 @@ number of episodes in a simulation.</p></li>
 <li><p><strong>plotname</strong> (<em>str</em>) – if set to None, file name is set to a current
 timestamp.</p></li>
 </ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="niteshade.postprocessing.PostProcessor.track_data_modifications">
-<span class="sig-name descname"><span class="pre">track_data_modifications</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#niteshade.postprocessing.PostProcessor.track_data_modifications" title="Permalink to this definition"></a></dt>
-<dd><p>Computes for each simulation the following: a) number of poisoned points,
-b) number of points that were unaugmented by the attacker, c) number of points
-correctly rejected by the defender, d) number of points that were incorrectly
-rejected by the defender, e) total number of points that were originally available
-for training, f) number of points that the model was actually trained on.
-The function looks at all data available in a simulation.
-:returns:</p>
-<blockquote>
-<div><dl class="simple">
-<dt>Dictionary with keys</dt><dd><p>corresponding to simulator names,
-values corresponding to dicts
-with keys a, b, c, d per above.</p>
-</dd>
-</dl>
-</div></blockquote>
-<dl class="field-list simple">
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>results (pd.core.frame.DataFrame)</p>
 </dd>
 </dl>
 </dd></dl>
