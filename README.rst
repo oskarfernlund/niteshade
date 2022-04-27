@@ -1,4 +1,5 @@
-niteshade
+.. niteshade
+![A test image](./docs/source/_figures/logo.png)
 =========
 
 .. image:: https://img.shields.io/pypi/v/niteshade
