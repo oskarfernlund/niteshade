@@ -164,7 +164,7 @@ class PostProcessor():
                 'not_poisoned': simulator.not_poisoned,
                 'correctly_defended': simulator.correctly_defended,
                 'incorrectly_defended': simulator.incorrectly_defended,
-                'original_point_total': simulator.original_points,
+                'original_points_total': simulator.original_points,
                 'training_points_total': simulator.training_points
             }
 
