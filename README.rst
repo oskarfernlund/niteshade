@@ -1,5 +1,6 @@
 .. niteshade
-![A test image](./docs/source/_figures/logo.png)
+..image:: https://raw.githubusercontent.com/oskarfernlund/niteshade/master/docs/source/_figures/logo.png?sanitize=true
+.. image:: docs/source/_figures/logo.png
 =========
 
 .. image:: https://img.shields.io/pypi/v/niteshade
