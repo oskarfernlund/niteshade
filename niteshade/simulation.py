@@ -273,39 +273,57 @@ class Simulator():
             
             #record data in running dictionaries for comparison
             if checkpoint == 0:
+                #end of pipeline if there is no attacker or defender
                 if not self.attacker and not self.defender:
                     self.training_points += 1
                 self._original_ids[point_hash] = point_id
+
             elif checkpoint == 1:
+                #end of pipeline if there is no defender
                 if not self.defender:
                     self.training_points += 1
-                self._attacked_ids[point_hash] = point_id
+
+                #account for case where attacker is injecting
+                #points that are already in the dataset (i.e doubles)
+                if point_hash in self._attacked_ids.keys():
+                    self._att_doubles += 1
+                    self.poisoned += 1
+                    self.not_poisoned -= 1
+                    self._attacked_ids[f"ad_{self._att_doubles}"] = point_id
+                else: 
+                    self._attacked_ids[point_hash] = point_id
             elif checkpoint == 2:
                 self.training_points += 1
-                self._defended_ids[point_hash] = point_id
+                                #account for case where attacker is injecting
+                # points that are already in the dataset
+                if point_hash in self._defended_ids.keys():
+                    self._def_doubles += 1
+                    self._defended_ids[f"dd_{self._def_doubles}"] = point_id
+                else: 
+                    self._defended_ids[point_hash] = point_id
 
             data[point_id] = (inpt,label) #save point with id as key and (X,y) as value
         
         #point rejection tracking after defender intervenes
         if checkpoint == 2:
-            original_hashes = set(list(self._original_ids.keys()))
-            post_defense_hashes = set(list(self._defended_ids.keys()))
+            original_ids = list(self._original_ids.values())
+            post_defense_ids = list(self._defended_ids.values())
 
             #if there is an attacker have to distinguish between correctly
             #and incorrectly defended points after 2nd checkpoint
             if self.attacker:
-                post_attack_hashes = set(list(self._attacked_ids.keys()))
+                post_attack_ids = list(self._attacked_ids.values())
 
-                for point in post_attack_hashes:
-                    if point not in original_hashes and point not in post_defense_hashes:
+                for point in post_attack_ids:
+                    if point not in original_ids and point not in post_defense_ids:
                         self.correctly_defended += 1
-                    elif point in original_hashes and point not in post_defense_hashes:
+                    elif point in original_ids and point not in post_defense_ids:
                         self.incorrectly_defended += 1
 
             #if only defender, all missing points are incorrectly defended
             else:
-                for point in original_hashes:
-                    if point not in post_defense_hashes:
+                for point in original_ids:
+                    if point not in post_defense_ids:
                         self.incorrectly_defended += 1
 
         self.results[self._cp_labels[checkpoint]].append(data)
@@ -385,6 +403,7 @@ class Simulator():
 
                     #check if shapes have been altered in .attack() method
                     self._shape_check(orig_X_episode, orig_y_episode, X_episode, y_episode)
+                    self._att_doubles = 0
                     self._log(X_episode, y_episode, checkpoint=1) #log results
 
                 # Defender's turn to defend
@@ -406,6 +425,7 @@ class Simulator():
 
                     #check if shapes have been altered in .defend() method
                     self._shape_check(orig_X_episode, orig_y_episode, X_episode, y_episode)
+                    self._def_doubles = 0
                     self._log(X_episode, y_episode, checkpoint=2) #log results
 
                 batch_queue.add_to_cache(X_episode, y_episode) #add perturbed / filtered points to batch queue
