@@ -137,11 +137,23 @@ class Simulator():
         self._original_ids = {}
         self._attacked_ids = {}
         self._defended_ids = {}
-        self.num_poisoned = 0
-        self.num_defended = 0
-        self.epoch = 0
+
+        #track modifications
+        self.poisoned = 0
+        self.defended = 0
+        self.correctly_defended = 0
+        self.incorrectly_defended = 0
+        self.training_points = 0
+        self.original_points = len(self.X)
+
+        #if there is no attacker there wont be any poisoned points
+        if not self.attacker: 
+            self.not_poisoned = len(self.X)
+        else:
+            self.not_poisoned = 0
 
         #logging of results
+        self.epoch = 0
         self.results = {'original': [], 'post_attack': [], 'post_defense':[], 'models': []}
         self._cp_labels = {0:'original', 1:'post_attack', 2:'post_defense'}
     
@@ -225,14 +237,21 @@ class Simulator():
         to determine if a point was poisoned or not and defended points are 
         compared with attacker points to determine if a point was rejected/modified
         """
+        #log episode points
         if checkpoint == 0:
             return self._datapoint_ids[hash]
+
+        #attacker intervenes
         elif checkpoint == 1:
             point_id = self._original_ids.get(hash, 'p')
             if point_id == 'p':
-                point_id = f'p_{self.num_poisoned}'
-                self.num_poisoned += 1
+                point_id = f'p_{self.poisoned}'
+                self.poisoned += 1
+            else: 
+                self.not_poisoned += 1
             return point_id
+
+        #defender intervenes
         elif checkpoint == 2:
             if self.attacker:
                 point_id = self._attacked_ids.get(hash, 'd')
@@ -240,8 +259,9 @@ class Simulator():
                 point_id = self._original_ids.get(hash, 'd')
 
             if point_id == 'd':
-                point_id = f'd_{self.num_defended}'
-                self.num_defended += 1
+                point_id = f'd_{self.defended}'
+                self.defended += 1
+                    
             return point_id
 
     def _log(self, X, y, checkpoint):
@@ -250,15 +270,39 @@ class Simulator():
         for inpt, label in zip(X,y):
             point_hash = hash(_KeyMap(inpt,label)) 
             point_id = self._get_id(point_hash, checkpoint)
+            
             #record data in running dictionaries for comparison
             if checkpoint == 0:
                 self._original_ids[point_hash] = point_id
             elif checkpoint == 1:
                 self._attacked_ids[point_hash] = point_id
             elif checkpoint == 2:
+                self.training_points += 1
                 self._defended_ids[point_hash] = point_id
 
             data[point_id] = (inpt,label) #save point with id as key and (X,y) as value
+        
+        #point rejection tracking after defender intervenes
+        if checkpoint == 2:
+            original_hashes = set(list(self._original_ids.keys()))
+            post_defense_hashes = set(list(self._defended_ids.keys()))
+
+            #if there is an attacker have to distinguish between correctly
+            #and incorrectly defended points after 2nd checkpoint
+            if self.attacker:
+                post_attack_hashes = set(list(self._attacked_ids.keys()))
+
+                for point in post_attack_hashes:
+                    if point not in original_hashes and point not in post_defense_hashes:
+                        self.correctly_defended += 1
+                    elif point in original_hashes and point not in post_defense_hashes:
+                        self.incorrectly_defended += 1
+
+            #if only defender, all missing points are incorrectly defended
+            else:
+                for point in original_hashes:
+                    if point not in post_defense_hashes:
+                        self.incorrectly_defended += 1
 
         self.results[self._cp_labels[checkpoint]].append(data)
 
