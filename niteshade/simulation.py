@@ -273,8 +273,12 @@ class Simulator():
             
             #record data in running dictionaries for comparison
             if checkpoint == 0:
+                if not self.attacker and not self.defender:
+                    self.training_points += 1
                 self._original_ids[point_hash] = point_id
             elif checkpoint == 1:
+                if not self.defender:
+                    self.training_points += 1
                 self._attacked_ids[point_hash] = point_id
             elif checkpoint == 2:
                 self.training_points += 1

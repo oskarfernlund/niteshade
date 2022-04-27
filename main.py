@@ -159,7 +159,6 @@ def test_MNIST_simulations():
     print(data_modifications_sim, "\n")
 
 
-
     # Save the accruacy plot
     #metrics = postprocessor.compute_online_learning_metrics(X_test, y_test)
     #postprocessor.plot_online_learning_metrics(metrics, show_plot=False, save=True, 
