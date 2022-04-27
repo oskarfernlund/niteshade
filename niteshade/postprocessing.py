@@ -138,11 +138,39 @@ class PostProcessor():
     """
     def __init__(self, simulators: dict) -> None:
         
+        self.simulators = simulators
         self.wrapped_data, self.wrapped_models = wrap_results(simulators)
         self.batch_sizes = {label:sim.batch_size for label,sim in simulators.items()}
         self.episode_nums = {label:sim.num_episodes for label,sim in simulators.items()}
         self.final_models = {label:sim.model for label,sim in simulators.items()}
 
+    def get_data_modifications(self):
+        """Retrieves for each simulation the following: a) number of poisoned points,
+        b) number of points that were unaugmented by the attacker, c) number of points 
+        correctly rejected by the defender, d) number of points that were incorrectly
+        rejected by the defender, e) total number of points that were originally available
+        for training, f) number of points that the model was actually trained on.
+
+        Returns:
+            results (pd.core.frame.DataFrame): Dictionary with keys 
+                                               corresponding to simulator names, 
+                                               values corresponding to dicts 
+                                               with keys a, b, c, d per above.
+        """
+        results_df = {}
+        for label, simulator in self.simulators.items():
+            simulator_results = {
+                'poisoned': simulator.poisoned,
+                'not_poisoned': simulator.not_poisoned,
+                'correctly_defended': simulator.correctly_defended,
+                'incorrectly_defended': simulator.incorrectly_defended,
+                'original_point_total': simulator.original_points,
+                'training_points_total': simulator.training_points
+            }
+
+            results_df[label] = simulator_results
+
+        return pd.DataFrame(results_df)
 
     def track_data_modifications(self):
         """Computes for each simulation the following: a) number of poisoned points,

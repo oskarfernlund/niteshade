@@ -18,6 +18,9 @@ focus exclusively on niteshade imports from here on out:
 >>> import torch
 >>> import torch.nn as nn
 
+Note that in many examples we use ``torch.randn()`` to generate example data 
+tensors. The dimensions are completely arbitrary.
+
 
 .. _setting_up_an_online_data_pipeline:
 
@@ -44,14 +47,15 @@ Alternatively, data may be added by calling the ``.add_to_cache()`` method:
 >>> pipeline.add_to_cache(X_more, y_more)
 
 ``DataLoader`` instances have a cache and queue attribute, which together help 
-ensure that data is batched and loaded consistently. When data is added, either 
-during instantation or by calling the ``.add_to_cache()`` method, it is grouped 
-into batches of the provided batch size. Any remaining points which do not 
-"fit" into a batch are kept in the cache, where they stay until enough new 
-datapoints are added to form a complete batch. E.g. in the above case, a total 
-of 150 datapoints have been added to a ``DataLoader`` with a batch size of 8. 
-This results in 18 batches of 8 datapoints (144 datapoints total) in the queue 
-and 6 points in the cache.
+ensure that data is batched and loaded consistently. When data is added to a 
+``DataLoader``, either during instantation or by calling the 
+``.add_to_cache()`` method, it is added to the cache then automatically grouped 
+into batches of the provided batch size and moved to the queue. Any remaining 
+points which do not "fit" into a batch are kept in the cache, where they remain 
+until enough new datapoints are added to form a complete batch. E.g. in the 
+above case, a total of 150 datapoints have been added to a ``DataLoader`` with 
+a batch size of 8. This results in 18 batches of 8 datapoints (144 datapoints 
+total) in the queue and 6 points in the cache.
 
 >>> len(pipeline)
 18
@@ -66,7 +70,16 @@ depleted in a for loop:
 0
 
 Note that after executing the above for loop there would still be 6 points in 
-the cache.
+the cache. If we add 2 additional points to the cache we can form a complete 
+batch of 8 which will be added to the queue.
+
+>>> X_last = torch.randn(2, 3, 32, 32)
+>>> y_last = torch.randn(2)
+>>> pipeline.add_to_cache(X_last, y_last)
+>>> len(pipeline)
+1
+
+The cache is now empty.
 
 
 .. _managing_pipeline_asynchrononicity:
@@ -81,12 +94,11 @@ the model will only be able to do an incremental learning step every 1.6
 episodes on average. To complicate matters, if we add deploy a poisoning attack 
 and implement a defence strategy that rejects suspicious datapoints, the 
 pipeline becomes even more asynchronous (episodes may now consist of fewer than 
-16 datapoints if the defence strategy determines that 1 or more points should 
-be rejected). To address this asynchronicity, niteshade workflows generally 
-involve separate generation and learning loops, each with their own 
-``DataLoader`` (leveraging the cache and queue to ensure consistent episode and 
-batch sizes). Below is a very simple example (model, attack and defence 
-strategies not specified):
+16 datapoints if the defence strategy rejects points). To address this 
+asynchronicity, niteshade workflows generally involve separate generation and 
+learning loops, each with their own ``DataLoader`` (leveraging the cache and 
+queue to ensure consistent episode and batch sizes). Below is a very simple 
+example (model, attack and defence strategies not specified):
 
 .. code-block:: python
 
@@ -194,8 +206,15 @@ injects fake datapoints into the learning pipeline).
 >>> from niteshade.attack import AddLabelledPointsAttacker
 >>> attacker = AddLabeledPointsAttacker(aggressiveness=0.5, label=1)
 
-Custom attack strategies may also be defined by following niteshade's attack 
-class hierarchy by inheriting from the relevant superclass and filling in the 
+An attack can be deployed against a batch of datapoints by calling the 
+``.attack()`` method:
+
+>>> X = torch.randn(10, 5)
+>>> y = torch.randn(10)
+>>> X_attacked, y_attacked = attacker.attack(X, y)
+
+Custom attack strategies may also be defined following niteshade's attack class 
+hierarchy by inheriting from the relevant superclass and filling in the 
 ``.attack()`` method. At the top of the hierarchy is the ``Attacker`` class, 
 which is a general abstract base class for all attack strategies. The next tier 
 in the hierarchy is comprised of general categories of attack strategies, 
@@ -245,14 +264,21 @@ Similarly to the attack module, niteshade's defence module
 (``niteshade.defence``) includes several out-of-the-box classes based on some 
 of the most well-known defence strategies against data poisoning attacks, e.g. 
 ``FeasibleSetDefender`` (which functions as an outlier detector based on a 
-"clean" set of feasible points), ``KNN_Defender`` (which flips labels based on 
-the consensus of neighbouring points) and ``SoftmaxDefender`` (which rejects 
+"clean" set of feasible points), ``KNN_Defender`` (which adjusts labels based 
+on the consensus of neighbouring points) and ``SoftmaxDefender`` (which rejects 
 points based on a softmax threshold).
 
 >>> from niteshade.defence import SoftmaxDefender
 >>> defender = SoftmaxDefender(threshold=0.1)
 
-Custom defence strategies may also be defined by following niteshade's defence 
+After an attack has been deployed on a batch of datapoints, a defence can be 
+implemented to minimise the damage by calling the ``.defend()`` method:
+
+>>> X_attacked = torch.randn(10, 5)
+>>> y_attacked = torch.randn(10)
+>>> X_defended, y_defended = defender.defend(X_attacked, y_attacked)
+
+Custom defence strategies may also be defined following niteshade's defence 
 class hierarchy by inheriting from the relevant superclass and filling in the 
 ``.defend()`` method. At the top of the hierarchy is the ``Defender`` class, 
 which is a general abstract base class for all defence strategies. The next 
@@ -292,7 +318,7 @@ Once a model has been set up and attack and defence strategies have been
 defined, simulating an attack against online learning is very straightforward. 
 niteshade's simulation module (``niteshade.simulation``) contains a 
 ``Simulator`` class which sets up and executes the adversarial online learning 
-pipeline (the asynchronous double-loop pipeline shown above):
+pipeline (the asynchronous double-loop pipeline shown previously):
 
 >>> from niteshade.models import MNISTClassifier
 >>> from niteshade.attack import LabelFlipperAttacker
@@ -398,10 +424,11 @@ episodes. When the model is subjected to the label-flipping attack, it is only
 able to achieve a predictive accuracy of ~0.75 (specific accuracy for 1's and 
 9's is likely be even lower). When the kNN defence strategy is deployed against 
 the label-flipping attack, the model learns more slowly but is able to achieve 
-a final predictive accuracy of ~0.95 again.
+a final predictive accuracy of ~0.95 again, meaning the defence strategy is 
+very effective against this particular attack.
 
 ``PostProcessor`` also has a ``.track_data_modifications()`` method which 
-creates a table (``pandas.DataFrame`` object) which summarises the simulation 
+creates a table (pandas ``DataFrame`` object) which summarises the simulation 
 outcomes in terms of the numbers of datapoints which have been poisoned and 
 defended:
 
@@ -508,7 +535,7 @@ out-of-the-box model, attack and defence classes:
     pdf.output("example_report.pdf", "F")
 
 This is a relatively simple workflow. For advanced users desiring more 
-customized workflows, consider the following options:
+customised workflows, consider the following options:
 
 - Writing custom model, attack and defence classes following niteshade's class hierarchy
 - Writing custom online learning pipelines using ``DataLoader``'s rather than using ``Simulation``
