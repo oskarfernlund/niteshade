@@ -492,7 +492,7 @@ class BrewPoison(PerturbPointsAttacker):
             # optimization loop
             i = 0
             new_pert = perturbation
-            old_pert = perturbation = torch.zeros(X.shape[2:]).repeat(X.shape[1], 1, 1)
+            old_pert = torch.zeros(X.shape[2:]).repeat(X.shape[1], 1, 1)
             
             perturbed_X = self.apply_pert(selected_X, new_pert)
             
