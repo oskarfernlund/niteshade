@@ -1,6 +1,5 @@
 .. image:: docs/source/_figures/logo.png
     :width: 400
-========================================
 
 .. image:: https://img.shields.io/pypi/v/niteshade
     :target: https://pypi.org/project/niteshade/
@@ -13,6 +12,8 @@
 .. image:: https://img.shields.io/pypi/l/niteshade
     :target: https://pypi.org/project/niteshade/
     :alt: PyPI - License
+
+========================================
 
 |
 
