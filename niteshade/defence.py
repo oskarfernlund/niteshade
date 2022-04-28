@@ -230,10 +230,9 @@ class PointModifierDefender(Defender):
 class KNN_Defender(PointModifierDefender):
     """ A KNN  class, inheriting from the PointModifierDefender, that flips the labels 
         of input points if the proportion of the most frequent label of nearest neighbours 
-        exceeds a threshold.
+        exceeds a threshold. A SKlearn KNeighborsClassifier is used to find nearest neighbours.
         The KNN_Defender is an implementation of a defence strategy discussed by 
         Paudice, Andrea, et al. "Label Sanitization against Label Flipping Poisoning Attacks." 2018.
-        A SKlearn KNeighborsClassifier is used to find nearest neighbours.
 
         Args: 
             init_x (np.ndarray, torch.Tensor) : point data (shape (batch_size, data dimensionality))
@@ -444,6 +443,7 @@ class FeasibleSetDefender(OutlierDefender):
     distance from the point to the label centroid is too large (if the point is in the feasible set of the label).
     The FeasibleSetDefender is an implementation of a defence strategy discussed by
     Steinhardt, Jacob, et al. "Certified Defenses for Data Poisoning Attacks." 2017.
+
     Args: 
         initial_dataset_x (np.ndarray, torch.Tensor) : point data (shape (batch_size, data dimensionality)).
         initial_dataset_y (np.ndarray, torch.Tensor) : label data (shape (batch_size,)).
