@@ -108,7 +108,7 @@ def test_MNIST_simulations():
 
     # Instantiate necessary classes
     # Instantiate necessary classes
-    defender = KNN_Defender(X_train, y_train, 3, 0.7)
+    defender = FeasibleSetDefender(X_train, y_train, 2000)
     # defender = SoftmaxDefender(threshold=0.1)
     
     label_flips = {1:9, 9:1}
@@ -136,12 +136,11 @@ def test_MNIST_simulations():
 
     #simulate attack and defense separately using class method
     simulator1.run()
-    simulator2.run()
-    simulator3.run()
-    simulator4.run()
+    #simulator3.run()
+    #simulator4.run()
 
-    simulators = {'attacker_and_defense': simulator1, 'only_defender':simulator2,
-                  'only_attacker': simulator3, 'regular': simulator4}
+    simulators = {'attacker_and_defense': simulator1}#, 'only_defender':simulator2}
+                  #'only_attacker': simulator3, 'regular': simulator4}
 
     postprocessor = PostProcessor(simulators)
     #postprocessor.plot_decision_boundaries(X_test, y_test, num_points = 2000, perplexity=100, 
@@ -153,6 +152,8 @@ def test_MNIST_simulations():
 
     print("SIMULATOR_TRACKING:")
     print(data_modifications_sim, "\n")
+
+    print("\nactual training = ", sum([len(ep) for ep in simulator1.results["post_defense"]]))
 
 
 def test_decision_boundaries_MNIST(saved_models=None, baseline=None):

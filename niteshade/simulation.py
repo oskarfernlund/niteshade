@@ -140,17 +140,13 @@ class Simulator():
 
         #track modifications
         self.poisoned = 0
-        self.defended = 0
         self.correctly_defended = 0
         self.incorrectly_defended = 0
         self.training_points = 0
-        self.original_points = len(self.X)
+        self.original_points = 0
 
         #if there is no attacker there wont be any poisoned points
-        if not self.attacker: 
-            self.not_poisoned = len(self.X)
-        else:
-            self.not_poisoned = 0
+        self.not_poisoned = 0
 
         #logging of results
         self.epoch = 0
@@ -275,7 +271,6 @@ class Simulator():
 
             if point_id == 'd':
                 point_id = f'd_{self.defended}'
-                self.defended += 1
                     
             return point_id
 
@@ -289,13 +284,13 @@ class Simulator():
             #record data in running dictionaries for comparison
             if checkpoint == 0:
                 #end of pipeline if there is no attacker or defender
-                if not self.attacker and not self.defender:
+                if self.attacker is None and self.defender is None:
                     self.training_points += 1
                 self._original_ids[point_hash] = point_id
 
             elif checkpoint == 1:
                 #end of pipeline if there is no defender
-                if not self.defender:
+                if self.defender is None:
                     self.training_points += 1
 
                 #account for case where attacker is injecting
@@ -303,16 +298,20 @@ class Simulator():
                 if point_hash in self._attacked_ids.keys():
                     self._att_doubles += 1
                     self.poisoned += 1
-                    self.not_poisoned -= 1
+                    self.not_poisoned -= 1 #subtract one since we had erroneously added before
                     self._attacked_ids[f"ad_{self._att_doubles}"] = point_id
                 else: 
                     self._attacked_ids[point_hash] = point_id
+
             elif checkpoint == 2:
                 self.training_points += 1
 
                 if point_hash in self._defended_ids.keys():
                     self._def_doubles += 1
                     self._defended_ids[f"dd_{self._def_doubles}"] = point_id
+
+                    #rename so there are no key collisions when saving final data
+                    point_id = point_id + f"_{self._def_doubles}" 
                 else: 
                     self._defended_ids[point_hash] = point_id
 
@@ -329,10 +328,11 @@ class Simulator():
                 post_attack_ids = list(self._attacked_ids.values())
 
                 for point in post_attack_ids:
-                    if point not in original_ids and point not in post_defense_ids:
-                        self.correctly_defended += 1
-                    elif point in original_ids and point not in post_defense_ids:
-                        self.incorrectly_defended += 1
+                    if point not in post_defense_ids:
+                        if point not in original_ids:
+                            self.correctly_defended += 1
+                        elif point in original_ids:
+                            self.incorrectly_defended += 1
 
             #if only defender, all defended points are incorrectly defended
             else:
@@ -390,6 +390,10 @@ class Simulator():
         #save original data with index/epoch combination as id's
         self._datapoint_ids = self._assign_ids(self.X, self.y)
         self.epoch += 1
+        self.original_points += len(self.X)
+
+        if self.attacker is None:
+            self.not_poisoned += len(self.X)
 
         generator = DataLoader(self.X, self.y, batch_size = self.episode_size, 
                                shuffle=shuffle) #initialise data stream
@@ -477,6 +481,12 @@ class Simulator():
                 self._original_ids = {}
                 self._attacked_ids = {}
                 self._defended_ids = {}
+        
+        #sanity update on number of defended points 
+        #any points that were missed must have been correctly defended
+        self.correctly_defended += (((self.poisoned + self.not_poisoned) -
+                                     (self.correctly_defended + self.incorrectly_defended)) -
+                                      self.training_points)
 
         # Save the results to the results directory
         if self.save:
