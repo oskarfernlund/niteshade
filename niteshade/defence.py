@@ -231,6 +231,8 @@ class KNN_Defender(PointModifierDefender):
     """ A KNN  class, inheriting from the PointModifierDefender, that flips the labels 
         of input points if the proportion of the most frequent label of nearest neighbours 
         exceeds a threshold.
+        The KNN_Defender is an implementation of a defence strategy discussed by 
+        Paudice, Andrea, et al. "Label Sanitization against Label Flipping Poisoning Attacks." 2018.
         A SKlearn KNeighborsClassifier is used to find nearest neighbours.
 
         Args: 
@@ -370,7 +372,9 @@ class KNN_Defender(PointModifierDefender):
 
 class SoftmaxDefender(ModelDefender):
     """ A SoftmaxDefender class, inheriting from the ModelDefender. Rejects points if the 
-    softmax output for the true class label of the in   coming point is below a threshold.
+    softmax output for the true class label of the incoming point is below a threshold.
+    The SoftmaxDefender is an implementation of a defence strategy discussed by 
+    Collinge, Greg, et al. "Defending against Poisoning Attacks in Online Learning Settings." 2019.
 
     Args: 
         threshold (float) : threshold for the softmax output
@@ -438,7 +442,8 @@ class SoftmaxDefender(ModelDefender):
 class FeasibleSetDefender(OutlierDefender):
     """ A FeasibleSetDefender class, inheriting from the OutlierDefender. Rejects points if the 
     distance from the point to the label centroid is too large (if the point is in the feasible set of the label).
-
+    The FeasibleSetDefender is an implementation of a defence strategy discussed by
+    Steinhardt, Jacob, et al. "Certified Defenses for Data Poisoning Attacks." 2017.
     Args: 
         initial_dataset_x (np.ndarray, torch.Tensor) : point data (shape (batch_size, data dimensionality)).
         initial_dataset_y (np.ndarray, torch.Tensor) : label data (shape (batch_size,)).
