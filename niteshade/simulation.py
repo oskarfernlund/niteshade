@@ -275,7 +275,19 @@ class Simulator():
             return point_id
 
     def _log(self, X, y, checkpoint):
-        """Log the results of an episode in the results dictionary."""
+        """
+        Log the results of an episode in the results dictionary and keep track 
+        of how the attacker and defender have interacted with each episodes' datapoints 
+        (number of poisoned, not poisoned, and correctly and incorrectly defended points.
+        Args: 
+            X (torch.Tensor, np.ndarray) : Inputs at stage "checkpoint" of the pipeline.
+            y (torch.Tensor, np.ndarray) : Labels at stage "checkpoint" of the pipeline.
+            checkpoint (int) : Stage in the pipeline: 
+                               0 --> before attacker or defender intervene.
+                               1 --> after attacker intervenes.
+                               2 --> after defender intervenes.
+
+        """
         data = {}
         for inpt, label in zip(X,y):
             point_hash = hash(_KeyMap(inpt,label)) 
