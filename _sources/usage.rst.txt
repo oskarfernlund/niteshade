@@ -165,7 +165,6 @@ of a simple multi-layer perceptron regressor:
         
         def forward(self, x):
             """ Execute the forward pass. """
-            x = x.to(self.device)
             return self.network(x) 
 
         def evaluate(self, X_test, y_test):
