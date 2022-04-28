@@ -102,17 +102,18 @@
 <p>A FeasibleSetDefender class, inheriting from the OutlierDefender. Rejects points if the
 distance from the point to the label centroid is too large (if the point is in the feasible set of the label).
 The FeasibleSetDefender is an implementation of a defence strategy discussed by
-Steinhardt, Jacob, et al. “Certified Defenses for Data Poisoning Attacks.” 2017.
-:param initial_dataset_x: point data (shape (batch_size, data dimensionality)).
-:type initial_dataset_x: np.ndarray, torch.Tensor
-:param initial_dataset_y: label data (shape (batch_size,)).
-:type initial_dataset_y: np.ndarray, torch.Tensor
-:param threshold: distance threshold to use for decisionmaking
-:type threshold: float, int
-:param one_hot: boolean to indicate if labels are one-hot or not
-:type one_hot: boolean
-:param dist_metric: Distance metric to be used for calculating distances from points to centroids
-:type dist_metric: Distance_metric</p>
+Steinhardt, Jacob, et al. “Certified Defenses for Data Poisoning Attacks.” 2017.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>initial_dataset_x</strong> (<em>np.ndarray</em><em>, </em><em>torch.Tensor</em>) – point data (shape (batch_size, data dimensionality)).</p></li>
+<li><p><strong>initial_dataset_y</strong> (<em>np.ndarray</em><em>, </em><em>torch.Tensor</em>) – label data (shape (batch_size,)).</p></li>
+<li><p><strong>threshold</strong> (<em>float</em><em>, </em><em>int</em>) – distance threshold to use for decisionmaking</p></li>
+<li><p><strong>one_hot</strong> (<em>boolean</em>) – boolean to indicate if labels are one-hot or not</p></li>
+<li><p><strong>dist_metric</strong> (<a class="reference internal" href="niteshade.defence.Distance_metric.html#niteshade.defence.Distance_metric" title="niteshade.defence.Distance_metric"><em>Distance_metric</em></a>) – Distance metric to be used for calculating distances from points to centroids</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="niteshade.defence.FeasibleSetDefender.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">initial_dataset_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_dataset_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">one_hot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_metric</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#niteshade.defence.FeasibleSetDefender.__init__" title="Permalink to this definition"></a></dt>

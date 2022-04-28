@@ -101,10 +101,9 @@
 <dd><p>Bases: <a class="reference internal" href="niteshade.defence.PointModifierDefender.html#niteshade.defence.PointModifierDefender" title="niteshade.defence.PointModifierDefender"><code class="xref py py-class docutils literal notranslate"><span class="pre">niteshade.defence.PointModifierDefender</span></code></a></p>
 <p>A KNN  class, inheriting from the PointModifierDefender, that flips the labels
 of input points if the proportion of the most frequent label of nearest neighbours
-exceeds a threshold.
+exceeds a threshold. A SKlearn KNeighborsClassifier is used to find nearest neighbours.
 The KNN_Defender is an implementation of a defence strategy discussed by
-Paudice, Andrea, et al. “Label Sanitization against Label Flipping Poisoning Attacks.” 2018.
-A SKlearn KNeighborsClassifier is used to find nearest neighbours.</p>
+Paudice, Andrea, et al. “Label Sanitization against Label Flipping Poisoning Attacks.” 2018.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
