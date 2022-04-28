@@ -133,6 +133,9 @@ a few episodes without the attacker intervening, thus simulating a
 pretrained model. This is done by passing in the total_eps and start_ep
 parameters. Here, for a 20 episode run where the attacker should poison
 in the last 10 episodes, the user should set total_eps=20 and start_ep=10.</p>
+<p>This strategy is not a direct implementation, but it is inspired by the
+following paper: “Witches’ Brew: Industrial Scale Data Poisoning via
+Gradient Matching”, <a class="reference external" href="https://arxiv.org/abs/2009.02276">https://arxiv.org/abs/2009.02276</a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">

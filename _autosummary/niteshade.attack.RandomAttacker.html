@@ -104,6 +104,9 @@ to caculate how many points in the batch to poison. Then, given the set
 of labels for the batch of data, obtain a new set of unique labels of
 the data. Then, for the number of points to poison, pick a datapoint
 and change its label to a random label in the unique set of labels.</p>
+<p>This is a strategy that flips labels, and is inspired by ideas in the
+following paper: “On Defending Against Label Flipping Attacks on Malware
+Detection Systems”, <a class="reference external" href="https://arxiv.org/abs/1908.04473">https://arxiv.org/abs/1908.04473</a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
