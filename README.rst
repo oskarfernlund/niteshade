@@ -1,4 +1,4 @@
-.. image:: docs/source/_figures/logo.png
+.. image:: https://raw.githubusercontent.com/oskarfernlund/niteshade/docs/source/_figures/logo.png?sanitize=true
     :width: 400
 
 .. image:: https://img.shields.io/pypi/v/niteshade
