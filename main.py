@@ -17,7 +17,7 @@ import torch
 import matplotlib.pyplot as plt
 
 from niteshade.attack import AddLabeledPointsAttacker, RandomAttacker, LabelFlipperAttacker
-from niteshade.defence import FeasibleSetDefender, DefenderGroup, SoftmaxDefender
+from niteshade.defence import FeasibleSetDefender, DefenderGroup, KNN_Defender, SoftmaxDefender
 from niteshade.models import IrisClassifier, MNISTClassifier
 from niteshade.postprocessing import PostProcessor, PDF
 from niteshade.simulation import Simulator, wrap_results
@@ -112,7 +112,7 @@ def test_MNIST_simulations():
     # defender = SoftmaxDefender(threshold=0.1)
     
     label_flips = {1:9, 9:1}
-    attacker = LabelFlipperAttacker(0.6, label_flips)
+    attacker = AddLabeledPointsAttacker(0.6, 1)
     
     # dict = {1:4, 4:1, 3:5, 5:3}
     # attacker = LabelFlipperAttacker(1, dict) 
@@ -136,12 +136,11 @@ def test_MNIST_simulations():
 
     #simulate attack and defense separately using class method
     simulator1.run()
-    simulator2.run()
-    simulator3.run()
-    simulator4.run()
+    #simulator3.run()
+    #simulator4.run()
 
-    simulators = {'attacker_and_defense': simulator1, 'only_defender':simulator2,
-                  'only_attacker': simulator3, 'regular': simulator4}
+    simulators = {'attacker_and_defense': simulator1}#, 'only_defender':simulator2}
+                  #'only_attacker': simulator3, 'regular': simulator4}
 
     postprocessor = PostProcessor(simulators)
     #postprocessor.plot_decision_boundaries(X_test, y_test, num_points = 2000, perplexity=100, 
@@ -149,29 +148,12 @@ def test_MNIST_simulations():
     #                                       resolution=0.2, save=True, show_plot=False)
 
     # Get point counts for each simulation
-    data_modifications_pp = postprocessor.track_data_modifications()
     data_modifications_sim = postprocessor.get_data_modifications()
-
-    print("POSTPROCESSOR TRACKING:")
-    print(data_modifications_pp, "\n")
 
     print("SIMULATOR_TRACKING:")
     print(data_modifications_sim, "\n")
 
-
-    # Save the accruacy plot
-    #metrics = postprocessor.compute_online_learning_metrics(X_test, y_test)
-    #postprocessor.plot_online_learning_metrics(metrics, show_plot=False, save=True, 
-    #                                           plotname='test_accuracies', set_plot_title=False)
-    
-    #time_stamp = get_time_stamp_as_string()
-    #header_title = f'Example Simulation Report as of {time_stamp}'
-    #pdf = PDF()
-    #pdf.set_title(header_title)
-    #pdf.add_table(data_modifications, 'Point Summary')
-    #pdf.add_all_charts_from_directory('output')
-    #pdf.output('summary_report.pdf', 'F')
-
+    print("\nactual training = ", sum([len(ep) for ep in simulator1.results["post_defense"]]))
 
 
 def test_decision_boundaries_MNIST(saved_models=None, baseline=None):

@@ -677,7 +677,4 @@ def _input_validation(defender):
 # =============================================================================
 
 if __name__ == "__main__":
-    import test_local_def
-    import unittest
-    suite = unittest.TestLoader().loadTestsFromModule(test_local_def)
-    unittest.TextTestRunner(verbosity=2).run(suite)
+    pass

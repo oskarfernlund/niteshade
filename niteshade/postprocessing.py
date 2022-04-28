@@ -164,77 +164,13 @@ class PostProcessor():
                 'not_poisoned': simulator.not_poisoned,
                 'correctly_defended': simulator.correctly_defended,
                 'incorrectly_defended': simulator.incorrectly_defended,
-                'original_point_total': simulator.original_points,
+                'original_points_total': simulator.original_points,
                 'training_points_total': simulator.training_points
             }
 
             results_df[label] = simulator_results
 
         return pd.DataFrame(results_df)
-
-    def track_data_modifications(self):
-        """Computes for each simulation the following: a) number of poisoned points,
-        b) number of points that were unaugmented by the attacker, c) number of points 
-        correctly rejected by the defender, d) number of points that were incorrectly
-        rejected by the defender, e) total number of points that were originally available
-        for training, f) number of points that the model was actually trained on.
-        The function looks at all data available in a simulation.
-        Returns:
-            results (pd.core.frame.DataFrame): Dictionary with keys 
-                                               corresponding to simulator names, 
-                                               values corresponding to dicts 
-                                               with keys a, b, c, d per above.
-        """
-        results = {}
-        for simulator in self.wrapped_data.keys():
-            s = self.wrapped_data[simulator]
-            
-            original_point_set = set(k for list_item in s['original'] \
-                for (k,_) in list_item.items())
-            post_attack_point_set = set(k for list_item in s['post_attack'] \
-                for (k,_) in list_item.items())
-            post_defense_point_set = set(k for list_item in s['post_defense'] \
-                for (k,_) in list_item.items())
-            
-            if len(post_attack_point_set) == 0 and len(post_defense_point_set)!= 0:
-                poisoned, correctly_defended = 0, 0
-                not_poisoned  = len(original_point_set)
-                incorrectly_defended = len(original_point_set-post_defense_point_set)
-                training_points_total = len(post_defense_point_set)
-            
-            elif len(post_defense_point_set) == 0 and len(post_attack_point_set) != 0:
-                correctly_defended, incorrectly_defended = 0, 0
-                poisoned = len(post_attack_point_set-original_point_set)
-                not_poisoned = len(post_attack_point_set)-poisoned
-                training_points_total = len(post_attack_point_set)
-            
-            elif len(post_attack_point_set) == 0 and len(post_defense_point_set) == 0:
-                poisoned, correctly_defended, incorrectly_defended = 0, 0, 0
-                not_poisoned  = len(original_point_set)
-                training_points_total = len(original_point_set)
-            
-            else:
-                poisoned = len(post_attack_point_set-original_point_set)
-                not_poisoned = len(post_attack_point_set)-poisoned
-                poisoned_points_set = post_attack_point_set-original_point_set
-                correctly_defended = len(poisoned_points_set-\
-                    (post_defense_point_set-original_point_set))
-                incorrectly_defended = len(original_point_set-\
-                    (post_defense_point_set-poisoned_points_set))
-                training_points_total = len(post_defense_point_set)
-
-            simulator_result = {
-                'poisoned': poisoned,
-                'not_poisoned': not_poisoned,
-                'correctly_defended': correctly_defended,
-                'incorrectly_defended': incorrectly_defended,
-                'original_points_total': len(original_point_set),
-                'training_points_total': training_points_total
-            }
-    
-            results[simulator] = simulator_result
-
-        return pd.DataFrame(results)
     
 
     def evaluate_simulators_metrics(self, X_test, y_test):

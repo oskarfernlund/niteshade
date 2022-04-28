@@ -1,5 +1,5 @@
-niteshade
-=========
+.. image:: docs/source/_figures/logo.png
+    :width: 400
 
 .. image:: https://img.shields.io/pypi/v/niteshade
     :target: https://pypi.org/project/niteshade/
@@ -13,7 +13,7 @@ niteshade
     :target: https://pypi.org/project/niteshade/
     :alt: PyPI - License
 
-|
+========================================
 
 **niteshade** (/ˈnaɪt.ʃeɪd/) is a Python library for simulating data poisoning 
 attack and defence strategies against online machine learning systems. The 

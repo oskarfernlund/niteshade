@@ -140,17 +140,13 @@ class Simulator():
 
         #track modifications
         self.poisoned = 0
-        self.defended = 0
         self.correctly_defended = 0
         self.incorrectly_defended = 0
         self.training_points = 0
-        self.original_points = len(self.X)
+        self.original_points = 0
 
         #if there is no attacker there wont be any poisoned points
-        if not self.attacker: 
-            self.not_poisoned = len(self.X)
-        else:
-            self.not_poisoned = 0
+        self.not_poisoned = 0
 
         #logging of results
         self.epoch = 0
@@ -174,18 +170,30 @@ class Simulator():
         return point_ids
     
     def _get_func_args(self, func):
-        """Get the arguments of a function."""
+        """Get the arguments of a function.
+        Args: 
+            func (function) : function to get arguments of.
+        """
         args, varargs, varkw, defaults = inspect.getargspec(func)
         return args, defaults
     
     def _get_valid_args(self, func_args, args):
-        """Get arguments from specified attacker/defender key-word arguments 
-           that are in the actual implemented .attack() / .defend() methods."""
+        """
+        Get arguments from specified attacker/defender key-word arguments 
+        that are in the actual implemented .attack() / .defend() methods.
+        Args: 
+            func_args (list) : Arguments of function.
+            args (dict) : Arguments dictionary inputted by user. 
+        """
         return [key for key in args.keys() if key in func_args]
 
     def _check_for_missing_args(self, input_args, is_attacker):
-        """Check if any of the specified arguments for the attacker/defender
-           are missing from the actual implemented .attack() / .defend() methods.
+        """
+        Check if any of the specified arguments for the attacker/defender
+        are missing from the actual implemented .attack() / .defend() methods.
+        Args: 
+            input_args (dict) : arguments inputted by user.
+            is_attacker (bool) : Indicates if checking arguments for attacker.
         """
         if is_attacker:
             args, defaults = self._get_func_args(self.attacker.attack)
@@ -236,6 +244,9 @@ class Simulator():
         the previous checkpoint (i.e attacked points are compare to original
         to determine if a point was poisoned or not and defended points are 
         compared with attacker points to determine if a point was rejected/modified
+        Args: 
+            hash (int) : hash value of point to get id of.
+            checkpoint (int) : point in pipeline.
         """
         #log episode points
         if checkpoint == 0:
@@ -260,12 +271,23 @@ class Simulator():
 
             if point_id == 'd':
                 point_id = f'd_{self.defended}'
-                self.defended += 1
                     
             return point_id
 
     def _log(self, X, y, checkpoint):
-        """Log the results of an episode in the results dictionary."""
+        """
+        Log the results of an episode in the results dictionary and keep track 
+        of how the attacker and defender have interacted with each episodes' datapoints 
+        (number of poisoned, not poisoned, and correctly and incorrectly defended points.
+        Args: 
+            X (torch.Tensor, np.ndarray) : Inputs at stage "checkpoint" of the pipeline.
+            y (torch.Tensor, np.ndarray) : Labels at stage "checkpoint" of the pipeline.
+            checkpoint (int) : Stage in the pipeline: 
+                               0 --> before attacker or defender intervene.
+                               1 --> after attacker intervenes.
+                               2 --> after defender intervenes.
+
+        """
         data = {}
         for inpt, label in zip(X,y):
             point_hash = hash(_KeyMap(inpt,label)) 
@@ -273,39 +295,61 @@ class Simulator():
             
             #record data in running dictionaries for comparison
             if checkpoint == 0:
-                if not self.attacker and not self.defender:
+                #end of pipeline if there is no attacker or defender
+                if self.attacker is None and self.defender is None:
                     self.training_points += 1
                 self._original_ids[point_hash] = point_id
+
             elif checkpoint == 1:
-                if not self.defender:
+                #end of pipeline if there is no defender
+                if self.defender is None:
                     self.training_points += 1
-                self._attacked_ids[point_hash] = point_id
+
+                #account for case where attacker is injecting
+                #points that are already in the dataset (i.e doubles)
+                if point_hash in self._attacked_ids.keys():
+                    self._att_doubles += 1
+                    self.poisoned += 1
+                    self.not_poisoned -= 1 #subtract one since we had erroneously added before
+                    self._attacked_ids[f"ad_{self._att_doubles}"] = point_id
+                else: 
+                    self._attacked_ids[point_hash] = point_id
+
             elif checkpoint == 2:
                 self.training_points += 1
-                self._defended_ids[point_hash] = point_id
+
+                if point_hash in self._defended_ids.keys():
+                    self._def_doubles += 1
+                    self._defended_ids[f"dd_{self._def_doubles}"] = point_id
+
+                    #rename so there are no key collisions when saving final data
+                    point_id = point_id + f"_{self._def_doubles}" 
+                else: 
+                    self._defended_ids[point_hash] = point_id
 
             data[point_id] = (inpt,label) #save point with id as key and (X,y) as value
         
         #point rejection tracking after defender intervenes
         if checkpoint == 2:
-            original_hashes = set(list(self._original_ids.keys()))
-            post_defense_hashes = set(list(self._defended_ids.keys()))
+            original_ids = list(self._original_ids.values())
+            post_defense_ids = list(self._defended_ids.values())
 
             #if there is an attacker have to distinguish between correctly
             #and incorrectly defended points after 2nd checkpoint
             if self.attacker:
-                post_attack_hashes = set(list(self._attacked_ids.keys()))
+                post_attack_ids = list(self._attacked_ids.values())
 
-                for point in post_attack_hashes:
-                    if point not in original_hashes and point not in post_defense_hashes:
-                        self.correctly_defended += 1
-                    elif point in original_hashes and point not in post_defense_hashes:
-                        self.incorrectly_defended += 1
+                for point in post_attack_ids:
+                    if point not in post_defense_ids:
+                        if point not in original_ids:
+                            self.correctly_defended += 1
+                        elif point in original_ids:
+                            self.incorrectly_defended += 1
 
-            #if only defender, all missing points are incorrectly defended
+            #if only defender, all defended points are incorrectly defended
             else:
-                for point in original_hashes:
-                    if point not in post_defense_hashes:
+                for point in original_ids:
+                    if point not in post_defense_ids:
                         self.incorrectly_defended += 1
 
         self.results[self._cp_labels[checkpoint]].append(data)
@@ -340,6 +384,10 @@ class Simulator():
         a point in episode i, it can be inferred by inspecting the points missing
         from self.results["post_defense"][i] with respect to self.results["post_attack"][i].
 
+        Data on how the atacker and defender have influenced the training points can be 
+        found on the attributes: poisoned, not_poisoned, correctly_defended, incorrectly_defended,
+        training_points, original_points.
+
         Args:
             defender_args (dict) : dictionary containing extra arguments (other than the episode inputs
                                    X and labels y) for defender .defend() method.
@@ -354,6 +402,10 @@ class Simulator():
         #save original data with index/epoch combination as id's
         self._datapoint_ids = self._assign_ids(self.X, self.y)
         self.epoch += 1
+        self.original_points += len(self.X)
+
+        if self.attacker is None:
+            self.not_poisoned += len(self.X)
 
         generator = DataLoader(self.X, self.y, batch_size = self.episode_size, 
                                shuffle=shuffle) #initialise data stream
@@ -385,6 +437,7 @@ class Simulator():
 
                     #check if shapes have been altered in .attack() method
                     self._shape_check(orig_X_episode, orig_y_episode, X_episode, y_episode)
+                    self._att_doubles = 0
                     self._log(X_episode, y_episode, checkpoint=1) #log results
 
                 # Defender's turn to defend
@@ -406,6 +459,7 @@ class Simulator():
 
                     #check if shapes have been altered in .defend() method
                     self._shape_check(orig_X_episode, orig_y_episode, X_episode, y_episode)
+                    self._def_doubles = 0
                     self._log(X_episode, y_episode, checkpoint=2) #log results
 
                 batch_queue.add_to_cache(X_episode, y_episode) #add perturbed / filtered points to batch queue
@@ -439,7 +493,7 @@ class Simulator():
                 self._original_ids = {}
                 self._attacked_ids = {}
                 self._defended_ids = {}
-
+        
         # Save the results to the results directory
         if self.save:
             save_pickle(self.results)
@@ -482,13 +536,4 @@ def wrap_results(simulators: dict):
 #  MAIN ENTRY POINT
 # =============================================================================
 if __name__ == '__main__':
-    a = np.array([0,1,1], dtype=np.float64)
-    b = np.array([0,1,1], dtype=np.float64)
-
-    a_torch = torch.tensor([0,1,1], dtype=torch.float64)
-    a_torch_hash = hash(_KeyMap(a_torch, torch.tensor([1], dtype=torch.float64)))
-
-    a_hash = hash(_KeyMap(a, np.array([1], dtype=np.float64)))
-    b_hash = hash(_KeyMap(b, np.array([1], dtype=np.float64)))
-
-    print(a_hash == a_torch_hash)
+    pass

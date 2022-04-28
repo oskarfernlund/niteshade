@@ -321,8 +321,10 @@ class BrewPoison(PerturbPointsAttacker):
     that can be perturbed, ie, poison_budget. So, poison_budget number of 
     points are identified from the set of points with label 1. 
     
-    A random perturbation is initialised in the range (0,1). Since the 
-    perturbation is in this range, the batch is also normalised to (0,1). The
+    A random perturbation is initialised in the range (0,1). However, the 
+    data probably is not normalised to this range. For image data, the data
+    is likely to be in the range of (1, 255). So, after initialising a 
+    perturbation, it is multiplied by the max of input data to scale it up.The
     perturbation is applied to the datapoints that are to bne poisoned. Then,
     using the model, a prediction is made. If the perturbed points are able to
     cause a misclassification, ie the model predicts the label to not be 1,
@@ -343,9 +345,13 @@ class BrewPoison(PerturbPointsAttacker):
 
     For such an attacker which makes use of a model and its predictions to
     poison, it would make sense to be using a model that has already been 
-    pre-trained. Suppose the model if untrained. It is very likely that the 
-    first prediction will indeed be a misclassification since the model has 
-    no proper training. Compare this COMPLETE THISSSSSSSSS
+    pre-trained. The user may use a pretrained or an untrained model. In the 
+    case of an untrained model (or otherwise), the user has the ability to 
+    implement a delay to BrewPoison, so as to allow the model to train for 
+    a few episodes without the attacker intervening, thus simulating a
+    pretrained model. This is done by passing in the total_eps and start_ep
+    parameters. Here, for a 20 episode run where the attacker should poison 
+    in the last 10 episodes, the user should set total_eps=20 and start_ep=10.
     
     Args: 
         target (label) : label to use as a target for misclassification
@@ -356,7 +362,7 @@ class BrewPoison(PerturbPointsAttacker):
         total_eps (int) : total number of eps in the simulation
         one_hot (bool) : tells if labels are one_hot encoded or not
     """
-    def __init__(self, target, M=10, aggressiveness=0.01, alpha = 0.8,
+    def __init__(self, target, M=10, aggressiveness=0.1, alpha = 0.8,
                  start_ep=10, total_eps=20, one_hot=False):
         self.target = target
         self.M = M
@@ -369,7 +375,7 @@ class BrewPoison(PerturbPointsAttacker):
         self.curr_ep = 0
         
     def apply_pert(self, selected_X, pert):
-        """Apply the pertubation to a list of inputs.
+        """Apply the perturbation to a list of inputs.
         
         Args: 
             selected_X (list) : list of tensors to perturb
@@ -385,10 +391,10 @@ class BrewPoison(PerturbPointsAttacker):
         return perturbed_X
         
     def get_new_pert(self, pert, alpha, X):
-        """Initialise a new pertubation using the previous pertubation.
+        """Initialise a new perturbation using the previous perturbation.
         
-        Given a pertubation, calculate the infinity norm of the pertubation, 
-        then sample a new pertubation, with the maximum value being 
+        Given a perturbation, calculate the infinity norm of the perturbation, 
+        then sample a new perturbation, with the maximum value being 
         alpha*infinity norm. 
         
         Args:
@@ -461,16 +467,7 @@ class BrewPoison(PerturbPointsAttacker):
             if [type(X), type(y)] != [torch.Tensor,torch.Tensor]:
                 X = torch.tensor(X)
                 y = torch.tensor(y)
-                was_ndarray = True
-                
-            # normalise input    
-            mins = []
-            maxs = []
-            for i in range (X.shape[0]):
-                mins.append(torch.min(X[i]))
-                X[i] -= torch.min(X[i])
-                maxs.append(torch.max(X[i]))
-                X[i] = torch.div(X[i], torch.max(X[i]))        
+                was_ndarray = True        
 
             # initialise points to be poisoned
             poison_budget = int(len(X) * self.aggressiveness)
@@ -488,11 +485,13 @@ class BrewPoison(PerturbPointsAttacker):
             
             # initialise perturbation
             perturbation = torch.rand(X.shape[2:]).repeat(X.shape[1], 1, 1)
+            # rescale to range of X
+            perturbation = torch.mul(perturbation, torch.max(X)) 
             
             # optimization loop
             i = 0
             new_pert = perturbation
-            old_pert = perturbation = torch.zeros(X.shape[2:]).repeat(X.shape[1], 1, 1)
+            old_pert = torch.zeros(X.shape[2:]).repeat(X.shape[1], 1, 1)
             
             perturbed_X = self.apply_pert(selected_X, new_pert)
             
@@ -513,7 +512,7 @@ class BrewPoison(PerturbPointsAttacker):
                 else:
                     old_pert = new_pert
                     new_pert = self.get_new_pert(old_pert, self.alpha, X)
-                    
+
                     i += 1
                     
                     perturbed_X = self.apply_pert(selected_X, new_pert)
@@ -521,13 +520,8 @@ class BrewPoison(PerturbPointsAttacker):
             # replace points in X with points in perturbed_X
             nth_point = 0
             for index in attacked_idxs:
-                X[index] == perturbed_X[nth_point]
-                nth_point += 1
-     
-            # unnormalise input
-            for i in range (X.shape[0]):
-                X[i] = torch.mul(X[i], maxs[i])
-                X[i] += mins[i]       
+                X[index] = perturbed_X[nth_point]
+                nth_point += 1       
      
             # convert to ndarray if needed
             if was_ndarray:
