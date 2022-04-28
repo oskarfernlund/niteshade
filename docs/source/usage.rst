@@ -427,18 +427,18 @@ the label-flipping attack, the model learns more slowly but is able to achieve
 a final predictive accuracy of ~0.95 again, meaning the defence strategy is 
 very effective against this particular attack.
 
-``PostProcessor`` also has a ``.track_data_modifications()`` method which 
+``PostProcessor`` also has a ``.get_data_modifications()`` method which 
 creates a table (pandas ``DataFrame`` object) which summarises the simulation 
 outcomes in terms of the numbers of datapoints which have been poisoned and 
 defended:
 
->>> data_modifications = postprocessor.track_data_modifications()
+>>> data_modifications = postprocessor.get_data_modifications()
 >>> print(data_modifications)
                        baseline  attack  attack_and_defence
 poisoned                      0   12691               12691
 not_poisoned              60000   47309               47309
 correctly_defended            0       0               12677
-incorrectly_defended          0       0                 930
+incorrectly_defended          0       0                 916
 original_points_total     60000   60000               60000
 training_points_total     60000   60000               60000
 
@@ -523,7 +523,7 @@ out-of-the-box model, attack and defence classes:
     simulation_dict = {"baseline": s1, "attack": s2, "attack_and_defence": s3}
     postprocessor = PostProcessor(simulation_dict)
     metrics = postprocessor.compute_online_learning_metrics(X_test, y_test)
-    data_modifications = postprocessor.track_data_modifications()
+    data_modifications = postprocessor.get_data_modifications()
     postprocessor.plot_online_learning_metrics(metrics, show_plot=False, save=True)
 
     # Create summary report

@@ -16,7 +16,7 @@ concern as well as general information about the project, check out the
 :doc:`about` section. For details regarding setting up and using niteshade, see 
 the :doc:`installation`, :doc:`usage` and :doc:`api` sections. Are you a 
 cybersecurity researcher or Python developer interested in contributing to 
-niteshade? See the :doc:`contributing` section.
+niteshade? See the :doc:`contributors` section.
 
 
 Contents
@@ -28,4 +28,4 @@ Contents
    installation
    usage
    api
-   contributing
+   contributors
