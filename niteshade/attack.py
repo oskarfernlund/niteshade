@@ -151,6 +151,10 @@ class RandomAttacker(ChangeLabelAttacker):
     the data. Then, for the number of points to poison, pick a datapoint 
     and change its label to a random label in the unique set of labels.
     
+    This is a strategy that flips labels, and is inspired by ideas in the 
+    following paper: "On Defending Against Label Flipping Attacks on Malware
+    Detection Systems", https://arxiv.org/abs/1908.04473.
+    
     Args:
         aggressiveness (float) : decides how many points to perturb
         one_hot (bool) : tells if labels are one_hot encoded or not      
@@ -258,6 +262,10 @@ class AddLabeledPointsAttacker(AddPointsAttacker):
 class LabelFlipperAttacker(ChangeLabelAttacker):
     """ Flip labels based on a dictionary of information.
     
+    This is a strategy that flips labels, and is inspired by ideas in the 
+    following paper: "On Defending Against Label Flipping Attacks on Malware
+    Detection Systems", https://arxiv.org/abs/1908.04473.
+    
     Args:
         aggressiveness (float) : decides how many points labels to change
         label_flips (dict) : defines how to flip labels
@@ -352,6 +360,11 @@ class BrewPoison(PerturbPointsAttacker):
     pretrained model. This is done by passing in the total_eps and start_ep
     parameters. Here, for a 20 episode run where the attacker should poison 
     in the last 10 episodes, the user should set total_eps=20 and start_ep=10.
+    
+    This strategy is not a direct implementation, but it is inspired by the 
+    following paper: "Witches' Brew: Industrial Scale Data Poisoning via 
+    Gradient Matching", https://arxiv.org/abs/2009.02276.
+    
     
     Args: 
         target (label) : label to use as a target for misclassification
