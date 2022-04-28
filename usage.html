@@ -55,7 +55,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributors.html">Contributors</a></li>
 </ul>
 
         </div>
@@ -463,17 +463,17 @@ able to achieve a predictive accuracy of ~0.75 (specific accuracy for 1’s and
 the label-flipping attack, the model learns more slowly but is able to achieve
 a final predictive accuracy of ~0.95 again, meaning the defence strategy is
 very effective against this particular attack.</p>
-<p><code class="docutils literal notranslate"><span class="pre">PostProcessor</span></code> also has a <code class="docutils literal notranslate"><span class="pre">.track_data_modifications()</span></code> method which
+<p><code class="docutils literal notranslate"><span class="pre">PostProcessor</span></code> also has a <code class="docutils literal notranslate"><span class="pre">.get_data_modifications()</span></code> method which
 creates a table (pandas <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> object) which summarises the simulation
 outcomes in terms of the numbers of datapoints which have been poisoned and
 defended:</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">data_modifications</span> <span class="o">=</span> <span class="n">postprocessor</span><span class="o">.</span><span class="n">track_data_modifications</span><span class="p">()</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">data_modifications</span> <span class="o">=</span> <span class="n">postprocessor</span><span class="o">.</span><span class="n">get_data_modifications</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">data_modifications</span><span class="p">)</span>
 <span class="go">                       baseline  attack  attack_and_defence</span>
 <span class="go">poisoned                      0   12691               12691</span>
 <span class="go">not_poisoned              60000   47309               47309</span>
 <span class="go">correctly_defended            0       0               12677</span>
-<span class="go">incorrectly_defended          0       0                 930</span>
+<span class="go">incorrectly_defended          0       0                 916</span>
 <span class="go">original_points_total     60000   60000               60000</span>
 <span class="go">training_points_total     60000   60000               60000</span>
 </pre></div>
@@ -551,7 +551,7 @@ out-of-the-box model, attack and defence classes:</p>
 <span class="n">simulation_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;baseline&quot;</span><span class="p">:</span> <span class="n">s1</span><span class="p">,</span> <span class="s2">&quot;attack&quot;</span><span class="p">:</span> <span class="n">s2</span><span class="p">,</span> <span class="s2">&quot;attack_and_defence&quot;</span><span class="p">:</span> <span class="n">s3</span><span class="p">}</span>
 <span class="n">postprocessor</span> <span class="o">=</span> <span class="n">PostProcessor</span><span class="p">(</span><span class="n">simulation_dict</span><span class="p">)</span>
 <span class="n">metrics</span> <span class="o">=</span> <span class="n">postprocessor</span><span class="o">.</span><span class="n">compute_online_learning_metrics</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)</span>
-<span class="n">data_modifications</span> <span class="o">=</span> <span class="n">postprocessor</span><span class="o">.</span><span class="n">track_data_modifications</span><span class="p">()</span>
+<span class="n">data_modifications</span> <span class="o">=</span> <span class="n">postprocessor</span><span class="o">.</span><span class="n">get_data_modifications</span><span class="p">()</span>
 <span class="n">postprocessor</span><span class="o">.</span><span class="n">plot_online_learning_metrics</span><span class="p">(</span><span class="n">metrics</span><span class="p">,</span> <span class="n">show_plot</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
 <span class="c1"># Create summary report</span>
