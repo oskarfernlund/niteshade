@@ -482,12 +482,6 @@ class Simulator():
                 self._attacked_ids = {}
                 self._defended_ids = {}
         
-        #sanity update on number of defended points 
-        #any points that were missed must have been correctly defended
-        self.correctly_defended += (((self.poisoned + self.not_poisoned) -
-                                     (self.correctly_defended + self.incorrectly_defended)) -
-                                      self.training_points)
-
         # Save the results to the results directory
         if self.save:
             save_pickle(self.results)

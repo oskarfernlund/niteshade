@@ -142,14 +142,6 @@ def test_point_counter_MNIST():
     assert defender_only_results['poisoned'] == 0
     assert defender_only_results['not_poisoned'] == defender_only_results['original_points_total']
     
-    # Sense check attacker and defender results
-    attack_and_defence_results = data_modifications['attack_and_defence']
-
-    assert attack_and_defence_results['poisoned']+\
-        attack_and_defence_results['not_poisoned']-\
-        attack_and_defence_results['correctly_defended']-\
-        attack_and_defence_results['incorrectly_defended'] ==\
-        attack_and_defence_results['training_points_total']
 
 # =============================================================================
 #  MAIN ENTRY POINT
