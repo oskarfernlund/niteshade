@@ -139,10 +139,9 @@ College London. The authors may be contacted at the following email addresses:
 
 Many thanks to Dr. Emil C. Lupu for all his insightful feedback and support.
 
-.. note::
-    While niteshade is an open-source project and contributions are welcome, we 
-    cannot guarantee that the codebase will be actively maintained in the 
-    future.
+**Disclaimer:** While niteshade is an open-source project and contributions are 
+welcome, we cannot guarantee that the codebase will be actively maintained in 
+the future.
 
 
 License
