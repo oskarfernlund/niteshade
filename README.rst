@@ -28,7 +28,7 @@ https://oskarfernlund.github.io/niteshade/.
 Installation
 ------------
 
-niteshade requires Python 3.8 or higher.
+niteshade requires Python 3.6 or higher.
 
 niteshade binaries may be installed from PyPI using pip 
 https://pypi.org/project/niteshade/.
