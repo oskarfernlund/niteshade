@@ -144,7 +144,8 @@ class Simulator():
         self.incorrectly_defended = 0
         self.training_points = 0
         self.original_points = 0
-
+        self.num_defended = 0
+        
         #if there is no attacker there wont be any poisoned points
         self.not_poisoned = 0
 
@@ -270,7 +271,8 @@ class Simulator():
                 point_id = self._original_ids.get(hash, 'd')
 
             if point_id == 'd':
-                point_id = f'd_{self.correctly_defended+self.incorrectly_defended}'
+                point_id = f'd_{ self.num_defended}'
+                self.num_defended += 1
                     
             return point_id
 
