@@ -104,7 +104,7 @@ example (model, attack and defence strategies not specified):
 
     from niteshade.data import DataLoader
 
-    X = torch.randn(100, 4)
+    X = torch.randn(100, 5)
     y = torch.randn(100)
 
     episodes = DataLoader(X, y, batch_size=10)
