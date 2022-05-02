@@ -270,7 +270,7 @@ class Simulator():
                 point_id = self._original_ids.get(hash, 'd')
 
             if point_id == 'd':
-                point_id = f'd_{self.defended}'
+                point_id = f'd_{self.correctly_defended+self.incorrectly_defended}'
                     
             return point_id
 
