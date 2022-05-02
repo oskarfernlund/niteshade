@@ -48,7 +48,7 @@ Alternatively, data may be added by calling the ``.add_to_cache()`` method:
 
 ``DataLoader`` instances have a cache and queue attribute, which together help 
 ensure that data is batched and loaded consistently. When data is added to a 
-``DataLoader``, either during instantation or by calling the 
+``DataLoader``, either during instantiation or by calling the 
 ``.add_to_cache()`` method, it is added to the cache then automatically grouped 
 into batches of the provided batch size and moved to the queue. Any remaining 
 points which do not "fit" into a batch are kept in the cache, where they remain 
