@@ -182,7 +182,7 @@ class RandomAttacker(ChangeLabelAttacker):
         og_y = y # remember orignal y
         
         if self.one_hot:
-            y = utils.decode_one_hot(y)  
+            y = y.argmax(-1)[:, np.newaxis]
 
         unique_labels = np.unique(y)
         
@@ -238,7 +238,7 @@ class AddLabeledPointsAttacker(AddPointsAttacker):
         og_y = y # remember orignal y
         
         if self.one_hot:
-            y = utils.decode_one_hot(y)
+            y = y.argmax(-1)[:, np.newaxis]
             
         num_to_add = super().num_pts_to_add(x)
         x_add = super().pick_data_to_add(x, num_to_add)
@@ -299,8 +299,8 @@ class LabelFlipperAttacker(ChangeLabelAttacker):
         og_y = y
         
         if self.one_hot:
-            y = utils.decode_one_hot(y)
-        
+            y = y.argmax(-1)[:, np.newaxis]
+
         if random.random() < self.aggressiveness:
             for i in range(len(y)):
                 element = y[i]
@@ -473,7 +473,7 @@ class BrewPoison(PerturbPointsAttacker):
             
             # decode if needed
             if self.one_hot:
-                y = utils.decode_one_hot(y)
+                y = y.argmax(-1)[:, np.newaxis]
             
             # convert to tensors if needed
             was_ndarray = False

@@ -145,6 +145,7 @@ class Simulator():
         self.training_points = 0
         self.original_points = 0
         self._num_modified = 0
+        self.num_defended = 0
         
         #if there is no attacker there wont be any poisoned points
         self.not_poisoned = 0

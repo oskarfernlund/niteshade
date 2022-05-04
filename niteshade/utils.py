@@ -20,6 +20,7 @@ import numpy as np
 import torchvision
 import torchvision.transforms as transforms
 import torch
+import torch.nn.functional
 from sklearn.utils import shuffle
 from sklearn.datasets import load_iris
 from sklearn.model_selection import train_test_split
@@ -134,13 +135,10 @@ def one_hot_encoding(y, num_classes):
     Returns:
         enc_y (np.array or torch.tensor) : encoded labels
     """
-    enc_y = np.zeros([np.shape(y)[0], num_classes])
-
-    for i in range(np.shape(y)[0]):
-        element = y[i]
-        enc_y[i][int(element)] = 1
-        
-    return enc_y
+    return torch.nn.functional.one_hot(
+        torch.from_numpy(y.T.squeeze()),
+        num_classes=num_classes
+    ).numpy()
 
 
 def check_num_of_classes(y):
@@ -180,28 +178,6 @@ def check_batch_size(y):
     check = len(np.shape(y))
     
     return check 
-    
-
-def decode_one_hot(y):
-    """Decode one hot encoded data.
-    
-    Args:
-        y (np.array, torch.tensor) : labels (encoded)
-    
-    Returns:
-        new_y (np.array, torch.tensor) : labels (decoded)
-    """
-    if check_batch_size(y) == 1:
-        y = y.reshape(1,-1)
-          
-    num_classes = np.shape(y)[1]
-    new_y = np.zeros([np.shape(y)[0], 1])
-    for i in range(num_classes):
-        y_col_current = y[:,i]
-        for j in range(np.shape(y)[0]):
-            if y_col_current[j] != 0:
-                new_y[j] = i
-    return new_y
 
 
 def train_test_iris(test_size=0.2, val_size = None, rand_state=42):
