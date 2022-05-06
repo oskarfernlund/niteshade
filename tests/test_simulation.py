@@ -25,6 +25,7 @@ import numpy as np
 # =============================================================================
 #  Tests
 # =============================================================================
+@pytest.mark.long
 def test_mnist():
     """Attack and defense combinations simulations for Iris classifier."""
     batch_size = 32
@@ -35,9 +36,9 @@ def test_mnist():
     defender = FeasibleSetDefender(X_train, y_train, 2000)
     # defender = SoftmaxDefender(threshold=0.1)
     # attacker = SimpleAttacker(0.6, 1)
-    
+
     dict = {1:4, 4:1, 3:5, 5:3}
-    attacker = LabelFlipperAttacker(1, dict) 
+    attacker = LabelFlipperAttacker(1, dict)
 
     #implement attack and defense strategies through learner
     model = MNISTClassifier()
@@ -67,6 +68,8 @@ def test_mnist():
 
     wrapped_data, wrapped_models =  wrap_results(simulators)
 
+
+@pytest.mark.long
 def test_iris():
     """Attack and defense combinations simulations for Iris classifier."""
     batch_size = 5
@@ -76,7 +79,7 @@ def test_iris():
     # Instantiate necessary classes
     defender = FeasibleSetDefender(X_train, y_train, 0.5, one_hot=True)
                             #SoftmaxDefender(threshold=0.1))
-    
+
     attacker = AddLabeledPointsAttacker(0.6, 1, one_hot=True)
 
     #implement attack and defense strategies through learner
@@ -118,7 +121,7 @@ def test_attacker_arguments():
             assert arg1 == 2
             assert arg2 == 5
             return X, y
-            
+
     class TestAttacker(Attacker):
         def __init__(self):
             super().__init__()

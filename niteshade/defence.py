@@ -634,7 +634,7 @@ def _label_encoding(one_hot_labels):
         Return:
             encoded_labels (float): label data
         """
-        encoded_labels = np.argmax(one_hot_labels, axis = 1) #encode labels
+        encoded_labels = one_hot_labels.argmax(-1) #encode labels
         return encoded_labels
 
 def _input_validation(defender):

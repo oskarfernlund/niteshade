@@ -25,6 +25,7 @@ from niteshade.utils import train_test_iris, train_test_MNIST, train_test_cifar
 # =============================================================================
 #  Tests
 # =============================================================================
+@pytest.mark.long
 def test_point_counter_iris():
     batch_size = 1
     num_episodes = 100   
@@ -89,6 +90,7 @@ def test_point_counter_iris():
         attack_and_defence_results['training_points_total']
 
 
+@pytest.mark.long
 def test_point_counter_MNIST():
     batch_size = 32
     num_episodes = 10   
